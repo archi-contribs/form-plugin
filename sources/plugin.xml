@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?eclipse version="3.4"?>
+
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.archicontribs.form.FormEditorHandler"
+            id="org.archicontribs.form.showForm"
+            name="showForm">
+         <commandParameter
+               id="org.archicontribs.form.showFormName"
+               name="formName"
+               optional="false">
+         </commandParameter>
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:ArchimateDiagramEditorContextMenuProvider?after=additions">
+         <separator
+               name="org.archicontribs.form.separator"
+               visible="true">
+         </separator>
+         <dynamic
+               class="org.archicontribs.form.FormMenu"
+               id="org.archicontribs.form.formMenuContributionItem">
+         </dynamic>
+      </menuContribution>
+   </extension>
+</plugin>

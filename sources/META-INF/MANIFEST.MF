@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: form
+Bundle-SymbolicName: org.archicontribs.form;singleton:=true
+Bundle-Version: 0.1.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.archimatetool.editor,
+ com.archimatetool.canvas,
+ org.eclipse.core.runtime,
+ com.archimatetool.model
+Bundle-ClassPath: .,
+ lib/json-simple-1.1.1.jar
