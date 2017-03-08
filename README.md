@@ -3,7 +3,7 @@
 This is a plugin for Archi, the Archimate tool.
 
 ## Archi versions compatibility
-The plugin works with the version 4 ofArchi (in Beta version at the moment)
+The plugin works with the version 4 of Archi (in Beta version at the moment)
 
 ## Installation instructions :
 * download the latest **org.archicontribs.form-xxxx.jar** and **org.archicontribs.form.conf** files to your Archi **plugins** folder

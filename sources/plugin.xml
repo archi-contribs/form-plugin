@@ -18,16 +18,25 @@
    <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            allPopups="false"
+            allPopups="true"
             locationURI="popup:ArchimateDiagramEditorContextMenuProvider?after=additions">
          <separator
                name="org.archicontribs.form.separator"
                visible="true">
          </separator>
-         <dynamic
-               class="org.archicontribs.form.FormMenu"
-               id="org.archicontribs.form.formMenuContributionItem">
-         </dynamic>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            class="org.archicontribs.form.FormMenu"
+            locationURI="popup:ArchimateDiagramEditorContextMenuProvider?after=additions">
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="org.archicontribs.form.preferences.FormPreferencePage"
+            id="org.archicontribs.form.FormPreferencePage"
+            name="form plugin">
+      </page>
    </extension>
 </plugin>
