@@ -499,7 +499,7 @@ public class FormDialog extends Dialog {
 			combo.setData("excelCell", excelCell);
 		}
 
-		if ( tooltip == null ) {
+		if ( tooltip != null ) {
 			combo.setToolTipText(tooltip);
 		}
 
@@ -579,7 +579,7 @@ public class FormDialog extends Dialog {
 			check.setData("excelCell", excelCell);
 		}
 
-		if ( tooltip == null ) {
+		if ( tooltip != null ) {
 			check.setToolTipText(tooltip);
 		}
 
