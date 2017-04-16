@@ -272,6 +272,8 @@ public class FormDialog extends Dialog {
 				case "label" : createLabel(jsonObject, composite); break;
 				case "table" : createTable(jsonObject, composite); break;
 				case "text" :  createText(jsonObject, composite); break;
+				case "combo": createCombo(jsonObject, composite); break;
+				case "check": createCheck(jsonObject, composite); break;
 				default : throw new RuntimeException("Do not know how to create "+jsonObject.get("class"));
 			}
 		}
@@ -424,6 +426,168 @@ public class FormDialog extends Dialog {
 		text.addModifyListener(textModifyListener);
 
 		return text;
+	}
+	
+	/**
+	 * Create a Combo control<br> 
+	 * <br>
+	 * called by the createObjects() method
+	 * @param jsonObject the JSON object to parse
+	 * @param composite the composite where the control will be created
+	 */
+	private CCombo createCombo(JSONObject jsonObject, Composite composite) {
+		CCombo combo = new CCombo(composite, SWT.NONE);
+		combo.setEditable(false);
+
+		@SuppressWarnings("unchecked")
+		String[] values = (String[])((JSONArray)getIgnoreCase(jsonObject, "values")).toArray(new String[0]);
+		if ( values == null ) {
+			throw new RuntimeException("\"values\" property are mandatory for combo objects.");
+		} else {
+			combo.setItems(values);
+		}
+		
+		String value = (String)getIgnoreCase(jsonObject, "value", "");
+		String attributeValue = (String)getAttribute(diagramModel, value); 
+		if ( attributeValue != null ) combo.setText(attributeValue);
+		combo.pack();
+		
+		int x = (int)(long)getIgnoreCase(jsonObject, "x", 0L);
+		int y = (int)(long)getIgnoreCase(jsonObject, "y", 0L);
+		int width = (int)(long)getIgnoreCase(jsonObject, "width", (long)combo.getSize().x);
+		int height = (int)(long)getIgnoreCase(jsonObject, "height", (long)combo.getSize().y);
+		String background = (String)getIgnoreCase(jsonObject, "background");
+		String foreground = (String)getIgnoreCase(jsonObject, "foreground");
+		String tooltip = (String)getIgnoreCase(jsonObject, "tooltip");
+		String excelSheet = (String)getIgnoreCase(jsonObject, "excelSheet");
+		String excelCell = (String)getIgnoreCase(jsonObject, "excelCell");
+		
+		
+		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+value+"\" ("+attributeValue+")");
+		if ( logger.isTraceEnabled() ) {
+			logger.trace("      x = "+x);
+			logger.trace("      y = "+y);
+			logger.trace("      width = "+width);
+			logger.trace("      height = "+height);
+			logger.trace("      background = "+background);
+			logger.trace("      foreground = "+foreground);
+			logger.trace("      values = "+values);
+			logger.trace("      tooltip = "+tooltip);
+			logger.trace("      excelSheet = "+excelSheet);
+			logger.trace("      excelCell = "+excelCell);
+		}
+		
+		combo.setLocation(x, y);
+		combo.setSize(width, height);
+
+		if ( background != null ) {
+			String[] colorArray = background.split(",");
+			combo.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+		}
+
+		if ( foreground != null ) {
+			String[] colorArray = foreground.split(",");
+			combo.setForeground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+		}
+
+		combo.setData("variable", (String)getIgnoreCase(jsonObject, "value"));
+		combo.setData("eObject", diagramModel);
+		
+		if ( excelSheet != null ) {
+			excelSheets.add(excelSheet);
+			combo.setData("excelSheet", excelSheet);
+			combo.setData("excelCell", excelCell);
+		}
+
+		if ( tooltip == null ) {
+			combo.setToolTipText(tooltip);
+		}
+
+		//TODO : manage default value
+
+		combo.addModifyListener(comboModifyListener);
+
+		return combo;
+	}
+	
+	/**
+	 * Create a check button control<br> 
+	 * <br>
+	 * called by the createObjects() method
+	 * @param jsonObject the JSON object to parse
+	 * @param composite the composite where the control will be created
+	 */
+	private Button createCheck(JSONObject jsonObject, Composite composite) {
+		Button check = new Button(composite, SWT.CHECK);
+
+		String value = (String)getIgnoreCase(jsonObject, "value", "");
+		String attributeValue = (String)getAttribute(diagramModel, value);
+		@SuppressWarnings("unchecked")
+		String[] values = (String[])((JSONArray)getIgnoreCase(jsonObject, "values")).toArray(new String[0]);
+		if ( values!=null && values.length!=0 ) {
+			check.setData("values", values);
+			check.setSelection(values[0].equals(value));
+		} else {
+			check.setSelection(value!=null);
+		}
+		check.pack();
+		
+		
+		int x = (int)(long)getIgnoreCase(jsonObject, "x", 0L);
+		int y = (int)(long)getIgnoreCase(jsonObject, "y", 0L);
+		int width = (int)(long)getIgnoreCase(jsonObject, "width", (long)check.getSize().x);
+		int height = (int)(long)getIgnoreCase(jsonObject, "height", (long)check.getSize().y);
+		String background = (String)getIgnoreCase(jsonObject, "background");
+		String foreground = (String)getIgnoreCase(jsonObject, "foreground");
+		String tooltip = (String)getIgnoreCase(jsonObject, "tooltip");
+		String excelSheet = (String)getIgnoreCase(jsonObject, "excelSheet");
+		String excelCell = (String)getIgnoreCase(jsonObject, "excelCell");
+		
+		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+value+"\" ("+attributeValue+")");
+		if ( logger.isTraceEnabled() ) {
+			logger.trace("      x = "+x);
+			logger.trace("      y = "+y);
+			logger.trace("      width = "+width);
+			logger.trace("      height = "+height);
+			logger.trace("      background = "+background);
+			logger.trace("      foreground = "+foreground);
+			logger.trace("      values = "+values);
+			logger.trace("      tooltip = "+tooltip);
+			logger.trace("      excelSheet = "+excelSheet);
+			logger.trace("      excelCell = "+excelCell);
+		}
+		
+		check.setLocation(x, y);
+		check.setSize(width, height);
+
+		if ( background != null ) {
+			String[] colorArray = background.split(",");
+			check.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+		}
+
+		if ( foreground != null ) {
+			String[] colorArray = foreground.split(",");
+			check.setForeground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+		}
+
+		check.setData("variable", (String)getIgnoreCase(jsonObject, "value"));
+		check.setData("eObject", diagramModel);
+		
+		if ( excelSheet != null ) {
+			excelSheets.add(excelSheet);
+			check.setData("excelSheet", excelSheet);
+			check.setData("excelCell", excelCell);
+		}
+
+		if ( tooltip == null ) {
+			check.setToolTipText(tooltip);
+		}
+
+		//TODO : manage default value
+
+		check.addSelectionListener(checkButtonSelectionListener);
+
+		return check;
 	}
 
 	/**
@@ -771,27 +935,27 @@ public class FormDialog extends Dialog {
 
 				case "check":
 					editor = new TableEditor(table);
-					Button button = new Button(table, SWT.CHECK);
-					button.pack();
-					editor.minimumWidth = button.getSize().x;
+					Button check = new Button(table, SWT.CHECK);
+					check.pack();
+					editor.minimumWidth = check.getSize().x;
 					editor.horizontalAlignment = SWT.CENTER;
-					button.setData("eObject", eObject);
-					button.setData("variable", (String)jsonArray.get(columnNumber));
+					check.setData("eObject", eObject);
+					check.setData("variable", (String)jsonArray.get(columnNumber));
 
 					String[] values = (String[])table.getColumn(columnNumber).getData("values");
 					String value = getAttribute(eObject, (String)jsonArray.get(columnNumber));
 					if ( values!=null && values.length!=0 ) {
-						button.setData("values", table.getColumn(columnNumber).getData("values"));
-						button.setSelection(values[0].equals(value));
+						check.setData("values", table.getColumn(columnNumber).getData("values"));
+						check.setSelection(values[0].equals(value));
 					} else {
-						button.setSelection(value!=null);
+						check.setSelection(value!=null);
 					}
 
 					//TODO : manage default value
 
-					button.addSelectionListener(checkButtonSelectionListener);
+					check.addSelectionListener(checkButtonSelectionListener);
 
-					editor.setEditor(button, tableItem, columnNumber);
+					editor.setEditor(check, tableItem, columnNumber);
 					editors[columnNumber] = editor;
 					break;
 					
