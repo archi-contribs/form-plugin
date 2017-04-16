@@ -14,19 +14,22 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
  * 
  * @author Herve Jouin
  *
- * v0.1.0 :			28/11/2016		Plug-in creation
- * v0.2.0 :			04/03/2017		Solve several bugs
- * 									Add a preference page
- * 									Add log4j support for logging
- * 									Add filter in dynamic table items generation
- * 									Change RCP methods used to be more friendly with other plugins
- * 									The keywords are now case insensitive
- * 									The tables are now sortable 
+ * v0.1 :		28/11/2016		Plug-in creation
+ * v0.2 :		04/03/2017		Solve several bugs
+ * 								Add a preference page
+ * 								Add log4j support for logging
+ * 								Add filter in dynamic table items generation
+ * 								Change RCP methods to insert entries in menus in order to be more friendly with other plugins
+ * 								The keywords are now case insensitive
+ * 								Add ability to sort table columns
+ * v1.0 :		16/04/2017		Add ability to change background color of all components
+ * 								Add ability to export to Excel files
+ * 								Update dynamic tables filter to add "AND" and "OR" genre
  */
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 	
-	public static final String pluginVersion = "0.2.0";
+	public static final String pluginVersion = "1.0";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	

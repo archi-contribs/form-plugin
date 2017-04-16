@@ -11,6 +11,7 @@ import org.eclipse.jface.preference.*;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -33,6 +34,7 @@ import org.eclipse.ui.IWorkbench;
 public class FormPreferencePage extends FieldEditorPreferencePage	implements IWorkbenchPreferencePage {
 	private static String[][] LOGGER_MODES = {{"Disabled", "disabled"}, {"Simple mode", "simple"}, {"Expert mode", "expert"}};
 	private static String[][] LOGGER_LEVELS = {{"Fatal", "fatal"}, {"Error", "error"}, {"Warn", "warn"}, {"Info", "info"}, {"Debug", "debug"}, {"Trace", "trace"}};
+	private static final Color RED_COLOR = new Color(null, 240, 0, 0);
 	
 	private static String HELP_ID = "com.archimatetool.help.FormPreferencePage";
 	
@@ -97,6 +99,10 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
         loggerTabItem.setText("Logger");
         loggerTabItem.setControl(loggerComposite);
         
+        Label note = new Label(loggerComposite, SWT.NONE);
+        note = new Label(loggerComposite, SWT.NONE);
+        note.setText(" Please be aware that enabling debug or, even more, trace level has got important impact on performances!\n Activate only if required.");
+        note.setForeground(RED_COLOR);
     	
     	loggerModeRadioGroupEditor = new RadioGroupFieldEditor("loggerMode", "", 1, LOGGER_MODES, loggerComposite, true);
     	addField(loggerModeRadioGroupEditor);

@@ -48,37 +48,46 @@ public class FormMenu extends ExtensionContributionFactory {
 			
 			@SuppressWarnings("unchecked")
 			Iterator<JSONObject> iterator = forms.iterator();
+			boolean isFirst = true;
             while (iterator.hasNext()) {
             	JSONObject form = iterator.next();
-    			String name = (String) form.get("name");
-    			if ( logger.isDebugEnabled() ) logger.debug("Found form \""+name+"\"");
+    			String name = (String)FormDialog.getIgnoreCase(form,"name");
     			
-    			menuIcon = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle(FormPlugin.PLUGIN_ID), new Path("icons/array.jpg"), null));
-    			
-    			Map<String, Object> commandParameters = new HashMap<String, Object>();
-    			commandParameters.put("org.archicontribs.form.showFormName", name);
-    			
-    			CommandContributionItemParameter p = new CommandContributionItemParameter(
-    					PlatformUI.getWorkbench().getActiveWorkbenchWindow(),	// serviceLocator
-    					"org.archicontribs.form.formMenuContributionItem",		// id
-    					"org.archicontribs.form.showForm",						// commandId
-    					commandParameters,										// parameters
-    					menuIcon,												// icon
-    					null,													// disabledIcon
-    					null,													// hoverIcon
-    					name,													// label
-    					null,													// mnemonic
-    					null,													// tooltip 
-    					CommandContributionItem.STYLE_PUSH,						// style
-    					null,													// helpContextId
-    					true);													// visibleEnabled
-    			
-    			if ( logger.isDebugEnabled() ) logger.debug("Adding menu \""+name+"\"");
-    			
-    			CommandContributionItem item = new CommandContributionItem(p);
-    	        item.setVisible(true);
-    	        additions.addContributionItem(new Separator(), null);
-    	        additions.addContributionItem(item, null);
+	    		if ( name != null ) {    			
+	    			if ( logger.isDebugEnabled() ) logger.debug("Found form \""+name+"\"");
+	    			
+	    			menuIcon = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle(FormPlugin.PLUGIN_ID), new Path("icons/array.jpg"), null));
+	    			
+	    			Map<String, Object> commandParameters = new HashMap<String, Object>();
+	    			commandParameters.put("org.archicontribs.form.showFormName", name);
+	    			
+	    			CommandContributionItemParameter p = new CommandContributionItemParameter(
+	    					PlatformUI.getWorkbench().getActiveWorkbenchWindow(),	// serviceLocator
+	    					"org.archicontribs.form.formMenuContributionItem",		// id
+	    					"org.archicontribs.form.showForm",						// commandId
+	    					commandParameters,										// parameters
+	    					menuIcon,												// icon
+	    					null,													// disabledIcon
+	    					null,													// hoverIcon
+	    					name,													// label
+	    					null,													// mnemonic
+	    					null,													// tooltip 
+	    					CommandContributionItem.STYLE_PUSH,						// style
+	    					null,													// helpContextId
+	    					true);													// visibleEnabled
+	    			
+	    			if ( logger.isDebugEnabled() ) logger.debug("Adding menu \""+name+"\"");
+	    			
+	    			CommandContributionItem item = new CommandContributionItem(p);
+	    	        item.setVisible(true);
+	    	        if ( isFirst ) {
+	    	        	additions.addContributionItem(new Separator(), null);
+	    	        	isFirst = false;
+	    	        }
+	    	        additions.addContributionItem(item, null);
+	    		} else {
+	    			throw new RuntimeException("Name property is mandatory for forms.");
+	    		}
             }
             
 		} catch (FileNotFoundException e) {
@@ -90,6 +99,8 @@ public class FormMenu extends ExtensionContributionFactory {
 				FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+FormPlugin.configFilePath+"\"",e);
 			else
 				FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+FormPlugin.configFilePath+"\"\n\nUnexpected "+e.getUnexpectedObject().toString()+" at position "+e.getPosition());
+		} catch (RuntimeException e) {
+			FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+FormPlugin.configFilePath+"\"",e);
 		}
 	}
 }
