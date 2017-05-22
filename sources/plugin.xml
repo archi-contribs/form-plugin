@@ -5,13 +5,18 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="org.archicontribs.form.FormEditorHandler"
+            defaultHandler="org.archicontribs.form.menu.FormEditorHandler"
             id="org.archicontribs.form.showForm"
             name="showForm">
          <commandParameter
-               id="org.archicontribs.form.showFormName"
-               name="formName"
+               id="org.archicontribs.form.formRank"
+               name="formRank"
                optional="false">
+         </commandParameter>
+         <commandParameter
+               id="org.archicontribs.form.selectionRank"
+               name="selectionRank"
+               optional="true">
          </commandParameter>
       </command>
    </extension>
@@ -19,7 +24,7 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             allPopups="false"
-            class="org.archicontribs.form.FormMenu"
+            class="org.archicontribs.form.menu.FormMenu"
             locationURI="popup:ArchimateDiagramEditorContextMenuProvider?after=additions">
       </menuContribution>
    </extension>

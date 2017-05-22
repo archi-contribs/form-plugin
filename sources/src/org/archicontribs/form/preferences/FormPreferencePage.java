@@ -7,6 +7,8 @@ import org.apache.log4j.Level;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
 import org.archicontribs.form.FormDialog;
+import org.archicontribs.form.preferences.FormFileFieldEditor;
+import org.archicontribs.form.preferences.FormTextFieldEditor;
 import org.eclipse.jface.preference.*;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -41,7 +43,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 	private Composite loggerComposite;
 	
 	private RadioGroupFieldEditor loggerModeRadioGroupEditor;
-	private FileFieldEditor filenameFileFieldEditor;
+	private FormFileFieldEditor filenameFileFieldEditor;
 	private RadioGroupFieldEditor loggerLevelRadioGroupEditor;
 	private FormTextFieldEditor expertTextFieldEditor;
 	private Group simpleModeGroup;
@@ -55,8 +57,6 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 		super(FieldEditorPreferencePage.GRID);
 		if ( logger.isDebugEnabled() ) logger.debug("Setting preference store");
 		setPreferenceStore(FormPlugin.INSTANCE.getPreferenceStore());
-		
-		//TODO: ajouter une préférence pour la création automatique des propriétés en cas de valeur par défaut
 	}
 	
 	/**
