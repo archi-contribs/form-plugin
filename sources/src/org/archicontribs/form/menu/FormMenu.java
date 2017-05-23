@@ -59,16 +59,15 @@ public class FormMenu extends ExtensionContributionFactory {
 		Object[] selection = ((IStructuredSelection) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection()).toArray();
 		ImageDescriptor formMenuIcon = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle(FormPlugin.PLUGIN_ID), new Path("icons/form.jpg"), null));
 		boolean addSeparator = true;
-		int menuEntriesLimit = 10;
-		int menuEntries = 0;
+		int menuEntriesLimit = 5;
 		String configFilename;
-		
+
 		try {
-			configFilename = Paths.get(FormPlugin.configFilePath).toRealPath().toString();
+			configFilename = Paths.get(FormPlugin.pluginsFilename.replace(".jar", "")+".conf").toRealPath().toString();
 		} catch (IOException e1) {
-			configFilename = FormPlugin.configFilePath;
+			configFilename = FormPlugin.pluginsFilename.replace(".jar", "")+".conf";
 		}
-		
+
 		File f = new File(configFilename);
 
 		if( !f.exists() || f.isDirectory() ) {
@@ -92,7 +91,7 @@ public class FormMenu extends ExtensionContributionFactory {
 			// we loop over the forms
 			for ( int formRank = 0; formRank < forms.size(); ++formRank ) {
 				JSONObject form = (JSONObject) forms.get(formRank);
-				
+
 				HashSet<EObject>selected = new HashSet<EObject>();
 				boolean refersToView = false;
 				boolean refersToModel = false;
@@ -100,7 +99,7 @@ public class FormMenu extends ExtensionContributionFactory {
 				String name = FormDialog.getString(form,"name");
 				if ( name.isEmpty() )
 					throw new RuntimeException("Form names cannot be empty.");
-				
+
 				String refers = FormDialog.getString(form,"refers", "");
 				switch ( refers.toLowerCase() ) {
 					case "":
@@ -109,82 +108,81 @@ public class FormMenu extends ExtensionContributionFactory {
 					case "model" : refersToModel = true; break;
 					default : throw new RuntimeException("Unknown \"refers\" value \""+refers+"\".\n\nMust be \"selected\", \"view\" or \"model\".");
 				}
-				
+
 				if ( logger.isDebugEnabled() ) logger.debug("Found form \""+name+"\"");
 
 				JSONObject filter = FormDialog.getJSONObject(form, "filter", null);
 				if ( (filter != null) && logger.isDebugEnabled() ) logger.debug("Applying filter to selected components");
 
 				//we loop over the selected components
+				int menuEntries = 0;
 				for ( int selectionRank = 0; selectionRank < selection.length; ++selectionRank ) {
-					Object obj = selection[selectionRank];
-					EObject selectedObject;
-					switch ( obj.getClass().getSimpleName() ) {
-						case "ArchimateElementEditPart" : selectedObject = ((ArchimateElementEditPart)obj).getModel(); break;
-						case "ArchimateRelationshipEditPart" : selectedObject = ((ArchimateRelationshipEditPart)obj).getModel(); break;
-						case "ArchimateDiagramPart" : selectedObject = ((ArchimateDiagramPart)obj).getModel(); break;
-						case "CanvasDiagramPart" : selectedObject = ((CanvasDiagramPart)obj).getModel(); break;
-						case "SketchDiagramPart" : selectedObject = ((SketchDiagramPart)obj).getModel(); break;
-						case "CanvasBlockEditPart" : selectedObject = ((CanvasBlockEditPart)obj).getModel(); break;
-						case "CanvasStickyEditPart" : selectedObject = ((CanvasStickyEditPart)obj).getModel(); break;
-						case "DiagramConnectionEditPart" : selectedObject = ((DiagramConnectionEditPart)obj).getModel(); break;
-						case "DiagramImageEditPart" : selectedObject = ((DiagramImageEditPart)obj).getModel(); break;
-						case "GroupEditPart" : selectedObject = ((GroupEditPart)obj).getModel(); break;
-						case "NoteEditPart" : selectedObject = ((NoteEditPart)obj).getModel(); break;
-						case "SketchActorEditPart" : selectedObject = ((SketchActorEditPart)obj).getModel(); break;
-						case "SketchGroupEditPart" : selectedObject = ((SketchGroupEditPart)obj).getModel(); break;
-						case "StickyEditPart" : selectedObject = ((StickyEditPart)obj).getModel(); break;
-						default : throw new RuntimeException("Don't know how to deal with objects of class "+obj.getClass().getSimpleName());
-					}
-					
-					if ( refersToView ) {
-				        while ( !(selectedObject instanceof IDiagramModel) ) {
-				        	selectedObject = selectedObject.eContainer();
-				        }
-					}
-					else if ( refersToModel ) {
-						if ( selectedObject instanceof IArchimateDiagramModel )
-							selectedObject = ((IArchimateDiagramModel)selectedObject).getArchimateModel();
-						else
-							selectedObject = ((IDiagramModelArchimateObject)selectedObject).getDiagramModel().getArchimateModel();
-					}
-					
-					// we guarantee than an object is not included in the same menu several times
-					if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, filter)) ) {
-						String menuLabel = FormDialog.expand(name, selectedObject);
-						Map<String, Object> commandParameters = new HashMap<String, Object>();
-						commandParameters.put("org.archicontribs.form.formRank", String.valueOf(formRank));
-						commandParameters.put("org.archicontribs.form.selectionRank", String.valueOf(selectionRank));
-
-						CommandContributionItemParameter p = new CommandContributionItemParameter(
-								PlatformUI.getWorkbench().getActiveWorkbenchWindow(),	// serviceLocator
-								"org.archicontribs.form.formMenuContributionItem",		// id
-								"org.archicontribs.form.showForm",						// commandId
-								commandParameters,										// parameters
-								formMenuIcon,												// icon
-								null,													// disabledIcon
-								null,													// hoverIcon
-								menuLabel,												// label
-								null,													// mnemonic
-								null,													// tooltip 
-								CommandContributionItem.STYLE_PUSH,						// style
-								null,													// helpContextId
-								true);													// visibleEnabled
-
-						if ( logger.isDebugEnabled() ) logger.debug("Adding menu \""+name+"\"");
-
-						CommandContributionItem item = new CommandContributionItem(p);
-						item.setVisible(true);
-						if ( addSeparator ) {
-							additions.addContributionItem(new Separator(), null);
-							addSeparator = false;
+					if ( ++menuEntries <= menuEntriesLimit ) {
+						Object obj = selection[selectionRank];
+						EObject selectedObject;
+						switch ( obj.getClass().getSimpleName() ) {
+							case "ArchimateElementEditPart" : selectedObject = ((ArchimateElementEditPart)obj).getModel(); break;
+							case "ArchimateRelationshipEditPart" : selectedObject = ((ArchimateRelationshipEditPart)obj).getModel(); break;
+							case "ArchimateDiagramPart" : selectedObject = ((ArchimateDiagramPart)obj).getModel(); break;
+							case "CanvasDiagramPart" : selectedObject = ((CanvasDiagramPart)obj).getModel(); break;
+							case "SketchDiagramPart" : selectedObject = ((SketchDiagramPart)obj).getModel(); break;
+							case "CanvasBlockEditPart" : selectedObject = ((CanvasBlockEditPart)obj).getModel(); break;
+							case "CanvasStickyEditPart" : selectedObject = ((CanvasStickyEditPart)obj).getModel(); break;
+							case "DiagramConnectionEditPart" : selectedObject = ((DiagramConnectionEditPart)obj).getModel(); break;
+							case "DiagramImageEditPart" : selectedObject = ((DiagramImageEditPart)obj).getModel(); break;
+							case "GroupEditPart" : selectedObject = ((GroupEditPart)obj).getModel(); break;
+							case "NoteEditPart" : selectedObject = ((NoteEditPart)obj).getModel(); break;
+							case "SketchActorEditPart" : selectedObject = ((SketchActorEditPart)obj).getModel(); break;
+							case "SketchGroupEditPart" : selectedObject = ((SketchGroupEditPart)obj).getModel(); break;
+							case "StickyEditPart" : selectedObject = ((StickyEditPart)obj).getModel(); break;
+							default : throw new RuntimeException("Don't know how to deal with objects of class "+obj.getClass().getSimpleName());
 						}
-						additions.addContributionItem(item, null);
-						if ( ++menuEntries >= menuEntriesLimit ) {
-							if ( logger.isDebugEnabled() ) logger.debug("Limit of "+menuEntriesLimit+" reached. No more menu entries will be created");
-							return;
+
+						if ( refersToView ) {
+							while ( !(selectedObject instanceof IDiagramModel) ) {
+								selectedObject = selectedObject.eContainer();
+							}
 						}
-						selected.add(selectedObject);
+						else if ( refersToModel ) {
+							if ( selectedObject instanceof IArchimateDiagramModel )
+								selectedObject = ((IArchimateDiagramModel)selectedObject).getArchimateModel();
+							else
+								selectedObject = ((IDiagramModelArchimateObject)selectedObject).getDiagramModel().getArchimateModel();
+						}
+
+						// we guarantee than an object is not included in the same menu several times
+						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, filter)) ) {
+							String menuLabel = FormDialog.expand(name, selectedObject);
+							Map<String, Object> commandParameters = new HashMap<String, Object>();
+							commandParameters.put("org.archicontribs.form.formRank", String.valueOf(formRank));
+							commandParameters.put("org.archicontribs.form.selectionRank", String.valueOf(selectionRank));
+
+							CommandContributionItemParameter p = new CommandContributionItemParameter(
+									PlatformUI.getWorkbench().getActiveWorkbenchWindow(),	// serviceLocator
+									"org.archicontribs.form.formMenuContributionItem",		// id
+									"org.archicontribs.form.showForm",						// commandId
+									commandParameters,										// parameters
+									formMenuIcon,												// icon
+									null,													// disabledIcon
+									null,													// hoverIcon
+									menuLabel,												// label
+									null,													// mnemonic
+									null,													// tooltip 
+									CommandContributionItem.STYLE_PUSH,						// style
+									null,													// helpContextId
+									true);													// visibleEnabled
+
+							if ( logger.isDebugEnabled() ) logger.debug("Adding menu \""+name+"\"");
+
+							CommandContributionItem item = new CommandContributionItem(p);
+							item.setVisible(true);
+							if ( addSeparator ) {
+								additions.addContributionItem(new Separator(), null);
+								addSeparator = false;
+							}
+							additions.addContributionItem(item, null);
+							selected.add(selectedObject);
+						}
 					}
 				}
 			}

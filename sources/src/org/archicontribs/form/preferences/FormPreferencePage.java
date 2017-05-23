@@ -2,7 +2,6 @@ package org.archicontribs.form.preferences;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
@@ -13,7 +12,12 @@ import org.eclipse.jface.preference.*;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.layout.RowLayout;
@@ -36,7 +40,9 @@ import org.eclipse.ui.IWorkbench;
 public class FormPreferencePage extends FieldEditorPreferencePage	implements IWorkbenchPreferencePage {
 	private static String[][] LOGGER_MODES = {{"Disabled", "disabled"}, {"Simple mode", "simple"}, {"Expert mode", "expert"}};
 	private static String[][] LOGGER_LEVELS = {{"Fatal", "fatal"}, {"Error", "error"}, {"Warn", "warn"}, {"Info", "info"}, {"Debug", "debug"}, {"Trace", "trace"}};
-	private static final Color RED_COLOR = new Color(null, 240, 0, 0);
+	
+	private static final Color BACKGROUND_COLOR = new Color(null, 235, 235, 235);	// light grey
+	private static final Color RED_COLOR = new Color(null, 240, 0, 0);				// red
 	
 	private static String HELP_ID = "com.archimatetool.help.FormPreferencePage";
 	
@@ -48,6 +54,8 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 	private FormTextFieldEditor expertTextFieldEditor;
 	private Group simpleModeGroup;
 	private Group expertModeGroup;
+	
+	private Button btnCheckForUpdateAtStartupButton;
 	
 	private FormLogger logger = new FormLogger(FormPreferencePage.class);
 	
@@ -71,27 +79,89 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
         PlatformUI.getWorkbench().getHelpSystem().setHelp(getFieldEditorParent().getParent(), HELP_ID);
         
 		tabFolder = new TabFolder(getFieldEditorParent(), SWT.NONE);
+		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+		tabFolder.setBackground(BACKGROUND_COLOR);
 		
 		// ********************************* */
 		// * Behaviour tab  **************** */
 		// ********************************* */
 		
-        TabItem behaviourTabItem = new TabItem(tabFolder, SWT.NONE);
-        behaviourTabItem.setText("Behaviour");
-        
 		Composite behaviourComposite = new Composite(tabFolder, SWT.NULL);
-		behaviourComposite.setLayout(new GridLayout());
-		
+        GridLayout layout = new GridLayout();
+        layout.numColumns = 1;
+        layout.marginWidth = 0;
+        layout.marginHeight = 0;
+        layout.horizontalSpacing = 8;
+        behaviourComposite.setLayout(layout);
+        
+        RowLayout rowLayout = new RowLayout();
+        rowLayout.type = SWT.VERTICAL;
+        rowLayout.pack = true;
+        rowLayout.marginTop = 5;
+        rowLayout.marginBottom = 5;
+        rowLayout.justify = false;
+        rowLayout.fill = false;
+        behaviourComposite.setLayoutData(rowLayout);
+        behaviourComposite.setBackground(BACKGROUND_COLOR);
+        
+		TabItem behaviourTabItem = new TabItem(tabFolder, SWT.NONE);
+        behaviourTabItem.setText("Behaviour");
         behaviourTabItem.setControl(behaviourComposite);
         		
-    	//we add an empty line
-    	new Label(behaviourComposite, SWT.NONE);
-
+        Group grpVersion = new Group(behaviourComposite, SWT.NONE);
+		grpVersion.setBackground(BACKGROUND_COLOR);
+		grpVersion.setLayout(new FormLayout());
+		grpVersion.setText("Version : ");
+		
+		Label versionLbl = new Label(grpVersion, SWT.NONE);
+		versionLbl.setText("Actual version :");
+		versionLbl.setBackground(BACKGROUND_COLOR);
+		FormData fd = new FormData();
+		fd.top = new FormAttachment(0, 5);
+		fd.left = new FormAttachment(0, 10);
+		versionLbl.setLayoutData(fd);
+		
+		Label versionValue = new Label(grpVersion, SWT.NONE);
+		versionValue.setText(FormPlugin.pluginVersion);
+		versionValue.setBackground(BACKGROUND_COLOR);
+		versionValue.setFont(FormDialog.BOLD_FONT);
+		fd = new FormData();
+		fd.top = new FormAttachment(versionLbl, 0, SWT.TOP);
+		fd.left = new FormAttachment(versionLbl, 5);
+		versionValue.setLayoutData(fd);
+		
+		Button checkUpdateButton = new Button(grpVersion, SWT.NONE);
+		checkUpdateButton.setBackground(BACKGROUND_COLOR);
+		checkUpdateButton.setText("Check for update");
+		fd = new FormData();
+		fd.top = new FormAttachment(versionValue, 0, SWT.CENTER);
+		fd.left = new FormAttachment(versionValue, 100);
+		checkUpdateButton.setLayoutData(fd);
+		checkUpdateButton.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) { FormPlugin.checkForUpdate(true); }
+			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		});
+		
+		btnCheckForUpdateAtStartupButton = new Button(grpVersion, SWT.CHECK);
+		btnCheckForUpdateAtStartupButton.setBackground(BACKGROUND_COLOR);
+		btnCheckForUpdateAtStartupButton.setText("Automatically check for update at startup");
+		fd = new FormData();
+		fd.top = new FormAttachment(versionLbl, 5);
+		fd.left = new FormAttachment(0, 10);
+		btnCheckForUpdateAtStartupButton.setLayoutData(fd);
+		btnCheckForUpdateAtStartupButton.setSelection(FormPlugin.INSTANCE.getPreferenceStore().getBoolean("checkForUpdateAtStartup"));
+		
+		GridData gd = new GridData();
+		//gd.heightHint = 45;
+		gd.horizontalAlignment = GridData.FILL;
+		gd.grabExcessHorizontalSpace = true;
+		grpVersion.setLayoutData(gd);
+		
 		// ********************************* */
 		// * Logging tab  ****************** */
 		// ********************************* */
         loggerComposite = new Composite(tabFolder, SWT.NULL);
-        RowLayout rowLayout = new RowLayout();
+        rowLayout = new RowLayout();
         rowLayout.type = SWT.VERTICAL;
         loggerComposite.setLayout(rowLayout);
         
@@ -109,7 +179,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
     	
     	simpleModeGroup = new Group(loggerComposite, SWT.NONE);
     	simpleModeGroup.setLayout(new GridLayout(3, false));
-    	GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+    	gd = new GridData(GridData.FILL_HORIZONTAL);
         gd.widthHint = 500;
         simpleModeGroup.setLayoutData(gd);
         
@@ -118,9 +188,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
         addField(loggerLevelRadioGroupEditor);
         
         filenameFileFieldEditor = new FormFileFieldEditor("loggerFilename", "Log filename : ", false, FileFieldEditor.VALIDATE_ON_KEY_STROKE, simpleModeGroup);
-        addField(filenameFileFieldEditor);
-        
-        
+        addField(filenameFileFieldEditor);    
         
     	expertModeGroup = new Group(loggerComposite, SWT.NONE);
     	expertModeGroup.setLayout(new GridLayout());

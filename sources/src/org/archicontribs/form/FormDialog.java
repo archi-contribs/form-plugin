@@ -17,6 +17,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Level;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -31,6 +33,7 @@ import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.gef.commands.CompoundCommand;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyleRange;
@@ -42,6 +45,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -55,6 +59,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -94,10 +99,24 @@ public class FormDialog extends Dialog {
 	//TODO: add a "continueonerror" property
 	private static final FormLogger logger = new FormLogger(FormDialog.class);
 
+	protected static Display display = Display.getDefault();
+	public static final FontData SYSTEM_FONT = display.getSystemFont().getFontData()[0];
+    public static final Font TITLE_FONT = new Font(display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight()+2, SWT.BOLD);
+	public static final Font BOLD_FONT = new Font(display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight(), SWT.BOLD);
+	
+	public static final Color LIGHT_GREEN_COLOR = new Color(display, 204, 255, 229);
+	public static final Color LIGHT_RED_COLOR = new Color(display, 255, 230, 230);
+	public static final Color RED_COLOR = new Color(display, 240, 0, 0);
+	public static final Color GREEN_COLOR = new Color(display, 0, 180, 0);
+	public static final Color WHITE_COLOR = new Color(display, 255, 255, 255);
+	public static final Color GREY_COLOR = new Color(display, 100, 100, 100);
+	public static final Color BLACK_COLOR = new Color(display, 0, 0, 0);
+	public static final Color LIGHT_BLUE = new Color(display, 240, 248, 255);
+	
+	private static final Color badValueColor= new Color(display, 255, 0, 0);
+	private static final Color goodValueColor = new Color(display, 0, 100, 0);
+	
 	private EObject selectedObject;
-
-	private Color badValueColor= new Color(Display.getCurrent(), 255, 0, 0);
-	private Color goodValueColor = new Color(Display.getCurrent(), 0, 100, 0);
 
 	private Shell dialog = null;
 	private TabFolder tabFolder;
@@ -105,7 +124,7 @@ public class FormDialog extends Dialog {
 	private HashSet<String> excelSheets = new HashSet<String>();
 
 	public FormDialog(JSONObject json, EObject selectedObject) {
-		super(Display.getCurrent().getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+		super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 		String configFilename;
 		this.selectedObject = selectedObject;
 
@@ -114,9 +133,9 @@ public class FormDialog extends Dialog {
 			logger.debug("Creating new FormDialog for "+selectedObject.getClass().getSimpleName()+" \""+((INameable)selectedObject).getName()+"\".");
 
 		try {
-			configFilename = Paths.get(FormPlugin.configFilePath).toRealPath().toString();
-		} catch (IOException e1) {
-			configFilename = FormPlugin.configFilePath;
+			configFilename = Paths.get(FormPlugin.pluginsFilename.replace(".jar", ".conf")).toRealPath().toString();
+		} catch (IOException e) {
+			configFilename = FormPlugin.pluginsFilename.replace(".jar", ".conf");
 		}
 
 		try {
@@ -132,7 +151,7 @@ public class FormDialog extends Dialog {
 		}  catch (ClassCastException e) {
 			FormDialog.popup(Level.ERROR, "Wrong key type in the configuration files:\n"+configFilename,e);
 		} catch (RuntimeException e) {
-			popup(Level.ERROR, "Please check your configuration file.", e);
+			popup(Level.ERROR, "Please check your configuration file.\n\n"+e.getMessage());
 			if ( dialog != null ) dialog.dispose();
 			return;
 		}
@@ -162,7 +181,7 @@ public class FormDialog extends Dialog {
 	/**
 	 * Parses the configuration file and create the corresponding graphical controls
 	 */
-	private void createContents(JSONObject form) throws IOException, ParseException {
+	private void createContents(JSONObject form) throws IOException, ParseException, RuntimeException  {
 		dialogName = expand(getString(form, "name", defaultDialogName), selectedObject);
 		int dialogWidth = getInt(form, "width", defaultDialogWidth);
 		int dialogHeight = getInt(form, "height", defaultDialogHeight);
@@ -208,7 +227,7 @@ public class FormDialog extends Dialog {
 
 		if ( dialogBackground != null ) {
 			String[] colorArray = dialogBackground.split(",");
-			dialog.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			dialog.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		}
 
 		tabFolder = new TabFolder(dialog, SWT.BORDER);
@@ -270,7 +289,7 @@ public class FormDialog extends Dialog {
 			String tabBackground = getString(tab, "background", defaultTabBackground);
 
 			if ( logger.isTraceEnabled() )
-				logger.trace("   tab background = " + debugValue(tabBackground, defaultTabBackground));
+				logger.trace("   background = " + debugValue(tabBackground, defaultTabBackground));
 
 			TabItem tabItem = new TabItem(tabFolder, SWT.MULTI);
 			tabItem.setText(tabName);
@@ -279,7 +298,7 @@ public class FormDialog extends Dialog {
 
 			if ( tabBackground != null ) {
 				String[] colorArray = tabBackground.split(",");
-				composite.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+				composite.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 			}
 
 			createObjects(tab, composite);
@@ -296,7 +315,7 @@ public class FormDialog extends Dialog {
 	 * @param tab The JSON object to parse
 	 * @param composite The composite where the control will be created
 	 */
-	private void createObjects(JSONObject tab, Composite composite) {
+	private void createObjects(JSONObject tab, Composite composite) throws RuntimeException {
 		// we iterate over the "controls" entries
 		@SuppressWarnings("unchecked")
 		Iterator<JSONObject> objectsIterator = getJSONArray(tab, "controls").iterator();	
@@ -327,7 +346,7 @@ public class FormDialog extends Dialog {
 		if ( logger.isDebugEnabled() )
 			logger.debug("   Creating label control " + debugValue(labelText, "label"));
 
-		Label label =  new Label(composite, SWT.NONE);		// we create the label at the very beginning because we need its default size wich is dependent on its content
+		Label label =  new Label(composite, SWT.NONE);		// we create the label at the very beginning because we need its default size which is dependent on its content
 		label.setText(labelText);
 		label.pack();
 
@@ -338,8 +357,14 @@ public class FormDialog extends Dialog {
 		String background = getString(jsonObject, "background", null);
 		String foreground = getString(jsonObject, "foreground", null);
 		String tooltip = getString(jsonObject, "tooltip", null);
+		String fontName = getString(jsonObject, "fontName", null);
+		int fontSize = getInt(jsonObject, "fontSize", label.getFont().getFontData()[0].getHeight());
+		boolean fontBold = getBoolean(jsonObject, "fontBold", false);
+		boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
+		String excelCellType = getString(jsonObject, "excelCellType", null);
+		String excelDefault = getString(jsonObject, "excelDefault", null);
 
 		if ( logger.isTraceEnabled() ) {
 			logger.trace("      x = " + debugValue(x, 0));
@@ -349,8 +374,14 @@ public class FormDialog extends Dialog {
 			logger.trace("      background = " + debugValue(background, null));
 			logger.trace("      foreground = " + debugValue(foreground, null));
 			logger.trace("      tooltip = " + debugValue(tooltip, null));
+			logger.trace("      fontName = " + debugValue(fontName, null));
+			logger.trace("      fontSize = " + debugValue(fontSize, label.getFont().getFontData()[0].getHeight()));
+			logger.trace("      fontBold = " + debugValue(fontBold, false));
+			logger.trace("      fontItalic = " + debugValue(fontItalic, false));	
 			logger.trace("      excelSheet = " + debugValue(excelSheet, null));
 			logger.trace("      excelCell = " + debugValue(excelCell, null));
+			logger.trace("      excelCellType = " + debugValue(excelCellType, null));
+			logger.trace("      excelDefault = " + debugValue(excelDefault, null));
 		}
 
 		label.setLocation(x, y);
@@ -358,20 +389,34 @@ public class FormDialog extends Dialog {
 
 		if ( background != null ) {
 			String[] colorArray = background.split(",");
-			label.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			label.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		} else {
 			label.setBackground(composite.getBackground());
 		}
 
 		if ( foreground != null ) {
 			String[] colorArray = foreground.split(",");
-			label.setForeground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			label.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+		}
+		
+		if ( fontName != null ) {
+			int style = SWT.NORMAL;
+			if ( fontBold ) style |= SWT.BOLD;
+			if ( fontItalic ) style |= SWT.ITALIC;
+			label.setFont(new Font(label.getDisplay(), fontName, fontSize, style));
+		} else if ( (fontSize != label.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic ) {
+			int style = SWT.NORMAL;
+			if ( fontBold ) style |= SWT.BOLD;
+			if ( fontItalic ) style |= SWT.ITALIC;			
+			label.setFont(FontDescriptor.createFrom(label.getFont()).setHeight(fontSize).setStyle(style).createFont(label.getDisplay()));
 		}
 
 		if ( excelSheet != null ) {
 			excelSheets.add(excelSheet);
 			label.setData("excelSheet", excelSheet);
 			label.setData("excelCell", excelCell);
+			label.setData("excelCellType", excelCellType);
+			label.setData("excelDefault", excelDefault);
 		}
 
 		if ( tooltip == null ) {
@@ -388,7 +433,7 @@ public class FormDialog extends Dialog {
 	 * @param jsonObject the JSON object to parse
 	 * @param composite the composite where the control will be created
 	 */
-	private StyledText createText(JSONObject jsonObject, Composite composite) {
+	private StyledText createText(JSONObject jsonObject, Composite composite) throws RuntimeException {
 		String variableName = getString(jsonObject, "variable");
 		String variableValue = getVariable(variableName, selectedObject);					// can be null
 		String defaultText = expand(getString(jsonObject, "default", ""), selectedObject);	// can be empty but 
@@ -410,9 +455,15 @@ public class FormDialog extends Dialog {
 		String foreground = getString(jsonObject, "foreground", null);
 		String regex = getString(jsonObject, "regexp", null);
 		String tooltip = getString(jsonObject, "tooltip", null);
+		String fontName = getString(jsonObject, "fontName", null);
+		int fontSize = getInt(jsonObject, "fontSize", text.getFont().getFontData()[0].getHeight());
+		boolean fontBold = getBoolean(jsonObject, "fontBold", false);
+		boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
+		String excelCellType = getString(jsonObject, "excelCellType", null);
+		String excelDefault = getString(jsonObject, "excelDefault", null);
 
 		if ( logger.isTraceEnabled() ) {
 			logger.trace("      x = " + debugValue(x, 0));
@@ -425,9 +476,15 @@ public class FormDialog extends Dialog {
 			logger.trace("      foreground = " + debugValue(foreground, null));
 			logger.trace("      regexp = " + debugValue(regex, null));
 			logger.trace("      tooltip = " + debugValue(tooltip, null));
+			logger.trace("      fontName = " + debugValue(fontName, null));
+			logger.trace("      fontSize = " + debugValue(fontSize, text.getFont().getFontData()[0].getHeight()));
+			logger.trace("      fontBold = " + debugValue(fontBold, false));
+			logger.trace("      fontItalic = " + debugValue(fontItalic, false));
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = " + debugValue(excelSheet, null));
 			logger.trace("      excelCell = " + debugValue(excelCell, null));
+			logger.trace("      excelCellType = " + debugValue(excelCellType, null));
+			logger.trace("      excelDefault = " + debugValue(excelDefault, null));
 		}
 
 		if ( whenEmpty != null ) {
@@ -441,12 +498,24 @@ public class FormDialog extends Dialog {
 
 		if ( background != null ) {
 			String[] colorArray = background.split(",");
-			text.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			text.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		}
 
 		if ( foreground != null ) {
 			String[] colorArray = foreground.split(",");
-			text.setForeground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			text.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+		}
+		
+		if ( fontName != null ) {
+			int style = SWT.NORMAL;
+			if ( fontBold ) style |= SWT.BOLD;
+			if ( fontItalic ) style |= SWT.ITALIC;
+			text.setFont(new Font(text.getDisplay(), fontName, fontSize, style));
+		} else if ( (fontSize != text.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic ) {
+			int style = SWT.NORMAL;
+			if ( fontBold ) style |= SWT.BOLD;
+			if ( fontItalic ) style |= SWT.ITALIC;			
+			text.setFont(FontDescriptor.createFrom(text.getFont()).setHeight(fontSize).setStyle(style).createFont(text.getDisplay()));
 		}
 
 		text.setData("variable", variableName);
@@ -457,6 +526,8 @@ public class FormDialog extends Dialog {
 			excelSheets.add(excelSheet);
 			text.setData("excelSheet", excelSheet);
 			text.setData("excelCell", excelCell);
+			text.setData("excelCellType", excelCellType);
+			text.setData("excelDefault", excelDefault);
 		}
 
 		if ( regex != null ) {
@@ -484,7 +555,7 @@ public class FormDialog extends Dialog {
 	 * @param jsonObject the JSON object to parse
 	 * @param composite the composite where the control will be created
 	 */
-	private CCombo createCombo(JSONObject jsonObject, Composite composite) {
+	private CCombo createCombo(JSONObject jsonObject, Composite composite) throws RuntimeException {
 		CCombo combo = new CCombo(composite, SWT.NONE);
 		combo.setEditable(false);
 
@@ -508,10 +579,15 @@ public class FormDialog extends Dialog {
 		String background = getString(jsonObject, "background", null);
 		String foreground = getString(jsonObject, "foreground", null);
 		String tooltip = getString(jsonObject, "tooltip", null);
+		String fontName = getString(jsonObject, "fontName", null);
+		int fontSize = getInt(jsonObject, "fontSize", combo.getFont().getFontData()[0].getHeight());
+		boolean fontBold = getBoolean(jsonObject, "fontBold", false);
+		boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
-
+		String excelCellType = getString(jsonObject, "excelCellType", null);
+		String excelDefault = getString(jsonObject, "excelDefault", null);
 
 		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+variable+"\" ("+value+")");
 		if ( logger.isTraceEnabled() ) {
@@ -524,9 +600,15 @@ public class FormDialog extends Dialog {
 			logger.trace("      values = "+values);
 			logger.trace("      default = "+debugValue(defaultValue, ""));
 			logger.trace("      tooltip = "+debugValue(tooltip, null));
+			logger.trace("      fontName = " + debugValue(fontName, null));
+			logger.trace("      fontSize = " + debugValue(fontSize, combo.getFont().getFontData()[0].getHeight()));
+			logger.trace("      fontBold = " + debugValue(fontBold, false));
+			logger.trace("      fontItalic = " + debugValue(fontItalic, false));
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = "+debugValue(excelSheet, null));
 			logger.trace("      excelCell = "+debugValue(excelCell, null));
+			logger.trace("      excelCellType = "+debugValue(excelCellType, null));
+			logger.trace("      excelDefault = "+debugValue(excelDefault, null));
 		}
 
 		if ( whenEmpty != null ) {
@@ -540,12 +622,24 @@ public class FormDialog extends Dialog {
 
 		if ( background != null ) {
 			String[] colorArray = background.split(",");
-			combo.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			combo.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		}
 
 		if ( foreground != null ) {
 			String[] colorArray = foreground.split(",");
-			combo.setForeground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			combo.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+		}
+		
+		if ( fontName != null ) {
+			int style = SWT.NORMAL;
+			if ( fontBold ) style |= SWT.BOLD;
+			if ( fontItalic ) style |= SWT.ITALIC;
+			combo.setFont(new Font(combo.getDisplay(), fontName, fontSize, style));
+		} else if ( (fontSize != combo.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic ) {
+			int style = SWT.NORMAL;
+			if ( fontBold ) style |= SWT.BOLD;
+			if ( fontItalic ) style |= SWT.ITALIC;			
+			combo.setFont(FontDescriptor.createFrom(combo.getFont()).setHeight(fontSize).setStyle(style).createFont(combo.getDisplay()));
 		}
 
 		combo.setData("variable", getString(jsonObject, "variable"));
@@ -556,6 +650,8 @@ public class FormDialog extends Dialog {
 			excelSheets.add(excelSheet);
 			combo.setData("excelSheet", excelSheet);
 			combo.setData("excelCell", excelCell);
+			combo.setData("excelCellType", excelCellType);
+			combo.setData("excelDefault", excelDefault);
 		}
 
 		if ( tooltip != null ) {
@@ -572,7 +668,7 @@ public class FormDialog extends Dialog {
 	 * @param jsonObject the JSON object to parse
 	 * @param composite the composite where the control will be created
 	 */
-	private Button createCheck(JSONObject jsonObject, Composite composite) {
+	private Button createCheck(JSONObject jsonObject, Composite composite) throws RuntimeException {
 		Button check = new Button(composite, SWT.CHECK);
 
 		String variable = getString(jsonObject, "variable");
@@ -604,8 +700,8 @@ public class FormDialog extends Dialog {
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
-
-		//TODO : manage default value
+		String excelCellType = getString(jsonObject, "excelCellType", null);
+		String excelDefault = getString(jsonObject, "excelDefault", null);
 		
 		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+variable+"\" ("+value+")");
 		if ( logger.isTraceEnabled() ) {
@@ -621,6 +717,8 @@ public class FormDialog extends Dialog {
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = "+debugValue(excelSheet, null));
 			logger.trace("      excelCell = "+debugValue(excelCell, null));
+			logger.trace("      excelCellType = "+debugValue(excelCellType, null));
+			logger.trace("      excelDefault = "+debugValue(excelDefault, null));
 		}
 
 		if ( whenEmpty != null ) {
@@ -634,12 +732,12 @@ public class FormDialog extends Dialog {
 
 		if ( background != null ) {
 			String[] colorArray = background.split(",");
-			check.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			check.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		}
 
 		if ( foreground != null ) {
 			String[] colorArray = foreground.split(",");
-			check.setForeground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			check.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		}
 
 		check.setData("variable", getString(jsonObject, "variable"));
@@ -650,6 +748,8 @@ public class FormDialog extends Dialog {
 			excelSheets.add(excelSheet);
 			check.setData("excelSheet", excelSheet);
 			check.setData("excelCell", excelCell);
+			check.setData("excelCellType", excelCellType);
+			check.setData("excelDefault", excelDefault);
 		}
 
 		if ( tooltip != null ) {
@@ -669,7 +769,7 @@ public class FormDialog extends Dialog {
 	 * @param composite the composite where the control will be created
 	 */
 	@SuppressWarnings("unchecked")
-	private Table createTable(JSONObject jsonObject, Composite composite) {
+	private Table createTable(JSONObject jsonObject, Composite composite) throws RuntimeException {
 		int x = getInt(jsonObject, "x", 0);
 		int y = getInt(jsonObject, "y", 0);
 		int width = getInt(jsonObject, "width", 100);
@@ -701,12 +801,12 @@ public class FormDialog extends Dialog {
 
 		if ( background != null ) {
 			String[] colorArray = background.split(",");
-			table.setBackground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			table.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		}
 
 		if ( foreground != null ) {
 			String[] colorArray = foreground.split(",");
-			table.setForeground(new Color(dialog.getDisplay(), Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
+			table.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),Integer.parseInt(colorArray[1].trim()),Integer.parseInt(colorArray[2].trim())));
 		}
 
 		if ( tooltip == null ) {
@@ -858,7 +958,7 @@ public class FormDialog extends Dialog {
 						if ( selectedObject instanceof IDiagramModelContainer ) {
 							addTableItems(table, ((IDiagramModelContainer)selectedObject).getChildren(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
 						} else
-							throw new RuntimeException("Cannot generate lines for selected component is it is not a container.");
+							throw new RuntimeException("Cannot generate lines for selected component as it is not a container ("+selectedObject.getClass().getSimpleName()+").");
 				}
 			}
 		}
@@ -877,7 +977,7 @@ public class FormDialog extends Dialog {
 	 * @param filter the JSONObject representing a filter if any
 	 */
 	@SuppressWarnings("unchecked")
-	private void addTableItems(Table table, EList<?> list, JSONArray values, JSONObject filter) {
+	private void addTableItems(Table table, EList<?> list, JSONArray values, JSONObject filter) throws RuntimeException {
 		if ( (list == null) || list.isEmpty() )
 			return;
 
@@ -916,7 +1016,7 @@ public class FormDialog extends Dialog {
 	 * @param table the table in which create the lines
 	 * @param jsonArray the array of JSONObjects that contain the values to insert (one per column) 
 	 */
-	private void addTableItem(Table table, EObject eObject, JSONArray jsonArray) {
+	private void addTableItem(Table table, EObject eObject, JSONArray jsonArray) throws RuntimeException {
 		TableItem tableItem = new TableItem(table, SWT.NONE);
 
 		// we need to store the widgets to retreive them later on
@@ -1046,37 +1146,84 @@ public class FormDialog extends Dialog {
 			}
 		}
 
-		Display.getDefault().syncExec(new Runnable() {
+		display.syncExec(new Runnable() {
 			@Override
 			public void run() {
 				switch ( level.toInt() ) {
 					case Level.FATAL_INT :
 					case Level.ERROR_INT :
-						MessageDialog.openError(Display.getDefault().getActiveShell(), FormPlugin.pluginTitle, popupMessage);
+						MessageDialog.openError(display.getActiveShell(), FormPlugin.pluginTitle, popupMessage);
 						break;
 					case Level.WARN_INT :
-						MessageDialog.openWarning(Display.getDefault().getActiveShell(), FormPlugin.pluginTitle, popupMessage);
+						MessageDialog.openWarning(display.getActiveShell(), FormPlugin.pluginTitle, popupMessage);
 						break;
 					default :
-						MessageDialog.openInformation(Display.getDefault().getActiveShell(), FormPlugin.pluginTitle, popupMessage);
+						MessageDialog.openInformation(display.getActiveShell(), FormPlugin.pluginTitle, popupMessage);
 						break;
 				}
 			}
 		});
 	}
+	
+	/**
+	 * shows up an on screen popup with a progressbar<br>
+	 * it is the responsibility of the caller to dismiss the popup 
+	 */
+	public static ProgressBar progressbarPopup(String msg) {
+		if ( logger.isDebugEnabled() ) logger.debug("new progressbarPopup(\""+msg+"\")");
+		Shell shell = new Shell(display, SWT.SHELL_TRIM);
+		shell.setSize(600, 100);
+		shell.setBackground(BLACK_COLOR);
+		shell.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - shell.getSize().x) / 4, (Toolkit.getDefaultToolkit().getScreenSize().height - shell.getSize().y) / 4);
+		
+		Composite composite = new Composite(shell, SWT.NONE);
+		composite.setBackground(LIGHT_BLUE);
+		composite.setLayout(new GridLayout(2, false));
+		composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		
+		Label label = new Label(composite, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		label.setBackground(LIGHT_BLUE);
+		label.setFont(TITLE_FONT);
+		label.setText(msg);
+		
+		ProgressBar progressBar = new ProgressBar(composite, SWT.SMOOTH);
+		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.END, true, false));
+    	progressBar.setMinimum(0);
+    	progressBar.setMaximum(100);
+    	
+    	shell.layout();
+    	shell.open();
+    	
+    	return progressBar;
+	}
+	
+	private static int questionResult;
 
 	/**
 	 * Shows up an on screen popup displaying the question (and the exception message if any)  and wait for the user to click on the "YES" or "NO" button<br>
 	 * The exception stacktrace is also printed on the standard error stream
-	 * 
-	 * @param msg
-	 * @return true or false
 	 */
 	public static boolean question(String msg) {
+		return question(msg, new String[] {"Yes", "No"}) == 0;
+	}
+
+	/**
+	 * Shows up an on screen popup displaying the question (and the exception message if any)  and wait for the user to click on the "YES" or "NO" button<br>
+	 * The exception stacktrace is also printed on the standard error stream
+	 */
+	public static int question(String msg, String[] buttonLabels) {
 		if ( logger.isDebugEnabled() ) logger.debug("question : "+msg);
-		boolean result = MessageDialog.openQuestion(Display.getDefault().getActiveShell(), FormPlugin.pluginTitle, msg);
-		if ( logger.isDebugEnabled() ) logger.debug("answer : "+result);
-		return result;
+		display.syncExec(new Runnable() {
+			@Override
+			public void run() {
+				//questionResult = MessageDialog.openQuestion(display.getActiveShell(), DBPlugin.pluginTitle, msg);
+				MessageDialog dialog = new MessageDialog(display.getActiveShell(), FormPlugin.pluginTitle, null, msg, MessageDialog.QUESTION, buttonLabels, 0);
+				questionResult = dialog.open();
+			}
+		});
+		if ( logger.isDebugEnabled() ) logger.debug("answer : "+buttonLabels[questionResult]);
+		return questionResult;
 	}
 
 	/**
@@ -1087,10 +1234,10 @@ public class FormDialog extends Dialog {
 	private static Label dialogLabel = null;
 	public static Shell popup(String msg) {
 		if ( dialogShell == null ) {
-			Display.getDefault().syncExec(new Runnable() {
+			display.syncExec(new Runnable() {
 				@Override
 				public void run() {
-					dialogShell = new Shell(Display.getCurrent(), SWT.BORDER | SWT.APPLICATION_MODAL);
+					dialogShell = new Shell(display, SWT.BORDER | SWT.APPLICATION_MODAL);
 					dialogShell.setSize(400, 50);
 					dialogShell.setBackground(new Color(null, 0, 0, 0));
 					dialogShell.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - dialogShell.getSize().x) / 4, (Toolkit.getDefaultToolkit().getScreenSize().height - dialogShell.getSize().y) / 4);
@@ -1111,7 +1258,7 @@ public class FormDialog extends Dialog {
 			});
 		}
 
-		Display.getDefault().syncExec(new Runnable() {
+		display.syncExec(new Runnable() {
 			@Override
 			public void run() {
 				for ( Shell shell: Display.getCurrent().getShells() ) {
@@ -1127,12 +1274,12 @@ public class FormDialog extends Dialog {
 
 	public static void closePopup() {
 		if ( dialogShell != null ) {
-			Display.getDefault().syncExec(new Runnable() {
+			display.syncExec(new Runnable() {
 				@Override
 				public void run() {
 					dialogShell.close();
 					dialogShell = null;
-					for ( Shell shell: Display.getCurrent().getShells() ) {
+					for ( Shell shell: display.getShells() ) {
 						shell.setCursor(new Cursor(null, SWT.CURSOR_ARROW));
 					}
 				}
@@ -1186,7 +1333,7 @@ public class FormDialog extends Dialog {
 	 * This method does not throw exceptions as it is mainly called by SWT which won't know what to do with these exceptions.<br>
 	 * Instead, it opens a popup to display the error message.
 	 */
-	private void setVariable(EObject eObject, String variable, String value) {
+	private void setVariable(EObject eObject, String variable, String value) throws RuntimeException {
 		if ( logger.isTraceEnabled() ) logger.trace("setting variable \""+variable+"\"");
 
 		// we check that the variable provided is a string enclosed between "${" and "}"
@@ -1471,19 +1618,23 @@ public class FormDialog extends Dialog {
 	};
 
 	private void cancel() {
+		if ( logger.isDebugEnabled() )
+			logger.debug("Cancel button selected by user.");
 		dialog.dispose();
 	}
 	
 	CompoundCommand compoundCommand;
 
 	private void ok() {
+		if ( logger.isDebugEnabled() )
+			logger.debug("Ok button selected by user.");
 		compoundCommand = new NonNotifyingCompoundCommand();
 		try {
 			for ( Control control: dialog.getChildren() ) {
 				save(control);
 			}
-		} catch ( Exception e) {
-			popup(Level.ERROR, "Failed to save values.", e);
+		} catch ( RuntimeException e) {
+			popup(Level.ERROR, "Failed to save variables.", e);
 			return;
 		}
 		
@@ -1494,6 +1645,9 @@ public class FormDialog extends Dialog {
 		}
 		else if ( selectedObject instanceof IDiagramModelArchimateObject ) {
 			model = ((IDiagramModelArchimateObject)selectedObject).getDiagramModel().getArchimateModel();
+		}
+		else if ( selectedObject instanceof IDiagramModelArchimateConnection ) {
+			model = ((IDiagramModelArchimateConnection)selectedObject).getDiagramModel().getArchimateModel();
 		}
 		else {
 			popup(Level.ERROR, "Failed to get the model.");
@@ -1506,7 +1660,7 @@ public class FormDialog extends Dialog {
 		dialog.dispose();
 	}
 
-	private void save(Control control) {
+	private void save(Control control) throws RuntimeException {
 		switch ( control.getClass().getSimpleName() ) {
 			case "Label" :
 				break;					// nothing to save here
@@ -1535,11 +1689,11 @@ public class FormDialog extends Dialog {
 				}
 				break;
 
-			default : logger.debug("do not know how to save a "+control.getClass().getSimpleName());
+			default : throw new RuntimeException("do not know how to save a "+control.getClass().getSimpleName());
 		}
 	}
 
-	private void do_save(Control control) {
+	private void do_save(Control control) throws RuntimeException {
 		String variable = (String)control.getData("variable");
 		EObject eObject = (EObject)control.getData("eObject");
 		String value;
@@ -1585,13 +1739,16 @@ public class FormDialog extends Dialog {
 
 	@SuppressWarnings("deprecation")
 	private void exportToExcel() {
+		if ( logger.isDebugEnabled() )
+			logger.debug("Export button selected by user.");
+		
 		FileDialog fsd = new FileDialog(dialog, SWT.SINGLE);
 		fsd.setFilterExtensions(new String[] {"*.xls*"});
 		fsd.setText("Select Excel File...");
 		String excelFile = fsd.open();
 
 		// we wait for the dialog disposal
-		while ( dialog.getDisplay().readAndDispatch() );
+		while ( display.readAndDispatch() );
 
 		if ( excelFile != null ) {
 			FileInputStream file;
@@ -1610,7 +1767,7 @@ public class FormDialog extends Dialog {
 			if ( logger.isDebugEnabled() ) logger.debug("Openning file "+file);
 			try {
 				workbook = WorkbookFactory.create(file);
-			} catch (Exception e) {
+			} catch (IOException|InvalidFormatException|EncryptedDocumentException e) {
 				closePopup();
 				popup(Level.ERROR, "The file "+excelFile+" seems not to be an Excel file!", e);
 				//TODO: add an option to create an empty Excel file
@@ -1720,8 +1877,8 @@ public class FormDialog extends Dialog {
 														cell.setCellType(CellType.NUMERIC);
 														try  {
 															cell.setCellValue(Double.parseDouble(value));
-														} catch (Exception e) {
-															throw new RuntimeException("Failed to convert value to numeric", e);
+														} catch (NumberFormatException e) {
+															throw new RuntimeException("Failed to convert \""+value+"\" to numeric.", e);
 														}
 													}
 													break;
@@ -1735,11 +1892,7 @@ public class FormDialog extends Dialog {
 														}
 													} else {
 														cell.setCellType(CellType.BOOLEAN);
-														try  {
-															cell.setCellValue(Boolean.parseBoolean(value));
-														} catch (Exception e) {
-															throw new RuntimeException("Failed to convert value to boolean", e);
-														}
+														cell.setCellValue(Boolean.parseBoolean(value));
 													}
 													break;
 
@@ -1759,7 +1912,9 @@ public class FormDialog extends Dialog {
 												case "blank" :
 													cell.setCellType(CellType.BLANK);
 													break;
-												default : throw new RuntimeException("Don't know to deal with excell cell Type \""+excelCellType+"\".\n\nSupported values are blank, boolean, formula, numeric and string.");
+													
+												default :
+													throw new RuntimeException("Don't know to deal with excell cell Type \""+excelCellType+"\".\n\nSupported values are blank, boolean, formula, numeric and string.");
 											}
 
 											if ( logger.isTraceEnabled() ) logger.trace("   '"+excelSheet+"'!"+excelColumn+(excelFirstLine + line +1)+" -> \""+value+"\" ("+cell.getCellTypeEnum().toString()+")");
@@ -1771,9 +1926,9 @@ public class FormDialog extends Dialog {
 						}
 					}
 				}
-			} catch (Exception e) {
+			} catch ( RuntimeException e) {
 				closePopup();
-				popup(Level.ERROR, "Failed to update Excel file.", e);
+				popup(Level.ERROR, "Failed to update Excel file.\n\n" + e.getMessage());
 				exportOk = false;
 			}
 
@@ -2067,15 +2222,15 @@ public class FormDialog extends Dialog {
 		Iterator<JSONObject> filterIterator = ((JSONArray)getJSON(filterObject, "tests")).iterator();
 		while (filterIterator.hasNext()) {
 			JSONObject filter = filterIterator.next();
-			String attribute=(String)getJSON(filter, "attribute");			// raise an exception if not exist
-			String operation=(String)getJSON(filter, "operation");			// raise an exception if not exist
+			String attribute=(String)getJSON(filter, "attribute");
+			String operation=(String)getJSON(filter, "operation");
 			String value;
 
 			String attributeValue = expand(attribute, eObject);
 
 			switch ( operation.toLowerCase() ) {
 				case "equals" :
-					value=(String)getJSON(filter, "value");			// raise an exception if not exist
+					value=(String)getJSON(filter, "value");
 
 					result = (attributeValue != null) && attributeValue.equals(value);
 					if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") equals \""+value+"\" --> "+result);
@@ -2087,14 +2242,14 @@ public class FormDialog extends Dialog {
 					break;
 
 				case "iequals" :
-					value=(String)getJSON(filter, "value");			// raise an exception if not exist
+					value=(String)getJSON(filter, "value");
 
 					result = (attributeValue != null) && attributeValue.equalsIgnoreCase(value);
 					if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") equals (ignore case) \""+value+"\" --> "+result);
 					break;
 
 				case "matches" :
-					value=(String)getJSON(filter, "value");			// raise an exception if not exist
+					value=(String)getJSON(filter, "value");
 
 					result = (attributeValue != null) && attributeValue.matches(value);
 					if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") matches \""+value+"\" --> "+result);
@@ -2193,7 +2348,7 @@ public class FormDialog extends Dialog {
 						}
 						return null;
 					}
-					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not a Properties.");
+					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not a Properties ("+eObject.getClass().getSimpleName()+").");
 				}
 
 				else if ( variableName.toLowerCase().startsWith("view:") ) {
@@ -2203,7 +2358,7 @@ public class FormDialog extends Dialog {
 					else if ( eObject instanceof IDiagramModelArchimateObject ) {
 						return getVariable(variableName.substring(5), ((IDiagramModelArchimateObject)eObject).getDiagramModel());
 					}
-					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not part of a DiagramModel.");
+					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
 				}
 
 				else if ( variableName.toLowerCase().startsWith("model:") ) {
@@ -2213,7 +2368,7 @@ public class FormDialog extends Dialog {
 					else if ( eObject instanceof IDiagramModelArchimateObject ) {
 						return getVariable("${"+variableName.substring(6)+"}", ((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel());
 					}
-					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not part of a model.");
+					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not part of a model ("+eObject.getClass().getSimpleName()+").");
 				}
 		}
 		

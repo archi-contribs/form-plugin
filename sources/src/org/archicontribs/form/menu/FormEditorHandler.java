@@ -49,9 +49,9 @@ public class FormEditorHandler extends AbstractHandler {
 		String configFilename;
 		
 		try {
-			configFilename = Paths.get(FormPlugin.configFilePath).toRealPath().toString();
+			configFilename = Paths.get(FormPlugin.pluginsFilename.replace(".jar", "")+".conf").toRealPath().toString();
 		} catch (IOException e1) {
-			configFilename = FormPlugin.configFilePath;
+			configFilename = FormPlugin.pluginsFilename.replace(".jar", "")+".conf";
 		}
 		
 		File f = new File(configFilename);
