@@ -13,8 +13,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.florianingerl.util.regex.Matcher;
+import com.florianingerl.util.regex.Pattern;
 
 import org.apache.log4j.Level;
 import org.apache.poi.EncryptedDocumentException;
@@ -163,6 +163,7 @@ public class FormDialog extends Dialog {
 	private final String[] whenEmptyValidStrings = new String[] { "ignore", "create", "delete"};
 
 	private String dialogName;
+	private String variableSeparator;
 	
 	private final int defaultDialogWidth = 850;
 	private final int defaultDialogHeight = 600;
@@ -182,20 +183,22 @@ public class FormDialog extends Dialog {
 	 * Parses the configuration file and create the corresponding graphical controls
 	 */
 	private void createContents(JSONObject form) throws IOException, ParseException, RuntimeException  {
-		dialogName = expand(getString(form, "name", defaultDialogName), selectedObject);
+		variableSeparator = getString(form, "variableSeparator", ":");
+		dialogName = expand(getString(form, "name", defaultDialogName), variableSeparator, selectedObject);
 		int dialogWidth = getInt(form, "width", defaultDialogWidth);
 		int dialogHeight = getInt(form, "height", defaultDialogHeight);
 		int dialogSpacing = getInt(form, "spacing", defaultDialogSpacing);
 		String dialogBackground = getString(form, "background", defaultDialogBackground);
 		int buttonWidth = getInt(form, "buttonWidth", defaultButtonWidth);
 		int buttonHeight = getInt(form, "buttonHeight", defaultButtonHeight);
-		String buttonOkText = expand(getString(form, "buttonOk", defaultButtonOkText), selectedObject);
-		String buttonCancelText = expand(getString(form, "buttonCancel", defaultButtonCancelText), selectedObject);
-		String buttonExportText = expand(getString(form, "buttonExport", defaultButtonExportText), selectedObject);
+		String buttonOkText = expand(getString(form, "buttonOk", defaultButtonOkText), variableSeparator, selectedObject);
+		String buttonCancelText = expand(getString(form, "buttonCancel", defaultButtonCancelText), variableSeparator, selectedObject);
+		String buttonExportText = expand(getString(form, "buttonExport", defaultButtonExportText), variableSeparator, selectedObject);
 		globalWhenEmpty = getString(form, "whenEmpty", null);
 
 		if ( logger.isTraceEnabled() ) {
 			logger.trace("   name = " + debugValue(dialogName, defaultDialogName));
+			logger.trace("   variableSeparator = " + debugValue(variableSeparator, "."));
 			logger.trace("   width = " + debugValue(dialogWidth, defaultDialogWidth));
 			logger.trace("   height = " + debugValue(dialogHeight, defaultDialogHeight));
 			logger.trace("   spacing = " + debugValue(dialogSpacing, defaultDialogSpacing));
@@ -214,7 +217,7 @@ public class FormDialog extends Dialog {
 		}
 
 		dialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-		dialog.setText(expand(dialogName, selectedObject));
+		dialog.setText(expand(dialogName, variableSeparator, selectedObject));
 		dialog.setLayout(null);
 
 		int tabFolderWidth  =  dialogWidth - dialogSpacing*2;
@@ -281,7 +284,7 @@ public class FormDialog extends Dialog {
 			// we create one TabItem per array item
 			JSONObject tab = tabsIterator.next();
 
-			String tabName = expand(getString(tab, "name", defaultTabName), selectedObject);
+			String tabName = expand(getString(tab, "name", defaultTabName), variableSeparator, selectedObject);
 
 			if ( logger.isDebugEnabled() )
 				logger.debug("Creating tab " + debugValue(tabName, defaultTabName));
@@ -341,7 +344,7 @@ public class FormDialog extends Dialog {
 	 * @param composite the composite where the control will be created
 	 */
 	private Label createLabel(JSONObject jsonObject, Composite composite) {
-		String labelText = expand(getString(jsonObject, "text", "label"), selectedObject);
+		String labelText = expand(getString(jsonObject, "text", "label"), variableSeparator, selectedObject);
 
 		if ( logger.isDebugEnabled() )
 			logger.debug("   Creating label control " + debugValue(labelText, "label"));
@@ -435,15 +438,15 @@ public class FormDialog extends Dialog {
 	 */
 	private StyledText createText(JSONObject jsonObject, Composite composite) throws RuntimeException {
 		String variableName = getString(jsonObject, "variable");
-		String variableValue = getVariable(variableName, selectedObject);					// can be null
-		String defaultText = expand(getString(jsonObject, "default", ""), selectedObject);	// can be empty but 
+		String defaultText = getString(jsonObject, "default", null);
+		boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
+		
+		String variableValue = expand(variableName, variableSeparator, selectedObject);
+		
+		if ( variableValue.isEmpty() || forceDefault )
+		    variableValue = expand(defaultText, variableSeparator, selectedObject);
 
-		if ( variableValue == null )
-			variableValue = defaultText;
-
-		if ( logger.isDebugEnabled() ) logger.debug("   Creating Text control");
-
-		StyledText text =  new StyledText(composite, SWT.BORDER);		// we create the label at the very beginning because we need its default size wich is dependent on its content
+		StyledText text =  new StyledText(composite, SWT.BORDER);		// we create the label at the very beginning because we need its default size which is dependent on its content
 		text.setText(variableValue);
 		text.pack();
 
@@ -459,12 +462,14 @@ public class FormDialog extends Dialog {
 		int fontSize = getInt(jsonObject, "fontSize", text.getFont().getFontData()[0].getHeight());
 		boolean fontBold = getBoolean(jsonObject, "fontBold", false);
 		boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
+		boolean editable = getBoolean(jsonObject, "editable", false);
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
 		String excelCellType = getString(jsonObject, "excelCellType", null);
 		String excelDefault = getString(jsonObject, "excelDefault", null);
-
+		
+		if ( logger.isDebugEnabled() ) logger.debug("   Creating Text control \""+variableName+"\"");
 		if ( logger.isTraceEnabled() ) {
 			logger.trace("      x = " + debugValue(x, 0));
 			logger.trace("      y = " + debugValue(y, 0));
@@ -472,6 +477,7 @@ public class FormDialog extends Dialog {
 			logger.trace("      height = " + debugValue(height, text.getSize().y));
 			logger.trace("      variable = " + variableName);
 			logger.trace("      default = " + debugValue(defaultText, ""));
+			logger.trace("      forceDefault = " + debugValue(forceDefault, false));
 			logger.trace("      background = " + debugValue(background, null));
 			logger.trace("      foreground = " + debugValue(foreground, null));
 			logger.trace("      regexp = " + debugValue(regex, null));
@@ -480,6 +486,7 @@ public class FormDialog extends Dialog {
 			logger.trace("      fontSize = " + debugValue(fontSize, text.getFont().getFontData()[0].getHeight()));
 			logger.trace("      fontBold = " + debugValue(fontBold, false));
 			logger.trace("      fontItalic = " + debugValue(fontItalic, false));
+			logger.trace("      editable = " + debugValue(editable, false));
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = " + debugValue(excelSheet, null));
 			logger.trace("      excelCell = " + debugValue(excelCell, null));
@@ -495,6 +502,7 @@ public class FormDialog extends Dialog {
 
 		text.setLocation(x, y);
 		text.setSize(width, height);
+		text.setEditable(editable);
 
 		if ( background != null ) {
 			String[] colorArray = background.split(",");
@@ -556,20 +564,21 @@ public class FormDialog extends Dialog {
 	 * @param composite the composite where the control will be created
 	 */
 	private CCombo createCombo(JSONObject jsonObject, Composite composite) throws RuntimeException {
-		CCombo combo = new CCombo(composite, SWT.NONE);
-		combo.setEditable(false);
-
 		@SuppressWarnings("unchecked")
 		String[] values = (String[])(getJSONArray(jsonObject, "values")).toArray(new String[0]);
-		combo.setItems(values);
 
-		String variable = getString(jsonObject, "variable");
-		String value = expand(variable, selectedObject);
-		String defaultValue = getString(jsonObject, "default", "");
-		if ( value != null && ! value.isEmpty() )
-			combo.setText(value);
-		else
-			combo.setText(defaultValue);
+		String variableName = getString(jsonObject, "variable");
+		String defaultText = getString(jsonObject, "default", "");
+		boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
+		
+		String variableValue = expand(variableName, variableSeparator, selectedObject);
+		
+		if ( variableValue.isEmpty() || forceDefault )
+		    variableValue = expand(defaultText, variableSeparator, selectedObject);
+
+		CCombo combo = new CCombo(composite, SWT.NONE);						// we create the label at the very beginning because we need its default size which is dependent on its content
+		combo.setItems(values);
+		combo.setText(defaultText);
 		combo.pack();
 
 		int x = getInt(jsonObject, "x", 0);
@@ -583,13 +592,14 @@ public class FormDialog extends Dialog {
 		int fontSize = getInt(jsonObject, "fontSize", combo.getFont().getFontData()[0].getHeight());
 		boolean fontBold = getBoolean(jsonObject, "fontBold", false);
 		boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
+		boolean editable = getBoolean(jsonObject, "editable", false);
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
 		String excelCellType = getString(jsonObject, "excelCellType", null);
 		String excelDefault = getString(jsonObject, "excelDefault", null);
 
-		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+variable+"\" ("+value+")");
+		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+variableName+"\"");
 		if ( logger.isTraceEnabled() ) {
 			logger.trace("      x = "+x);
 			logger.trace("      y = "+y);
@@ -598,12 +608,14 @@ public class FormDialog extends Dialog {
 			logger.trace("      background = "+debugValue(background, null));
 			logger.trace("      foreground = "+debugValue(foreground, null));
 			logger.trace("      values = "+values);
-			logger.trace("      default = "+debugValue(defaultValue, ""));
+			logger.trace("      default = "+debugValue(defaultText, ""));
+			logger.trace("      forceDefault = " + debugValue(forceDefault, false));
 			logger.trace("      tooltip = "+debugValue(tooltip, null));
 			logger.trace("      fontName = " + debugValue(fontName, null));
 			logger.trace("      fontSize = " + debugValue(fontSize, combo.getFont().getFontData()[0].getHeight()));
 			logger.trace("      fontBold = " + debugValue(fontBold, false));
 			logger.trace("      fontItalic = " + debugValue(fontItalic, false));
+			logger.trace("      editable = " + debugValue(editable, false));
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = "+debugValue(excelSheet, null));
 			logger.trace("      excelCell = "+debugValue(excelCell, null));
@@ -619,6 +631,7 @@ public class FormDialog extends Dialog {
 
 		combo.setLocation(x, y);
 		combo.setSize(width, height);
+	    combo.setEditable(editable);
 
 		if ( background != null ) {
 			String[] colorArray = background.split(",");
@@ -669,16 +682,18 @@ public class FormDialog extends Dialog {
 	 * @param composite the composite where the control will be created
 	 */
 	private Button createCheck(JSONObject jsonObject, Composite composite) throws RuntimeException {
-		Button check = new Button(composite, SWT.CHECK);
-
-		String variable = getString(jsonObject, "variable");
-		String value = expand(variable, selectedObject);
 		@SuppressWarnings("unchecked")
 		String[] values = (String[])(getJSONArray(jsonObject, "values")).toArray(new String[0]);
+		
+		String variableName = getString(jsonObject, "variable");
+		String value = expand(variableName, variableSeparator, selectedObject);
 		String defaultValue = getString(jsonObject, "default", "");
+		boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
+		
+		Button check = new Button(composite, SWT.CHECK);
 		if ( values!=null && values.length!=0 ) {
 			check.setData("values", values);
-			if ( value.isEmpty() ) {
+			if ( value.isEmpty() || forceDefault ) {
 				// we set the checkbox depending on the "default"
 				check.setSelection(values[0].equals(defaultValue));
 			} else {
@@ -703,7 +718,7 @@ public class FormDialog extends Dialog {
 		String excelCellType = getString(jsonObject, "excelCellType", null);
 		String excelDefault = getString(jsonObject, "excelDefault", null);
 		
-		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+variable+"\" ("+value+")");
+		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+variableName+"\"");
 		if ( logger.isTraceEnabled() ) {
 			logger.trace("      x = "+debugValue(x, 0));
 			logger.trace("      y = "+debugValue(y, 0));
@@ -713,6 +728,7 @@ public class FormDialog extends Dialog {
 			logger.trace("      foreground = "+debugValue(foreground, null));
 			logger.trace("      values = "+values);
 			logger.trace("      default = "+debugValue(defaultValue, ""));
+			logger.trace("      forceDefault = " + debugValue(forceDefault, false));
 			logger.trace("      tooltip = "+debugValue(tooltip, null));
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = "+debugValue(excelSheet, null));
@@ -984,7 +1000,7 @@ public class FormDialog extends Dialog {
 		if ( list.get(0) instanceof IDiagramModelObject ) {
 			for ( IDiagramModelObject diagramObject: (EList<IDiagramModelObject>)list ) {
 				if ( logger.isTraceEnabled() ) logger.trace("Found diagram object "+diagramObject.getName());
-				if ( checkFilter((EObject)diagramObject, filter) ) {
+				if ( checkFilter((EObject)diagramObject, variableSeparator, filter) ) {
 					if (diagramObject instanceof IDiagramModelArchimateObject)
 						addTableItem(table, (EObject)(((IDiagramModelArchimateObject)diagramObject).getArchimateElement()), values);
 					else
@@ -1000,7 +1016,7 @@ public class FormDialog extends Dialog {
 		} else if ( list.get(0) instanceof IDiagramModelArchimateConnection ) {
 			for ( IDiagramModelArchimateConnection diagramConnection: (EList<IDiagramModelArchimateConnection>)list ) {
 				if ( logger.isTraceEnabled() ) logger.trace("Found diagram connection "+diagramConnection.getName());
-				if ( checkFilter((EObject)diagramConnection, filter) ) {
+				if ( checkFilter((EObject)diagramConnection, variableSeparator, filter) ) {
 					addTableItem(table, (EObject)diagramConnection.getArchimateRelationship(), values);
 				}
 			}
@@ -1025,7 +1041,7 @@ public class FormDialog extends Dialog {
 		logger.trace("   adding line for object : "+((INameable)eObject).getName());
 
 		for ( int columnNumber=0; columnNumber<jsonArray.size(); ++columnNumber) {
-			String itemText = expand((String)jsonArray.get(columnNumber), eObject);
+			String itemText = expand((String)jsonArray.get(columnNumber), variableSeparator, eObject);
 
 			logger.trace("      adding "+((String)table.getColumn(columnNumber).getData("class")).toLowerCase()+" column with value \""+itemText+"\"");
 
@@ -1333,7 +1349,7 @@ public class FormDialog extends Dialog {
 	 * This method does not throw exceptions as it is mainly called by SWT which won't know what to do with these exceptions.<br>
 	 * Instead, it opens a popup to display the error message.
 	 */
-	private void setVariable(EObject eObject, String variable, String value) throws RuntimeException {
+	private void setVariable(String variable, String separator, String value, EObject eObject) throws RuntimeException {
 		if ( logger.isTraceEnabled() ) logger.trace("setting variable \""+variable+"\"");
 
 		// we check that the variable provided is a string enclosed between "${" and "}"
@@ -1380,7 +1396,7 @@ public class FormDialog extends Dialog {
 				break;
 
 			default :
-				if ( variableName.startsWith("property:") ) {
+				if ( variableName.startsWith("property"+separator) ) {
 					if ( eObject instanceof IDiagramModelArchimateObject )
 						eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
 					if ( eObject instanceof IDiagramModelArchimateConnection )
@@ -1471,25 +1487,25 @@ public class FormDialog extends Dialog {
 					}
 				}
 
-				else if ( variableName.startsWith("view:") ) {
+				else if ( variableName.startsWith("view"+separator) ) {
 					if ( eObject instanceof IDiagramModel ) {
-						setVariable(eObject, "${"+variableName.substring(5)+"}", value);
+						setVariable("${"+variableName.substring(5)+"}", separator, value, eObject);
 						return;
 					}
 					else if ( eObject instanceof IDiagramModelArchimateObject ) {
-						setVariable((EObject)((IDiagramModelArchimateObject)eObject).getDiagramModel(), "${"+variableName.substring(5)+"}", value);
+						setVariable("${"+variableName.substring(5)+"}", separator, value, (EObject)((IDiagramModelArchimateObject)eObject).getDiagramModel());
 						return;
 					}
 					throw new RuntimeException("Cannot set variable \""+variable+"\" as the object is not part of a DiagramModel.");
 				}
 
-				else if ( variableName.toLowerCase().startsWith("model:") ) {
+				else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
 					if ( eObject instanceof IArchimateDiagramModel ) {
-						setVariable(eObject, "${"+variableName.substring(6)+"}", value);
+						setVariable("${"+variableName.substring(6)+"}", separator, value, eObject);
 						return;
 					}
 					else if ( eObject instanceof IDiagramModelArchimateObject ) {
-						setVariable(((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel(), "${"+variableName.substring(6)+"}", value); ;
+						setVariable("${"+variableName.substring(6)+"}", separator, value, ((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel()); ;
 						return;
 					}
 					throw new RuntimeException("Cannot set variable \""+variable+"\" as the object is not part of a model.");
@@ -1679,7 +1695,7 @@ public class FormDialog extends Dialog {
 			case "Table" :
 				for ( TableItem item: ((Table)control).getItems() ) {
 					for ( TableEditor editor: (TableEditor[])item.getData("editors") ) {
-						save(editor.getEditor());
+						if ( editor != null ) save(editor.getEditor());
 					}
 				}
 				break;
@@ -1722,18 +1738,18 @@ public class FormDialog extends Dialog {
 				case "create" :
 					if ( logger.isTraceEnabled() )
 						logger.trace("   value is empty : creating property if doen't exist.");
-					setVariable(eObject, variable, "");
+					setVariable(variableSeparator, variable, "", eObject);
 					break;
 				case "delete" :
 					if ( logger.isTraceEnabled() )
 						logger.trace("   value is empty : deleting property if it exists.");
-					setVariable(eObject, variable, null);
+					setVariable(variableSeparator, variable, null, eObject);
 					break;
 			}
 		} else {
 			if ( logger.isTraceEnabled() )
 				logger.trace("   value is not empty : setting property.");
-			setVariable(eObject, variable, value);
+			setVariable(variable, variableSeparator, value, eObject);
 		}
 	}
 
@@ -2206,7 +2222,7 @@ public class FormDialog extends Dialog {
 	/**
 	 * Checks whether the eObject fits in the filter rules
 	 */
-	public static boolean checkFilter(EObject eObject, JSONObject filterObject) {
+	public static boolean checkFilter(EObject eObject, String separator , JSONObject filterObject) {
 		if ( filterObject == null ) {
 			return true;
 		}
@@ -2226,7 +2242,7 @@ public class FormDialog extends Dialog {
 			String operation=(String)getJSON(filter, "operation");
 			String value;
 
-			String attributeValue = expand(attribute, eObject);
+			String attributeValue = expand(attribute, separator, eObject);
 
 			switch ( operation.toLowerCase() ) {
 				case "equals" :
@@ -2276,18 +2292,19 @@ public class FormDialog extends Dialog {
 	 * Expands an expression containing variables<br>
 	 * It may return an empty string, but never a null value
 	 */
-	public static String expand(String expression, EObject eObject) {
+	public static String expand(String expression, String separator, EObject eObject) {
 		if ( expression == null )
 			return null;
 
 		StringBuffer sb = new StringBuffer(expression.length());
 
-		Pattern pattern = Pattern.compile("(\\$\\{[^}]+})");
+		Pattern pattern = Pattern.compile("(\\$\\{([^${}]|(?1))+\\})");
 		Matcher matcher = pattern.matcher(expression);
 
 		while (matcher.find()) {
 			String variable = matcher.group(1);
-			String variableValue = getVariable(variable, eObject);
+			//if ( logger.isTraceEnabled() ) logger.trace("   matching "+variable);
+			String variableValue = getVariable(variable, separator, eObject);
 			if ( variableValue == null )
 				variableValue = "";
 			matcher.appendReplacement(sb, Matcher.quoteReplacement(variableValue));
@@ -2300,22 +2317,22 @@ public class FormDialog extends Dialog {
 	 * Gets the value of the variable<br>
 	 * car return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
 	 */
-	public static String getVariable(String variable, EObject eObject) {
+	public static String getVariable(String variable, String separator, EObject eObject) {
 		if ( logger.isTraceEnabled() ) logger.trace("getting variable \""+variable+"\"");
 
 		// we check that the variable provided is a string enclosed between "${" and "}"
-		Pattern pattern = Pattern.compile("^\\$\\{[^}]+}$");
-		Matcher matcher = pattern.matcher(variable);
-		if ( !matcher.matches() )
-			throw new RuntimeException("The expression \""+variable+"\" is not a variable. It should be enclosed between \"${\" and \"}\"");
-
-		String variableName = variable.substring(2, variable.length()-1);
+		if ( !variable.startsWith("${") || !variable.endsWith("}") )
+		    throw new RuntimeException("The expression \""+variable+"\" is not a variable. It should be enclosed between \"${\" and \"}\"");
+		
+	    String variableName = expand(variable.substring(2, variable.length()-1), separator, eObject);
 
 		//TODO : add a preference to choose between silently ignore or raise an error
 		switch ( variableName.toLowerCase() ) {
 			case "class" :
 				if (eObject instanceof IDiagramModelArchimateObject)
 					return ((IDiagramModelArchimateObject)eObject).getArchimateElement().getClass().getSimpleName();
+                if (eObject instanceof IDiagramModelArchimateConnection)
+                    return ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getClass().getSimpleName();
 				return eObject.getClass().getSimpleName();
 
 			case "id" :
@@ -2334,7 +2351,7 @@ public class FormDialog extends Dialog {
 				new RuntimeException("Cannot get variable \""+variable+"\" as the object is not a Nameable.");
 
 			default :
-				if ( variableName.toLowerCase().startsWith("property:") ) {
+				if ( variableName.toLowerCase().startsWith("property"+separator) ) {
 					if ( eObject instanceof IDiagramModelArchimateObject )
 						eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
 					if ( eObject instanceof IDiagramModelArchimateConnection )
@@ -2351,28 +2368,29 @@ public class FormDialog extends Dialog {
 					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not a Properties ("+eObject.getClass().getSimpleName()+").");
 				}
 
-				else if ( variableName.toLowerCase().startsWith("view:") ) {
+				else if ( variableName.toLowerCase().startsWith("view"+separator) ) {
 					if ( eObject instanceof IDiagramModel ) {
-						return getVariable("${"+variableName.substring(5)+"}", eObject);
+						return getVariable("${"+variableName.substring(5)+"}", separator, eObject);
 					}
 					else if ( eObject instanceof IDiagramModelArchimateObject ) {
-						return getVariable(variableName.substring(5), ((IDiagramModelArchimateObject)eObject).getDiagramModel());
+						return getVariable(variableName.substring(5), separator, ((IDiagramModelArchimateObject)eObject).getDiagramModel());
 					}
 					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
 				}
 
-				else if ( variableName.toLowerCase().startsWith("model:") ) {
+				else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
 					if ( eObject instanceof IArchimateDiagramModel ) {
-						return getVariable("${"+variableName.substring(6)+"}", ((IArchimateDiagramModel)eObject).getArchimateModel());
+						return getVariable("${"+variableName.substring(6)+"}", separator, ((IArchimateDiagramModel)eObject).getArchimateModel());
 					}
 					else if ( eObject instanceof IDiagramModelArchimateObject ) {
-						return getVariable("${"+variableName.substring(6)+"}", ((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel());
+						return getVariable("${"+variableName.substring(6)+"}", separator, ((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel());
 					}
 					throw new RuntimeException("Cannot get variable \""+variable+"\" as the object is not part of a model ("+eObject.getClass().getSimpleName()+").");
 				}
 		}
-		
-		throw new RuntimeException("Unknown variable "+variable);
+		logger.debug("Unknown variable "+variable);
+		return variableName;
+		//HJO     throw new RuntimeException("Unknown variable "+variable);
 	}
 
 	public String debugValue(String value, String defaultValue) {

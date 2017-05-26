@@ -78,6 +78,9 @@ import org.json.simple.parser.JSONParser;
  * 								Solve a bug which prevent the form to save the updated values if it was related to a relationship
  * 								Add the ability to change the font name, size and style of label, text and combo controls
  * 
+ * v1.3 :		27/075/2017		Allow to nest variables
+ * 								Allow to change the character used to separate variable name from variable scope
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add the ability to choose configuration files in the preference rather than having a single configuration file at a fixed location
@@ -86,7 +89,7 @@ import org.json.simple.parser.JSONParser;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.2";
+	public static final String pluginVersion = "1.3";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	

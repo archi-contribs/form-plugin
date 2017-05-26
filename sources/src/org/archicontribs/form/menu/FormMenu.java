@@ -97,6 +97,8 @@ public class FormMenu extends ExtensionContributionFactory {
 				boolean refersToModel = false;
 
 				String name = FormDialog.getString(form,"name");
+				String variableSeparator = FormDialog.getString(form,"variableSeparator", ":");
+				
 				if ( name.isEmpty() )
 					throw new RuntimeException("Form names cannot be empty.");
 
@@ -151,8 +153,8 @@ public class FormMenu extends ExtensionContributionFactory {
 						}
 
 						// we guarantee than an object is not included in the same menu several times
-						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, filter)) ) {
-							String menuLabel = FormDialog.expand(name, selectedObject);
+						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, variableSeparator, filter)) ) {
+							String menuLabel = FormDialog.expand(name, variableSeparator, selectedObject);
 							Map<String, Object> commandParameters = new HashMap<String, Object>();
 							commandParameters.put("org.archicontribs.form.formRank", String.valueOf(formRank));
 							commandParameters.put("org.archicontribs.form.selectionRank", String.valueOf(selectionRank));
