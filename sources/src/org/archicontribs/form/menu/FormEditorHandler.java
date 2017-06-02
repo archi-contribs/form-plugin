@@ -12,6 +12,10 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -33,8 +37,10 @@ import com.archimatetool.editor.diagram.sketch.editparts.SketchDiagramPart;
 import com.archimatetool.editor.diagram.sketch.editparts.SketchGroupEditPart;
 import com.archimatetool.editor.diagram.sketch.editparts.StickyEditPart;
 import com.archimatetool.model.IArchimateDiagramModel;
+import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateObject;
+import com.archimatetool.model.IFolder;
 
 /**
  * This classes is instantiated when a form is selected on the right-click menu
@@ -42,6 +48,8 @@ import com.archimatetool.model.IDiagramModelArchimateObject;
  *
  */
 public class FormEditorHandler extends AbstractHandler {
+    public static final Cursor CURSOR_WAIT = new Cursor(null, SWT.CURSOR_WAIT);
+    public static final Cursor CURSOR_ARROW = new Cursor(null, SWT.CURSOR_ARROW);
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -93,7 +101,8 @@ public class FormEditorHandler extends AbstractHandler {
 				case "SketchActorEditPart" : selectedObject = ((SketchActorEditPart)obj).getModel(); break;
 				case "SketchGroupEditPart" : selectedObject = ((SketchGroupEditPart)obj).getModel(); break;
 				case "StickyEditPart" : selectedObject = ((StickyEditPart)obj).getModel(); break;
-				default : throw new RuntimeException("Don't know how to deal with objects of class "+obj.getClass().getSimpleName());
+                                                         
+                default : selectedObject = (EObject)obj;                 // elements, relationships
 			}
 			
 			JSONObject form = (JSONObject) forms.get(formRank);
@@ -101,13 +110,40 @@ public class FormEditorHandler extends AbstractHandler {
 			String refers = FormDialog.getString(form,"refers", "");
 			switch ( refers.toLowerCase() ) {
 				case "":
-				case "selected" : break;
-				case "view" : while ( !(selectedObject instanceof IDiagramModel) ) { selectedObject = selectedObject.eContainer(); }; break;
-				case "model" : if ( selectedObject instanceof IArchimateDiagramModel ) selectedObject = ((IArchimateDiagramModel)selectedObject).getArchimateModel(); else selectedObject = ((IDiagramModelArchimateObject)selectedObject).getDiagramModel().getArchimateModel();; break;
-				default : throw new RuntimeException("Unknown \"refers\" value \""+refers+"\".\n\nMust be \"selected\", \"view\" or \"model\".");
+				case "selected" :
+				    break;
+				    
+				case "view" :
+				    while ( !(selectedObject instanceof IDiagramModel) ) {
+				        selectedObject = selectedObject.eContainer();
+				    }
+				    break;
+				    
+				case "folder":
+				    if ( !(selectedObject instanceof IFolder) ) {
+				        selectedObject = selectedObject.eContainer();
+				    }
+				    break;
+				    
+				case "model" :
+				    if ( selectedObject instanceof IArchimateDiagramModel )
+				        selectedObject = ((IArchimateDiagramModel)selectedObject).getArchimateModel();
+				    else if ( selectedObject instanceof IArchimateModelObject )
+				        selectedObject = ((IArchimateModelObject)selectedObject).getArchimateModel();
+				    else
+				        selectedObject = ((IDiagramModelArchimateObject)selectedObject).getDiagramModel().getArchimateModel();
+				    break;
+				    
+				default :
+				    throw new RuntimeException("Unknown \"refers\" value \""+refers+"\".\n\nMust be \"selected\", \"view\", \"folder\" or \"model\".");
 			}
 			
+            for ( Shell shell: Display.getDefault().getShells() ) {
+                shell.setCursor(CURSOR_WAIT);
+            }
+			
 			new FormDialog(form, selectedObject);
+			
 		} catch (IOException e) {
 			FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file:\n"+configFilename,e);
 		} catch (ParseException e) {
@@ -120,6 +156,10 @@ public class FormEditorHandler extends AbstractHandler {
 		} catch (RuntimeException e) {
 			FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file:\n"+configFilename,e);
 		}
+		
+        for ( Shell shell: Display.getDefault().getShells() ) {
+            shell.setCursor(CURSOR_ARROW);
+        }
 		
 		return null;
 	}

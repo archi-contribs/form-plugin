@@ -9,7 +9,7 @@ The plugin works with the version 4 of Archi
 * download the latest **org.archicontribs.form-xxxx.jar** and **org.archicontribs.form.conf** files to your Archi **plugins** folder
 * edit the conf file to meet your requirements
 * start Archi
-* the plugin is accessible through new context menu entries (right click) when on view.
+* the plugin is accessible through new context menu entries (right click).
 
 ## Wiki
 Please do not hesitate to have a look at the [Wiki](https://github.com/archi-contribs/form-plugin/wiki).

@@ -27,6 +27,11 @@
             class="org.archicontribs.form.menu.FormMenu"
             locationURI="popup:ArchimateDiagramEditorContextMenuProvider?after=additions">
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            class="org.archicontribs.form.menu.FormMenu"
+            locationURI="popup:com.archimatetool.editor.treeModelView?after=additions">
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">

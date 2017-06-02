@@ -81,15 +81,23 @@ import org.json.simple.parser.JSONParser;
  * v1.3 :		27/075/2017		Allow to nest variables
  * 								Allow to change the character used to separate variable name from variable scope
  * 
+ * v1.4 :		02/06/2017		Allow to select components directly on the tree on the left side of Archi window
+ * 								Allow to select folders
+ * 								Allow to select the model itself
+ * 								Rewrite of error message to be more helpful in searching the error cause
+ * 								Set the WRAP bit of the text controls
+ * 								Solve bug which avoided the tooltip to showup on some controls
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add the ability to choose configuration files in the preference rather than having a single configuration file at a fixed location
+ *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
  * 								Create a graphical interface to generate the forms rather than requiring the user to edit a json file that is quite very complex to understand
  */
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.3";
+	public static final String pluginVersion = "1.4";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	

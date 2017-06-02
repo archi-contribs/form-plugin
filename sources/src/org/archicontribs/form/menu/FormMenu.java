@@ -46,8 +46,13 @@ import com.archimatetool.editor.diagram.sketch.editparts.SketchDiagramPart;
 import com.archimatetool.editor.diagram.sketch.editparts.SketchGroupEditPart;
 import com.archimatetool.editor.diagram.sketch.editparts.StickyEditPart;
 import com.archimatetool.model.IArchimateDiagramModel;
+import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IDiagramModel;
+import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDiagramModelArchimateObject;
+import com.archimatetool.model.IDiagramModelObject;
+import com.archimatetool.model.IFolder;
 
 
 
@@ -56,6 +61,7 @@ public class FormMenu extends ExtensionContributionFactory {
 
 	@Override
 	public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
+	    if ( logger.isDebugEnabled() ) logger.debug("Form plugin : creating menu entries.");
 		Object[] selection = ((IStructuredSelection) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection()).toArray();
 		ImageDescriptor formMenuIcon = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle(FormPlugin.PLUGIN_ID), new Path("icons/form.jpg"), null));
 		boolean addSeparator = true;
@@ -67,6 +73,8 @@ public class FormMenu extends ExtensionContributionFactory {
 		} catch (IOException e1) {
 			configFilename = FormPlugin.pluginsFilename.replace(".jar", "")+".conf";
 		}
+		
+        if ( logger.isDebugEnabled() ) logger.debug("configuration file is \""+configFilename+"\"");
 
 		File f = new File(configFilename);
 
@@ -87,6 +95,7 @@ public class FormMenu extends ExtensionContributionFactory {
 				throw new RuntimeException("Not the right version (should be 2).");
 
 			JSONArray forms = FormDialog.getJSONArray(json, FormPlugin.PLUGIN_ID);
+			if ( logger.isTraceEnabled() ) logger.trace("configuration file has got "+forms.size()+" forms.");
 
 			// we loop over the forms
 			for ( int formRank = 0; formRank < forms.size(); ++formRank ) {
@@ -95,6 +104,7 @@ public class FormMenu extends ExtensionContributionFactory {
 				HashSet<EObject>selected = new HashSet<EObject>();
 				boolean refersToView = false;
 				boolean refersToModel = false;
+				boolean refersToFolder = false;
 
 				String name = FormDialog.getString(form,"name");
 				String variableSeparator = FormDialog.getString(form,"variableSeparator", ":");
@@ -107,6 +117,7 @@ public class FormMenu extends ExtensionContributionFactory {
 					case "":
 					case "selected" : break;
 					case "view" : refersToView = true; break;
+					case "folder" : refersToFolder = true; break;
 					case "model" : refersToModel = true; break;
 					default : throw new RuntimeException("Unknown \"refers\" value \""+refers+"\".\n\nMust be \"selected\", \"view\" or \"model\".");
 				}
@@ -118,36 +129,64 @@ public class FormMenu extends ExtensionContributionFactory {
 
 				//we loop over the selected components
 				int menuEntries = 0;
+                loopOnForms:
 				for ( int selectionRank = 0; selectionRank < selection.length; ++selectionRank ) {
 					if ( ++menuEntries <= menuEntriesLimit ) {
 						Object obj = selection[selectionRank];
 						EObject selectedObject;
 						switch ( obj.getClass().getSimpleName() ) {
-							case "ArchimateElementEditPart" : selectedObject = ((ArchimateElementEditPart)obj).getModel(); break;
-							case "ArchimateRelationshipEditPart" : selectedObject = ((ArchimateRelationshipEditPart)obj).getModel(); break;
-							case "ArchimateDiagramPart" : selectedObject = ((ArchimateDiagramPart)obj).getModel(); break;
-							case "CanvasDiagramPart" : selectedObject = ((CanvasDiagramPart)obj).getModel(); break;
-							case "SketchDiagramPart" : selectedObject = ((SketchDiagramPart)obj).getModel(); break;
-							case "CanvasBlockEditPart" : selectedObject = ((CanvasBlockEditPart)obj).getModel(); break;
-							case "CanvasStickyEditPart" : selectedObject = ((CanvasStickyEditPart)obj).getModel(); break;
-							case "DiagramConnectionEditPart" : selectedObject = ((DiagramConnectionEditPart)obj).getModel(); break;
-							case "DiagramImageEditPart" : selectedObject = ((DiagramImageEditPart)obj).getModel(); break;
-							case "GroupEditPart" : selectedObject = ((GroupEditPart)obj).getModel(); break;
-							case "NoteEditPart" : selectedObject = ((NoteEditPart)obj).getModel(); break;
-							case "SketchActorEditPart" : selectedObject = ((SketchActorEditPart)obj).getModel(); break;
-							case "SketchGroupEditPart" : selectedObject = ((SketchGroupEditPart)obj).getModel(); break;
-							case "StickyEditPart" : selectedObject = ((StickyEditPart)obj).getModel(); break;
-							default : throw new RuntimeException("Don't know how to deal with objects of class "+obj.getClass().getSimpleName());
+							case "ArchimateElementEditPart" :        selectedObject = ((ArchimateElementEditPart)obj).getModel(); break;
+							case "ArchimateRelationshipEditPart" :   selectedObject = ((ArchimateRelationshipEditPart)obj).getModel(); break;
+							case "ArchimateDiagramPart" :            selectedObject = ((ArchimateDiagramPart)obj).getModel(); break;
+							case "CanvasDiagramPart" :               selectedObject = ((CanvasDiagramPart)obj).getModel(); break;
+							case "SketchDiagramPart" :               selectedObject = ((SketchDiagramPart)obj).getModel(); break;
+							case "CanvasBlockEditPart" :             selectedObject = ((CanvasBlockEditPart)obj).getModel(); break;
+							case "CanvasStickyEditPart" :            selectedObject = ((CanvasStickyEditPart)obj).getModel(); break;
+							case "DiagramConnectionEditPart" :       selectedObject = ((DiagramConnectionEditPart)obj).getModel(); break;
+							case "DiagramImageEditPart" :            selectedObject = ((DiagramImageEditPart)obj).getModel(); break;
+							case "GroupEditPart" :                   selectedObject = ((GroupEditPart)obj).getModel(); break;
+							case "NoteEditPart" :                    selectedObject = ((NoteEditPart)obj).getModel(); break;
+							case "SketchActorEditPart" :             selectedObject = ((SketchActorEditPart)obj).getModel(); break;
+							case "SketchGroupEditPart" :             selectedObject = ((SketchGroupEditPart)obj).getModel(); break;
+							case "StickyEditPart" :                  selectedObject = ((StickyEditPart)obj).getModel(); break;
+							                                         
+							default : selectedObject = (EObject)obj;                 // elements, relationships
 						}
 
 						if ( refersToView ) {
+						    if ( !(selectedObject instanceof IDiagramModelObject) ) {
+						        if ( logger.isDebugEnabled() ) logger.debug("form refers to view but a "+selectedObject.getClass().getSimpleName()+" is not inside a view");
+						        continue loopOnForms;
+						    }
 							while ( !(selectedObject instanceof IDiagramModel) ) {
 								selectedObject = selectedObject.eContainer();
 							}
 						}
-						else if ( refersToModel ) {
+						else if ( refersToFolder ) {
+					        if ( selectedObject instanceof IArchimateModel ) {
+					            if ( logger.isDebugEnabled() ) logger.debug("form refers to folder but a "+selectedObject.getClass().getSimpleName()+" is not inside a folder");
+                                continue loopOnForms;
+					        }
+					        else if ( selectedObject instanceof IDiagramModelArchimateObject ) {
+                                selectedObject = ((IDiagramModelArchimateObject)selectedObject).getArchimateElement();
+                            }
+                            else if ( selectedObject instanceof IDiagramModelArchimateConnection ) {
+                                selectedObject = ((IDiagramModelArchimateConnection)selectedObject).getArchimateRelationship();
+                            }
+					        
+					        if ( !(selectedObject instanceof IFolder) ) {
+					            selectedObject = selectedObject.eContainer();
+                                if ( !(selectedObject instanceof IFolder) ) {
+                                    if ( logger.isDebugEnabled() ) logger.debug("form refers to folder but a "+selectedObject.getClass().getSimpleName()+" is not inside a folder.");
+                                    continue loopOnForms;
+                                }
+					        }
+					    }
+					    else if ( refersToModel && !(selectedObject instanceof IArchimateModel) ) {
 							if ( selectedObject instanceof IArchimateDiagramModel )
 								selectedObject = ((IArchimateDiagramModel)selectedObject).getArchimateModel();
+							else if ( selectedObject instanceof IArchimateModelObject )
+                                selectedObject = ((IArchimateModelObject)selectedObject).getArchimateModel();
 							else
 								selectedObject = ((IDiagramModelArchimateObject)selectedObject).getDiagramModel().getArchimateModel();
 						}
@@ -164,7 +203,7 @@ public class FormMenu extends ExtensionContributionFactory {
 									"org.archicontribs.form.formMenuContributionItem",		// id
 									"org.archicontribs.form.showForm",						// commandId
 									commandParameters,										// parameters
-									formMenuIcon,												// icon
+									formMenuIcon,											// icon
 									null,													// disabledIcon
 									null,													// hoverIcon
 									menuLabel,												// label
