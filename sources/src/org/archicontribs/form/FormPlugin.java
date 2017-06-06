@@ -88,6 +88,8 @@ import org.json.simple.parser.JSONParser;
  * 								Set the WRAP bit of the text controls
  * 								Solve bug which avoided the tooltip to showup on some controls
  * 
+ * v1.4.1 :		06/06/2017		Solve "failed to get the model" error message
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add the ability to choose configuration files in the preference rather than having a single configuration file at a fixed location
@@ -97,7 +99,7 @@ import org.json.simple.parser.JSONParser;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.4";
+	public static final String pluginVersion = "1.4.1";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	
