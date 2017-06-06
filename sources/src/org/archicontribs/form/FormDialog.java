@@ -1080,8 +1080,6 @@ public class FormDialog extends Dialog {
             		addTableItem(table, view, values);
             	}
             }
-        } else if ( list.get(0) instanceof IDiagramModelConnection ) {
-			// do nothing
 		} else {
 			throw new RuntimeException(getPosition("lines") + "\n\nFailed to generate lines for unknown object class \""+list.get(0).getClass().getSimpleName()+"\"");
 		}
@@ -1224,7 +1222,7 @@ public class FormDialog extends Dialog {
 		logger.log(FormDialog.class, level, msg, e);
 
 		if ( e != null ) {
-			if ( (e.getMessage()!=null) && !e.getMessage().equals(msg)) {
+			if ( FormPlugin.areEqual(e.getMessage(), msg)) {
 				popupMessage += "\n\n" + e.getMessage();
 			} else {
 				popupMessage += "\n\n" + e.getClass().getName();
@@ -1476,7 +1474,7 @@ public class FormDialog extends Dialog {
 
 						IProperty propertyToUpdate = null;
 						for ( IProperty property: ((IProperties)eObject).getProperties() ) {
-							if ( property.getKey().equals(propertyName) ) {
+							if ( FormPlugin.areEqual(property.getKey(), propertyName) ) {
 								propertyToUpdate = property;
 								break;
 							}
@@ -1736,6 +1734,15 @@ public class FormDialog extends Dialog {
 		}
 		else if ( selectedObject instanceof IDiagramModelArchimateConnection ) {
 			model = ((IDiagramModelArchimateConnection)selectedObject).getDiagramModel().getArchimateModel();
+		}
+		else if ( selectedObject instanceof IArchimateElement ) {
+			model = ((IArchimateElement)selectedObject).getArchimateModel();
+		}
+		else if ( selectedObject instanceof IArchimateRelationship ) {
+			model = ((IArchimateRelationship)selectedObject).getArchimateModel();
+		}
+		else if ( selectedObject instanceof IFolder ) {
+			model = ((IFolder)selectedObject).getArchimateModel();
 		}
 		else {
 			popup(Level.ERROR, "Failed to get the model.");
@@ -2409,19 +2416,19 @@ public class FormDialog extends Dialog {
 				return eObject.getClass().getSimpleName();
 
 			case "id" :
-				if (eObject instanceof IDocumentable)
+				if (eObject instanceof IIdentifier)
 					return ((IIdentifier)eObject).getId();
-				new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not inherit from 'Identifier' ("+eObject.getClass().getSimpleName()+").");
+				new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not an ID ("+eObject.getClass().getSimpleName()+").");
 
 			case "documentation" :
 				if (eObject instanceof IDocumentable)
 					return ((IDocumentable)eObject).getDocumentation();
-				new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not inherit from 'Documentable' ("+eObject.getClass().getSimpleName()+").");
+				new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+eObject.getClass().getSimpleName()+").");
 
 			case "name" :
 				if (eObject instanceof INameable)
 					return ((INameable)eObject).getName();
-				new RuntimeException(getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a does not inherit from 'Nameable' ("+eObject.getClass().getSimpleName()+").");
+				new RuntimeException(getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a does not have a name' ("+eObject.getClass().getSimpleName()+").");
 
 			default :
 				if ( variableName.toLowerCase().startsWith("property"+separator) ) {
@@ -2432,13 +2439,13 @@ public class FormDialog extends Dialog {
 					if ( eObject instanceof IProperties ) {
 						String propertyName = variableName.substring(9);
 						for ( IProperty property: ((IProperties)eObject).getProperties() ) {
-							if ( property.getKey().equals(propertyName) ) {
+							if ( FormPlugin.areEqual(property.getKey(),propertyName) ) {
 								return property.getValue();
 							}
 						}
 						return null;
 					}
-					throw new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not inherit from 'Properties' ("+eObject.getClass().getSimpleName()+").");
+					throw new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have properties ("+eObject.getClass().getSimpleName()+").");
 				}
 
 				else if ( variableName.toLowerCase().startsWith("view"+separator) ) {
