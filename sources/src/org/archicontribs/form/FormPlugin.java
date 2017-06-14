@@ -90,16 +90,17 @@ import org.json.simple.parser.JSONParser;
  * 
  * v1.4.1 :		06/06/2017		Solve "failed to get the model" error message
  * 
+ * v1.5 :		14/06/2017		finally, it is now possible to choose the configuration file(s)
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
- * 								Add the ability to choose configuration files in the preference rather than having a single configuration file at a fixed location
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
  * 								Create a graphical interface to generate the forms rather than requiring the user to edit a json file that is quite very complex to understand
  */
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.4.1";
+	public static final String pluginVersion = "1.5";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	
