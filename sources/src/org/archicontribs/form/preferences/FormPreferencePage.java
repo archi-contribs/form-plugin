@@ -12,9 +12,12 @@ import org.eclipse.jface.preference.*;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -24,8 +27,11 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IWorkbenchPreferencePage;
@@ -41,12 +47,15 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 	private static String[][] LOGGER_MODES = {{"Disabled", "disabled"}, {"Simple mode", "simple"}, {"Expert mode", "expert"}};
 	private static String[][] LOGGER_LEVELS = {{"Fatal", "fatal"}, {"Error", "error"}, {"Warn", "warn"}, {"Info", "info"}, {"Debug", "debug"}, {"Trace", "trace"}};
 	
-	private static final Color BACKGROUND_COLOR = new Color(null, 235, 235, 235);	// light grey
-	private static final Color RED_COLOR = new Color(null, 240, 0, 0);				// red
+	public static final Color COMPO_BACKGROUND_COLOR = new Color(null, 250, 250, 250);	// light grey
+	public static final Color GROUP_BACKGROUND_COLOR = new Color(null, 235, 235, 235);	// light grey (a bit darker than compo background)
+	public static final Color RED_COLOR = new Color(null, 240, 0, 0);				// red
 	
 	private static String HELP_ID = "com.archimatetool.help.FormPreferencePage";
 	
 	private Composite loggerComposite;
+	
+	private FormConfigFileTableEditor table;
 	
 	private RadioGroupFieldEditor loggerModeRadioGroupEditor;
 	private FormFileFieldEditor filenameFileFieldEditor;
@@ -56,6 +65,8 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 	private Group expertModeGroup;
 	
 	private Button btnCheckForUpdateAtStartupButton;
+	private boolean mouseOverHelpButton = false;
+	public static final Image HELP_ICON = new Image(Display.getDefault(), FormDialog.class.getResourceAsStream("/img/28x28/help.png"));
 	
 	private FormLogger logger = new FormLogger(FormPreferencePage.class);
 	
@@ -80,7 +91,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
         
 		tabFolder = new TabFolder(getFieldEditorParent(), SWT.NONE);
 		tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		tabFolder.setBackground(BACKGROUND_COLOR);
+		tabFolder.setBackground(GROUP_BACKGROUND_COLOR);
 		
 		// ********************************* */
 		// * Behaviour tab  **************** */
@@ -102,20 +113,20 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
         rowLayout.justify = false;
         rowLayout.fill = false;
         behaviourComposite.setLayoutData(rowLayout);
-        behaviourComposite.setBackground(BACKGROUND_COLOR);
+        behaviourComposite.setBackground(GROUP_BACKGROUND_COLOR);
         
 		TabItem behaviourTabItem = new TabItem(tabFolder, SWT.NONE);
         behaviourTabItem.setText("Behaviour");
         behaviourTabItem.setControl(behaviourComposite);
         		
         Group grpVersion = new Group(behaviourComposite, SWT.NONE);
-		grpVersion.setBackground(BACKGROUND_COLOR);
+		grpVersion.setBackground(COMPO_BACKGROUND_COLOR);
 		grpVersion.setLayout(new FormLayout());
 		grpVersion.setText("Version : ");
 		
 		Label versionLbl = new Label(grpVersion, SWT.NONE);
 		versionLbl.setText("Actual version :");
-		versionLbl.setBackground(BACKGROUND_COLOR);
+		versionLbl.setBackground(COMPO_BACKGROUND_COLOR);
 		FormData fd = new FormData();
 		fd.top = new FormAttachment(0, 5);
 		fd.left = new FormAttachment(0, 10);
@@ -123,7 +134,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 		
 		Label versionValue = new Label(grpVersion, SWT.NONE);
 		versionValue.setText(FormPlugin.pluginVersion);
-		versionValue.setBackground(BACKGROUND_COLOR);
+		versionValue.setBackground(COMPO_BACKGROUND_COLOR);
 		versionValue.setFont(FormDialog.BOLD_FONT);
 		fd = new FormData();
 		fd.top = new FormAttachment(versionLbl, 0, SWT.TOP);
@@ -131,7 +142,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 		versionValue.setLayoutData(fd);
 		
 		Button checkUpdateButton = new Button(grpVersion, SWT.NONE);
-		checkUpdateButton.setBackground(BACKGROUND_COLOR);
+		checkUpdateButton.setBackground(COMPO_BACKGROUND_COLOR);
 		checkUpdateButton.setText("Check for update");
 		fd = new FormData();
 		fd.top = new FormAttachment(versionValue, 0, SWT.CENTER);
@@ -143,7 +154,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 		});
 		
 		btnCheckForUpdateAtStartupButton = new Button(grpVersion, SWT.CHECK);
-		btnCheckForUpdateAtStartupButton.setBackground(BACKGROUND_COLOR);
+		btnCheckForUpdateAtStartupButton.setBackground(COMPO_BACKGROUND_COLOR);
 		btnCheckForUpdateAtStartupButton.setText("Automatically check for update at startup");
 		fd = new FormData();
 		fd.top = new FormAttachment(versionLbl, 5);
@@ -156,6 +167,45 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 		gd.horizontalAlignment = GridData.FILL;
 		gd.grabExcessHorizontalSpace = true;
 		grpVersion.setLayoutData(gd);
+		
+		table = new FormConfigFileTableEditor("ConfigFiles", "", behaviourComposite);
+		addField(table);
+		
+		Group grpHelp = new Group(behaviourComposite, SWT.NONE);
+		grpHelp.setBackground(COMPO_BACKGROUND_COLOR);
+        grpHelp.setLayout(new FormLayout());
+        grpHelp.setText("Online help : ");
+        
+        gd = new GridData();
+        //gd.heightHint = 40;
+        gd.horizontalAlignment = GridData.FILL;
+        gd.grabExcessHorizontalSpace = true;
+        grpHelp.setLayoutData(gd);
+        
+        Label btnHelp = new Label(grpHelp, SWT.NONE);
+        btnHelp.addListener(SWT.MouseEnter, new Listener() { @Override public void handleEvent(Event event) { mouseOverHelpButton = true; btnHelp.redraw(); } });
+        btnHelp.addListener(SWT.MouseExit, new Listener() { @Override public void handleEvent(Event event) { mouseOverHelpButton = false; btnHelp.redraw(); } });
+        btnHelp.addPaintListener(new PaintListener() {
+            @Override
+            public void paintControl(PaintEvent e)
+            {
+                 if ( mouseOverHelpButton ) e.gc.drawRoundRectangle(0, 0, 29, 29, 10, 10);
+                 e.gc.drawImage(HELP_ICON, 2, 2);
+            }
+        });
+        btnHelp.addListener(SWT.MouseUp, new Listener() { @Override public void handleEvent(Event event) { if ( logger.isDebugEnabled() ) logger.debug("Showing help : /"+FormPlugin.PLUGIN_ID+"/help/html/configurePlugin.html"); PlatformUI.getWorkbench().getHelpSystem().displayHelpResource("/"+FormPlugin.PLUGIN_ID+"/help/html/configurePlugin.html"); } });
+        fd = new FormData(30,30);
+        fd.top = new FormAttachment(0, 11);
+        fd.left = new FormAttachment(0, 10);
+        btnHelp.setLayoutData(fd);
+        
+        Label helpLbl = new Label(grpHelp, SWT.NONE);
+        helpLbl.setText("The online help is under construction ...");
+        helpLbl.setBackground(COMPO_BACKGROUND_COLOR);
+        fd = new FormData();
+        fd.top = new FormAttachment(btnHelp, 0, SWT.CENTER);
+        fd.left = new FormAttachment(btnHelp, 10);
+        helpLbl.setLayoutData(fd);
 		
 		// ********************************* */
 		// * Logging tab  ****************** */
@@ -255,7 +305,11 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 	
     @Override
     public boolean performOk() {
+    	table.close();
+    	
     	if ( logger.isTraceEnabled() ) logger.trace("Saving preferences in preference store");
+    	
+    	table.store();
     	
    	    	// the loggerMode is a private property, so we use reflection to access it
 		try {
