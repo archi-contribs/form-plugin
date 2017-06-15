@@ -92,6 +92,7 @@ import org.json.simple.parser.JSONParser;
  * 
  * v1.5 :		14/06/2017		finally, it is now possible to choose the configuration file(s)
  * 
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
