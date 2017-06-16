@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+	<title>Release notes</title>
+</head>
+
+<body>
+<h1>Form plugin</h1>
+<h2>Release notes</h2>
+<h3>v 1.5 (18/06/2017)</h3>
+   <ul>
+   <li>finally, it is now possible to choose theconfiguration file(s)</li>
+   <li>adding first online Help pages</li>
+   </ul>
+
+<h3>v 1.4.1 (06/06/2017)</h3>
+   <ul>
+   <li>Solve "failed to get model" error message</li>
+   </ul>
+
+<h3>v 1.4 (02/06/2017)</h3>
+   <ul>
+   <li>Allow to select components directly on the tree on the left side of Archi window</li>
+   <li>Allow to select folders</li>
+   <li>Allow to select the model itself</li>
+   <li>Rewrite of error message to be more helpful in searching the error cause</li>
+   <li>Set the WRAP bit of the text controls</li>
+   <li>Solve bug which avoided the tooltip to showup on some controls</li>
+   </ul>
+
+<h3>v 1.3 (27/05/2017)</h3>
+   <ul>
+   <li>Allow to nest variables</li>
+   <li>Allow to change the character used to separate variable name from variable scope</li>
+   </ul>
+
+<h3>v 1.2 (23/05/2017)</h3>
+   <ul>
+   <li>The plugin is now able to automatically download updates from GitHub</li>
+   <li>Solve a bug which prevent the form to save the updated values if it was related to a relationship</li>
+   <li>Add the ability to change the font name, size and style of label, text and combo controls</li>
+   </ul>
+
+<h3>v 1.1 (21/05/2017)</h3>
+   <ul>
+   <li>The plugin now uses Eclipse Commands to allow undo / redo</li>
+   <li>Change the plugin behaviour to update variables only when the OK button is clicked rather than on every keystroke</li>
+   <li>It is now possible to choose to which component the form refers to: the selected component in the view, the view itself, or the whole model</li>
+   <li>Change the menu icon to make it clearer</li>
+   <li>Updates in the configuration file:</li>
+      <ul>
+      <li style="circle">Add "version" property to indicate that the other changes have been correctly applied</li>
+      <li style="circle">Add ability to change the Ok, Cancel and Export to Excel button labels, width and height</li>
+      <li style="circle">The "objects" array has been renamed to "controls" to fit to the SWT controls it allows to create</li>
+      <li style="circle">The "value" property has been renamed to "variable" to clearly indicates that it uniquely can contain a variable</li>
+      <li style="circle">The "values" array in the table lines has been renamed to "cells" as it can contain literal strings and variables, depending on the corresponding column class</li>
+      <li style="circle">The "category : dynamic" property in the table lines has been renamed to "generate: yes" as it was confusing</li>
+      <li style="circle">Add the ability to use variables anywhere in literal strings (form name, tab name, labels, ...)</li>
+      <li style="circle">Add the ability to specify a default content to any variable</li>
+      <li style="circle">Add the ability to choose what to do when a variable is set to empty : ignore, create, or delete</li>
+      <li style="circle">Add the ability to set combo box as editable (it is possible to write any value) or not editable (only values listed in the combo can be selected)</li>
+      </ul>
+   </ul>
+
+<h3> v1.0 (16/04/2017)</h3>
+   <li>Add ability to change foreground and background color of all components</li>
+   <li>Add ability to export to Excel files</li>
+   <li>Update dynamic tables filter to add "AND" and "OR" genre</li>
+   </ul>
+
+<h3> v0.2 (04/03/2017)</h3>
+   <li>Solve several bugs</li>
+   <li>Add a preference page</li>
+   <li>Add log4j support for logging</li>
+   <li>Add filter in dynamic table items generation</li>
+   <li>Change RCP methods to insert entries in menus in order to be more friendly with other plugins</li>
+   <li>The keywords are now case insensitive</li>
+   <li>Add ability to sort table columns</li>
+   </ul>
+
+<h3> v 0.1 (28/11/2017)</h3>
+   <li>Plug-in creation</li>
+   </ul>
+
+</body>
+</html>
