@@ -105,6 +105,8 @@ public class FormPlugin extends AbstractUIPlugin {
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	
+	public static final String storeConfigFilesPrefix = "configFile";
+	
 	public static String pluginsFolder;
 	public static String pluginsPackage;
 	public static String pluginsFilename;
