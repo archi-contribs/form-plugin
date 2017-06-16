@@ -9,6 +9,11 @@
             id="org.archicontribs.form.showForm"
             name="showForm">
          <commandParameter
+               id="org.archicontribs.form.fileName"
+               name="fileName"
+               optional="false">
+         </commandParameter>
+         <commandParameter
                id="org.archicontribs.form.formRank"
                name="formRank"
                optional="false">
@@ -16,7 +21,7 @@
          <commandParameter
                id="org.archicontribs.form.selectionRank"
                name="selectionRank"
-               optional="true">
+               optional="false">
          </commandParameter>
       </command>
    </extension>

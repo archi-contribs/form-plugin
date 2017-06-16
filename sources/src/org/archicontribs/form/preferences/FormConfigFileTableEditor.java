@@ -7,6 +7,9 @@
 package org.archicontribs.form.preferences;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormDialog;
@@ -55,7 +58,6 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private Button btnDiscard;
 	private Button btnSave;
 	
-	private static final String preferenceName = "databases";
 	private static final IPreferenceStore store = FormPlugin.INSTANCE.getPreferenceStore();
 
 	/**
@@ -268,11 +270,11 @@ public class FormConfigFileTableEditor extends FieldEditor {
 
 		tblConfigFiles.removeAll();
 		
-		int lines = store.getInt(preferenceName);
+		int lines = store.getInt(FormPlugin.storeConfigFilesPrefix+"_#");
 		
 		for (int line = 0; line <lines; line++) {
 			TableItem tableItem = new TableItem(tblConfigFiles, SWT.NONE);
-			tableItem.setText(store.getString(preferenceName+"_"+String.valueOf(line)));
+			tableItem.setText(store.getString(FormPlugin.storeConfigFilesPrefix+"_"+String.valueOf(line)));
 		}
 			
 		if ( tblConfigFiles.getItemCount() != 0 ) {
@@ -288,10 +290,10 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		if ( logger.isTraceEnabled() ) logger.trace("doStore()");
 		
 		int lines = tblConfigFiles.getItemCount();
-		store.setValue(preferenceName, lines);
+		store.setValue(FormPlugin.storeConfigFilesPrefix+"_#", lines);
 
 		for (int line = 0; line < lines; line++) {
-			store.setValue(preferenceName+"_"+String.valueOf(line), tblConfigFiles.getItem(line).getText());
+			store.setValue(FormPlugin.storeConfigFilesPrefix+"_"+String.valueOf(line), tblConfigFiles.getItem(line).getText());
 		}
 	}
 
@@ -329,20 +331,36 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private void saveCallback() {
 		if ( logger.isTraceEnabled() ) logger.trace("saveCallback()");
 
-		if ( txtFile.getText().isEmpty() )
-			return;
+		if ( txtFile.getText().isEmpty() ) {
+		    // TODO : disable the save button when the txtFile field is empty, and enable it when not empty ... may be activate only when valid file with tooltip with error message
+		    return;		    
+		}
+		
+		// We check if the configuration file already exists in the table
+		for (int line = 0; line < tblConfigFiles.getItemCount(); ++line) {
+		    if ( line != tblConfigFiles.getSelectionIndex() ) {
+		        try {
+                    if ( Files.isSameFile(Paths.get(txtFile.getText()), Paths.get(tblConfigFiles.getItem(line).getText(line))) ) {
+                        FormDialog.popup(Level.ERROR, "The file is already selected, please choose another one.");
+                        return;
+                    }
+                } catch (IOException e) {
+                    FormDialog.popup(Level.ERROR, "IOException", e);
+                }
+		    }
+		}
 
+		// if a tableItem is selected in the tblconfigFiles table, we replace it. Else, we add a new one
 		TableItem tableItem;
-
-		try {
-			if ( tblConfigFiles.getSelectionIndex() >= 0 ) {
-				tableItem = tblConfigFiles.getSelection()[0];
-			} else {
-				tableItem = new TableItem(tblConfigFiles, SWT.NONE);
-			}
-		} catch (Exception e) {
-			FormDialog.popup(Level.ERROR, "Please verify the information you provided", e);
-			return;
+		if ( tblConfigFiles.getSelectionIndex() >= 0 ) {
+			tableItem = tblConfigFiles.getSelection()[0];
+		} else {
+			try {
+			    tableItem = new TableItem(tblConfigFiles, SWT.NONE);
+			} catch (Exception e) {
+	            FormDialog.popup(Level.ERROR, "Cannot create new tableItem !", e);
+	            return;
+	        }
 		}
 		tableItem.setText(txtFile.getText());
 

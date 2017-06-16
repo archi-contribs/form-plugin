@@ -167,11 +167,13 @@ public class FormDialog extends Dialog {
 
 	private final String[] whenEmptyValidStrings = new String[] { "ignore", "create", "delete"};
 
+	// the following variables are used by the getPosition method
 	private static String formName = null;
 	private static String tabName = null;
 	private static String controlName = null;
 	private static String controlClass = null;
 	private static String columnName = null;
+	
 	private String variableSeparator = null;
 	
 	private final int defaultDialogWidth = 850;
