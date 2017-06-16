@@ -78,7 +78,7 @@ import org.json.simple.parser.JSONParser;
  * 								Solve a bug which prevent the form to save the updated values if it was related to a relationship
  * 								Add the ability to change the font name, size and style of label, text and combo controls
  * 
- * v1.3 :		27/075/2017		Allow to nest variables
+ * v1.3 :		27/05/2017		Allow to nest variables
  * 								Allow to change the character used to separate variable name from variable scope
  * 
  * v1.4 :		02/06/2017		Allow to select components directly on the tree on the left side of Archi window
@@ -90,8 +90,8 @@ import org.json.simple.parser.JSONParser;
  * 
  * v1.4.1 :		06/06/2017		Solve "failed to get the model" error message
  * 
- * v1.5 :		14/06/2017		finally, it is now possible to choose the configuration file(s)
- * 
+ * v1.5 :		18/06/2017		finally, it is now possible to choose the configuration file(s)
+ *                              adding first online help pages
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)

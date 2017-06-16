@@ -46,4 +46,11 @@
             name="form plugin">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.help.toc">
+      <toc
+            file="help/help.xml"
+            primary="true">
+      </toc>
+   </extension>
 </plugin>
