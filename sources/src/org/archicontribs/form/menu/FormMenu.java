@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.gef.editparts.AbstractEditPart;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -30,26 +31,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.archimatetool.canvas.editparts.CanvasBlockEditPart;
-import com.archimatetool.canvas.editparts.CanvasDiagramPart;
-import com.archimatetool.canvas.editparts.CanvasStickyEditPart;
-import com.archimatetool.editor.diagram.editparts.ArchimateDiagramPart;
-import com.archimatetool.editor.diagram.editparts.ArchimateElementEditPart;
-import com.archimatetool.editor.diagram.editparts.ArchimateRelationshipEditPart;
-import com.archimatetool.editor.diagram.editparts.DiagramConnectionEditPart;
-import com.archimatetool.editor.diagram.editparts.diagram.DiagramImageEditPart;
-import com.archimatetool.editor.diagram.editparts.diagram.GroupEditPart;
-import com.archimatetool.editor.diagram.editparts.diagram.NoteEditPart;
-import com.archimatetool.editor.diagram.sketch.editparts.SketchActorEditPart;
-import com.archimatetool.editor.diagram.sketch.editparts.SketchDiagramPart;
-import com.archimatetool.editor.diagram.sketch.editparts.SketchGroupEditPart;
-import com.archimatetool.editor.diagram.sketch.editparts.StickyEditPart;
-import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDiagramModelArchimateObject;
+import com.archimatetool.model.IDiagramModelComponent;
 import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.IFolder;
 
@@ -175,15 +162,7 @@ public class FormMenu extends ExtensionContributionFactory {
 		                        case "model" :
 		                            if ( logger.isTraceEnabled() ) logger.trace("Refers to the model");
 		                            
-		                            if ( !(selectedObject instanceof IArchimateModel) ) {
-		                                if ( selectedObject instanceof IArchimateDiagramModel )
-    		                                selectedObject = ((IArchimateDiagramModel)selectedObject).getArchimateModel();
-    		                            else if ( selectedObject instanceof IArchimateModelObject )
-    		                                selectedObject = ((IArchimateModelObject)selectedObject).getArchimateModel();
-    		                            else
-    		                                selectedObject = ((IDiagramModelArchimateObject)selectedObject).getDiagramModel().getArchimateModel();
-		                            }
-		                                
+		                            selectedObject = getModel(selectedObject);
 		                            break;
 		                            
 		                        default :
@@ -268,23 +247,12 @@ public class FormMenu extends ExtensionContributionFactory {
     }
     
     public static EObject getSelectedObject(Object obj) {
-        switch ( obj.getClass().getSimpleName() ) {
-            case "ArchimateElementEditPart" :        return ((ArchimateElementEditPart)obj).getModel();
-            case "ArchimateRelationshipEditPart" :   return ((ArchimateRelationshipEditPart)obj).getModel();
-            case "ArchimateDiagramPart" :            return ((ArchimateDiagramPart)obj).getModel();
-            case "CanvasDiagramPart" :               return ((CanvasDiagramPart)obj).getModel();
-            case "SketchDiagramPart" :               return ((SketchDiagramPart)obj).getModel();
-            case "CanvasBlockEditPart" :             return ((CanvasBlockEditPart)obj).getModel();
-            case "CanvasStickyEditPart" :            return ((CanvasStickyEditPart)obj).getModel();
-            case "DiagramConnectionEditPart" :       return ((DiagramConnectionEditPart)obj).getModel();
-            case "DiagramImageEditPart" :            return ((DiagramImageEditPart)obj).getModel();
-            case "GroupEditPart" :                   return ((GroupEditPart)obj).getModel();
-            case "NoteEditPart" :                    return ((NoteEditPart)obj).getModel();
-            case "SketchActorEditPart" :             return ((SketchActorEditPart)obj).getModel();
-            case "SketchGroupEditPart" :             return ((SketchGroupEditPart)obj).getModel();
-            case "StickyEditPart" :                  return ((StickyEditPart)obj).getModel();
-        }
-        return (EObject)obj;                 // elements, relationships
+    	// if graphical object in a view
+        if ( obj instanceof AbstractEditPart )
+        	return (EObject) ((AbstractEditPart)obj).getModel();
+
+        // if not a graphical object
+        return (EObject)obj;
     }
     
     public static EObject getContainer(EObject obj) {
@@ -300,12 +268,12 @@ public class FormMenu extends ExtensionContributionFactory {
         if ( obj instanceof IArchimateModel )
             return (IArchimateModel)obj;
         
-        if ( obj instanceof IArchimateDiagramModel )
-            return ((IArchimateDiagramModel)obj).getArchimateModel();
-        
         if ( obj instanceof IArchimateModelObject )
             return ((IArchimateModelObject)obj).getArchimateModel();
         
-        return ((IDiagramModelArchimateObject)obj).getDiagramModel().getArchimateModel();
+        if ( obj instanceof IDiagramModelComponent )
+        	return ((IDiagramModelComponent)obj).getDiagramModel().getArchimateModel();
+        
+        return ((IDiagramModelObject)obj).getDiagramModel().getArchimateModel();
     }
 }
