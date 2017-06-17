@@ -90,8 +90,8 @@ import org.json.simple.parser.JSONParser;
  * 
  * v1.4.1 :		06/06/2017		Solve "failed to get the model" error message
  * 
- * v1.5 :		18/06/2017		finally, it is now possible to choose the configuration file(s)
- *                              adding first online help pages
+ * v1.5 :		17/06/2017		finally, it is now possible to choose the configuration file(s)
+ *                              adding online help pages
  *                              The selected object can now be a referenced view, a canvas or a sketch view
  * 
  * TODO LIST :

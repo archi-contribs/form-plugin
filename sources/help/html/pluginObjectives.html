@@ -7,13 +7,55 @@
 </head>
 
 <body>
-<h1>Form plugin</h1>
-<h2>Plugin objectives</h2>
-The form plugin extends the Archi behavior with the following functionalities :
+<h1><u>Form plugin</u></h1>
+<h2><u>Plugin objectives</u></h2>
+
 <ul>
-   <li>Show up the components' metadata and properties in a graphical form
-   <li>These metadata and properties can also be updated through the form</li>
-   <li>They can also be exported to an Excel spreadsheet</li>
-</ul>  
+	<li><b><u>Executive summary</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	The form plugin extends the Archi behavior with the following functionalities :
+	<ul>
+	   <li>Show up the components' metadata and properties in a graphical form
+	   <li>These metadata and properties can also be updated through the form</li>
+	   <li>They can also be exported to an Excel spreadsheet</li>
+	</ul>
+</div>
+<br>
+
+<ul>
+	<li><b><u>How it works</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	Here are the steps to follow to make the plugin working:<br>
+	<ol>
+		<li>You need to create (at least) one <a href="configurationFile.html">configuration file</a> or use the sample provided,</li>
+		<li>Declare it to the plugin through its <a href="configurePlugin.html">preference page</a>,</li>
+		<li>Select one or several objects in Archi,</li>
+		<li>Right click to open the context menu.</li>
+	</ol>
+	And voila: menu entries will be added by the plugin to give your access to the forms.<br>
+	<br>
+	<img src="../img/rightClick-menu.png" width=600>
+</div>
+
+<ul>
+	<li><b><u>What are forms</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	Forms are graphical windows, spitted up with tabs, that can be configured to present widgets containing information about the selected Archi components (one form per component).<br>
+	<br>
+	Currently, the supported widget classes are:
+	<ul>
+		<li><b><u>label:</u></b> shows up read-only information</li>
+		<li><b><u>text:</u></b> shows up updatable information</li>
+		<li><b><u>combo:</u></b> shows up updatable information and provides a list of valid values</li>
+		<li><b><u>check box:</u></b> shows up updatable binary option (like true/false, yes/no, black/white, ...)</li>
+		<li><b><u>table: shows up information ordered in lines and columns</u></b></li>
+	</ul>
+	<img src="../img/form-sample1.png" width=400> <img src="../img/form-sample2.png" width=400> 
+</div>
+<br>
+
 </body>
 </html>

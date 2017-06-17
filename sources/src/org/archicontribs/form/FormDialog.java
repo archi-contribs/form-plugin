@@ -387,8 +387,8 @@ public class FormDialog extends Dialog {
 		boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
-		String excelCellType = getString(jsonObject, "excelCellType", null);
-		String excelDefault = getString(jsonObject, "excelDefault", null);
+		String excelCellType = getString(jsonObject, "excelCellType", "string");
+		String excelDefault = getString(jsonObject, "excelDefault", "blank");
 
 		if ( logger.isTraceEnabled() ) {
 		    logger.trace("      x = " + debugValue(x, 0));
@@ -405,8 +405,8 @@ public class FormDialog extends Dialog {
 			logger.trace("      fontItalic = " + debugValue(fontItalic, false));	
 			logger.trace("      excelSheet = " + debugValue(excelSheet, null));
 			logger.trace("      excelCell = " + debugValue(excelCell, null));
-			logger.trace("      excelCellType = " + debugValue(excelCellType, null));
-			logger.trace("      excelDefault = " + debugValue(excelDefault, null));
+			logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
+			logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
 		}
 
 		label.setLocation(x, y);
@@ -440,8 +440,8 @@ public class FormDialog extends Dialog {
 			excelSheets.add(excelSheet);
 			label.setData("excelSheet", excelSheet);
 			label.setData("excelCell", excelCell);
-			label.setData("excelCellType", excelCellType);
-			label.setData("excelDefault", excelDefault);
+			label.setData("excelCellType", excelCellType.toLowerCase());
+			label.setData("excelDefault", excelDefault.toLowerCase());
 		}
 
 		if ( tooltip != null ) {
@@ -490,8 +490,8 @@ public class FormDialog extends Dialog {
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
-		String excelCellType = getString(jsonObject, "excelCellType", null);
-		String excelDefault = getString(jsonObject, "excelDefault", null);
+		String excelCellType = getString(jsonObject, "excelCellType", "string");
+		String excelDefault = getString(jsonObject, "excelDefault", "blank");
 		
 		if ( logger.isDebugEnabled() ) logger.debug("   Creating Text control \""+variableName+"\"");
 		if ( logger.isTraceEnabled() ) {
@@ -515,8 +515,8 @@ public class FormDialog extends Dialog {
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = " + debugValue(excelSheet, null));
 			logger.trace("      excelCell = " + debugValue(excelCell, null));
-			logger.trace("      excelCellType = " + debugValue(excelCellType, null));
-			logger.trace("      excelDefault = " + debugValue(excelDefault, null));
+			logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
+			logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
 		}
 
 		if ( whenEmpty != null ) {
@@ -559,8 +559,8 @@ public class FormDialog extends Dialog {
 			excelSheets.add(excelSheet);
 			text.setData("excelSheet", excelSheet);
 			text.setData("excelCell", excelCell);
-			text.setData("excelCellType", excelCellType);
-			text.setData("excelDefault", excelDefault);
+			text.setData("excelCellType", excelCellType.toLowerCase());
+			text.setData("excelDefault", excelDefault.toLowerCase());
 		}
 		
 		if ( tooltip != null ) {
@@ -617,8 +617,8 @@ public class FormDialog extends Dialog {
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
-		String excelCellType = getString(jsonObject, "excelCellType", null);
-		String excelDefault = getString(jsonObject, "excelDefault", null);
+		String excelCellType = getString(jsonObject, "excelCellType", "string");
+		String excelDefault = getString(jsonObject, "excelDefault", "blank");
 
 		if ( logger.isDebugEnabled() ) logger.debug("   Creating combo \""+variableName+"\"");
 		if ( logger.isTraceEnabled() ) {
@@ -641,8 +641,8 @@ public class FormDialog extends Dialog {
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = "+debugValue(excelSheet, null));
 			logger.trace("      excelCell = "+debugValue(excelCell, null));
-			logger.trace("      excelCellType = "+debugValue(excelCellType, null));
-			logger.trace("      excelDefault = "+debugValue(excelDefault, null));
+			logger.trace("      excelCellType = "+debugValue(excelCellType, "string"));
+			logger.trace("      excelDefault = "+debugValue(excelDefault, "blank"));
 		}
 
 		if ( whenEmpty != null ) {
@@ -685,8 +685,8 @@ public class FormDialog extends Dialog {
 			excelSheets.add(excelSheet);
 			combo.setData("excelSheet", excelSheet);
 			combo.setData("excelCell", excelCell);
-			combo.setData("excelCellType", excelCellType);
-			combo.setData("excelDefault", excelDefault);
+			combo.setData("excelCellType", excelCellType.toLowerCase());
+			combo.setData("excelDefault", excelDefault.toLowerCase());
 		}
 
 		if ( tooltip != null ) {
@@ -739,8 +739,8 @@ public class FormDialog extends Dialog {
 		String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 		String excelSheet = getString(jsonObject, "excelSheet", null);
 		String excelCell = getString(jsonObject, "excelCell", null);
-		String excelCellType = getString(jsonObject, "excelCellType", null);
-		String excelDefault = getString(jsonObject, "excelDefault", null);
+		String excelCellType = getString(jsonObject, "excelCellType", "string");
+		String excelDefault = getString(jsonObject, "excelDefault", "blank");
 		
 		if ( logger.isDebugEnabled() ) logger.debug("   Creating check \""+variableName+"\"");
 		if ( logger.isTraceEnabled() ) {
@@ -758,8 +758,8 @@ public class FormDialog extends Dialog {
 			logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
 			logger.trace("      excelSheet = "+debugValue(excelSheet, null));
 			logger.trace("      excelCell = "+debugValue(excelCell, null));
-			logger.trace("      excelCellType = "+debugValue(excelCellType, null));
-			logger.trace("      excelDefault = "+debugValue(excelDefault, null));
+			logger.trace("      excelCellType = "+debugValue(excelCellType, "string"));
+			logger.trace("      excelDefault = "+debugValue(excelDefault, "blank"));
 		}
 
 		if ( whenEmpty != null ) {
@@ -789,8 +789,8 @@ public class FormDialog extends Dialog {
 			excelSheets.add(excelSheet);
 			check.setData("excelSheet", excelSheet);
 			check.setData("excelCell", excelCell);
-			check.setData("excelCellType", excelCellType);
-			check.setData("excelDefault", excelDefault);
+			check.setData("excelCellType", excelCellType.toLowerCase());
+			check.setData("excelDefault", excelDefault.toLowerCase());
 		}
 
 		if ( tooltip != null ) {
@@ -873,16 +873,16 @@ public class FormDialog extends Dialog {
 			String columnTooltip = getString(column, "tooltype", null);
 			int columnWidth = getInt(column, "width", (10+columnName.length()*8));
 			String excelColumn = getString(column, "excelColumn", null);
-			String excelCellType = getString(column, "excelCellType", null);
-			String excelDefault = getString(column, "excelDefault", null);
+			String excelCellType = getString(column, "excelCellType", "string");
+			String excelDefault = getString(column, "excelDefault", "blank");
 
 			if ( logger.isDebugEnabled() ) logger.debug("   Creating column \"" + columnName + "\" of class \"" + columnClass + "\"");
 			if ( logger.isTraceEnabled() ) {
 				logger.trace("      width = "+debugValue(columnWidth, (10+columnName.length()*8)));
 				logger.trace("      tooltip = "+debugValue(columnTooltip, null));
 				logger.trace("      excelColumn = "+debugValue(excelColumn, null));
-				logger.trace("      excelCellType = "+debugValue(excelCellType, null));
-				logger.trace("      excelDefault = "+debugValue(excelDefault, null));
+				logger.trace("      excelCellType = "+debugValue(excelCellType, "string"));
+				logger.trace("      excelDefault = "+debugValue(excelDefault, "blank"));
 			}
 
 			TableColumn tableColumn = new TableColumn(table, SWT.NONE);
@@ -892,8 +892,8 @@ public class FormDialog extends Dialog {
 			tableColumn.setResizable(columnWidth!=0);
 			tableColumn.setData("class", columnClass);
 			tableColumn.setData("excelColumn", excelColumn);
-			tableColumn.setData("excelCellType", excelCellType == null ? "string" : excelCellType.toLowerCase());
-			tableColumn.setData("excelDefault", excelDefault == null ? "nothing" : excelDefault.toLowerCase());
+			tableColumn.setData("excelCellType", excelCellType.toLowerCase());
+			tableColumn.setData("excelDefault", excelDefault.toLowerCase());
 			tableColumn.setData("tooltip", tooltip);
 			tableColumn.addListener(SWT.Selection, sortListener);
 
@@ -990,7 +990,7 @@ public class FormDialog extends Dialog {
 			while (linesIterator.hasNext()) {
 				JSONObject line = linesIterator.next();
 
-				if ( getJSON(line, "generate", null) == null ) {
+				if ( (boolean)getJSON(line, "generate", false) == false ) {
 					// static line
 					if ( logger.isTraceEnabled() ) logger.trace("Creating static line");
 					addTableItem(table, selectedObject, getJSONArray(line, "cells"));

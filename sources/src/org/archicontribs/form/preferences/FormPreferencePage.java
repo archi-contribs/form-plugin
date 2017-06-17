@@ -200,7 +200,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
         btnHelp.setLayoutData(fd);
         
         Label helpLbl = new Label(grpHelp, SWT.NONE);
-        helpLbl.setText("Click here to show up online help (please note that it is under construction and may be not exhaustive)");
+        helpLbl.setText("Click here to show up online help.");
         helpLbl.setBackground(COMPO_BACKGROUND_COLOR);
         fd = new FormData();
         fd.top = new FormAttachment(btnHelp, 0, SWT.CENTER);

@@ -3,6 +3,26 @@
 
 <toc label="Form plugin" topic="help/html/index.html">
  <topic href="help/html/pluginObjectives.html" label="Plugin objectives"/>
- <topic href="help/html/configurePlugin.html"  label="Configuring the plugin"/>
+ <topic href="help/html/configurePlugin.html"  label="Configure the plugin"/>
  <topic href="help/html/releaseNotes.html"     label="Release notes"/>
+ <topic href="help/html/configurationFile.html" label="The configuration file">
+    <topic href="help/html/configurationFile.html#structure" label="The file structure">
+    </topic>
+    <topic href="help/html/configurationFile.html#content" label="The file content">
+    </topic>
+    <topic href="help/html/configurationFile.html#forms" label="The forms">
+    </topic>
+    <topic href="help/html/configurationFile.html#tabs" label="The tabs">
+    </topic>
+    <topic href="help/html/configurationFile.html#controls" label="The controls">
+    </topic>
+    <topic href="help/html/configurationFile.html#tables" label="The tables">
+    </topic>
+    <topic href="help/html/configurationFile.html#variables" label="The variables">
+    </topic>
+    <topic href="help/html/configurationFile.html#excel" label="Exporting to Excel">
+    </topic>
+    <topic href="help/html/configurationFile.html#filters" label="The filters">
+    </topic>
+ </topic>
 </toc>

@@ -3,12 +3,94 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-	<title>Preference page</title>
+	<title>Configure the plugin</title>
 </head>
 
 <body>
-<h1>Form plugin</h1>
-<h2>Preference page</h2>
-To be filled-in.
+<h1><u>Form plugin</u></h1>
+<h2><u>Configure the plugin</u></h2>
+The form plugin can be configured using its preference page that can be accessed through Archi menu "edit" / "preferences".
+<br>
+Two tabs are available on the preference page:
+<ul>
+	<li>Behaviour</li>
+	<li>Logger</li>
+</ul>
+
+
+<h3><u>Behaviour</u></h3>
+<div style="margin-left:40px">
+	<img src="../img/preferencePage-behaviour.png" width=600>
+</div>
+<ul>
+	<li><b><u>Plugin automatic update</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	The plugin is able to update itself using the latest version from GitHub. This update can be done manually by a click on the "check for update" button.<br>
+	It can also automatically check for new version when Archi starts.<br>
+	<br>
+	If you are behind a proxy, you must append the following lines to your "archi.ini" file:<br>
+	<div style="margin-left:40px">
+		<code>
+		-Dhttp.proxyHost=&lt;proxy name or IP&gt;<br>
+		-Dhttp.proxyPort=&lt;proxy port&gt;<br>
+		-Dhttp.proxyUser=&lt;username if proxy authentication is required&gt;<br>
+		-Dhttp.proxyPassowrd=&lt;password if proxy authentication is required&gt;<br>
+		-Dhttps.proxyHost=&lt;proxy name or IP&gt;<br>
+		-Dhttps.proxyPort=&lt;proxy port&gt;<br>
+		-Dhttps.proxyUser=&lt;username if proxy authentication is required&gt;<br>
+		-Dhttps.proxyPassowrd=&lt;password if proxy authentication is required&gt;<br>
+		</code>
+	</div>
+</div>
+<ul>
+	<li><b><u>Configuration files</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	The plugin uses configuration files to determine which form to show up regarding the selected objects in Archi.<br>
+	<br>
+	Each configuration file can contain several forms, so it is up to you to store your forms definitions in a single configuration file or organise them into separate configuration files.
+</div>
+<ul>
+	<li><b><u>Online help</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	You can access the online help (like this page) using the help button on the preference page or using Archi's menu "Help" / "Help contents".
+</div>
+
+
+<h3><u>Logger</u></h3>
+<div style="margin-left:40px">
+You may activate the logger to obtain information like error or debug messages.<br>
+</div>
+<br>
+<ul>
+	<li><b><u>Simple mode</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	<img src="../img/preferencePage-logger-simpleMode.png" width=600><br>
+	<br>
+	The simple mode defines a standard configuration when messages are sent to Archi's standard output (accessible using the "-consoleLog" option) and to the specified log file. You may choose the level of los you need:
+	<ul>
+		<li>fatal</li>
+		<li>error</li>
+		<li>warn</li>
+		<li>info</li>
+		<li>debug</li>
+		<li>trace</li>
+	</ul>
+	Please be aware that the debug and even more, the trace level have got an impact on the plugin performance (of course, when not in the plugin, there is no impact on Archi performance).
+</div>
+<ul>
+	<li><b><u>Expert mode</u></b></li>
+</ul>
+<div style="margin-left:40px">
+	<img src="../img/preferencePage-logger-expertMode.png" width=600><br>
+	<br>
+	The expert mode allows you to specify the Log4J configuration.<br>
+	<br>
+	Please note hat this mode is for experts only. Please use it only if you know what you're doing.
+</div>
+
 </body>
 </html>
