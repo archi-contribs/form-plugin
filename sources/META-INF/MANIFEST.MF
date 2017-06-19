@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Form plugin for Archimate Tool
 Bundle-SymbolicName: org.archicontribs.form;singleton:=true
-Bundle-Version: 1.5
+Bundle-Version: 1.5.1
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.archimatetool.editor,
  com.archimatetool.canvas,
@@ -10,8 +10,7 @@ Require-Bundle: com.archimatetool.editor,
  com.archimatetool.model,
  org.eclipse.core.expressions,
  org.eclipse.emf.common,
- org.eclipse.help,
- org.eclipse.pde.runtime
+ org.eclipse.help
 Bundle-ClassPath: .,
  lib/json-simple-1.1.1.jar,
  lib/log4j-1.2.17.jar,

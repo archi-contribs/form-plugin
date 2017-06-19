@@ -93,6 +93,8 @@ import org.json.simple.parser.JSONParser;
  * v1.5 :		17/06/2017		finally, it is now possible to choose the configuration file(s)
  *                              adding online help pages
  *                              The selected object can now be a referenced view, a canvas or a sketch view
+ *                              
+ * v1.5.1 :     19/06/2017		Removed dependency to Eclipse library which invalidated the form plugin 
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
@@ -102,7 +104,7 @@ import org.json.simple.parser.JSONParser;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.5";
+	public static final String pluginVersion = "1.5.1";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	
