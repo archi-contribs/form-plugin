@@ -597,7 +597,7 @@ public class FormDialog extends Dialog {
 
 		CCombo combo = new CCombo(composite, SWT.NONE);						// we create the label at the very beginning because we need its default size which is dependent on its content
 		combo.setItems(values);
-		combo.setText(defaultText);
+		combo.setText(variableValue);
 		combo.pack();
 
 		int x = getInt(jsonObject, "x", 0);
