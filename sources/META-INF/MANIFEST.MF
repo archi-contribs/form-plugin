@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Form plugin for Archimate Tool
 Bundle-SymbolicName: org.archicontribs.form;singleton:=true
-Bundle-Version: 1.5.1
+Bundle-Version: 1.5.2
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.archimatetool.editor,
  com.archimatetool.canvas,
