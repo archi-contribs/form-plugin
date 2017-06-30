@@ -1433,8 +1433,17 @@ public class FormDialog extends Dialog {
 			case "class" :	// TODO: show error message
 				break;		// we refuse to change the class of an eObject
 
-			case "id" :		// TODO: show error message
-				break;		// we refuse to change the ID of an eObject
+			case "id" :
+				if (eObject instanceof IIdentifier) {
+					if ( value == null || value.length()==0 )
+						throw new RuntimeException(getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the value provided is null.");
+					cmd = new EObjectFeatureCommand(formName, eObject, IArchimatePackage.Literals.IDENTIFIER__ID, value);
+		            if(cmd.canExecute()) {
+		                compoundCommand.add(cmd);
+		            }
+					return;
+				}
+				break;
 
 			case "documentation" :
 				if (eObject instanceof IDocumentable) {
