@@ -2434,7 +2434,7 @@ public class FormDialog extends Dialog {
 	 */
 	public static String expand(String expression, String separator, EObject eObject) {
 		if ( expression == null )
-			return null;
+			return "";
 
 		StringBuffer sb = new StringBuffer(expression.length());
 
