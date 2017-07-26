@@ -100,6 +100,9 @@ import org.json.simple.parser.JSONParser;
  * 
  * v1.5.3 :		30/06/2017		Accept to change IDs
  * 
+ * v1.5.4 :     26/07/2017      Add "in" and "iin" tests
+ *                              Add ${source:xxx} and ${target:xxx} variables range
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
