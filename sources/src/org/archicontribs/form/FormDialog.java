@@ -1473,6 +1473,7 @@ public class FormDialog extends Dialog {
 				break;
 
 			default :
+			        // check for ${property:xxx} 
 				if ( variableName.startsWith("property"+separator) ) {
 					if ( eObject instanceof IDiagramModelArchimateObject )
 						eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
@@ -1564,6 +1565,7 @@ public class FormDialog extends Dialog {
 					}
 				}
 
+				    // check for ${view:xxx}
 				else if ( variableName.startsWith("view"+separator) ) {
 					if ( eObject instanceof IDiagramModel ) {
 						setVariable("${"+variableName.substring(5)+"}", separator, value, eObject);
@@ -1576,6 +1578,7 @@ public class FormDialog extends Dialog {
 					throw new RuntimeException(getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the object is not part of a DiagramModel.");
 				}
 
+				    // check for ${model:xxx}
 				else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
 					if ( eObject instanceof IArchimateDiagramModel ) {
 						setVariable("${"+variableName.substring(6)+"}", separator, value, eObject);
@@ -1587,6 +1590,26 @@ public class FormDialog extends Dialog {
 					}
 					throw new RuntimeException(getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not part of a model.");
 				}
+				
+                // check for ${source:xxx}
+            else if ( variableName.toLowerCase().startsWith("source"+separator) ) {
+                if ( eObject instanceof IArchimateRelationship ) {
+                    setVariable("${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getSource());
+                    return;
+                }
+                throw new RuntimeException(getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not a relationship.");
+            }
+				
+                // check for ${target:xxx}
+            else if ( variableName.toLowerCase().startsWith("target"+separator) ) {
+                if ( eObject instanceof IArchimateRelationship ) {
+                    setVariable("${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getTarget());
+                    return;
+                }
+                throw new RuntimeException(getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not a relationship.");
+            }
+				
+				// no need for a final else, because all the tests before are supposed to return the value if any, or throw an exception if none
 		}
 		
 		throw new RuntimeException(getPosition(null) + "\nDo not know how to set variable \""+variableName+"\"");
@@ -2322,7 +2345,7 @@ public class FormDialog extends Dialog {
 		if ( !type.equals("AND") && !type.equals("OR") )
 			throw new RuntimeException("Invalid filter genre. Supported genres are \"AND\" and \"OR\".");
 
-		boolean result = true;
+		boolean result;
 
 		@SuppressWarnings("unchecked")
 		Iterator<JSONObject> filterIterator = ((JSONArray)getJSON(filterObject, "tests")).iterator();
@@ -2331,31 +2354,58 @@ public class FormDialog extends Dialog {
 			String attribute=(String)getJSON(filter, "attribute");
 			String operation=(String)getJSON(filter, "operation");
 			String value;
+			String[] values;
 
 			String attributeValue = expand(attribute, separator, eObject);
 
 			switch ( operation.toLowerCase() ) {
 				case "equals" :
-					value=(String)getJSON(filter, "value");
+					value = (String)getJSON(filter, "value");
 
-					result = (attributeValue != null) && attributeValue.equals(value);
+					result = attributeValue.equals(value);
 					if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") equals \""+value+"\" --> "+result);
 					break;
+					
+                case "in" :
+                    value = (String)getJSON(filter, "value");
+                    values = value.split(",");
+                    result = false;
+                    for (String str : values) {
+                        if( str.equals(attributeValue) ) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") in \""+value+"\" --> "+result);
+                    break;
 
 				case "exists" :
-					result = (attributeValue != null);
+					result = attributeValue.isEmpty();
 					if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") exists --> "+result);
 					break;
 
 				case "iequals" :
-					value=(String)getJSON(filter, "value");
+					value = (String)getJSON(filter, "value");
 
-					result = (attributeValue != null) && attributeValue.equalsIgnoreCase(value);
+					result = attributeValue.equalsIgnoreCase(value);
 					if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") equals (ignore case) \""+value+"\" --> "+result);
 					break;
+					
+                case "iin" :
+                    value = (String)getJSON(filter, "value");
+                    values = value.split(",");
+                    result = false;
+                    for (String str : values) {
+                        if( str.equals(attributeValue) ) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") in \""+value+"\" --> "+result);
+                    break;
 
 				case "matches" :
-					value=(String)getJSON(filter, "value");
+					value = (String)getJSON(filter, "value");
 
 					result = (attributeValue != null) && attributeValue.matches(value);
 					if ( logger.isTraceEnabled() ) logger.trace("   filter "+attribute+"(\""+attributeValue+"\") matches \""+value+"\" --> "+result);
@@ -2405,7 +2455,7 @@ public class FormDialog extends Dialog {
 
 	/**
 	 * Gets the value of the variable<br>
-	 * car return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
+	 * can return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
 	 */
 	public static String getVariable(String variable, String separator, EObject eObject) {
 		if ( logger.isTraceEnabled() ) logger.trace("getting variable \""+variable+"\"");
@@ -2441,6 +2491,7 @@ public class FormDialog extends Dialog {
 				new RuntimeException(getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a does not have a name' ("+eObject.getClass().getSimpleName()+").");
 
 			default :
+			        // check for ${property:xxx}
 				if ( variableName.toLowerCase().startsWith("property"+separator) ) {
 					if ( eObject instanceof IDiagramModelArchimateObject )
 						eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
@@ -2458,6 +2509,7 @@ public class FormDialog extends Dialog {
 					throw new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have properties ("+eObject.getClass().getSimpleName()+").");
 				}
 
+				    // check for ${view:xxx}
 				else if ( variableName.toLowerCase().startsWith("view"+separator) ) {
 					if ( eObject instanceof IDiagramModel ) {
 						return getVariable("${"+variableName.substring(5)+"}", separator, eObject);
@@ -2468,6 +2520,7 @@ public class FormDialog extends Dialog {
 					throw new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
 				}
 
+				    // check for ${model:xxx}
 				else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
                     if ( eObject instanceof IArchimateModelObject ) {
                         return getVariable("${"+variableName.substring(6)+"}", separator, ((IArchimateModelObject)eObject).getArchimateModel());
@@ -2481,6 +2534,22 @@ public class FormDialog extends Dialog {
 					
 					throw new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as we failed to get the object's model ("+eObject.getClass().getSimpleName()+").");
 				}
+				
+                    // check for ${source:xxx}
+                else if ( variableName.toLowerCase().startsWith("source"+separator) ) {
+                    if ( eObject instanceof IArchimateRelationship ) {
+                        return getVariable("${"+variableName.substring(7)+"}", separator, ((IArchimateRelationship)eObject).getSource());
+                    }
+                    throw new RuntimeException(getPosition(null) + "\nCannot get variable \""+variable+"\" as the object is not a relationship.");
+                }
+                    
+                    // check for ${target:xxx}
+                else if ( variableName.toLowerCase().startsWith("target"+separator) ) {
+                    if ( eObject instanceof IArchimateRelationship ) {
+                        return getVariable("${"+variableName.substring(7)+"}", separator, ((IArchimateRelationship)eObject).getTarget());
+                    }
+                    throw new RuntimeException(getPosition(null) + "\nCannot get variable \""+variable+"\" as the object is not a relationship.");
+                }
 		}
 		throw new RuntimeException(getPosition(null) + "\n\nUnknown variable \""+variableName+"\" ("+variable+")");
 	}
