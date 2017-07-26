@@ -70,7 +70,7 @@ public class FormMenu extends ExtensionContributionFactory {
         int menuEntriesLimit = 5;       // TODO: add a preference entry
         
         int lines = store.getInt(FormPlugin.storeConfigFilesPrefix+"_#");
-        if ( logger.isTraceEnabled() ) logger.debug("Found "+lines+" files");
+        if ( logger.isDebugEnabled() ) logger.debug("Found "+lines+" files");
         
         loopOnConfigFiles:
         for (int line = 0; line <lines; line++) {
