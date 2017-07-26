@@ -111,7 +111,7 @@ import org.json.simple.parser.JSONParser;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.5.3";
+	public static final String pluginVersion = "1.5.4";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 	
