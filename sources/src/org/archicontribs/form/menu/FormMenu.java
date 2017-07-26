@@ -91,10 +91,19 @@ public class FormMenu extends ExtensionContributionFactory {
 
     		try {
     			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-    			int version = FormDialog.getInt(json, "version");
-    			if ( version != 2 ) {
-    			    logger.error("Ignored : not the right version (should be 2).");
-    			    continue loopOnConfigFiles;
+    			int version;
+    			try {
+    			    version = FormDialog.getInt(json, "version");
+    	            if ( version != 2 ) {
+	                    logger.error("Ignored : not the right version (should be 2).");
+	                    continue loopOnConfigFiles;
+	                }
+    			} catch (ClassCastException e) {
+                    logger.error("Ignored : the version specified is not an integer (should be 2).");
+                    continue loopOnConfigFiles;
+                } catch (RuntimeException e) {
+    			    logger.error("Ignored : the version is not specified (should be 2).");
+                    continue loopOnConfigFiles;
     			}
     
     			JSONArray forms = FormDialog.getJSONArray(json, FormPlugin.PLUGIN_ID);
