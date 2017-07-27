@@ -7,57 +7,57 @@ public class FormPosition {
     private static String controlClass = null;
     private static String columnName = null;
     
-    public String getFormName() {
+    public static String getFormName() {
         return formName;
     }
-    public void setFormName(String formName) {
+    public static void setFormName(String formName) {
         FormPosition.formName = formName;
     }
-    public void resetFormName() {
+    public static void resetFormName() {
         FormPosition.formName = null;
     }
     
-    public String getTabName() {
+    public static String getTabName() {
         return tabName;
     }
-    public void setTabName(String tabName) {
+    public static void setTabName(String tabName) {
         FormPosition.tabName = tabName;
     }
-    public void resetTabName() {
+    public static void resetTabName() {
         FormPosition.tabName = null;
     }
     
-    public String getControlName() {
+    public static String getControlName() {
         return controlName;
     }
-    public void setControlName(String controlName) {
+    public static void setControlName(String controlName) {
         FormPosition.controlName = controlName;
     }
-    public void resetControlName() {
+    public static void resetControlName() {
         FormPosition.controlName = null;
     }
     
-    public String getControlClass() {
+    public static String getControlClass() {
         return controlClass;
     }
-    public void setControlClass(String controlClass) {
+    public static void setControlClass(String controlClass) {
         FormPosition.controlClass = controlClass;
     }
-    public void resetControlClass() {
+    public static void resetControlClass() {
         FormPosition.controlClass = null;
     }
     
-    public String getColumnName() {
+    public static String getColumnName() {
         return columnName;
     }
-    public void setColumnName(String columnName) {
+    public static void setColumnName(String columnName) {
         FormPosition.columnName = columnName;
     }
-    public void resetColumnName() {
+    public static void resetColumnName() {
         FormPosition.columnName = null;
     }
     
-    public String getPosition(String attributeName) {
+    public static String getPosition(String attributeName) {
         StringBuilder str = new StringBuilder();
         
         str.append("In form \"").append(formName).append("\"");
