@@ -27,7 +27,7 @@ public class FormVarList {
             controls = map.get(variable);
         }
         
-        if ( control == null )
+        if ( controls == null )
             controls = new HashSet<Control>();
         
         controls.add(control);
