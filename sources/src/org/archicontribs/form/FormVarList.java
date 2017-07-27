@@ -37,6 +37,20 @@ public class FormVarList {
         varList.put(eObject, map);
     }
     
+    public void replaceControl(Control oldControl, Control newControl) {
+        if ( oldControl == null || newControl == null )
+            return;
+        
+        for ( HashMap<String, Set<Control>> map: varList.values() ) {
+            for ( Set<Control> controls: map.values() ) {
+                if( controls.contains(oldControl) ) {
+                    controls.remove(oldControl);
+                    controls.add(newControl);
+                }
+            }
+        }
+    }
+    
     public Set<Control> getControls(EObject eObject, String variable) {
         if ( eObject == null )
             return null;
