@@ -56,11 +56,11 @@ public class FormVariable {
      * Gets the real EObject that the variable refers to (as the variable can change the EObject using its scope)
      */
     public static EObject getReferedEObject(String variable, String separator, EObject eObject) {
-        if ( logger.isTraceEnabled() ) logger.trace("         getting real EObject the variable \""+variable+"\" refers to");
+        if ( logger.isTraceEnabled() ) logger.trace("         getting real EObject the expression \""+variable+"\" refers to");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
-            throw new RuntimeException(FormPosition.getPosition(null) + "\n\nThe expression \""+variable+"\" is not a variable (it should be enclosed between \"${\" and \"}\")");
+            return null;
         
         String variableName = expand(variable.substring(2, variable.length()-1), separator, eObject);
 
