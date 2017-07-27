@@ -56,7 +56,7 @@ public class FormVariable {
      * Gets the real EObject that the variable refers to (as the variable can change the EObject using its scope)
      */
     public static EObject getReferedEObject(String variable, String separator, EObject eObject) {
-        if ( logger.isTraceEnabled() ) logger.trace("         getting real EObject the expression \""+variable+"\" refers to");
+        if ( logger.isTraceEnabled() ) logger.trace("         getting real EObject the expression \""+variable+"\" refers to (from "+eObject.getClass().getSimpleName()+")");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
@@ -149,7 +149,7 @@ public class FormVariable {
      * can return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
      */
     public static String getVariable(String variable, String separator, EObject eObject) {
-        if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
+        //if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
@@ -277,7 +277,7 @@ public class FormVariable {
      * Instead, it opens a popup to display the error message.
      */
     public static void setVariable(String variable, String separator, String value, EObject eObject) throws RuntimeException {
-        if ( logger.isTraceEnabled() ) logger.trace("         setting variable \""+variable+"\"");
+        //if ( logger.isTraceEnabled() ) logger.trace("         setting variable \""+variable+"\"");
         
         CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
 
