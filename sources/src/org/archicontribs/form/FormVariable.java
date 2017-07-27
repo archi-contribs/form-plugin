@@ -53,11 +53,103 @@ public class FormVariable {
     }
     
     /**
+     * Gets the real EObject that the variable refers to (as the variable can change the EObject using its scope)
+     */
+    public static EObject getReferedEObject(String variable, String separator, EObject eObject) {
+        if ( logger.isTraceEnabled() ) logger.trace("         getting real EObject the variable \""+variable+"\" refers to");
+
+        // we check that the variable provided is a string enclosed between "${" and "}"
+        if ( !variable.startsWith("${") || !variable.endsWith("}") )
+            throw new RuntimeException(FormPosition.getPosition(null) + "\n\nThe expression \""+variable+"\" is not a variable (it should be enclosed between \"${\" and \"}\")");
+        
+        String variableName = expand(variable.substring(2, variable.length()-1), separator, eObject);
+
+        //TODO : add a preference to choose between silently ignore or raise an error
+        switch ( variableName.toLowerCase() ) {
+            case "class" :
+            case "documentation" :
+            case "id" :
+            case "name" :
+                return eObject;
+
+            case "void":
+                return null;
+
+            default :
+                    // check for ${property:xxx}
+                if ( variableName.toLowerCase().startsWith("property"+separator) ) {
+                    return eObject;
+                }
+
+                    // check for ${view:xxx}
+                else if ( variableName.toLowerCase().startsWith("view"+separator) ) {
+                    if ( eObject instanceof IDiagramModel ) {
+                        return eObject;
+                    }
+                    else if ( eObject instanceof IDiagramModelArchimateObject ) {
+                        return ((IDiagramModelArchimateObject)eObject).getDiagramModel();
+                    }
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
+                }
+
+                    // check for ${model:xxx}
+                else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
+                    if ( eObject instanceof IArchimateModelObject ) {
+                        return ((IArchimateModelObject)eObject).getArchimateModel();
+                    }
+                    else if ( eObject instanceof IDiagramModelComponent ) {
+                        return  ((IDiagramModelComponent)eObject).getDiagramModel().getArchimateModel();
+                    }
+                    else if ( eObject instanceof IArchimateModel ) {
+                        return eObject;
+                    }
+                    
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as we failed to get the object's model ("+eObject.getClass().getSimpleName()+").");
+                }
+                
+                    // check for ${source:xxx}
+                else if ( variableName.toLowerCase().startsWith("source"+separator) ) {
+                    EObject obj = eObject;
+                    if ( eObject instanceof IDiagramModelArchimateObject) {
+                        obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
+                    } else if (eObject instanceof IDiagramModelArchimateConnection) {
+                        obj = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
+                    } else {
+                        obj = eObject;
+                    }
+
+                    if ( obj instanceof IArchimateRelationship ) {
+                        return ((IArchimateRelationship)obj).getSource();
+                    }
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot get variable \""+variable+"\" as the object is not a relationship.");
+                }
+                    
+                    // check for ${target:xxx}
+                else if ( variableName.toLowerCase().startsWith("target"+separator) ) {
+                    EObject obj = eObject;
+                    if ( eObject instanceof IDiagramModelArchimateObject) {
+                        obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
+                    } else if (eObject instanceof IDiagramModelArchimateConnection) {
+                        obj = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
+                    } else {
+                        obj = eObject;
+                    }
+                    
+                    if ( obj instanceof IArchimateRelationship ) {
+                        return ((IArchimateRelationship)obj).getTarget();
+                    }
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot get variable \""+variable+"\" as the object is not a relationship.");
+                }
+        }
+        throw new RuntimeException(FormPosition.getPosition(null) + "\n\nUnknown variable \""+variableName+"\" ("+variable+")");
+    }
+    
+    /**
      * Gets the value of the variable<br>
      * can return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
      */
     public static String getVariable(String variable, String separator, EObject eObject) {
-        if ( logger.isTraceEnabled() ) logger.trace("getting variable \""+variable+"\"");
+        if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
@@ -185,7 +277,7 @@ public class FormVariable {
      * Instead, it opens a popup to display the error message.
      */
     public static void setVariable(String variable, String separator, String value, EObject eObject) throws RuntimeException {
-        if ( logger.isTraceEnabled() ) logger.trace("setting variable \""+variable+"\"");
+        if ( logger.isTraceEnabled() ) logger.trace("         setting variable \""+variable+"\"");
         
         CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
 

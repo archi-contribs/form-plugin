@@ -11,6 +11,7 @@ import java.util.Map;
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
+import org.archicontribs.form.FormVariable;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -181,7 +182,7 @@ public class FormMenu extends ExtensionContributionFactory {
     
     						// we guarantee than an object is not included in the same menu several times
     						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, variableSeparator, filter)) ) {
-    							String menuLabel = FormDialog.expand(formName, variableSeparator, selectedObject);
+    							String menuLabel = FormVariable.expand(formName, variableSeparator, selectedObject);
     							if ( logger.isDebugEnabled() ) logger.debug("Adding menu entry \""+menuLabel+"\"");
     							
     							// we add the parameters
