@@ -102,6 +102,7 @@ import org.json.simple.parser.JSONParser;
  * 
  * v1.5.4 :     26/07/2017      Add "in" and "iin" tests
  *                              Add ${source:xxx} and ${target:xxx} variables range
+ *                              Add ${void} variable
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)

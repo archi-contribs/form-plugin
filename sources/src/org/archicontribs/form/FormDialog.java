@@ -1472,6 +1472,9 @@ public class FormDialog extends Dialog {
 				}
 				break;
 
+			case "void":
+			    return;
+			
 			default :
 			        // check for ${property:xxx} 
 				if ( variableName.startsWith("property"+separator) ) {
@@ -2485,6 +2488,9 @@ public class FormDialog extends Dialog {
 					return ((IDocumentable)eObject).getDocumentation();
 				new RuntimeException(getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+eObject.getClass().getSimpleName()+").");
 
+			case "void":
+			    return "";
+			    
 			case "name" :
 				if (eObject instanceof INameable)
 					return ((INameable)eObject).getName();
