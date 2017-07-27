@@ -15,6 +15,9 @@ public class FormVarList {
     }
     
     public void set(EObject eObject, String variable, Control control) {
+        if ( eObject == null )
+            return;
+        
         HashMap<String, Set<Control>> map = varList.get(eObject);
         Set<Control> controls = null;
         
@@ -35,6 +38,9 @@ public class FormVarList {
     }
     
     public Set<Control> getControls(EObject eObject, String variable) {
+        if ( eObject == null )
+            return null;
+        
         HashMap<String, Set<Control>> map = varList.get(eObject);
         
         if ( map == null )
