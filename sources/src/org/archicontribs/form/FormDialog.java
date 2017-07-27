@@ -1251,10 +1251,12 @@ public class FormDialog extends Dialog {
                 + (((INameable) eObject).getName() == null ? "" : ((INameable) eObject).getName()) + "\"");
 
         for (int columnNumber = 0; columnNumber < jsonArray.size(); ++columnNumber) {
-            String itemText = FormVariable.expand((String) jsonArray.get(columnNumber), variableSeparator, eObject);
+            TableColumn tableColumn = table.getColumn(columnNumber);
+            String variableName = (String) jsonArray.get(columnNumber);
+            String itemText = FormVariable.expand(variableName, variableSeparator, eObject); 
 
             TableEditor editor;
-            switch (((String) table.getColumn(columnNumber).getData("class")).toLowerCase()) {
+            switch (((String)tableColumn.getData("class")).toLowerCase()) {
                 case "label":
                     logger.trace("      adding label cell with value \"" + itemText + "\"");
                     editor = new TableEditor(table);
@@ -1263,64 +1265,70 @@ public class FormDialog extends Dialog {
                     editor.grabHorizontal = true;
                     editor.setEditor(label, tableItem, columnNumber);
                     editors[columnNumber] = editor;
-                    // We reference the variable and the control to the eObject
-                    // that the variable refers to
-                    formVarList.set(FormVariable.getReferedEObject((String) jsonArray.get(columnNumber), variableSeparator, selectedObject), (String) jsonArray.get(columnNumber), label);
+                    // We reference the variable and the control to the eObject that the variable refers to
+                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, label);
                     break;
 
                 case "text":
                     editor = new TableEditor(table);
                     StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
-                    if ( ((String) table.getColumn(columnNumber).getData("default") != null && (itemText.isEmpty()) || (boolean) table.getColumn(columnNumber).getData("forceDefault"))) {
-                        itemText = FormVariable.expand((String) table.getColumn(columnNumber).getData("default"), variableSeparator, eObject);
+                    if ( ((String)tableColumn.getData("default") != null && (itemText.isEmpty()) || (boolean)tableColumn.getData("forceDefault"))) {
+                        itemText = FormVariable.expand((String)tableColumn.getData("default"), variableSeparator, eObject);
                     }
                     logger.trace("      adding text cell with value \"" + itemText + "\"");
                     text.setText(itemText);
-                    text.setToolTipText((String) table.getColumn(columnNumber).getData("tooltip"));
-                    text.setData("whenEmpty", table.getColumn(columnNumber).getData("whenEmpty"));
+                    text.setToolTipText((String)tableColumn.getData("tooltip"));
+                    text.setData("whenEmpty", tableColumn.getData("whenEmpty"));
                     text.setData("eObject", eObject);
-                    text.setData("variable", (String) jsonArray.get(columnNumber));
+                    text.setData("variable", variableName);
 
                     if (table.getColumn(columnNumber).getData("tooltip") != null) {
                         text.setToolTipText(FormVariable.expand((String) table.getColumn(columnNumber).getData("tooltip"), variableSeparator, eObject));
-                    } else
+                    } else {
                         if (table.getColumn(columnNumber).getData("regexp") != null) {
                             String regex = (String) table.getColumn(columnNumber).getData("regexp");
                             text.setData("pattern", Pattern.compile(regex));
                             text.setToolTipText("Your text should match the following regex :\n" + regex);
-                            text.addModifyListener(textModifyListener);
                         }
-
+                    }
+                    
                     editor.grabHorizontal = true;
                     editor.setEditor(text, tableItem, columnNumber);
                     editors[columnNumber] = editor;
+                    
+                    text.addModifyListener(textModifyListener);
+                    
+                    // We reference the variable and the control to the eObject that the variable refers to
+                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, text);
                     break;
 
                 case "combo":
                     editor = new TableEditor(table);
                     CCombo combo = new CCombo(table, SWT.NONE);
                     if (itemText.isEmpty()) {
-                        String defaultValue = (String) table.getColumn(columnNumber).getData("default");
+                        String defaultValue = (String)tableColumn.getData("default");
                         if (defaultValue != null)
                             itemText = defaultValue;
                     }
                     logger.trace("      adding combo cell with value \"" + itemText + "\"");
                     combo.setText(itemText);
-                    combo.setItems((String[]) table.getColumn(columnNumber).getData("values"));
-                    combo.setToolTipText((String) table.getColumn(columnNumber).getData("tooltip"));
-                    combo.setData("whenEmpty", table.getColumn(columnNumber).getData("whenEmpty"));
+                    combo.setItems((String[])tableColumn.getData("values"));
+                    combo.setToolTipText((String)tableColumn.getData("tooltip"));
+                    combo.setData("whenEmpty", tableColumn.getData("whenEmpty"));
                     combo.setData("eObject", eObject);
-                    combo.setData("variable", (String) jsonArray.get(columnNumber));
-                    Boolean editable = (Boolean) table.getColumn(columnNumber).getData("editable");
+                    combo.setData("variable", variableName);
+                    Boolean editable = (Boolean)tableColumn.getData("editable");
                     combo.setEditable(editable != null && editable);
 
-                    if (table.getColumn(columnNumber).getData("tooltip") != null) {
-                        combo.setToolTipText(FormVariable.expand((String) table.getColumn(columnNumber).getData("tooltip"), variableSeparator, eObject));
+                    if (tableColumn.getData("tooltip") != null) {
+                        combo.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), variableSeparator, eObject));
                     }
 
                     editor.grabHorizontal = true;
                     editor.setEditor(combo, tableItem, columnNumber);
                     editors[columnNumber] = editor;
+                    // We reference the variable and the control to the eObject that the variable refers to
+                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, combo);
                     break;
 
                 case "check":
@@ -1329,18 +1337,18 @@ public class FormDialog extends Dialog {
                     check.pack();
                     editor.minimumWidth = check.getSize().x;
                     editor.horizontalAlignment = SWT.CENTER;
-                    check.setData("whenEmpty", table.getColumn(columnNumber).getData("whenEmpty"));
+                    check.setData("whenEmpty", tableColumn.getData("whenEmpty"));
                     check.setData("eObject", eObject);
-                    check.setData("variable", (String) jsonArray.get(columnNumber));
+                    check.setData("variable", variableName);
 
-                    String[] values = (String[]) table.getColumn(columnNumber).getData("values");
+                    String[] values = (String[])tableColumn.getData("values");
                     if (itemText.isEmpty()) {
-                        String defaultValue = (String) table.getColumn(columnNumber).getData("default");
+                        String defaultValue = (String)tableColumn.getData("default");
                         if (defaultValue != null)
                             itemText = defaultValue;
                     }
                     if (values != null && values.length != 0) {
-                        check.setData("values", table.getColumn(columnNumber).getData("values"));
+                        check.setData("values", tableColumn.getData("values"));
                         logger.trace("      adding check cell with value \"" + values[0].equals(itemText) + "\"");
                         check.setSelection(values[0].equals(itemText));
                     } else {
@@ -1348,21 +1356,20 @@ public class FormDialog extends Dialog {
                         check.setSelection(!itemText.isEmpty());
                     }
 
-                    if (table.getColumn(columnNumber).getData("tooltip") != null) {
-                        check.setToolTipText(FormVariable.expand(
-                                (String) table.getColumn(columnNumber).getData("tooltip"), variableSeparator, eObject));
+                    if (tableColumn.getData("tooltip") != null) {
+                        check.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), variableSeparator, eObject));
                     }
 
                     check.addSelectionListener(checkButtonSelectionListener);
 
                     editor.setEditor(check, tableItem, columnNumber);
                     editors[columnNumber] = editor;
+                    // We reference the variable and the control to the eObject that the variable refers to
+                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, check);
                     break;
 
                 default:
-                    throw new RuntimeException(FormPosition.getPosition("lines")
-                            + "\n\nFailed to add table item for unknown object class \""
-                            + ((String) table.getColumn(columnNumber).getData("class")) + "\"");
+                    throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)tableColumn.getData("class")) + "\"");
             }
         }
         tableItem.setData("editors", editors);
@@ -1556,6 +1563,7 @@ public class FormDialog extends Dialog {
         public void modifyText(ModifyEvent e) {
             StyledText widget = (StyledText)e.widget;
             String content = widget.getText();
+            if ( logger.isTraceEnabled() ) logger.trace("calling textModifyListener");
 
             // if a regex has been provided, we change the text color to show if it matches
             Pattern pattern = (Pattern)e.widget.getData("pattern");
