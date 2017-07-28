@@ -26,6 +26,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.apache.log4j.Level;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
@@ -36,6 +37,9 @@ import org.eclipse.ui.preferences.ScopedPreferenceStore;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import com.archimatetool.model.IIdentifier;
+import com.archimatetool.model.INameable;
 
 /**
  * Form plugin for Archi, the Archimate modeler
@@ -446,5 +450,16 @@ public class FormPlugin extends AbstractUIPlugin {
 			return false;			// as str1 cannot be null at this stage
 
 		return str1.equals(str2);
+	}
+	
+	/**
+	 * Calculates the debug name of an EObject
+	 * @return getclass().getSimpleName()+":\""+getName()+"\"("+getId()+")"
+	 */
+	public static String getDebugName(EObject eObject) {
+		StringBuilder debugName = new StringBuilder(eObject.getClass().getSimpleName());
+		debugName.append(":\""+((INameable)eObject).getName()+"\"");
+		debugName.append("("+((IIdentifier)eObject).getId()+")");
+		return debugName.toString();
 	}
 }

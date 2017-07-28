@@ -110,7 +110,7 @@ public class FormDialog extends Dialog {
     private static final Color      badValueColor     = new Color(display, 255, 0, 0);
     private static final Color      goodValueColor    = new Color(display, 0, 100, 0);
 
-    private static FormVarList      formVarList       = new FormVarList();
+    private final FormVarList      formVarList       = new FormVarList();
 
     private EObject                 selectedObject    = null;
 
@@ -504,7 +504,7 @@ public class FormDialog extends Dialog {
         }
 
         // We reference the variable and the control to the eObject that the variable refers to
-        formVarList.set(FormVariable.getReferedEObject(labelName, variableSeparator, selectedObject), labelName, label);
+        formVarList.set(FormVariable.getReferedEObject(labelName, variableSeparator, selectedObject), FormVariable.getUnscoppedVariable(labelName,variableSeparator, selectedObject), label);
 
         return label;
     }
@@ -648,7 +648,8 @@ public class FormDialog extends Dialog {
 
         // We reference the variable and the control to the eObject that the variable refers to
         EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject);
-        formVarList.set(referedEObject, variableName, text);
+        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, selectedObject);
+        formVarList.set(referedEObject, unscoppedVariable, text);
 
         return text;
     }
@@ -785,10 +786,13 @@ public class FormDialog extends Dialog {
         if (tooltip != null) {
             combo.setToolTipText(FormVariable.expand(tooltip, variableSeparator, selectedObject));
         }
+        
+        combo.addModifyListener(textModifyListener);
 
-        // We reference the variable and the control to the eObject that the
-        // variable refers to
-        formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject), variableName, combo);
+        // We reference the variable and the control to the eObject that the variable refers to
+        EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject);
+        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, selectedObject);
+        formVarList.set(referedEObject, unscoppedVariable, combo);
 
         return combo;
     }
@@ -903,9 +907,10 @@ public class FormDialog extends Dialog {
 
         check.addSelectionListener(checkButtonSelectionListener);
 
-        // We reference the variable and the control to the eObject that the
-        // variable refers to
-        formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject), variableName, check);
+        // We reference the variable and the control to the eObject that the variable refers to
+        EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject);
+        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, selectedObject);
+        formVarList.set(referedEObject, unscoppedVariable, check);
 
         return check;
     }
@@ -1249,6 +1254,8 @@ public class FormDialog extends Dialog {
      */
     private void addTableItem(Table table, EObject eObject, JSONArray jsonArray) throws RuntimeException {
         TableItem tableItem = new TableItem(table, SWT.NONE);
+        EObject referedEObject;
+        String unscoppedVariable;
 
         // we need to store the widgets to retreive them later on
         TableEditor[] editors = new TableEditor[jsonArray.size()];
@@ -1272,7 +1279,9 @@ public class FormDialog extends Dialog {
                     editor.setEditor(label, tableItem, columnNumber);
                     editors[columnNumber] = editor;
                     // We reference the variable and the control to the eObject that the variable refers to
-                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, label);
+                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    formVarList.set(referedEObject, unscoppedVariable, label);
                     break;
 
                 case "text":
@@ -1305,7 +1314,9 @@ public class FormDialog extends Dialog {
                     text.addModifyListener(textModifyListener);
                     
                     // We reference the variable and the control to the eObject that the variable refers to
-                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, text);
+                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    formVarList.set(referedEObject, unscoppedVariable, text);
                     break;
 
                 case "combo":
@@ -1334,7 +1345,9 @@ public class FormDialog extends Dialog {
                     editor.setEditor(combo, tableItem, columnNumber);
                     editors[columnNumber] = editor;
                     // We reference the variable and the control to the eObject that the variable refers to
-                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, combo);
+                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    formVarList.set(referedEObject, unscoppedVariable, combo);
                     break;
 
                 case "check":
@@ -1371,7 +1384,9 @@ public class FormDialog extends Dialog {
                     editor.setEditor(check, tableItem, columnNumber);
                     editors[columnNumber] = editor;
                     // We reference the variable and the control to the eObject that the variable refers to
-                    formVarList.set(FormVariable.getReferedEObject(variableName, variableSeparator, eObject), variableName, check);
+                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    formVarList.set(referedEObject, unscoppedVariable, check);
                     break;
 
                 default:
@@ -1567,77 +1582,106 @@ public class FormDialog extends Dialog {
 
     ModifyListener textModifyListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {
-            StyledText widget = (StyledText)e.widget;
-            String content = widget.getText();
-            if ( logger.isTraceEnabled() ) logger.trace("calling textModifyListener");
-
-            // if a regex has been provided, we change the text color to show if it matches
-            Pattern pattern = (Pattern)e.widget.getData("pattern");
-
-            String variableName = (String)widget.getData("variable");
-            EObject currentEObject = (EObject)widget.getData("eObject");
-            EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, currentEObject);
-
-            for ( Control control: formVarList.getControls(referedEObject, variableName)) {
-                switch (control.getClass().getSimpleName()) {
-                    case "CCombo":
-                        if( control != widget ) {
-                            ((CCombo)control).setText(content);
-                        }
-                        break;
-
-                    case "Button":
-                        if( control != widget ) {
-                            ((Button)control).setText(content);
-                        }
-                        break;
-
-                    case "Label":
-                        if( control != widget ) {
-                            ((Label)control).setText(content);
-                        }
-                        break;
-
-                    case "StyledText":
-                        if( control != widget ) {
-                            StyledText text = (StyledText)control;
-                            text.removeModifyListener(textModifyListener);
-                            text.setText(content);
-                            if ( pattern != null ) {
-                                widget.setStyleRange(new StyleRange(0, content.length(), pattern.matcher(content).matches() ? goodValueColor : badValueColor, null));
-                            }
-                            text.addModifyListener(textModifyListener);
-                        }
-                        break;
-                }
-            }
+        	if ( logger.isTraceEnabled() ) logger.trace("calling textModifyListener");
+        	
+            updateWidget((Control)e.widget);
         }
     };
-
+    
     SelectionListener checkButtonSelectionListener = new SelectionListener(){
         @Override public void widgetSelected(SelectionEvent e) {
-            Button widget= (Button)e.widget;
-            String[]values = (String[])widget.getData("values");
-
-            if(values==null||values.length==0)
-                values=new String[]{"",null};
-
-            if(values.length==1)
-                values=new String[]{values[0],null};
-
-            String text=values[widget.getSelection()?0:1];
-
-            logger.trace("check field modified for variable "+(String)widget.getData("variable")+". new value : \""+text+"\"");
-
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// setAttribute((EObject)widget.getData("eObject"),
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// (String)widget.getData("variable"),
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// text);
+            updateWidget((Control)e.widget);
         }
 
         @Override public void widgetDefaultSelected(SelectionEvent e) {
             widgetSelected(e);
         }
     };
+    
+    private void updateWidget(Control widget) {
+    	String variableName = (String)widget.getData("variable");
+        EObject currentEObject = (EObject)widget.getData("eObject");
+        EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, currentEObject);
+    	String unscoppedVariable = FormVariable.getUnscoppedVariable((String)widget.getData("variable"), variableSeparator, currentEObject);
+    	String content;
+    	
+    	switch ( widget.getClass().getSimpleName() ) {
+    		case "Button":
+    			String[]values = (String[])((Button)widget).getData("values");
+    			content = values[((Button)widget).getSelection()?0:1];
+    			break;
+    		
+    		case "StyledText":
+                content = ((StyledText)widget).getText();
+                break;
+                
+    		case "CCombo":
+    			content = ((CCombo)widget).getText();
+                break;
+                
+            default:
+                return;
+    	}
+
+        for ( Control control: formVarList.getControls(referedEObject, unscoppedVariable)) {
+            switch (control.getClass().getSimpleName()) {
+                case "CCombo":
+                    if( control == widget ) {
+                    	if (logger.isTraceEnabled()) logger.trace("same combo - ignored");
+                    } else {
+                    	if (logger.isTraceEnabled()) logger.trace("updating "+control);
+                        ((CCombo)control).setText(content);
+                    }
+                    break;
+
+                case "Button":
+                    if( control == widget ) {
+                    	if (logger.isTraceEnabled()) logger.trace("same button - ignored");
+                    } else {
+                    	if (logger.isTraceEnabled()) logger.trace("updating "+control);
+                    	Button button= (Button)control;
+                        String[]values = (String[])button.getData("values");
+
+                        if(values==null||values.length==0)
+                            values=new String[]{"",null};
+
+                        //if(values.length==1)
+                        //    values=new String[]{values[0],null};
+
+                        if ( FormPlugin.areEqual(content, values[0]) ) 
+                        	button.setSelection(false);
+                        else if ( FormPlugin.areEqual(content, values[1]) ) 
+                    		button.setSelection(true);
+                    }
+                    break;
+
+                case "Label":
+                    if( control == widget ) {
+                    	if (logger.isTraceEnabled()) logger.trace("same label - ignored");
+                    } else {
+                    	if (logger.isTraceEnabled()) logger.trace("updating "+control);
+                        ((Label)control).setText(content);
+                    }
+                    break;
+
+                case "StyledText":
+                    if( control == widget ) {
+                    	if (logger.isTraceEnabled()) logger.trace("same text - ignored");
+                    } else {
+                    	if (logger.isTraceEnabled()) logger.trace("updating "+control);
+                        StyledText text = (StyledText)control;
+                        text.removeModifyListener(textModifyListener);
+                        text.setText(content);
+                        Pattern pattern = (Pattern)text.getData("pattern");		// if a regex has been provided, we change the text color to show if it matches
+                        if ( pattern != null ) {
+                        	text.setStyleRange(new StyleRange(0, content.length(), pattern.matcher(content).matches() ? goodValueColor : badValueColor, null));
+                        }
+                        text.addModifyListener(textModifyListener);
+                    }
+                    break;
+            }
+        }
+    }
 
     private Listener sortListener=new Listener() {
         public void handleEvent(Event e) {
@@ -1691,47 +1735,58 @@ public class FormDialog extends Dialog {
                             case"Label":
                                 Label oldLabel = (Label)oldEditors[column].getEditor();
                                 Label newLabel = new Label(newTable,SWT.WRAP|SWT.NONE);
-                                formVarList.replaceControl(oldLabel, newLabel);
+
                                 newLabel.setText(oldLabel.getText());
                                 newLabel.setToolTipText(oldLabel.getToolTipText());
                                 newLabel.setData("eObject",oldLabel.getData("eObject"));
                                 newLabel.setData("variable",oldLabel.getData("variable"));
                                 newLabel.setData("pattern",oldLabel.getData("pattern"));
+                                
                                 newEditor.grabHorizontal=true;
                                 newEditor.setEditor(newLabel,newTableItem,column);
+                                
+                                formVarList.replaceControl(oldLabel, newLabel);
                                 break;
                             
                             case"StyledText":
                                 StyledText oldText = (StyledText)oldEditors[column].getEditor();
                                 StyledText newText = new StyledText(newTable,SWT.WRAP|SWT.NONE);
-                                formVarList.replaceControl(oldText, newText);
+  
                                 newText.setText(oldText.getText());
                                 newText.setToolTipText(oldText.getToolTipText());
                                 newText.setData("eObject",oldText.getData("eObject"));
                                 newText.setData("variable",oldText.getData("variable"));
                                 newText.setData("pattern",oldText.getData("pattern"));
-                                newText.addModifyListener(textModifyListener);
+
                                 newEditor.grabHorizontal=true;
                                 newEditor.setEditor(newText,newTableItem,column);
+                                
+                                newText.addModifyListener(textModifyListener);
+                                formVarList.replaceControl(oldText, newText);
                                 break;
 
                             case"CCombo":
                                 CCombo oldCombo=(CCombo)oldEditors[column].getEditor();
                                 CCombo newCombo=new CCombo(newTable,SWT.NONE);
-                                formVarList.replaceControl(oldCombo, newCombo);
+
                                 newCombo.setText(oldCombo.getText());
                                 newCombo.setItems(oldCombo.getItems());
                                 newCombo.setToolTipText(oldCombo.getToolTipText());
                                 newCombo.setData("eObject",oldCombo.getData("eObject"));
                                 newCombo.setData("variable",oldCombo.getData("variable"));
                                 newCombo.setEditable(false);newEditor.grabHorizontal=true;
+                                
+                                newEditor.grabHorizontal=true;
                                 newEditor.setEditor(newCombo,newTableItem,column);
+                                
+                                newCombo.addModifyListener(textModifyListener);
+                                formVarList.replaceControl(oldCombo, newCombo);
                                 break;
 
                             case"Button":
                                 Button oldButton=(Button)oldEditors[column].getEditor();
                                 Button newButton=new Button(newTable,SWT.CHECK);
-                                formVarList.replaceControl(oldButton, newButton);
+
                                 newButton.pack();
                                 newEditor.minimumWidth=newButton.getSize().x;
                                 newEditor.horizontalAlignment=SWT.CENTER;
@@ -1740,7 +1795,12 @@ public class FormDialog extends Dialog {
                                 newButton.setData("values",oldButton.getData("values"));
                                 newButton.setSelection(oldButton.getSelection());
                                 newButton.addSelectionListener(checkButtonSelectionListener);
+                                
+                                newEditor.grabHorizontal=true;
                                 newEditor.setEditor(newButton,newTableItem,column);
+                                
+                                newButton.addSelectionListener(checkButtonSelectionListener);
+                                formVarList.replaceControl(oldButton, newButton);
                         }
                         newEditors[column]=newEditor;
                     }
