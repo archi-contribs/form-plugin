@@ -176,6 +176,8 @@ public class FormDialog extends Dialog {
     private final String   defaultButtonExportText = "Export to Excel";
     private final String   defaultName             = "tab";
     private String         globalWhenEmpty         = null;
+    private String         excelRunBefore          = null;
+    private String         excelRunAfter           = null;
 
     /**
      * Parses the configuration file and create the corresponding graphical
@@ -199,6 +201,8 @@ public class FormDialog extends Dialog {
         String buttonExportText = FormVariable.expand(getString(form, "buttonExport", defaultButtonExportText),
                 variableSeparator, selectedObject);
         globalWhenEmpty = getString(form, "whenEmpty", null);
+        excelRunBefore = getString(form, "excelRunBefore", null);
+        excelRunAfter = getString(form, "excelRunAfter", null);
 
         if (logger.isTraceEnabled()) {
             logger.trace("   name = " + debugValue(formName, defaultDialogName));
@@ -212,6 +216,8 @@ public class FormDialog extends Dialog {
             logger.trace("   ok = " + debugValue(buttonOkText, defaultButtonOkText));
             logger.trace("   cancel = " + debugValue(buttonCancelText, defaultButtonCancelText));
             logger.trace("   whenEmpty = " + debugValue(globalWhenEmpty, null));
+            logger.trace("   excelRunBefore = " + debugValue(excelRunBefore, null));
+            logger.trace("   excelRunAfter = " + debugValue(excelRunAfter, null));
         }
 
         if (globalWhenEmpty != null) {
@@ -1742,918 +1748,912 @@ public class FormDialog extends Dialog {
                 }
 
                 logger.debug("Replacing old table with new table");newTable.setVisible(true);oldTable.dispose();}
-        }};
+        }
+    };
 
-        private void cancel() {
-            if (logger.isDebugEnabled())
-                logger.debug("Cancel button selected by user.");
-            dialog.dispose();
+    private void cancel() {
+        if (logger.isDebugEnabled())
+            logger.debug("Cancel button selected by user.");
+        dialog.dispose();
+    }
+
+    private void ok() {
+        if (logger.isDebugEnabled())
+            logger.debug("Ok button selected by user.");
+        CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
+        try {
+            for (Control control : dialog.getChildren()) {
+                save(control);
+            }
+        } catch (RuntimeException e) {
+            popup(Level.ERROR, "Failed to save variables.", e);
+            return;
         }
 
-        private void ok() {
-            if (logger.isDebugEnabled())
-                logger.debug("Ok button selected by user.");
-            CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
-            try {
-                for (Control control : dialog.getChildren()) {
-                    save(control);
+        IArchimateModel model;
+
+        if (selectedObject instanceof IArchimateModel) {
+            model = ((IArchimateModel) selectedObject).getArchimateModel();
+        } else
+            if (selectedObject instanceof IDiagramModel) {
+                model = ((IDiagramModel) selectedObject).getArchimateModel();
+            } else
+                if (selectedObject instanceof IDiagramModelArchimateObject) {
+                    model = ((IDiagramModelArchimateObject) selectedObject).getDiagramModel().getArchimateModel();
+                } else
+                    if (selectedObject instanceof IDiagramModelArchimateConnection) {
+                        model = ((IDiagramModelArchimateConnection) selectedObject).getDiagramModel()
+                                .getArchimateModel();
+                    } else
+                        if (selectedObject instanceof IArchimateElement) {
+                            model = ((IArchimateElement) selectedObject).getArchimateModel();
+                        } else
+                            if (selectedObject instanceof IArchimateRelationship) {
+                                model = ((IArchimateRelationship) selectedObject).getArchimateModel();
+                            } else
+                                if (selectedObject instanceof IFolder) {
+                                    model = ((IFolder) selectedObject).getArchimateModel();
+                                } else {
+                                    popup(Level.ERROR, "Failed to get the model.");
+                                    return;
+                                }
+
+        CommandStack stack = (CommandStack) model.getAdapter(CommandStack.class);
+        stack.execute(compoundCommand);
+
+        dialog.dispose();
+    }
+
+    private void save(Control control) throws RuntimeException {
+        switch (control.getClass().getSimpleName()) {
+            case "Label":
+                break;					// nothing to save here
+
+            case "Button":
+            case "CCombo":
+            case "StyledText":
+                if (control.getData("variable") != null)
+                    do_save(control);
+                break;
+
+            case "TabFolder":
+                for (Control child : ((TabFolder) control).getChildren()) {
+                    save(child);
                 }
-            } catch (RuntimeException e) {
-                popup(Level.ERROR, "Failed to save variables.", e);
+                break;
+            case "Table":
+                for (TableItem item : ((Table) control).getItems()) {
+                    for (TableEditor editor : (TableEditor[]) item.getData("editors")) {
+                        if (editor != null)
+                            save(editor.getEditor());
+                    }
+                }
+                break;
+            case "Composite":
+                for (Control child : ((Composite) control).getChildren()) {
+                    save(child);
+                }
+                break;
+
+            default:
+                throw new RuntimeException("Save : do not know how to save a " + control.getClass().getSimpleName());
+        }
+    }
+
+    private void do_save(Control control) throws RuntimeException {
+        String variable = (String) control.getData("variable");
+        EObject eObject = (EObject) control.getData("eObject");
+        String value;
+
+        switch (control.getClass().getSimpleName()) {
+            case "Button":
+                value = ((Button) control).getText();
+                break;
+            case "CCombo":
+                value = ((CCombo) control).getText();
+                break;
+            case "StyledText":
+                value = ((StyledText) control).getText();
+                break;
+            default:
+                throw new RuntimeException("Do_save : do not know how to save a " + control.getClass().getSimpleName());
+        }
+
+        if (logger.isDebugEnabled())
+            logger.debug("do_save " + control.getClass().getSimpleName() + " : " + variable + " = \"" + value + "\"");
+
+        if (value.isEmpty()) {
+            String whenEmpty = (String) control.getData("whenEmpty");
+
+            if (whenEmpty == null)
+                whenEmpty = "ignore";
+
+            switch (whenEmpty) {
+                case "ignore":
+                    if (logger.isTraceEnabled())
+                        logger.trace("   value is empty : ignored.");
+                    break;
+                case "create":
+                    if (logger.isTraceEnabled())
+                        logger.trace("   value is empty : creating property if doen't exist.");
+                    FormVariable.setVariable(variable, variableSeparator, "", eObject);
+                    break;
+                case "delete":
+                    if (logger.isTraceEnabled())
+                        logger.trace("   value is empty : deleting property if it exists.");
+                    FormVariable.setVariable(variable, variableSeparator, null, eObject);
+                    break;
+            }
+        } else {
+            if (logger.isTraceEnabled())
+                logger.trace("   value is not empty : setting property.");
+            FormVariable.setVariable(variable, variableSeparator, value, eObject);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void exportToExcel() {
+        if (logger.isDebugEnabled())
+            logger.debug("Export button selected by user.");
+        
+        FileDialog fsd = new FileDialog(dialog, SWT.SINGLE);
+        fsd.setFilterExtensions(new String[] { "*.xls*" });
+        fsd.setText("Select Excel File...");
+        String excelFile = fsd.open();
+
+        // we wait for the dialog disposal
+        while (display.readAndDispatch())
+            ;
+
+        Workbook workbook;
+        Sheet sheet;
+        
+        if (excelFile != null) {
+            FileInputStream file;
+            try {
+                file = new FileInputStream(excelFile);
+            } catch (FileNotFoundException e) {
+                popup(Level.ERROR, "Cannot open the Excel file.", e);
                 return;
             }
-
-            IArchimateModel model;
-
-            if (selectedObject instanceof IArchimateModel) {
-                model = ((IArchimateModel) selectedObject).getArchimateModel();
-            } else
-                if (selectedObject instanceof IDiagramModel) {
-                    model = ((IDiagramModel) selectedObject).getArchimateModel();
-                } else
-                    if (selectedObject instanceof IDiagramModelArchimateObject) {
-                        model = ((IDiagramModelArchimateObject) selectedObject).getDiagramModel().getArchimateModel();
-                    } else
-                        if (selectedObject instanceof IDiagramModelArchimateConnection) {
-                            model = ((IDiagramModelArchimateConnection) selectedObject).getDiagramModel()
-                                    .getArchimateModel();
-                        } else
-                            if (selectedObject instanceof IArchimateElement) {
-                                model = ((IArchimateElement) selectedObject).getArchimateModel();
-                            } else
-                                if (selectedObject instanceof IArchimateRelationship) {
-                                    model = ((IArchimateRelationship) selectedObject).getArchimateModel();
-                                } else
-                                    if (selectedObject instanceof IFolder) {
-                                        model = ((IFolder) selectedObject).getArchimateModel();
-                                    } else {
-                                        popup(Level.ERROR, "Failed to get the model.");
-                                        return;
-                                    }
-
-            CommandStack stack = (CommandStack) model.getAdapter(CommandStack.class);
-            stack.execute(compoundCommand);
-
-            dialog.dispose();
-        }
-
-        private void save(Control control) throws RuntimeException {
-            switch (control.getClass().getSimpleName()) {
-                case "Label":
-                    break;					// nothing to save here
-
-                case "Button":
-                case "CCombo":
-                case "StyledText":
-                    if (control.getData("variable") != null)
-                        do_save(control);
-                    break;
-
-                case "TabFolder":
-                    for (Control child : ((TabFolder) control).getChildren()) {
-                        save(child);
-                    }
-                    break;
-                case "Table":
-                    for (TableItem item : ((Table) control).getItems()) {
-                        for (TableEditor editor : (TableEditor[]) item.getData("editors")) {
-                            if (editor != null)
-                                save(editor.getEditor());
-                        }
-                    }
-                    break;
-                case "Composite":
-                    for (Control child : ((Composite) control).getChildren()) {
-                        save(child);
-                    }
-                    break;
-
-                default:
-                    throw new RuntimeException("Save : do not know how to save a " + control.getClass().getSimpleName());
+  
+            try {
+                workbook = WorkbookFactory.create(file);
+            } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
+                closePopup();
+                popup(Level.ERROR, "The file " + excelFile + " seems not to be an Excel file!", e);
+                // TODO: add an option to create an empty Excel file
+                return;
             }
-        }
+            
+            
 
-        private void do_save(Control control) throws RuntimeException {
-            String variable = (String) control.getData("variable");
-            EObject eObject = (EObject) control.getData("eObject");
-            String value;
 
-            switch (control.getClass().getSimpleName()) {
-                case "Button":
-                    value = ((Button) control).getText();
-                    break;
-                case "CCombo":
-                    value = ((CCombo) control).getText();
-                    break;
-                case "StyledText":
-                    value = ((StyledText) control).getText();
-                    break;
-                default:
-                    throw new RuntimeException("Do_save : do not know how to save a " + control.getClass().getSimpleName());
-            }
-
-            if (logger.isDebugEnabled())
-                logger.debug("do_save " + control.getClass().getSimpleName() + " : " + variable + " = \"" + value + "\"");
-
-            if (value.isEmpty()) {
-                String whenEmpty = (String) control.getData("whenEmpty");
-
-                if (whenEmpty == null)
-                    whenEmpty = "ignore";
-
-                switch (whenEmpty) {
-                    case "ignore":
-                        if (logger.isTraceEnabled())
-                            logger.trace("   value is empty : ignored.");
-                        break;
-                    case "create":
-                        if (logger.isTraceEnabled())
-                            logger.trace("   value is empty : creating property if doen't exist.");
-                        FormVariable.setVariable(variable, variableSeparator, "", eObject);
-                        break;
-                    case "delete":
-                        if (logger.isTraceEnabled())
-                            logger.trace("   value is empty : deleting property if it exists.");
-                        FormVariable.setVariable(variable, variableSeparator, null, eObject);
-                        break;
-                }
-            } else {
-                if (logger.isTraceEnabled())
-                    logger.trace("   value is not empty : setting property.");
-                FormVariable.setVariable(variable, variableSeparator, value, eObject);
-            }
-        }
-
-        @SuppressWarnings("deprecation")
-        private void exportToExcel() {
-            if (logger.isDebugEnabled())
-                logger.debug("Export button selected by user.");
-
-            FileDialog fsd = new FileDialog(dialog, SWT.SINGLE);
-            fsd.setFilterExtensions(new String[] { "*.xls*" });
-            fsd.setText("Select Excel File...");
-            String excelFile = fsd.open();
-
-            // we wait for the dialog disposal
-            while (display.readAndDispatch())
-                ;
-
-            if (excelFile != null) {
-                FileInputStream file;
-                try {
-                    file = new FileInputStream(excelFile);
-                } catch (FileNotFoundException e) {
-                    popup(Level.ERROR, "Cannot open the Excel file.", e);
-                    return;
-                }
-
-                popup("Please wait while exporting to Excel ...");
-
-                Workbook workbook;
-                Sheet sheet;
-
-                if (logger.isDebugEnabled())
-                    logger.debug("Openning file " + file);
-                try {
-                    workbook = WorkbookFactory.create(file);
-                } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
+            // we check that all the sheets already exist
+            for (String sheetName : excelSheets) {
+                sheet = workbook.getSheet(sheetName);
+                if (sheet == null) {
                     closePopup();
-                    popup(Level.ERROR, "The file " + excelFile + " seems not to be an Excel file!", e);
-                    // TODO: add an option to create an empty Excel file
+                    popup(Level.ERROR,
+                            "The file " + excelFile + " does not contain a sheet called \"" + sheetName + "\"");
+                    // TODO : add a preference to create the sheet
+                    try {
+                        workbook.close();
+                    } catch (IOException ign) {
+                        ign.printStackTrace();
+                    }
                     return;
                 }
+            }
 
-                // we check that all the sheets already exist
-                for (String sheetName : excelSheets) {
-                    sheet = workbook.getSheet(sheetName);
-                    if (sheet == null) {
-                        closePopup();
-                        popup(Level.ERROR,
-                                "The file " + excelFile + " does not contain a sheet called \"" + sheetName + "\"");
-                        // TODO : add a preference to create the sheet
-                        try {
-                            workbook.close();
-                        } catch (IOException ign) {
-                            ign.printStackTrace();
-                        }
-                        return;
-                    }
-                }
 
-                boolean exportOk = true;
+            boolean exportOk = true;
 
-                try {
-                    // we go through all the controls and export the corresponding
-                    // excel cells
-                    for (TabItem tabItem : tabFolder.getItems()) {
-                        if (logger.isDebugEnabled())
-                            logger.debug("Exporting tab " + tabItem.getText());
+            try {
+                // we go through all the controls and export the corresponding
+                // excel cells
+                for (TabItem tabItem : tabFolder.getItems()) {
+                    if (logger.isDebugEnabled())
+                        logger.debug("Exporting tab " + tabItem.getText());
 
-                        Composite composite = (Composite) tabItem.getControl();
-                        for (Control control : composite.getChildren()) {
-                            String excelSheet = (String) control.getData("excelSheet");
+                    Composite composite = (Composite) tabItem.getControl();
+                    for (Control control : composite.getChildren()) {
+                        String excelSheet = (String) control.getData("excelSheet");
 
-                            if (excelSheet != null) {
-                                sheet = workbook.getSheet(excelSheet);		// cannot
-                                // be
-                                // null
-                                // as it
-                                // has
-                                // been
-                                // checked
-                                // before
+                        if (excelSheet != null) {
+                            sheet = workbook.getSheet(excelSheet);		// cannot be null as it has been checked before
 
-                                if ((control instanceof StyledText) || (control instanceof Label)
-                                        || (control instanceof CCombo) || (control instanceof Button)) {
-                                    String excelCell = (String) control.getData("excelCell");
+                            if ((control instanceof StyledText) || (control instanceof Label)
+                                    || (control instanceof CCombo) || (control instanceof Button)) {
+                                String excelCell = (String) control.getData("excelCell");
 
-                                    CellReference ref = new CellReference(excelCell);
-                                    Row row = sheet.getRow(ref.getRow());
-                                    if (row == null) {
-                                        row = sheet.createRow(ref.getRow());
-                                    }
-                                    Cell cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                CellReference ref = new CellReference(excelCell);
+                                Row row = sheet.getRow(ref.getRow());
+                                if (row == null) {
+                                    row = sheet.createRow(ref.getRow());
+                                }
+                                Cell cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
-                                    String text = "";
-                                    switch (control.getClass().getSimpleName()) {
-                                        case "StyledText":
-                                            text = ((StyledText) control).getText();
-                                            break;
-                                        case "Label":
-                                            text = ((Label) control).getText();
-                                            break;
-                                        case "CCombo":
-                                            text = ((CCombo) control).getText();
-                                            break;
-                                        case "Button":
-                                            text = ((Button) control).getText();
-                                            break;
-                                    }
-                                    cell.setCellValue(text);
-                                    if (logger.isTraceEnabled())
-                                        logger.trace("   '" + excelSheet + "'!" + excelCell + " -> \"" + text + "\"");
-                                } else
-                                    if (control instanceof Table) {
-                                        if (logger.isDebugEnabled())
-                                            logger.debug("Exporting table");
-                                        Table table = (Table) control;
-                                        int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	// Excel
-                                        // lines
-                                        // begin
-                                        // at
-                                        // zero
-                                        for (int line = 0; line < table.getItemCount(); ++line) {
-                                            TableItem tableItem = table.getItem(line);
-                                            Row row = sheet.getRow(excelFirstLine + line);
-                                            if (row == null)
-                                                row = sheet.createRow(excelFirstLine + line);
+                                String text = "";
+                                switch (control.getClass().getSimpleName()) {
+                                    case "StyledText":
+                                        text = ((StyledText) control).getText();
+                                        break;
+                                    case "Label":
+                                        text = ((Label) control).getText();
+                                        break;
+                                    case "CCombo":
+                                        text = ((CCombo) control).getText();
+                                        break;
+                                    case "Button":
+                                        text = ((Button) control).getText();
+                                        break;
+                                }
+                                cell.setCellValue(text);
+                                if (logger.isTraceEnabled())
+                                    logger.trace("   '" + excelSheet + "'!" + excelCell + " -> \"" + text + "\"");
+                            } else
+                                if (control instanceof Table) {
+                                    if (logger.isDebugEnabled())
+                                        logger.debug("Exporting table");
+                                    Table table = (Table) control;
+                                    int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	// Excel
+                                    // lines
+                                    // begin
+                                    // at
+                                    // zero
+                                    for (int line = 0; line < table.getItemCount(); ++line) {
+                                        TableItem tableItem = table.getItem(line);
+                                        Row row = sheet.getRow(excelFirstLine + line);
+                                        if (row == null)
+                                            row = sheet.createRow(excelFirstLine + line);
 
-                                            for (int col = 0; col < table.getColumnCount(); ++col) {
-                                                TableColumn tableColumn = table.getColumn(col);
-                                                String excelColumn = (String) tableColumn.getData("excelColumn");
+                                        for (int col = 0; col < table.getColumnCount(); ++col) {
+                                            TableColumn tableColumn = table.getColumn(col);
+                                            String excelColumn = (String) tableColumn.getData("excelColumn");
 
-                                                if (excelColumn != null) {
-                                                    CellReference ref = new CellReference(excelColumn);
-                                                    Cell cell = row.getCell(ref.getCol(),
-                                                            MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                            if (excelColumn != null) {
+                                                CellReference ref = new CellReference(excelColumn);
+                                                Cell cell = row.getCell(ref.getCol(),
+                                                        MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
-                                                    TableEditor editor = ((TableEditor[]) tableItem
-                                                            .getData("editors"))[col];
+                                                TableEditor editor = ((TableEditor[]) tableItem
+                                                        .getData("editors"))[col];
 
-                                                    String value;
-                                                    if (editor == null)
-                                                        value = tableItem.getText(col);
-                                                    else
-                                                        switch (editor.getEditor().getClass().getSimpleName()) {
-                                                            case "StyledText":
-                                                                value = ((StyledText) editor.getEditor()).getText();
-                                                                break;
-                                                            case "Button":
-                                                                value = ((Button) editor.getEditor()).getText();
-                                                                break;
-                                                            case "CCombo":
-                                                                value = ((CCombo) editor.getEditor()).getText();
-                                                                break;
-                                                            default:
-                                                                throw new RuntimeException(
-                                                                        "ExportToExcel : Do not how to export columns of class "
-                                                                                + editor.getClass().getSimpleName());
-                                                        }
-
-                                                    String excelCellType = (String) tableColumn.getData("excelCellType");
-                                                    String excelDefault = (String) tableColumn.getData("excelDefault");
-
-                                                    switch (excelCellType) {
-                                                        case "string":
-                                                            if (value.isEmpty()) {
-                                                                switch (excelDefault) {
-                                                                    case "blank":
-                                                                        cell.setCellType(CellType.BLANK);
-                                                                        break;
-                                                                    case "zero":
-                                                                        cell.setCellType(CellType.STRING);
-                                                                        cell.setCellValue("");
-                                                                        break;
-                                                                    default:
-                                                                        ;
-                                                                }
-                                                            } else {
-                                                                cell.setCellType(CellType.STRING);
-                                                                cell.setCellValue(value);
-                                                            }
+                                                String value;
+                                                if (editor == null)
+                                                    value = tableItem.getText(col);
+                                                else
+                                                    switch (editor.getEditor().getClass().getSimpleName()) {
+                                                        case "StyledText":
+                                                            value = ((StyledText) editor.getEditor()).getText();
                                                             break;
-
-                                                        case "numeric":
-                                                            if (value.isEmpty()) {
-                                                                switch (excelDefault) {
-                                                                    case "blank":
-                                                                        cell.setCellType(CellType.BLANK);
-                                                                        break;
-                                                                    case "zero":
-                                                                        cell.setCellType(CellType.BLANK);
-                                                                        cell.setCellValue(0.0);
-                                                                        break;
-                                                                    default:
-                                                                        ;
-                                                                }
-                                                            } else {
-                                                                cell.setCellType(CellType.NUMERIC);
-                                                                try {
-                                                                    cell.setCellValue(Double.parseDouble(value));
-                                                                } catch (NumberFormatException e) {
-                                                                    throw new RuntimeException("ExportToExcel : cell "
-                                                                            + excelColumn + row.getRowNum()
-                                                                            + " : failed to convert \"" + value
-                                                                            + "\" to numeric.", e);
-                                                                }
-                                                            }
+                                                        case "Button":
+                                                            value = ((Button) editor.getEditor()).getText();
                                                             break;
-
-                                                        case "boolean":
-                                                            if (value.isEmpty()) {
-                                                                switch (excelDefault) {
-                                                                    case "blank":
-                                                                        cell.setCellType(CellType.BLANK);
-                                                                        break;
-                                                                    case "zero":
-                                                                        cell.setCellType(CellType.BOOLEAN);
-                                                                        cell.setCellValue(false);
-                                                                        break;
-                                                                    default:
-                                                                        ;
-                                                                }
-                                                            } else {
-                                                                cell.setCellType(CellType.BOOLEAN);
-                                                                cell.setCellValue(Boolean.parseBoolean(value));
-                                                            }
+                                                        case "CCombo":
+                                                            value = ((CCombo) editor.getEditor()).getText();
                                                             break;
-
-                                                        case "formula":
-                                                            if (value.isEmpty()) {
-                                                                switch (excelDefault) {
-                                                                    case "blank":
-                                                                        cell.setCellType(CellType.BLANK);
-                                                                        break;
-                                                                    case "zero":
-                                                                        cell.setCellType(CellType.FORMULA);
-                                                                        cell.setCellValue("");
-                                                                        break;
-                                                                    default:
-                                                                        ;
-                                                                }
-                                                            } else {
-                                                                cell.setCellType(CellType.FORMULA);
-                                                                cell.setCellFormula(value);
-                                                            }
-                                                            break;
-
-                                                        case "blank":
-                                                            cell.setCellType(CellType.BLANK);
-                                                            break;
-
                                                         default:
-                                                            throw new RuntimeException("ExportToExcel : cell " + excelColumn
-                                                                    + row.getRowNum()
-                                                                    + " : don't know to deal with excell cell Type \""
-                                                                    + excelCellType
-                                                                    + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
+                                                            throw new RuntimeException(
+                                                                    "ExportToExcel : Do not how to export columns of class "
+                                                                            + editor.getClass().getSimpleName());
                                                     }
 
-                                                    if (logger.isTraceEnabled())
-                                                        logger.trace("   '" + excelSheet + "'!" + excelColumn
-                                                                + (excelFirstLine + line + 1) + " -> \"" + value + "\" ("
-                                                                + cell.getCellTypeEnum().toString() + ")");
+                                                String excelCellType = (String) tableColumn.getData("excelCellType");
+                                                String excelDefault = (String) tableColumn.getData("excelDefault");
+
+                                                switch (excelCellType) {
+                                                    case "string":
+                                                        if (value.isEmpty()) {
+                                                            switch (excelDefault) {
+                                                                case "blank":
+                                                                    cell.setCellType(CellType.BLANK);
+                                                                    break;
+                                                                case "zero":
+                                                                    cell.setCellType(CellType.STRING);
+                                                                    cell.setCellValue("");
+                                                                    break;
+                                                                default:
+                                                                    ;
+                                                            }
+                                                        } else {
+                                                            cell.setCellType(CellType.STRING);
+                                                            cell.setCellValue(value);
+                                                        }
+                                                        break;
+
+                                                    case "numeric":
+                                                        if (value.isEmpty()) {
+                                                            switch (excelDefault) {
+                                                                case "blank":
+                                                                    cell.setCellType(CellType.BLANK);
+                                                                    break;
+                                                                case "zero":
+                                                                    cell.setCellType(CellType.BLANK);
+                                                                    cell.setCellValue(0.0);
+                                                                    break;
+                                                                default:
+                                                                    ;
+                                                            }
+                                                        } else {
+                                                            cell.setCellType(CellType.NUMERIC);
+                                                            try {
+                                                                cell.setCellValue(Double.parseDouble(value));
+                                                            } catch (NumberFormatException e) {
+                                                                throw new RuntimeException("ExportToExcel : cell "
+                                                                        + excelColumn + row.getRowNum()
+                                                                        + " : failed to convert \"" + value
+                                                                        + "\" to numeric.", e);
+                                                            }
+                                                        }
+                                                        break;
+
+                                                    case "boolean":
+                                                        if (value.isEmpty()) {
+                                                            switch (excelDefault) {
+                                                                case "blank":
+                                                                    cell.setCellType(CellType.BLANK);
+                                                                    break;
+                                                                case "zero":
+                                                                    cell.setCellType(CellType.BOOLEAN);
+                                                                    cell.setCellValue(false);
+                                                                    break;
+                                                                default:
+                                                                    ;
+                                                            }
+                                                        } else {
+                                                            cell.setCellType(CellType.BOOLEAN);
+                                                            cell.setCellValue(Boolean.parseBoolean(value));
+                                                        }
+                                                        break;
+
+                                                    case "formula":
+                                                        if (value.isEmpty()) {
+                                                            switch (excelDefault) {
+                                                                case "blank":
+                                                                    cell.setCellType(CellType.BLANK);
+                                                                    break;
+                                                                case "zero":
+                                                                    cell.setCellType(CellType.FORMULA);
+                                                                    cell.setCellValue("");
+                                                                    break;
+                                                                default:
+                                                                    ;
+                                                            }
+                                                        } else {
+                                                            cell.setCellType(CellType.FORMULA);
+                                                            cell.setCellFormula(value);
+                                                        }
+                                                        break;
+
+                                                    case "blank":
+                                                        cell.setCellType(CellType.BLANK);
+                                                        break;
+
+                                                    default:
+                                                        throw new RuntimeException("ExportToExcel : cell " + excelColumn
+                                                                + row.getRowNum()
+                                                                + " : don't know to deal with excell cell Type \""
+                                                                + excelCellType
+                                                                + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
                                                 }
+
+                                                if (logger.isTraceEnabled())
+                                                    logger.trace("   '" + excelSheet + "'!" + excelColumn
+                                                            + (excelFirstLine + line + 1) + " -> \"" + value + "\" ("
+                                                            + cell.getCellTypeEnum().toString() + ")");
                                             }
                                         }
-                                    } else
-                                        if (logger.isDebugEnabled())
-                                            logger.debug("control is not a label, nor a text, nor a table !");
-                            }
+                                    }
+                                } else
+                                    if (logger.isDebugEnabled())
+                                        logger.debug("control is not a label, nor a text, nor a table !");
                         }
                     }
-                } catch (RuntimeException e) {
+                }
+            } catch (RuntimeException e) {
+                closePopup();
+                popup(Level.ERROR, "Failed to update Excel file.\n\n" + e.getMessage());
+                exportOk = false;
+            }
+
+            if (exportOk) {
+                workbook.setForceFormulaRecalculation(true);
+                if (logger.isDebugEnabled())
+                    logger.debug("Saving Excel file");
+                try {
+                    file.close();
+                    FileOutputStream outFile = new FileOutputStream(excelFile);
+                    workbook.write(outFile);
+                    outFile.close();
+                } catch (IOException e) {
                     closePopup();
-                    popup(Level.ERROR, "Failed to update Excel file.\n\n" + e.getMessage());
+                    popup(Level.ERROR, "Failed to export updates to Excel file.", e);
                     exportOk = false;
                 }
+            }
 
-                if (exportOk) {
-                    workbook.setForceFormulaRecalculation(true);
-                    if (logger.isDebugEnabled())
-                        logger.debug("Saving Excel file");
-                    try {
-                        file.close();
-                        FileOutputStream outFile = new FileOutputStream(excelFile);
-                        workbook.write(outFile);
-                        outFile.close();
-                    } catch (IOException e) {
-                        closePopup();
-                        popup(Level.ERROR, "Failed to export updates to Excel file.", e);
-                        exportOk = false;
-                    }
-                }
+            try {
+                workbook.close();
+            } catch (IOException ign) {
+                ign.printStackTrace();
+            }
 
+            closePopup();
+
+            if (exportOk && question("Export to Excel successful.\n\nDo you wish to open the Excel spreadsheet ?")) {
                 try {
-                    workbook.close();
-                } catch (IOException ign) {
-                    ign.printStackTrace();
-                }
-
-                closePopup();
-
-                if (exportOk && question("Export to Excel successful.\n\nDo you wish to open the Excel spreadsheet ?")) {
-                    try {
-                        Desktop.getDesktop().open(new File(excelFile));
-                    } catch (IOException e) {
-                        popup(Level.ERROR, "Failed to launch Excel.", e);
-                    }
+                    Desktop.getDesktop().open(new File(excelFile));
+                } catch (IOException e) {
+                    popup(Level.ERROR, "Failed to launch Excel.", e);
                 }
             }
         }
+    }
 
-        private class TableItemComparator implements Comparator<TableItem> {
-            int columnIndex   = 0;
-            int sortDirection = SWT.UP;
+    private class TableItemComparator implements Comparator<TableItem> {
+        int columnIndex   = 0;
+        int sortDirection = SWT.UP;
 
-            public TableItemComparator(int columnIndex, int sortDirection) {
-                this.columnIndex = columnIndex;
-                this.sortDirection = sortDirection;
-            }
-
-            public int compare(TableItem first, TableItem second) {
-                TableEditor[] editorsFirst = (TableEditor[]) first.getData("editors");
-
-                if (editorsFirst[columnIndex] != null) {
-                    TableEditor[] editorsSecond = (TableEditor[]) second.getData("editors");
-
-                    switch (editorsFirst[columnIndex].getEditor().getClass().getSimpleName()) {
-                        case "StyledText":
-                            logger.trace("comparing \"" + ((StyledText) editorsFirst[columnIndex].getEditor()).getText()
-                                    + "\" and \"" + ((StyledText) editorsSecond[columnIndex].getEditor()).getText() + "\"");
-                            return Collator.getInstance().compare(
-                                    ((StyledText) editorsFirst[columnIndex].getEditor()).getText(),
-                                    ((StyledText) editorsSecond[columnIndex].getEditor()).getText())
-                                    * (sortDirection == SWT.UP ? 1 : -1);
-                        case "Button":
-                            logger.trace("comparing \"" + ((Button) editorsFirst[columnIndex].getEditor()).getSelection()
-                                    + "\" and \"" + ((Button) editorsSecond[columnIndex].getEditor()).getSelection()
-                                    + "\"");
-                            return Collator.getInstance().compare(
-                                    ((Button) editorsFirst[columnIndex].getEditor()).getSelection(),
-                                    ((Button) editorsSecond[columnIndex].getEditor()).getSelection())
-                                    * (sortDirection == SWT.UP ? 1 : -1);
-
-                        case "CCombo":
-                            logger.trace("comparing \"" + ((CCombo) editorsFirst[columnIndex].getEditor()).getText()
-                                    + "\" and \"" + ((CCombo) editorsSecond[columnIndex].getEditor()).getText() + "\"");
-                            return Collator.getInstance().compare(
-                                    ((CCombo) editorsFirst[columnIndex].getEditor()).getText(),
-                                    ((CCombo) editorsSecond[columnIndex].getEditor()).getText())
-                                    * (sortDirection == SWT.UP ? 1 : -1);
-
-                        default:
-                            throw new RuntimeException("Do not how to compare elements of class "
-                                    + editorsFirst[columnIndex].getClass().getSimpleName());
-                    }
-                }
-
-                return Collator.getInstance().compare(first.getText(columnIndex), second.getText(columnIndex))
-                        * (sortDirection == SWT.UP ? 1 : -1);
-            }
+        public TableItemComparator(int columnIndex, int sortDirection) {
+            this.columnIndex = columnIndex;
+            this.sortDirection = sortDirection;
         }
 
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @return the value if found
-         * @throws RuntimeException
-         *             if the key is not found
-         */
-        public static Object getJSON(JSONObject obj, String key) throws RuntimeException {
-            Object result = getJSON(obj, key, null);
-            if (result == null)
-                throw new RuntimeException("key \"" + key + "\" not found.");
-            return result;
-        }
+        public int compare(TableItem first, TableItem second) {
+            TableEditor[] editorsFirst = (TableEditor[]) first.getData("editors");
 
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @return the value if found, or the defaultValue provided if not found,
-         *         ClassCastException if the object found is not a JSONObject
-         */
-        public static JSONObject getJSONObject(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key);
+            if (editorsFirst[columnIndex] != null) {
+                TableEditor[] editorsSecond = (TableEditor[]) second.getData("editors");
 
-            if (result instanceof JSONObject)
-                return (JSONObject) result;
+                switch (editorsFirst[columnIndex].getEditor().getClass().getSimpleName()) {
+                    case "StyledText":
+                        logger.trace("comparing \"" + ((StyledText) editorsFirst[columnIndex].getEditor()).getText()
+                                + "\" and \"" + ((StyledText) editorsSecond[columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(
+                                ((StyledText) editorsFirst[columnIndex].getEditor()).getText(),
+                                ((StyledText) editorsSecond[columnIndex].getEditor()).getText())
+                                * (sortDirection == SWT.UP ? 1 : -1);
+                    case "Button":
+                        logger.trace("comparing \"" + ((Button) editorsFirst[columnIndex].getEditor()).getSelection()
+                                + "\" and \"" + ((Button) editorsSecond[columnIndex].getEditor()).getSelection()
+                                + "\"");
+                        return Collator.getInstance().compare(
+                                ((Button) editorsFirst[columnIndex].getEditor()).getSelection(),
+                                ((Button) editorsSecond[columnIndex].getEditor()).getSelection())
+                                * (sortDirection == SWT.UP ? 1 : -1);
 
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @return the value if found, ClassCastException if the object found is not
-         *         a JSONArray
-         */
-        public static JSONArray getJSONArray(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key);
-
-            if (result instanceof JSONArray)
-                return (JSONArray) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @return the value if found, ClassCastException if the object found is not
-         *         a String
-         */
-        public static String getString(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key);
-
-            if (result instanceof String)
-                return (String) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @return the value if found, ClassCastException if the object found is not
-         *         an Integer
-         */
-        public static int getInt(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key);
-
-            if (result instanceof Long)
-                return (int) (long) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @param defaultValue
-         * @return the value if found, ClassCastException if the object found is not
-         *         a boolean
-         */
-        public static Boolean getBoolean(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key);
-
-            if (result instanceof Boolean)
-                return (Boolean) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
-        }
-
-        /**
-         * Checks if the key exists in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         */
-        public static boolean JSONContainsKey(JSONObject obj, String key) {
-            @SuppressWarnings("unchecked")
-            Iterator<String> iter = obj.keySet().iterator();
-            while (iter.hasNext()) {
-                String key1 = iter.next();
-                if (key1.equalsIgnoreCase(key))
-                    return true;
-            }
-            return false;
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @param defaultValue
-         * @return the value if found, or the defaultValue provided if not found
-         */
-        public static Object getJSON(JSONObject obj, String key, Object defaultValue) {
-            @SuppressWarnings("unchecked")
-            Iterator<String> iter = obj.keySet().iterator();
-            while (iter.hasNext()) {
-                String key1 = iter.next();
-                if (key1.equalsIgnoreCase(key)) {
-                    return obj.get(key1);
-                }
-            }
-            return defaultValue;
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @param defaultValue
-         * @return the value if found, or the defaultValue provided if not found,
-         *         ClassCastException if the object found is not a JSONObject
-         */
-        public static JSONObject getJSONObject(JSONObject obj, String key, Object defaultValue)
-                throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key, defaultValue);
-
-            if (result == null || result instanceof JSONObject)
-                return (JSONObject) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @param defaultValue
-         * @return the value if found, or the defaultValue provided if not found,
-         *         ClassCastException if the object found is not a JSONArray
-         */
-        public static JSONArray getJSONArray(JSONObject obj, String key, Object defaultValue)
-                throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key, defaultValue);
-
-            if (result == null || result instanceof JSONArray)
-                return (JSONArray) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @param defaultValue
-         * @return the value if found, or the defaultValue provided if not found,
-         *         ClassCastException if the object found is not a String
-         */
-        public static String getString(JSONObject obj, String key, Object defaultValue)
-                throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key, defaultValue);
-
-            if (result == null || result instanceof String)
-                return (String) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @param defaultValue
-         * @return the value if found, or the defaultValue provided if not found,
-         *         ClassCastException if the object found is not an Integer
-         */
-        public static int getInt(JSONObject obj, String key, int defaultValue) throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key, Long.valueOf(defaultValue));
-
-            if (result instanceof Long)
-                return (int) (long) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
-        }
-
-        /**
-         * Gets the value corresponding to the key in the JSONObject
-         * 
-         * @param obj
-         *            the JSONObject
-         * @param key
-         *            the key (case insensitive)
-         * @param defaultValue
-         * @return the value if found, or the defaultValue provided if not found,
-         *         ClassCastException if the object found is not a Boolean
-         */
-        public static Boolean getBoolean(JSONObject obj, String key, Boolean defaultValue)
-                throws RuntimeException, ClassCastException {
-            Object result = getJSON(obj, key, defaultValue);
-
-            if (result == null || result instanceof Boolean)
-                return (Boolean) result;
-
-            throw new ClassCastException(
-                    "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
-        }
-
-        /**
-         * Checks whether the eObject fits in the filter rules
-         */
-        public static boolean checkFilter(EObject eObject, String separator, JSONObject filterObject) {
-            if (filterObject == null) {
-                return true;
-            }
-
-            String type = ((String) getJSON(filterObject, "genre", "AND")).toUpperCase();
-
-            if (!type.equals("AND") && !type.equals("OR"))
-                throw new RuntimeException("Invalid filter genre. Supported genres are \"AND\" and \"OR\".");
-
-            boolean result;
-
-            @SuppressWarnings("unchecked")
-            Iterator<JSONObject> filterIterator = ((JSONArray) getJSON(filterObject, "tests")).iterator();
-            while (filterIterator.hasNext()) {
-                JSONObject filter = filterIterator.next();
-                String attribute = (String) getJSON(filter, "attribute");
-                String operation = (String) getJSON(filter, "operation");
-                String value;
-                String[] values;
-
-                String attributeValue = FormVariable.expand(attribute, separator, eObject);
-
-                switch (operation.toLowerCase()) {
-                    case "equals":
-                        value = (String) getJSON(filter, "value");
-
-                        result = attributeValue.equals(value);
-                        if (logger.isTraceEnabled())
-                            logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals \"" + value
-                                    + "\" --> " + result);
-                        break;
-
-                    case "in":
-                        value = (String) getJSON(filter, "value");
-                        values = value.split(",");
-                        result = false;
-                        for (String str : values) {
-                            if (str.equals(attributeValue)) {
-                                result = true;
-                                break;
-                            }
-                        }
-                        if (logger.isTraceEnabled())
-                            logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> "
-                                    + result);
-                        break;
-
-                    case "exists":
-                        result = attributeValue.isEmpty();
-                        if (logger.isTraceEnabled())
-                            logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") exists --> " + result);
-                        break;
-
-                    case "iequals":
-                        value = (String) getJSON(filter, "value");
-
-                        result = attributeValue.equalsIgnoreCase(value);
-                        if (logger.isTraceEnabled())
-                            logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals (ignore case) \""
-                                    + value + "\" --> " + result);
-                        break;
-
-                    case "iin":
-                        value = (String) getJSON(filter, "value");
-                        values = value.split(",");
-                        result = false;
-                        for (String str : values) {
-                            if (str.equals(attributeValue)) {
-                                result = true;
-                                break;
-                            }
-                        }
-                        if (logger.isTraceEnabled())
-                            logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> "
-                                    + result);
-                        break;
-
-                    case "matches":
-                        value = (String) getJSON(filter, "value");
-
-                        result = (attributeValue != null) && attributeValue.matches(value);
-                        if (logger.isTraceEnabled())
-                            logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") matches \"" + value
-                                    + "\" --> " + result);
-                        break;
+                    case "CCombo":
+                        logger.trace("comparing \"" + ((CCombo) editorsFirst[columnIndex].getEditor()).getText()
+                                + "\" and \"" + ((CCombo) editorsSecond[columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(
+                                ((CCombo) editorsFirst[columnIndex].getEditor()).getText(),
+                                ((CCombo) editorsSecond[columnIndex].getEditor()).getText())
+                                * (sortDirection == SWT.UP ? 1 : -1);
 
                     default:
-                        throw new RuntimeException("Unknown operation type \"" + operation
-                                + "\" in filter.\n\nValid operations are \"equals\", \"exists\", \"iequals\" and \"matches\".");
+                        throw new RuntimeException("Do not how to compare elements of class "
+                                + editorsFirst[columnIndex].getClass().getSimpleName());
                 }
-
-                // in AND mode, all the tests must return true, so if the current
-                // test is false, then the complete filter returns false
-                if (result == false && type.equals("AND"))
-                    return false;
-
-                // in OR mode, one test at lease must return true, so if the current
-                // test is true, then the complete filter returns true
-                if (result == true && type.equals("OR"))
-                    return true;
             }
-            // in AND mode, we're here if all the tests were true
-            // in OR mode, we're here if all the tests were false
-            return type.equals("AND");
-        }
 
-        public String debugValue(String value, String defaultValue) {
-            StringBuilder result = new StringBuilder();
-            result.append("\"" + value + "\"");
-            if (FormPlugin.areEqual(value, defaultValue))
-                result.append(" (default)");
-            return result.toString();
+            return Collator.getInstance().compare(first.getText(columnIndex), second.getText(columnIndex))
+                    * (sortDirection == SWT.UP ? 1 : -1);
         }
+    }
 
-        public String debugValue(int value, int defaultValue) {
-            StringBuilder result = new StringBuilder();
-            result.append(value);
-            if (value == defaultValue)
-                result.append(" (default)");
-            return result.toString();
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @return the value if found
+     * @throws RuntimeException
+     *             if the key is not found
+     */
+    public static Object getJSON(JSONObject obj, String key) throws RuntimeException {
+        Object result = getJSON(obj, key, null);
+        if (result == null)
+            throw new RuntimeException("key \"" + key + "\" not found.");
+        return result;
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @return the value if found, or the defaultValue provided if not found,
+     *         ClassCastException if the object found is not a JSONObject
+     */
+    public static JSONObject getJSONObject(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key);
+
+        if (result instanceof JSONObject)
+            return (JSONObject) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @return the value if found, ClassCastException if the object found is not
+     *         a JSONArray
+     */
+    public static JSONArray getJSONArray(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key);
+
+        if (result instanceof JSONArray)
+            return (JSONArray) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @return the value if found, ClassCastException if the object found is not
+     *         a String
+     */
+    public static String getString(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key);
+
+        if (result instanceof String)
+            return (String) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @return the value if found, ClassCastException if the object found is not
+     *         an Integer
+     */
+    public static int getInt(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key);
+
+        if (result instanceof Long)
+            return (int) (long) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @param defaultValue
+     * @return the value if found, ClassCastException if the object found is not
+     *         a boolean
+     */
+    public static Boolean getBoolean(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key);
+
+        if (result instanceof Boolean)
+            return (Boolean) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
+    }
+
+    /**
+     * Checks if the key exists in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     */
+    public static boolean JSONContainsKey(JSONObject obj, String key) {
+        @SuppressWarnings("unchecked")
+        Iterator<String> iter = obj.keySet().iterator();
+        while (iter.hasNext()) {
+            String key1 = iter.next();
+            if (key1.equalsIgnoreCase(key))
+                return true;
         }
+        return false;
+    }
 
-        public String debugValue(Boolean value, Boolean defaultValue) {
-            StringBuilder result = new StringBuilder();
-            if (value == null)
-                result.append("null");
-            else
-                result.append(value ? "true" : "false");
-            if (value == defaultValue)
-                result.append(" (default)");
-            return result.toString();
-        }
-
-        public static boolean inArray(String[] stringArray, String string) {
-            for (String s : stringArray) {
-                if (FormPlugin.areEqual(s, string))
-                    return true;
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @param defaultValue
+     * @return the value if found, or the defaultValue provided if not found
+     */
+    public static Object getJSON(JSONObject obj, String key, Object defaultValue) {
+        @SuppressWarnings("unchecked")
+        Iterator<String> iter = obj.keySet().iterator();
+        while (iter.hasNext()) {
+            String key1 = iter.next();
+            if (key1.equalsIgnoreCase(key)) {
+                return obj.get(key1);
             }
-            return false;
         }
+        return defaultValue;
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @param defaultValue
+     * @return the value if found, or the defaultValue provided if not found,
+     *         ClassCastException if the object found is not a JSONObject
+     */
+    public static JSONObject getJSONObject(JSONObject obj, String key, Object defaultValue)
+            throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key, defaultValue);
+
+        if (result == null || result instanceof JSONObject)
+            return (JSONObject) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @param defaultValue
+     * @return the value if found, or the defaultValue provided if not found,
+     *         ClassCastException if the object found is not a JSONArray
+     */
+    public static JSONArray getJSONArray(JSONObject obj, String key, Object defaultValue)
+            throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key, defaultValue);
+
+        if (result == null || result instanceof JSONArray)
+            return (JSONArray) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @param defaultValue
+     * @return the value if found, or the defaultValue provided if not found,
+     *         ClassCastException if the object found is not a String
+     */
+    public static String getString(JSONObject obj, String key, Object defaultValue)
+            throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key, defaultValue);
+
+        if (result == null || result instanceof String)
+            return (String) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @param defaultValue
+     * @return the value if found, or the defaultValue provided if not found,
+     *         ClassCastException if the object found is not an Integer
+     */
+    public static int getInt(JSONObject obj, String key, int defaultValue) throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key, Long.valueOf(defaultValue));
+
+        if (result instanceof Long)
+            return (int) (long) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
+    }
+
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @param defaultValue
+     * @return the value if found, or the defaultValue provided if not found,
+     *         ClassCastException if the object found is not a Boolean
+     */
+    public static Boolean getBoolean(JSONObject obj, String key, Boolean defaultValue)
+            throws RuntimeException, ClassCastException {
+        Object result = getJSON(obj, key, defaultValue);
+
+        if (result == null || result instanceof Boolean)
+            return (Boolean) result;
+
+        throw new ClassCastException(
+                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
+    }
+
+    /**
+     * Checks whether the eObject fits in the filter rules
+     */
+    public static boolean checkFilter(EObject eObject, String separator, JSONObject filterObject) {
+        if (filterObject == null) {
+            return true;
+        }
+
+        String type = ((String) getJSON(filterObject, "genre", "AND")).toUpperCase();
+
+        if (!type.equals("AND") && !type.equals("OR"))
+            throw new RuntimeException("Invalid filter genre. Supported genres are \"AND\" and \"OR\".");
+
+        boolean result;
+
+        @SuppressWarnings("unchecked")
+        Iterator<JSONObject> filterIterator = ((JSONArray) getJSON(filterObject, "tests")).iterator();
+        while (filterIterator.hasNext()) {
+            JSONObject filter = filterIterator.next();
+            String attribute = (String) getJSON(filter, "attribute");
+            String operation = (String) getJSON(filter, "operation");
+            String value;
+            String[] values;
+
+            String attributeValue = FormVariable.expand(attribute, separator, eObject);
+
+            switch (operation.toLowerCase()) {
+                case "equals":
+                    value = (String) getJSON(filter, "value");
+
+                    result = attributeValue.equals(value);
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals \"" + value
+                                + "\" --> " + result);
+                    break;
+
+                case "in":
+                    value = (String) getJSON(filter, "value");
+                    values = value.split(",");
+                    result = false;
+                    for (String str : values) {
+                        if (str.equals(attributeValue)) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> "
+                                + result);
+                    break;
+
+                case "exists":
+                    result = attributeValue.isEmpty();
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") exists --> " + result);
+                    break;
+
+                case "iequals":
+                    value = (String) getJSON(filter, "value");
+
+                    result = attributeValue.equalsIgnoreCase(value);
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals (ignore case) \""
+                                + value + "\" --> " + result);
+                    break;
+
+                case "iin":
+                    value = (String) getJSON(filter, "value");
+                    values = value.split(",");
+                    result = false;
+                    for (String str : values) {
+                        if (str.equals(attributeValue)) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> "
+                                + result);
+                    break;
+
+                case "matches":
+                    value = (String) getJSON(filter, "value");
+
+                    result = (attributeValue != null) && attributeValue.matches(value);
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") matches \"" + value
+                                + "\" --> " + result);
+                    break;
+
+                default:
+                    throw new RuntimeException("Unknown operation type \"" + operation
+                            + "\" in filter.\n\nValid operations are \"equals\", \"exists\", \"iequals\" and \"matches\".");
+            }
+
+            // in AND mode, all the tests must return true, so if the current
+            // test is false, then the complete filter returns false
+            if (result == false && type.equals("AND"))
+                return false;
+
+            // in OR mode, one test at lease must return true, so if the current
+            // test is true, then the complete filter returns true
+            if (result == true && type.equals("OR"))
+                return true;
+        }
+        // in AND mode, we're here if all the tests were true
+        // in OR mode, we're here if all the tests were false
+        return type.equals("AND");
+    }
+
+    public String debugValue(String value, String defaultValue) {
+        StringBuilder result = new StringBuilder();
+        result.append("\"" + value + "\"");
+        if (FormPlugin.areEqual(value, defaultValue))
+            result.append(" (default)");
+        return result.toString();
+    }
+
+    public String debugValue(int value, int defaultValue) {
+        StringBuilder result = new StringBuilder();
+        result.append(value);
+        if (value == defaultValue)
+            result.append(" (default)");
+        return result.toString();
+    }
+
+    public String debugValue(Boolean value, Boolean defaultValue) {
+        StringBuilder result = new StringBuilder();
+        if (value == null)
+            result.append("null");
+        else
+            result.append(value ? "true" : "false");
+        if (value == defaultValue)
+            result.append(" (default)");
+        return result.toString();
+    }
+
+    public static boolean inArray(String[] stringArray, String string) {
+        for (String s : stringArray) {
+            if (FormPlugin.areEqual(s, string))
+                return true;
+        }
+        return false;
+    }
 }
