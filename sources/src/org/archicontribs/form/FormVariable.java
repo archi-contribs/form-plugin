@@ -1,13 +1,11 @@
 package org.archicontribs.form;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.gef.commands.Command;
 import org.eclipse.gef.commands.CompoundCommand;
 
 import com.archimatetool.editor.model.commands.EObjectFeatureCommand;
 import com.archimatetool.editor.model.commands.NonNotifyingCompoundCommand;
 import com.archimatetool.model.IArchimateDiagramModel;
-import com.archimatetool.model.IArchimateFactory;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IArchimatePackage;
@@ -321,7 +319,6 @@ public class FormVariable {
             throw new RuntimeException(FormPosition.getPosition(null) + "\n\nThe expression \""+variable+"\" is not a variable (it should be enclosed between \"${\" and \"}\")");
 
         String variableName = variable.substring(2, variable.length()-1);
-        Command cmd;
 
         switch ( variableName.toLowerCase() ) {
             case "class" :  // TODO: show error message
@@ -331,10 +328,7 @@ public class FormVariable {
                 if (eObject instanceof IIdentifier) {
                     if ( value == null || value.length()==0 )
                         throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the value provided is null.");
-                    cmd = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.IDENTIFIER__ID, value);
-                    if(cmd.canExecute()) {
-                        compoundCommand.add(cmd);
-                    }
+                    compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.IDENTIFIER__ID, value));
                     return;
                 }
                 break;
@@ -342,10 +336,7 @@ public class FormVariable {
             case "documentation" :
                 if (eObject instanceof IDocumentable) {
                     //((IDocumentable)eObject).setDocumentation(value == null ? "" : value);
-                    cmd = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value);
-                    if(cmd.canExecute()) {
-                        compoundCommand.add(cmd);
-                    }
+                    compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value));
                     return;
                 }
                 else {
@@ -356,10 +347,7 @@ public class FormVariable {
             case "name" :
                 if (eObject instanceof INameable) {
                     //((INameable)eObject).setName(value == null ? "" : value);
-                    cmd = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.NAMEABLE__NAME, value == null ? "" : value);
-                    if(cmd.canExecute()) {
-                        compoundCommand.add(cmd);
-                    }
+                    compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.NAMEABLE__NAME, value == null ? "" : value));
                     return;
                 } else {
                     // TODO: show error message
@@ -391,63 +379,11 @@ public class FormVariable {
                         if ( propertyToUpdate == null ) {
                             // we create a new property if and only if the value is not null
                             if ( value != null ) {
-                                //IProperty newProperty = IArchimateFactory.eINSTANCE.createProperty();
-                                //newProperty.setKey(propertyName);
-                                //newProperty.setValue(value);
-                                //((IProperties)eObject).getProperties().add(newProperty);
-                                cmd = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, IArchimateFactory.eINSTANCE.createProperty()) {
-                                    @Override
-                                    public void execute() {
-                                        property.setKey(propertyName);
-                                        property.setValue(value);
-                                        eObject.getProperties().add(property);
-                                    }
-                                    
-                                    @Override
-                                    public void undo() {
-                                        eObject.getProperties().remove(property);
-                                    }
-                                };
-                                
-                                compoundCommand.add(cmd);
+                                compoundCommand.add(new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyName, value));
                             }
                         } else {
-                            // if the property already exists
-                            
-                            if ( value == null ) {
-                                // if value == null, we remove the property
-                                //((IProperties)eObject).getProperties().remove(propertyToUpdate);
-                                cmd = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyToUpdate) {
-                                    @Override
-                                    public void execute() {
-                                        eObject.getProperties().remove(property);
-                                    }
-                                    
-                                    @Override
-                                    public void undo() {
-                                        eObject.getProperties().add(property);              // TODO; store the property index to add it at the same place !!!
-                                    }
-                                };
-                                
-                                compoundCommand.add(cmd);
-                            } else {
-                                // if value != null, we update the property value
-                                //propertyToUpdate.setKey(propertyName);
-                                //propertyToUpdate.setValue(value);
-                                cmd = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyToUpdate, propertyToUpdate.getValue(), value) {
-                                    @Override
-                                    public void execute() {
-                                        property.setValue(newValue);
-                                    }
-                                    
-                                    @Override
-                                    public void undo() {
-                                        property.setValue(oldValue);
-                                    }
-                                };
-                                
-                                compoundCommand.add(cmd);
-                            }
+                            // if the property already exists, we update its value
+                            compoundCommand.add(new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyToUpdate, value));
                         }
                         return;
                     } else {
