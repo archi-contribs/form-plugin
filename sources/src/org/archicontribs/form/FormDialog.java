@@ -213,6 +213,7 @@ public class FormDialog extends Dialog {
             logger.trace("   background = " + debugValue(dialogBackground, defaultDialogBackground));
             logger.trace("   width = " + debugValue(buttonWidth, defaultButtonWidth));
             logger.trace("   height = " + debugValue(buttonHeight, defaultButtonHeight));
+            logger.trace("   refers = " + debugValue(getString(form, "refers", "selected"), "selected"));       // used in FormMenu class but deserves a debug line
             logger.trace("   ok = " + debugValue(buttonOkText, defaultButtonOkText));
             logger.trace("   cancel = " + debugValue(buttonCancelText, defaultButtonCancelText));
             logger.trace("   whenEmpty = " + debugValue(globalWhenEmpty, null));
@@ -2023,10 +2024,14 @@ public class FormDialog extends Dialog {
                                         text = ((Label) control).getText();
                                         break;
                                     case "CCombo":
-                                        text = ((CCombo) control).getText();
+                                            text = ((CCombo) control).getText();
                                         break;
                                     case "Button":
-                                        text = ((Button) control).getText();
+                                        String[]values = (String[])((Button)control).getData("values");
+                                        if ( values == null )
+                                            text = String.valueOf(((Button)control).getSelection());
+                                        else
+                                            text = values[((Button)control).getSelection()?0:1];
                                         break;
                                 }
                                 cell.setCellValue(text);
