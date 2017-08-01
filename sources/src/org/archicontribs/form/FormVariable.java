@@ -409,9 +409,7 @@ public class FormVariable {
                                     }
                                 };
                                 
-                                if(cmd.canExecute()) {
-                                    compoundCommand.add(cmd);
-                                }
+                                compoundCommand.add(cmd);
                             }
                         } else {
                             // if the property already exists
@@ -431,9 +429,7 @@ public class FormVariable {
                                     }
                                 };
                                 
-                                if(cmd.canExecute()) {
-                                    compoundCommand.add(cmd);
-                                }
+                                compoundCommand.add(cmd);
                             } else {
                                 // if value != null, we update the property value
                                 //propertyToUpdate.setKey(propertyName);
@@ -450,9 +446,7 @@ public class FormVariable {
                                     }
                                 };
                                 
-                                if(cmd.canExecute()) {
-                                    compoundCommand.add(cmd);
-                                }
+                                compoundCommand.add(cmd);
                             }
                         }
                         return;
