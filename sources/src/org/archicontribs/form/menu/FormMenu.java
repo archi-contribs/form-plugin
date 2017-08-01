@@ -137,24 +137,20 @@ public class FormMenu extends ExtensionContributionFactory {
 		                    String refers = FormDialog.getString(form,"refers", "selected");
 		                    switch ( refers.toLowerCase() ) {
 		                        case "selected" :
-		                            if ( logger.isTraceEnabled() ) logger.trace("Refers to selected object");
+		                            if ( logger.isTraceEnabled() ) logger.trace("Refers to selected object "+FormPlugin.getDebugName(selectedObject));
 		                            break;
 		                        
 		                        case "view" :
-		                            if ( logger.isTraceEnabled() ) logger.trace("Refers to the view");
-		                            
     	                            if ( !(selectedObject instanceof IDiagramModelObject) ) {
 	                                    logger.error(getPosition("refers")+" - the form refers to the object's view but the object \""+selectedObject.getClass().getSimpleName()+"\" is not inside a view");
 	                                    continue loopOnForms;
 	                                }
     	                            
 	                                selectedObject = getContainer(selectedObject);
-		                                
+                                    if ( logger.isTraceEnabled() ) logger.trace("Refers to the view "+FormPlugin.getDebugName(selectedObject));
 		                            break;
 		                            
 		                        case "folder" :
-		                            if ( logger.isTraceEnabled() ) logger.trace("Refers to the folder");
-		                            
 		                            if ( selectedObject instanceof IArchimateModel ) {
 	                                    logger.error(getPosition("refers")+" - the form refers to the object's folder but the object \""+selectedObject.getClass().getSimpleName()+"\" is not inside a folder");
 	                                    continue loopOnForms;
@@ -167,12 +163,13 @@ public class FormMenu extends ExtensionContributionFactory {
 	                                }
 	                                
 		                            selectedObject = getContainer(selectedObject);
-	                                
+		                            
+	                                if ( logger.isTraceEnabled() ) logger.trace("Refers to the folder "+FormPlugin.getDebugName(selectedObject));
 		                            break;
 		                        case "model" :
-		                            if ( logger.isTraceEnabled() ) logger.trace("Refers to the model");
-		                            
 		                            selectedObject = getModel(selectedObject);
+		                            
+	                                if ( logger.isTraceEnabled() ) logger.trace("Refers to the model "+FormPlugin.getDebugName(selectedObject));
 		                            break;
 		                            
 		                        default :
