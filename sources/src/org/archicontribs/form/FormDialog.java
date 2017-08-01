@@ -113,7 +113,6 @@ public class FormDialog extends Dialog {
     private final FormVarList       formVarList       = new FormVarList();
 
     private EObject                 selectedObject    = null;
-
     private Shell                   dialog            = null;
     private TabFolder               tabFolder         = null;
 
@@ -811,16 +810,12 @@ public class FormDialog extends Dialog {
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
 
         Button check = new Button(composite, SWT.CHECK);
-        if (values != null && values.length != 0) {
-            check.setData("values", values);
-            if (value.isEmpty() || forceDefault) {
-                // we set the checkbox depending on the "default"
-                check.setSelection(values[0].equals(defaultValue));
-            } else {
-                check.setSelection(values[0].equals(value));
-            }
+        if ( values == null || values.length == 0 ) {
+            check.setData("values", null);
+            check.setSelection(Boolean.valueOf((value.isEmpty() || forceDefault)?defaultValue:value));
         } else {
-            check.setSelection(value != null);
+            check.setData("values", values);
+            check.setSelection(values[0].equals((value.isEmpty() || forceDefault)?defaultValue:value));
         }
         check.pack();
 
@@ -1017,10 +1012,12 @@ public class FormDialog extends Dialog {
                         String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
                         String defaultValue = getString(column, "default", null);
                         String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
+                        boolean forceDefault = getBoolean(column, "forceDefault", false);
 
                         if (logger.isTraceEnabled()) {
                             logger.trace("      values = " + values);
                             logger.trace("      default = " + debugValue(defaultValue, null));
+                            logger.trace("      forceDefault = " + debugValue(forceDefault, false));
                             logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
                         }
 
@@ -1034,6 +1031,7 @@ public class FormDialog extends Dialog {
 
                         tableColumn.setData("values", values);
                         tableColumn.setData("default", defaultValue);
+                        tableColumn.setData("forceDefault", forceDefault);
                         tableColumn.setData("whenEmpty", whenEmpty);
                     }
                     break;
@@ -1360,19 +1358,18 @@ public class FormDialog extends Dialog {
                     formVarList.set(referedEObject, unscoppedVariable, check);
                     
                     String[] values = (String[])tableColumn.getData("values");
-                    if (itemText.isEmpty()) {
-                        String defaultValue = (String)tableColumn.getData("default");
-                        if (defaultValue != null)
-                            itemText = defaultValue;
-                    }
-                    if (values != null && values.length != 0) {
-                        check.setData("values", tableColumn.getData("values"));
-                        logger.trace("      adding check cell with value \"" + values[0].equals(itemText) + "\"");
-                        check.setSelection(values[0].equals(itemText));
+                    String defaultValue = (String)tableColumn.getData("default");
+                    
+                    if ( values == null || values.length == 0 ) {
+                        check.setData("values", null);
+                        check.setSelection(Boolean.valueOf((itemText.isEmpty() || (boolean)tableColumn.getData("forceDefault"))?defaultValue:itemText));
+                        logger.trace("      adding check cell with value \"" + Boolean.valueOf((itemText.isEmpty() || (boolean)tableColumn.getData("forceDefault"))?defaultValue:itemText) + "\"");
                     } else {
-                        logger.trace("      adding check cell with value \"" + !itemText.isEmpty() + "\"");
-                        check.setSelection(!itemText.isEmpty());
+                        check.setData("values", values);
+                        check.setSelection(values[0].equals((itemText.isEmpty() || (boolean)tableColumn.getData("forceDefault"))?defaultValue:itemText));
+                        logger.trace("      adding check cell with value \"" + values[0].equals((itemText.isEmpty() || (boolean)tableColumn.getData("forceDefault"))?defaultValue:itemText) + "\"");
                     }
+                    check.pack();
 
                     if (tableColumn.getData("tooltip") != null) {
                         check.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), variableSeparator, eObject));
@@ -1600,7 +1597,7 @@ public class FormDialog extends Dialog {
     	
     	switch ( control.getClass().getSimpleName() ) {
     		case "Button":
-    			String[]values = (String[])((Button)control).getData("values");
+    			String[]values = (String[])control.getData("values");
     			if ( values == null )
     			    content = null;
     			else
@@ -1891,7 +1888,11 @@ public class FormDialog extends Dialog {
 
         switch (control.getClass().getSimpleName()) {
             case "Button":
-                value = ((Button) control).getText();
+                String[] values = (String[])control.getData("values");
+                if ( values == null )
+                    value = String.valueOf(((Button) control).getSelection());
+                else
+                    value = values[((Button) control).getSelection()?0:1];
                 break;
             case "CCombo":
                 value = ((CCombo) control).getText();
@@ -1906,7 +1907,7 @@ public class FormDialog extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("do_save " + control.getClass().getSimpleName() + " : " + unscoppedVariable + " = \"" + value + "\"");
 
-        if (value.isEmpty()) {
+        if (value == null || value.isEmpty()) {
             String whenEmpty = (String) control.getData("whenEmpty");
 
             if (whenEmpty == null)
@@ -2027,7 +2028,7 @@ public class FormDialog extends Dialog {
                                             text = ((CCombo) control).getText();
                                         break;
                                     case "Button":
-                                        String[]values = (String[])((Button)control).getData("values");
+                                        String[]values = (String[])control.getData("values");
                                         if ( values == null )
                                             text = String.valueOf(((Button)control).getSelection());
                                         else
