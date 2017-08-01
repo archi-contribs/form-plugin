@@ -310,7 +310,7 @@ public class FormVariable {
      * Instead, it opens a popup to display the error message.
      */
     public static void setVariable(String variable, String separator, String value, EObject eObject) throws RuntimeException {
-        //if ( logger.isTraceEnabled() ) logger.trace("         setting variable \""+variable+"\"");
+        if ( logger.isTraceEnabled() ) logger.trace("   setting \""+value+"\" to "+variable+" of "+FormPlugin.getDebugName(eObject));
         
         CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
 
@@ -389,8 +389,7 @@ public class FormVariable {
                         }
                         // if the property does not (yet) exists
                         if ( propertyToUpdate == null ) {
-                            // if value == null, we do not create a new property
-                            // if value != null, we create a new property
+                            // we create a new property if and only if the value is not null
                             if ( value != null ) {
                                 //IProperty newProperty = IArchimateFactory.eINSTANCE.createProperty();
                                 //newProperty.setKey(propertyName);
