@@ -1926,18 +1926,18 @@ public class FormDialog extends Dialog {
                     break;
                 case "create":
                     if (logger.isTraceEnabled())
-                        logger.trace("   value is empty : creating property if doen't exist.");
+                        logger.trace("   value is empty : creating property.");
                     FormVariable.setVariable(unscoppedVariable, variableSeparator, "", referedEObject);
                     break;
                 case "delete":
                     if (logger.isTraceEnabled())
-                        logger.trace("   value is empty : deleting property if it exists.");
+                        logger.trace("   value is empty : deleting property.");
                     FormVariable.setVariable(unscoppedVariable, variableSeparator, null, referedEObject);
                     break;
             }
         } else {
             if (logger.isTraceEnabled())
-                logger.trace("   value is not empty : setting property.");
+                logger.trace("   value is not empty.");
             FormVariable.setVariable(unscoppedVariable, variableSeparator, value, referedEObject);
         }
     }
