@@ -174,7 +174,7 @@ public class FormVariable {
 	    	return getUnscoppedVariable("${"+variableName.substring(7)+"}", separator, eObject);
 	    else if ( variableName.toLowerCase().startsWith("target"+separator) )
 	    	return getUnscoppedVariable("${"+variableName.substring(7)+"}", separator, eObject);
-	    else return variableName;
+	    else return "${"+variableName+"}";
     }
     
     /**
