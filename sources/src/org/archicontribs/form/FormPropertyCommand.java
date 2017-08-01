@@ -30,6 +30,9 @@ public class FormPropertyCommand extends Command {
 	    this.propertyValue = propertyValue;
 	}
 	
+	/*
+	 * Updates an existing property
+	 */
 	public FormPropertyCommand(String label, IProperties eObject, IProperty property, String propertyValue) {
 		setLabel(label);
 	    this.eObject = eObject;
