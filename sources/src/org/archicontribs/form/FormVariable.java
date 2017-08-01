@@ -329,6 +329,7 @@ public class FormVariable {
                     if ( value == null || value.length()==0 )
                         throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the value provided is null.");
                     compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.IDENTIFIER__ID, value));
+                    compoundCommand.execute();
                     return;
                 }
                 break;
@@ -337,6 +338,7 @@ public class FormVariable {
                 if (eObject instanceof IDocumentable) {
                     //((IDocumentable)eObject).setDocumentation(value == null ? "" : value);
                     compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value));
+                    compoundCommand.execute();
                     return;
                 }
                 else {
@@ -348,6 +350,7 @@ public class FormVariable {
                 if (eObject instanceof INameable) {
                     //((INameable)eObject).setName(value == null ? "" : value);
                     compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.NAMEABLE__NAME, value == null ? "" : value));
+                    compoundCommand.execute();
                     return;
                 } else {
                     // TODO: show error message
@@ -380,10 +383,12 @@ public class FormVariable {
                             // we create a new property if and only if the value is not null
                             if ( value != null ) {
                                 compoundCommand.add(new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyName, value));
+                                compoundCommand.execute();
                             }
                         } else {
                             // if the property already exists, we update its value
                             compoundCommand.add(new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyToUpdate, value));
+                            compoundCommand.execute();
                         }
                         return;
                     } else {
