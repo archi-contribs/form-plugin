@@ -1340,6 +1340,7 @@ public class FormDialog extends Dialog {
                     editor.grabHorizontal = true;
                     editor.setEditor(combo, tableItem, columnNumber);
                     editors[columnNumber] = editor;
+                    combo.addModifyListener(textModifyListener);
                     break;
 
                 case "check":
@@ -1611,7 +1612,7 @@ public class FormDialog extends Dialog {
                 break;
                 
             default:
-                return;
+                throw new RuntimeException("Do not how to update "+control.getClass().getSimpleName()+" control.");
     	}
 
         for ( Control otherControl: formVarList.getControls(referedEObject, unscoppedVariable)) {
