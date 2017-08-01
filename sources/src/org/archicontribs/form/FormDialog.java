@@ -1616,52 +1616,46 @@ public class FormDialog extends Dialog {
     	}
 
         for ( Control otherControl: formVarList.getControls(referedEObject, unscoppedVariable)) {
-            switch (control.getClass().getSimpleName()) {
-                case "CCombo":
-                    if( otherControl == control ) {
-                    	if (logger.isTraceEnabled()) logger.trace("same combo - ignored");
-                    } else {
-                    	if (logger.isTraceEnabled()) logger.trace("updating "+otherControl);
-                        ((CCombo)otherControl).setText(content);
-                    }
-                    break;
+            if ( otherControl == control ) {
+                if (logger.isTraceEnabled()) logger.trace("same combo - ignored");
+            } else {
+                if (logger.isTraceEnabled()) logger.trace("updating "+otherControl);
+                
+                switch (control.getClass().getSimpleName()) {
+                    case "CCombo":
+                        CCombo combo = ((CCombo)otherControl);
 
-                case "Button":
-                    if( otherControl == control ) {
-                    	if (logger.isTraceEnabled()) logger.trace("same button - ignored");
-                    } else {
-                    	if (logger.isTraceEnabled()) logger.trace("updating "+otherControl);
+                    	combo.removeModifyListener(textModifyListener);
+                        combo.setText(content);
+                        combo.addModifyListener(textModifyListener);
+                        break;
+    
+                    case "Button":
                     	Button button= (Button)otherControl;
-                        String[]values = (String[])button.getData("values");
 
-                        if(values==null||values.length==0)
+                    	String[]values = (String[])button.getData("values");
+                            if(values==null||values.length==0)
                             values=new String[]{"",null};
 
                         //if(values.length==1)
                         //    values=new String[]{values[0],null};
+                        
+                        button.removeSelectionListener(checkButtonSelectionListener);
 
                         if ( FormPlugin.areEqual(content, values[0]) ) 
                         	button.setSelection(false);
                         else if ( FormPlugin.areEqual(content, values[1]) ) 
                     		button.setSelection(true);
-                    }
-                    break;
-
-                case "Label":
-                    if( otherControl == control ) {
-                    	if (logger.isTraceEnabled()) logger.trace("same label - ignored");
-                    } else {
-                    	if (logger.isTraceEnabled()) logger.trace("updating "+otherControl);
+                        button.addSelectionListener(checkButtonSelectionListener);
+                        break;
+    
+                    case "Label":
                         ((Label)otherControl).setText(content);
-                    }
-                    break;
-
-                case "StyledText":
-                    if( otherControl == control ) {
-                    	if (logger.isTraceEnabled()) logger.trace("same text - ignored");
-                    } else {
-                    	if (logger.isTraceEnabled()) logger.trace("updating "+otherControl);
+                        break;
+    
+                    case "StyledText":
                         StyledText text = (StyledText)otherControl;
+                        
                         text.removeModifyListener(textModifyListener);
                         text.setText(content);
                         Pattern pattern = (Pattern)text.getData("pattern");		// if a regex has been provided, we change the text color to show if it matches
@@ -1669,10 +1663,10 @@ public class FormDialog extends Dialog {
                         	text.setStyleRange(new StyleRange(0, content.length(), pattern.matcher(content).matches() ? goodValueColor : badValueColor, null));
                         }
                         text.addModifyListener(textModifyListener);
-                    }
-                    break;
+                        break;
+                }
             }
-        }
+    }
     }
 
     private Listener sortListener=new Listener() {
