@@ -1600,7 +1600,10 @@ public class FormDialog extends Dialog {
     	switch ( control.getClass().getSimpleName() ) {
     		case "Button":
     			String[]values = (String[])((Button)control).getData("values");
-    			content = values[((Button)control).getSelection()?0:1];
+    			if ( values == null )
+    			    content = null;
+    			else
+    			    content = values[((Button)control).getSelection()?0:1];
     			break;
     		
     		case "StyledText":
@@ -1634,18 +1637,12 @@ public class FormDialog extends Dialog {
                     	Button button= (Button)otherControl;
 
                     	String[]values = (String[])button.getData("values");
-                            if(values==null||values.length==0)
-                            values=new String[]{"",null};
-
-                        //if(values.length==1)
-                        //    values=new String[]{values[0],null};
                         
                         button.removeSelectionListener(checkButtonSelectionListener);
-
-                        if ( FormPlugin.areEqual(content, values[0]) ) 
-                        	button.setSelection(false);
-                        else if ( FormPlugin.areEqual(content, values[1]) ) 
-                    		button.setSelection(true);
+                        if ( values == null )
+                            button.setSelection(((Button)control).getSelection());
+                        else
+                            button.setSelection(FormPlugin.areEqual(content, values[1]));       // any other value than values[1] implies the button is unchecked
                         button.addSelectionListener(checkButtonSelectionListener);
                         break;
     
