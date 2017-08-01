@@ -110,7 +110,7 @@ public class FormDialog extends Dialog {
     private static final Color      badValueColor     = new Color(display, 255, 0, 0);
     private static final Color      goodValueColor    = new Color(display, 0, 100, 0);
 
-    private final FormVarList      formVarList       = new FormVarList();
+    private final FormVarList       formVarList       = new FormVarList();
 
     private EObject                 selectedObject    = null;
 
