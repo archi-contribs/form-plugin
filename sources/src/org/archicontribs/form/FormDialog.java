@@ -2317,8 +2317,10 @@ public class FormDialog extends Dialog {
                                                             cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
                                                             if ( cell != null )
                                                                 row.removeCell(cell);
-                                                            break;
                                                         }
+                                                        break;
+                                                        
+                                                        //TODO: add an option to delete entire line
                                                 }
                                             }
                                         }
