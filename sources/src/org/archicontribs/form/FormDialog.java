@@ -428,6 +428,7 @@ public class FormDialog extends Dialog {
         int fontSize = getInt(jsonObject, "fontSize", label.getFont().getFontData()[0].getHeight());
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
+        String alignment = getString(jsonObject, "alignment", "left");
         String excelSheet = getString(jsonObject, "excelSheet", null);
         String excelCell = getString(jsonObject, "excelCell", null);
         String excelCellType = getString(jsonObject, "excelCellType", "string");
@@ -446,6 +447,7 @@ public class FormDialog extends Dialog {
             logger.trace("      fontSize = " + debugValue(fontSize, label.getFont().getFontData()[0].getHeight()));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
+            logger.trace("      alignment = "+debugValue(alignment, "left"));
             logger.trace("      excelSheet = " + debugValue(excelSheet, null));
             logger.trace("      excelCell = " + debugValue(excelCell, null));
             logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
@@ -457,16 +459,14 @@ public class FormDialog extends Dialog {
 
         if (background != null) {
             String[] colorArray = background.split(",");
-            label.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            label.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         } else {
             label.setBackground(composite.getBackground());
         }
 
         if (foreground != null) {
             String[] colorArray = foreground.split(",");
-            label.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            label.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (fontName != null) {
@@ -476,16 +476,30 @@ public class FormDialog extends Dialog {
             if (fontItalic)
                 style |= SWT.ITALIC;
             label.setFont(new Font(label.getDisplay(), fontName, fontSize, style));
-        } else
+        } else {
             if ((fontSize != label.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic) {
                 int style = SWT.NORMAL;
                 if (fontBold)
                     style |= SWT.BOLD;
                 if (fontItalic)
                     style |= SWT.ITALIC;
-                label.setFont(FontDescriptor.createFrom(label.getFont()).setHeight(fontSize).setStyle(style)
-                        .createFont(label.getDisplay()));
+                label.setFont(FontDescriptor.createFrom(label.getFont()).setHeight(fontSize).setStyle(style).createFont(label.getDisplay()));
             }
+        }
+        
+        switch ( alignment.toLowerCase() ) {
+            case "right" :
+                label.setAlignment(SWT.RIGHT);
+                break;
+            case "left" :
+                label.setAlignment(SWT.LEFT);
+                break;
+            case "center":
+                label.setAlignment(SWT.CENTER);
+                break;
+            default:
+                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
+        }
 
         if (excelSheet != null) {
             excelSheets.add(excelSheet);
@@ -545,6 +559,7 @@ public class FormDialog extends Dialog {
         int fontSize = getInt(jsonObject, "fontSize", text.getFont().getFontData()[0].getHeight());
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
+        String alignment = getString(jsonObject, "alignment", "left");
         boolean editable = getBoolean(jsonObject, "editable", true);
         String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
         String excelSheet = getString(jsonObject, "excelSheet", null);
@@ -571,6 +586,7 @@ public class FormDialog extends Dialog {
             logger.trace("      fontSize = " + debugValue(fontSize, text.getFont().getFontData()[0].getHeight()));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
+            logger.trace("      alignment = "+debugValue(alignment, "left"));
             logger.trace("      editable = " + debugValue(editable, true));
             logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
             logger.trace("      excelSheet = " + debugValue(excelSheet, null));
@@ -582,8 +598,7 @@ public class FormDialog extends Dialog {
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
             if (!inArray(whenEmptyValidStrings, whenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty
-                        + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
         text.setLocation(x, y);
@@ -592,14 +607,12 @@ public class FormDialog extends Dialog {
 
         if (background != null) {
             String[] colorArray = background.split(",");
-            text.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            text.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (foreground != null) {
             String[] colorArray = foreground.split(",");
-            text.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            text.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (fontName != null) {
@@ -616,9 +629,22 @@ public class FormDialog extends Dialog {
                     style |= SWT.BOLD;
                 if (fontItalic)
                     style |= SWT.ITALIC;
-                text.setFont(FontDescriptor.createFrom(text.getFont()).setHeight(fontSize).setStyle(style)
-                        .createFont(text.getDisplay()));
+                text.setFont(FontDescriptor.createFrom(text.getFont()).setHeight(fontSize).setStyle(style).createFont(text.getDisplay()));
             }
+        }
+        
+        switch ( alignment.toLowerCase() ) {
+            case "right" :
+                text.setAlignment(SWT.RIGHT);
+                break;
+            case "left" :
+                text.setAlignment(SWT.LEFT);
+                break;
+            case "center":
+                text.setAlignment(SWT.CENTER);
+                break;
+            default:
+                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
         }
         
         // We reference the variable and the control to the eObject that the variable refers to
@@ -728,8 +754,7 @@ public class FormDialog extends Dialog {
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
             if (!inArray(whenEmptyValidStrings, whenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty
-                        + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
         combo.setLocation(x, y);
@@ -738,14 +763,12 @@ public class FormDialog extends Dialog {
 
         if (background != null) {
             String[] colorArray = background.split(",");
-            combo.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            combo.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (foreground != null) {
             String[] colorArray = foreground.split(",");
-            combo.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            combo.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (fontName != null) {
@@ -755,16 +778,16 @@ public class FormDialog extends Dialog {
             if (fontItalic)
                 style |= SWT.ITALIC;
             combo.setFont(new Font(combo.getDisplay(), fontName, fontSize, style));
-        } else
+        } else {
             if ((fontSize != combo.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic) {
                 int style = SWT.NORMAL;
                 if (fontBold)
                     style |= SWT.BOLD;
                 if (fontItalic)
                     style |= SWT.ITALIC;
-                combo.setFont(FontDescriptor.createFrom(combo.getFont()).setHeight(fontSize).setStyle(style)
-                        .createFont(combo.getDisplay()));
+                combo.setFont(FontDescriptor.createFrom(combo.getFont()).setHeight(fontSize).setStyle(style).createFont(combo.getDisplay()));
             }
+        }
 
         // We reference the variable and the control to the eObject that the variable refers to
         EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject);
@@ -829,6 +852,7 @@ public class FormDialog extends Dialog {
         String background = getString(jsonObject, "background", null);
         String foreground = getString(jsonObject, "foreground", null);
         String tooltip = getString(jsonObject, "tooltip", null);
+        String alignment = getString(jsonObject, "alignment", "left");
         String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
         String excelSheet = getString(jsonObject, "excelSheet", null);
         String excelCell = getString(jsonObject, "excelCell", null);
@@ -845,6 +869,7 @@ public class FormDialog extends Dialog {
             logger.trace("      name = " + debugValue(controlName, variableName));
             logger.trace("      background = " + debugValue(background, null));
             logger.trace("      foreground = " + debugValue(foreground, null));
+            logger.trace("      alignment = "+debugValue(alignment, "left"));
             logger.trace("      values = " + values);
             logger.trace("      default = " + debugValue(defaultValue, ""));
             logger.trace("      forceDefault = " + debugValue(forceDefault, false));
@@ -876,6 +901,20 @@ public class FormDialog extends Dialog {
             String[] colorArray = foreground.split(",");
             check.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),
                     Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+        }
+        
+        switch ( alignment.toLowerCase() ) {
+            case "right" :
+                check.setAlignment(SWT.RIGHT);
+                break;
+            case "left" :
+                check.setAlignment(SWT.LEFT);
+                break;
+            case "center":
+                check.setAlignment(SWT.CENTER);
+                break;
+            default:
+                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
         }
 
         // We reference the variable and the control to the eObject that the variable refers to
@@ -1005,6 +1044,8 @@ public class FormDialog extends Dialog {
             tableColumn.setData("excelDefault", excelDefault.toLowerCase());
             tableColumn.setData("tooltip", tooltip);
             tableColumn.addListener(SWT.Selection, sortListener);
+            
+            String alignment;
 
             switch (columnClass.toLowerCase()) {
                 case "check":
@@ -1013,12 +1054,14 @@ public class FormDialog extends Dialog {
                         String defaultValue = getString(column, "default", null);
                         boolean forceDefault = getBoolean(column, "forceDefault", false);
                         String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
+                        alignment = getString(column, "alignment", "left");
 
                         if (logger.isTraceEnabled()) {
                             logger.trace("      values = " + values);
                             logger.trace("      default = " + debugValue(defaultValue, null));
                             logger.trace("      forceDefault = " + debugValue(forceDefault, false));
                             logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
+                            logger.trace("      alignment = "+debugValue(alignment, "left"));
                         }
 
                         if (whenEmpty != null) {
@@ -1033,6 +1076,20 @@ public class FormDialog extends Dialog {
                         tableColumn.setData("default", defaultValue);
                         tableColumn.setData("forceDefault", forceDefault);
                         tableColumn.setData("whenEmpty", whenEmpty);
+                        
+                        switch ( alignment.toLowerCase() ) {
+                            case "right" :
+                                tableColumn.setData("alignment", SWT.RIGHT);
+                                break;
+                            case "left" :
+                                tableColumn.setData("alignment", SWT.LEFT);
+                                break;
+                            case "center":
+                                tableColumn.setData("alignment", SWT.CENTER);
+                                break;
+                            default:
+                                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
+                        }
                     } else {
                         tableColumn.setData("forceDefault", false);
                     }
@@ -1069,18 +1126,39 @@ public class FormDialog extends Dialog {
                     }
                     break;
                 case "label":
+                    alignment = getString(column, "alignment", "left");
+                    
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("      alignment = "+debugValue(alignment, "left"));
+                    }
+                    
+                    switch ( alignment.toLowerCase() ) {
+                        case "right" :
+                            tableColumn.setData("alignment", SWT.RIGHT);
+                            break;
+                        case "left" :
+                            tableColumn.setData("alignment", SWT.LEFT);
+                            break;
+                        case "center":
+                            tableColumn.setData("alignment", SWT.CENTER);
+                            break;
+                        default:
+                            throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
+                    }
                     break;
                 case "text":
                     String regexp = getString(column, "regexp", null);
                     String defaultText = getString(column, "default", null);
                     String whenEmpty = getString(column, "whenEmpty", globalWhenEmpty);
                     boolean forceDefault = getBoolean(column, "forceDefault", false);
+                    alignment = getString(column, "alignment", "left");
 
                     if (logger.isTraceEnabled()) {
                         logger.trace("      regexp = " + debugValue(regexp, null));
                         logger.trace("      default = " + debugValue(defaultText, null));
                         logger.trace("      forceDefault = " + debugValue(forceDefault, false));
                         logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
+                        logger.trace("      alignment = "+debugValue(alignment, "left"));
                     }
 
                     if (whenEmpty != null) {
@@ -1094,6 +1172,20 @@ public class FormDialog extends Dialog {
                     tableColumn.setData("default", defaultText);
                     tableColumn.setData("forceDefault", forceDefault);
                     tableColumn.setData("whenEmpty", whenEmpty);
+                    
+                    switch ( alignment.toLowerCase() ) {
+                        case "right" :
+                            tableColumn.setData("alignment", SWT.RIGHT);
+                            break;
+                        case "left" :
+                            tableColumn.setData("alignment", SWT.LEFT);
+                            break;
+                        case "center":
+                            tableColumn.setData("alignment", SWT.CENTER);
+                            break;
+                        default:
+                            throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
+                    }
                     break;
                 default:
                     throw new RuntimeException(
@@ -1265,10 +1357,11 @@ public class FormDialog extends Dialog {
                 case "label":
                     logger.trace("      adding label cell with value \"" + itemText + "\"");
                     editor = new TableEditor(table);
-                    Label label = new Label(table, SWT.WRAP | SWT.NONE);
+                    Label label = new Label(table, SWT.WRAP);
                     label.setText(itemText);
                     editor.grabHorizontal = true;
                     editor.setEditor(label, tableItem, columnNumber);
+                    label.setAlignment((int)tableColumn.getData("alignment"));
                     editors[columnNumber] = editor;
                     // We reference the variable and the control to the eObject that the variable refers to
                     referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
@@ -1278,11 +1371,12 @@ public class FormDialog extends Dialog {
 
                 case "text":
                     editor = new TableEditor(table);
-                    StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
+                    StyledText text = new StyledText(table, SWT.WRAP);
                     if ( ((String)tableColumn.getData("default") != null && (itemText.isEmpty()) || (boolean)tableColumn.getData("forceDefault"))) {
                         itemText = FormVariable.expand((String)tableColumn.getData("default"), variableSeparator, eObject);
                     }
                     logger.trace("      adding text cell with value \"" + itemText + "\"");
+                    text.setAlignment((int)tableColumn.getData("alignment"));
                     text.setText(itemText);
                     text.setToolTipText((String)tableColumn.getData("tooltip"));
                     
@@ -1350,6 +1444,7 @@ public class FormDialog extends Dialog {
                     check.pack();
                     editor.minimumWidth = check.getSize().x;
                     editor.horizontalAlignment = SWT.CENTER;
+                    check.setAlignment((int)tableColumn.getData("alignment"));
                     
                     // We reference the variable and the control to the eObject that the variable refers to
                     referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
@@ -1717,6 +1812,7 @@ public class FormDialog extends Dialog {
 
                                 newLabel.setText(oldLabel.getText());
                                 newLabel.setToolTipText(oldLabel.getToolTipText());
+                                newLabel.setAlignment(oldLabel.getAlignment());
                                 newLabel.setData("eObject",oldLabel.getData("eObject"));
                                 newLabel.setData("variable",oldLabel.getData("variable"));
                                 newLabel.setData("pattern",oldLabel.getData("pattern"));
@@ -1733,6 +1829,7 @@ public class FormDialog extends Dialog {
   
                                 newText.setText(oldText.getText());
                                 newText.setToolTipText(oldText.getToolTipText());
+                                newText.setAlignment(oldText.getAlignment());
                                 newText.setData("eObject",oldText.getData("eObject"));
                                 newText.setData("variable",oldText.getData("variable"));
                                 newText.setData("pattern",oldText.getData("pattern"));
@@ -1769,6 +1866,7 @@ public class FormDialog extends Dialog {
                                 newButton.pack();
                                 newEditor.minimumWidth=newButton.getSize().x;
                                 newEditor.horizontalAlignment=SWT.CENTER;
+                                newButton.setAlignment(oldButton.getAlignment());
                                 newButton.setData("eObject",oldButton.getData("eObject"));
                                 newButton.setData("variable",oldButton.getData("variable"));
                                 newButton.setData("values",oldButton.getData("values"));
