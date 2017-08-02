@@ -412,7 +412,7 @@ public class FormDialog extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("   Creating label control " + debugValue(labelText, "label"));
 
-        Label label = new Label(composite, SWT.NONE);		                  // we create the control at the very beginning because we need its default size which is dependent on its content
+        Label label = new Label(composite, SWT.WRAP);		                  // we create the control at the very beginning because we need its default size which is dependent on its content
         label.setText(labelText);
         label.pack();
 
@@ -1011,8 +1011,8 @@ public class FormDialog extends Dialog {
                     if (JSONContainsKey(column, "values")) {
                         String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
                         String defaultValue = getString(column, "default", null);
-                        String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
                         boolean forceDefault = getBoolean(column, "forceDefault", false);
+                        String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
 
                         if (logger.isTraceEnabled()) {
                             logger.trace("      values = " + values);
@@ -1033,6 +1033,8 @@ public class FormDialog extends Dialog {
                         tableColumn.setData("default", defaultValue);
                         tableColumn.setData("forceDefault", forceDefault);
                         tableColumn.setData("whenEmpty", whenEmpty);
+                    } else {
+                        tableColumn.setData("forceDefault", false);
                     }
                     break;
                 case "combo":
@@ -1409,12 +1411,8 @@ public class FormDialog extends Dialog {
         popupMessage = msg;
         logger.log(FormDialog.class, level, msg, e);
 
-        if (e != null) {
-            if (FormPlugin.areEqual(e.getMessage(), msg)) {
-                popupMessage += "\n\n" + e.getMessage();
-            } else {
-                popupMessage += "\n\n" + e.getClass().getName();
-            }
+        if (e != null && !FormPlugin.areEqual(e.getMessage(), msg)) {
+            popupMessage += "\n\n" + e.getMessage();
         }
 
         display.syncExec(new Runnable() {
