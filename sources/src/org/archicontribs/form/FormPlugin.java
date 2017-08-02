@@ -457,6 +457,9 @@ public class FormPlugin extends AbstractUIPlugin {
 	 * @return getclass().getSimpleName()+":\""+getName()+"\"("+getId()+")"
 	 */
 	public static String getDebugName(EObject eObject) {
+		if ( eObject == null ) 
+		    return "null";
+		
 		StringBuilder debugName = new StringBuilder(eObject.getClass().getSimpleName());
 		debugName.append(":\""+((INameable)eObject).getName()+"\"");
 		debugName.append("("+((IIdentifier)eObject).getId()+")");
