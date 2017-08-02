@@ -223,8 +223,7 @@ public class FormDialog extends Dialog {
         if (globalWhenEmpty != null) {
             globalWhenEmpty = globalWhenEmpty.toLowerCase();
             if (!inArray(whenEmptyValidStrings, globalWhenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \""
-                        + globalWhenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + globalWhenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
         dialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -243,8 +242,7 @@ public class FormDialog extends Dialog {
 
         if (dialogBackground != null) {
             String[] colorArray = dialogBackground.split(",");
-            dialog.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            dialog.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         tabFolder = new TabFolder(dialog, SWT.BORDER);
@@ -338,8 +336,7 @@ public class FormDialog extends Dialog {
 
             if (tabBackground != null) {
                 String[] colorArray = tabBackground.split(",");
-                composite.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                        Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+                composite.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
             }
 
             createControls(tab, composite);
@@ -386,9 +383,7 @@ public class FormDialog extends Dialog {
                     createText(jsonObject, composite);
                     break;
                 default:
-                    throw new RuntimeException(
-                            FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonObject.get("class")
-                            + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonObject.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
             }
             FormPosition.resetControlName();
             FormPosition.resetControlClass();
@@ -420,7 +415,8 @@ public class FormDialog extends Dialog {
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", label.getSize().x);
         int height = getInt(jsonObject, "height", label.getSize().y);
-        String controlName = getString(jsonObject, "name", labelName);      FormPosition.setControlName(controlName); FormPosition.setControlClass("label");
+        String controlName = getString(jsonObject, "name", labelName);
+        FormPosition.setControlName(controlName); FormPosition.setControlClass("label");
         String background = getString(jsonObject, "background", null);
         String foreground = getString(jsonObject, "foreground", null);
         String tooltip = getString(jsonObject, "tooltip", null);
@@ -884,8 +880,7 @@ public class FormDialog extends Dialog {
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
             if (!inArray(whenEmptyValidStrings, whenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty
-                        + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
         check.setLocation(x, y);
@@ -893,14 +888,12 @@ public class FormDialog extends Dialog {
 
         if (background != null) {
             String[] colorArray = background.split(",");
-            check.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            check.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (foreground != null) {
             String[] colorArray = foreground.split(",");
-            check.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            check.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
         
         switch ( alignment.toLowerCase() ) {
@@ -989,14 +982,12 @@ public class FormDialog extends Dialog {
 
         if (background != null) {
             String[] colorArray = background.split(",");
-            table.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            table.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (foreground != null) {
             String[] colorArray = foreground.split(",");
-            table.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()),
-                    Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            table.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
         if (tooltip != null) {
@@ -1022,10 +1013,14 @@ public class FormDialog extends Dialog {
             String excelColumn = getString(column, "excelColumn", null);
             String excelCellType = getString(column, "excelCellType", "string");
             String excelDefault = getString(column, "excelDefault", "blank");
+            background = getString(column, "background", null);
+            foreground = getString(column, "foreground", null);
 
             if (logger.isDebugEnabled())
                 logger.debug("   Creating column \"" + columnName + "\" of class \"" + columnClass + "\"");
             if (logger.isTraceEnabled()) {
+                logger.trace("      background = " + debugValue(background, null));
+                logger.trace("      foreground = " + debugValue(foreground, null));
                 logger.trace("      width = " + debugValue(columnWidth, (10 + columnName.length() * 8)));
                 logger.trace("      tooltip = " + debugValue(columnTooltip, null));
                 logger.trace("      excelColumn = " + debugValue(excelColumn, null));
@@ -1043,6 +1038,17 @@ public class FormDialog extends Dialog {
             tableColumn.setData("excelCellType", excelCellType.toLowerCase());
             tableColumn.setData("excelDefault", excelDefault.toLowerCase());
             tableColumn.setData("tooltip", tooltip);
+            
+            if (background != null) {
+                String[] colorArray = background.split(",");
+                tableColumn.setData("background", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            }
+
+            if (foreground != null) {
+                String[] colorArray = foreground.split(",");
+                tableColumn.setData("foreground", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            }
+            
             tableColumn.addListener(SWT.Selection, sortListener);
             
             String alignment;
@@ -1067,9 +1073,7 @@ public class FormDialog extends Dialog {
                         if (whenEmpty != null) {
                             whenEmpty = whenEmpty.toLowerCase();
                             if (!inArray(whenEmptyValidStrings, whenEmpty))
-                                throw new RuntimeException(
-                                        FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty
-                                        + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
                         }
 
                         tableColumn.setData("values", values);
@@ -1111,9 +1115,7 @@ public class FormDialog extends Dialog {
                         if (whenEmpty != null) {
                             whenEmpty = whenEmpty.toLowerCase();
                             if (!inArray(whenEmptyValidStrings, whenEmpty))
-                                throw new RuntimeException(
-                                        FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty
-                                        + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
                         }
 
                         tableColumn.setData("values", values);
@@ -1164,8 +1166,7 @@ public class FormDialog extends Dialog {
                     if (whenEmpty != null) {
                         whenEmpty = whenEmpty.toLowerCase();
                         if (!inArray(whenEmptyValidStrings, whenEmpty))
-                            throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \""
-                                    + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                            throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
                     }
 
                     tableColumn.setData("regexp", regexp);
@@ -1188,9 +1189,7 @@ public class FormDialog extends Dialog {
                     }
                     break;
                 default:
-                    throw new RuntimeException(
-                            FormPosition.getPosition("class") + "\n\nInvalid value \"" + getString(column, "class")
-                            + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + getString(column, "class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
             }
         }
         FormPosition.resetColumnName();
@@ -1216,27 +1215,19 @@ public class FormDialog extends Dialog {
                     if (logger.isTraceEnabled())
                         logger.trace("Generating dynamic lines");
                     if (selectedObject instanceof IArchimateDiagramModel) {
-                        addTableItems(table, ((IArchimateDiagramModel) selectedObject).getChildren(),
-                                getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                        addTableItems(table, ((IArchimateDiagramModel) selectedObject).getChildren(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
                     } else {
                         if (selectedObject instanceof IDiagramModelContainer) {
-                            addTableItems(table, ((IDiagramModelContainer) selectedObject).getChildren(),
-                                    getJSONArray(line, "cells"), getJSONObject(line, "filter"));
-                        } else
-                            if (selectedObject instanceof IFolder) {
-                                addTableItems(table, ((IFolder) selectedObject).getElements(),
-                                        getJSONArray(line, "cells"), getJSONObject(line, "filter"));
-                            } else
-                                if (selectedObject instanceof IArchimateModel) {
-                                    for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
-                                        addTableItems(table, folder.getElements(), getJSONArray(line, "cells"),
-                                                getJSONObject(line, "filter"));
-                                    }
-                                } else {
-                                    throw new RuntimeException(FormPosition.getPosition("lines")
-                                            + "\n\nCannot generate lines for selected component as it is not a container ("
-                                            + selectedObject.getClass().getSimpleName() + ").");
-                                }
+                            addTableItems(table, ((IDiagramModelContainer) selectedObject).getChildren(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                        } else if (selectedObject instanceof IFolder) {
+                            addTableItems(table, ((IFolder) selectedObject).getElements(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                        } else if (selectedObject instanceof IArchimateModel) {
+                            for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
+                                addTableItems(table, folder.getElements(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                            }
+                        } else {
+                            throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nCannot generate lines for selected component as it is not a container (" + selectedObject.getClass().getSimpleName() + ").");
+                        }
                     }
                 }
             }
@@ -1271,9 +1262,7 @@ public class FormDialog extends Dialog {
                     logger.trace("Found diagram object " + diagramObject.getName());
                 if (checkFilter(diagramObject, variableSeparator, filter)) {
                     if (diagramObject instanceof IDiagramModelArchimateObject)
-                        addTableItem(table,
-                                (EObject) (((IDiagramModelArchimateObject) diagramObject).getArchimateElement()),
-                                values);
+                        addTableItem(table, (EObject) (((IDiagramModelArchimateObject) diagramObject).getArchimateElement()), values);
                     else
                         addTableItem(table, (EObject) diagramObject, values);
                 }
@@ -1321,9 +1310,7 @@ public class FormDialog extends Dialog {
                                 }
                             }
                         } else {
-                            throw new RuntimeException(FormPosition.getPosition("lines")
-                                    + "\n\nFailed to generate lines for unknown object class \""
-                                    + list.get(0).getClass().getSimpleName() + "\"");
+                            throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to generate lines for unknown object class \"" + list.get(0).getClass().getSimpleName() + "\"");
                         }
     }
 
@@ -1362,6 +1349,12 @@ public class FormDialog extends Dialog {
                     editor.grabHorizontal = true;
                     editor.setEditor(label, tableItem, columnNumber);
                     label.setAlignment((int)tableColumn.getData("alignment"));
+                    if ( tableColumn.getData("foreground") != null ) {
+                        label.setForeground((Color)tableColumn.getData("foreground"));
+                    }
+                    if ( tableColumn.getData("background") != null ) {
+                        label.setBackground((Color)tableColumn.getData("background"));
+                    }
                     editors[columnNumber] = editor;
                     // We reference the variable and the control to the eObject that the variable refers to
                     referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
@@ -1379,6 +1372,13 @@ public class FormDialog extends Dialog {
                     text.setAlignment((int)tableColumn.getData("alignment"));
                     text.setText(itemText);
                     text.setToolTipText((String)tableColumn.getData("tooltip"));
+                    
+                    if ( tableColumn.getData("foreground") != null ) {
+                        text.setForeground((Color)tableColumn.getData("foreground"));
+                    }
+                    if ( tableColumn.getData("background") != null ) {
+                        text.setBackground((Color)tableColumn.getData("background"));
+                    }
                     
                     // We reference the variable and the control to the eObject that the variable refers to
                     referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
@@ -1418,6 +1418,13 @@ public class FormDialog extends Dialog {
                     combo.setItems((String[])tableColumn.getData("values"));
                     combo.setToolTipText((String)tableColumn.getData("tooltip"));
                     
+                    if ( tableColumn.getData("foreground") != null ) {
+                        combo.setForeground((Color)tableColumn.getData("foreground"));
+                    }
+                    if ( tableColumn.getData("background") != null ) {
+                        combo.setBackground((Color)tableColumn.getData("background"));
+                    }
+                    
                     // We reference the variable and the control to the eObject that the variable refers to
                     referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
                     unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
@@ -1453,6 +1460,13 @@ public class FormDialog extends Dialog {
                     check.setData("variable", unscoppedVariable);
                     check.setData("whenEmpty", tableColumn.getData("whenEmpty"));
                     formVarList.set(referedEObject, unscoppedVariable, check);
+                    
+                    if ( tableColumn.getData("foreground") != null ) {
+                        check.setForeground((Color)tableColumn.getData("foreground"));
+                    }
+                    if ( tableColumn.getData("background") != null ) {
+                        check.setBackground((Color)tableColumn.getData("background"));
+                    }
                     
                     String[] values = (String[])tableColumn.getData("values");
                     String defaultValue = (String)tableColumn.getData("default");
@@ -1539,8 +1553,7 @@ public class FormDialog extends Dialog {
         Shell shell = new Shell(display, SWT.SHELL_TRIM);
         shell.setSize(600, 100);
         shell.setBackground(BLACK_COLOR);
-        shell.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - shell.getSize().x) / 4,
-                (Toolkit.getDefaultToolkit().getScreenSize().height - shell.getSize().y) / 4);
+        shell.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - shell.getSize().x) / 4, (Toolkit.getDefaultToolkit().getScreenSize().height - shell.getSize().y) / 4);
 
         Composite composite = new Composite(shell, SWT.NONE);
         composite.setBackground(LIGHT_BLUE);
@@ -1746,7 +1759,7 @@ public class FormDialog extends Dialog {
                         
                         text.removeModifyListener(textModifyListener);
                         text.setText(content);
-                        Pattern pattern = (Pattern)text.getData("pattern");		// if a regex has been provided, we change the text color to show if it matches
+                        Pattern pattern = (Pattern)text.getData("pattern");		               // if a regex has been provided, we change the text color to show if it matches
                         if ( pattern != null ) {
                         	text.setStyleRange(new StyleRange(0, content.length(), pattern.matcher(content).matches() ? goodValueColor : badValueColor, null));
                         }
@@ -1911,29 +1924,22 @@ public class FormDialog extends Dialog {
 
         if (selectedObject instanceof IArchimateModel) {
             model = ((IArchimateModel) selectedObject).getArchimateModel();
-        } else
-            if (selectedObject instanceof IDiagramModel) {
-                model = ((IDiagramModel) selectedObject).getArchimateModel();
-            } else
-                if (selectedObject instanceof IDiagramModelArchimateObject) {
-                    model = ((IDiagramModelArchimateObject) selectedObject).getDiagramModel().getArchimateModel();
-                } else
-                    if (selectedObject instanceof IDiagramModelArchimateConnection) {
-                        model = ((IDiagramModelArchimateConnection) selectedObject).getDiagramModel()
-                                .getArchimateModel();
-                    } else
-                        if (selectedObject instanceof IArchimateElement) {
-                            model = ((IArchimateElement) selectedObject).getArchimateModel();
-                        } else
-                            if (selectedObject instanceof IArchimateRelationship) {
-                                model = ((IArchimateRelationship) selectedObject).getArchimateModel();
-                            } else
-                                if (selectedObject instanceof IFolder) {
-                                    model = ((IFolder) selectedObject).getArchimateModel();
-                                } else {
-                                    popup(Level.ERROR, "Failed to get the model.");
-                                    return;
-                                }
+        } else if (selectedObject instanceof IDiagramModel) {
+            model = ((IDiagramModel) selectedObject).getArchimateModel();
+        } else if (selectedObject instanceof IDiagramModelArchimateObject) {
+            model = ((IDiagramModelArchimateObject) selectedObject).getDiagramModel().getArchimateModel();
+        } else if (selectedObject instanceof IDiagramModelArchimateConnection) {
+            model = ((IDiagramModelArchimateConnection) selectedObject).getDiagramModel().getArchimateModel();
+        } else if (selectedObject instanceof IArchimateElement) {
+            model = ((IArchimateElement) selectedObject).getArchimateModel();
+        } else if (selectedObject instanceof IArchimateRelationship) {
+            model = ((IArchimateRelationship) selectedObject).getArchimateModel();
+        } else if (selectedObject instanceof IFolder) {
+            model = ((IFolder) selectedObject).getArchimateModel();
+        } else {
+            popup(Level.ERROR, "Failed to get the model.");
+            return;
+        }
 
         CommandStack stack = (CommandStack) model.getAdapter(CommandStack.class);
         stack.execute(compoundCommand);
@@ -2072,8 +2078,7 @@ public class FormDialog extends Dialog {
                 sheet = workbook.getSheet(sheetName);
                 if (sheet == null) {
                     closePopup();
-                    popup(Level.ERROR,
-                            "The file " + excelFile + " does not contain a sheet called \"" + sheetName + "\"");
+                    popup(Level.ERROR, "The file " + excelFile + " does not contain a sheet called \"" + sheetName + "\"");
                     // TODO : add a preference to create the sheet
                     try {
                         workbook.close();
@@ -2088,8 +2093,7 @@ public class FormDialog extends Dialog {
             boolean exportOk = true;
 
             try {
-                // we go through all the controls and export the corresponding
-                // excel cells
+                // we go through all the controls and export the corresponding excel cells
                 for (TabItem tabItem : tabFolder.getItems()) {
                     if (logger.isDebugEnabled())
                         logger.debug("Exporting tab " + tabItem.getText());
@@ -2139,11 +2143,7 @@ public class FormDialog extends Dialog {
                                     if (logger.isDebugEnabled())
                                         logger.debug("Exporting table");
                                     Table table = (Table) control;
-                                    int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	// Excel
-                                    // lines
-                                    // begin
-                                    // at
-                                    // zero
+                                    int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	// Excel lines begin at zero
                                     for (int line = 0; line < table.getItemCount(); ++line) {
                                         TableItem tableItem = table.getItem(line);
                                         Row row = sheet.getRow(excelFirstLine + line);
@@ -2156,11 +2156,9 @@ public class FormDialog extends Dialog {
 
                                             if (excelColumn != null) {
                                                 CellReference ref = new CellReference(excelColumn);
-                                                Cell cell = row.getCell(ref.getCol(),
-                                                        MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                Cell cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
 
-                                                TableEditor editor = ((TableEditor[]) tableItem
-                                                        .getData("editors"))[col];
+                                                TableEditor editor = ((TableEditor[]) tableItem.getData("editors"))[col];
 
                                                 String value;
                                                 if (editor == null)
@@ -2177,9 +2175,7 @@ public class FormDialog extends Dialog {
                                                             value = ((CCombo) editor.getEditor()).getText();
                                                             break;
                                                         default:
-                                                            throw new RuntimeException(
-                                                                    "ExportToExcel : Do not how to export columns of class "
-                                                                            + editor.getClass().getSimpleName());
+                                                            throw new RuntimeException("ExportToExcel : Do not how to export columns of class " + editor.getClass().getSimpleName());
                                                     }
 
                                                 String excelCellType = (String) tableColumn.getData("excelCellType");
@@ -2223,10 +2219,7 @@ public class FormDialog extends Dialog {
                                                             try {
                                                                 cell.setCellValue(Double.parseDouble(value));
                                                             } catch (NumberFormatException e) {
-                                                                throw new RuntimeException("ExportToExcel : cell "
-                                                                        + excelColumn + row.getRowNum()
-                                                                        + " : failed to convert \"" + value
-                                                                        + "\" to numeric.", e);
+                                                                throw new RuntimeException("ExportToExcel : cell " + excelColumn + row.getRowNum() + " : failed to convert \"" + value + "\" to numeric.", e);
                                                             }
                                                         }
                                                         break;
@@ -2274,17 +2267,11 @@ public class FormDialog extends Dialog {
                                                         break;
 
                                                     default:
-                                                        throw new RuntimeException("ExportToExcel : cell " + excelColumn
-                                                                + row.getRowNum()
-                                                                + " : don't know to deal with excell cell Type \""
-                                                                + excelCellType
-                                                                + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
+                                                        throw new RuntimeException("ExportToExcel : cell " + excelColumn + row.getRowNum() + " : don't know to deal with excell cell Type \"" + excelCellType + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
                                                 }
 
                                                 if (logger.isTraceEnabled())
-                                                    logger.trace("   '" + excelSheet + "'!" + excelColumn
-                                                            + (excelFirstLine + line + 1) + " -> \"" + value + "\" ("
-                                                            + cell.getCellTypeEnum().toString() + ")");
+                                                    logger.trace("   '" + excelSheet + "'!" + excelColumn + (excelFirstLine + line + 1) + " -> \"" + value + "\" (" + cell.getCellTypeEnum().toString() + ")");
                                             }
                                         }
                                     }
@@ -2351,37 +2338,24 @@ public class FormDialog extends Dialog {
 
                 switch (editorsFirst[columnIndex].getEditor().getClass().getSimpleName()) {
                     case "StyledText":
-                        logger.trace("comparing \"" + ((StyledText) editorsFirst[columnIndex].getEditor()).getText()
-                                + "\" and \"" + ((StyledText) editorsSecond[columnIndex].getEditor()).getText() + "\"");
-                        return Collator.getInstance().compare(
-                                ((StyledText) editorsFirst[columnIndex].getEditor()).getText(),
-                                ((StyledText) editorsSecond[columnIndex].getEditor()).getText())
-                                * (sortDirection == SWT.UP ? 1 : -1);
+                        logger.trace("comparing \"" + ((StyledText) editorsFirst[columnIndex].getEditor()).getText() + "\" and \"" + ((StyledText) editorsSecond[columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(((StyledText) editorsFirst[columnIndex].getEditor()).getText(), ((StyledText) editorsSecond[columnIndex].getEditor()).getText()) * (sortDirection == SWT.UP ? 1 : -1);
                     case "Button":
                         logger.trace("comparing \"" + ((Button) editorsFirst[columnIndex].getEditor()).getSelection()
                                 + "\" and \"" + ((Button) editorsSecond[columnIndex].getEditor()).getSelection()
                                 + "\"");
-                        return Collator.getInstance().compare(
-                                ((Button) editorsFirst[columnIndex].getEditor()).getSelection(),
-                                ((Button) editorsSecond[columnIndex].getEditor()).getSelection())
-                                * (sortDirection == SWT.UP ? 1 : -1);
+                        return Collator.getInstance().compare(((Button) editorsFirst[columnIndex].getEditor()).getSelection(), ((Button) editorsSecond[columnIndex].getEditor()).getSelection())* (sortDirection == SWT.UP ? 1 : -1);
 
                     case "CCombo":
-                        logger.trace("comparing \"" + ((CCombo) editorsFirst[columnIndex].getEditor()).getText()
-                                + "\" and \"" + ((CCombo) editorsSecond[columnIndex].getEditor()).getText() + "\"");
-                        return Collator.getInstance().compare(
-                                ((CCombo) editorsFirst[columnIndex].getEditor()).getText(),
-                                ((CCombo) editorsSecond[columnIndex].getEditor()).getText())
-                                * (sortDirection == SWT.UP ? 1 : -1);
+                        logger.trace("comparing \"" + ((CCombo) editorsFirst[columnIndex].getEditor()).getText() + "\" and \"" + ((CCombo) editorsSecond[columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(((CCombo) editorsFirst[columnIndex].getEditor()).getText(), ((CCombo) editorsSecond[columnIndex].getEditor()).getText()) * (sortDirection == SWT.UP ? 1 : -1);
 
                     default:
-                        throw new RuntimeException("Do not how to compare elements of class "
-                                + editorsFirst[columnIndex].getClass().getSimpleName());
+                        throw new RuntimeException("Do not how to compare elements of class " + editorsFirst[columnIndex].getClass().getSimpleName());
                 }
             }
 
-            return Collator.getInstance().compare(first.getText(columnIndex), second.getText(columnIndex))
-                    * (sortDirection == SWT.UP ? 1 : -1);
+            return Collator.getInstance().compare(first.getText(columnIndex), second.getText(columnIndex)) * (sortDirection == SWT.UP ? 1 : -1);
         }
     }
 
@@ -2419,8 +2393,7 @@ public class FormDialog extends Dialog {
         if (result instanceof JSONObject)
             return (JSONObject) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
     }
 
     /**
@@ -2439,8 +2412,7 @@ public class FormDialog extends Dialog {
         if (result instanceof JSONArray)
             return (JSONArray) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
     }
 
     /**
@@ -2459,8 +2431,7 @@ public class FormDialog extends Dialog {
         if (result instanceof String)
             return (String) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
     }
 
     /**
@@ -2479,8 +2450,7 @@ public class FormDialog extends Dialog {
         if (result instanceof Long)
             return (int) (long) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
     }
 
     /**
@@ -2500,8 +2470,7 @@ public class FormDialog extends Dialog {
         if (result instanceof Boolean)
             return (Boolean) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
     }
 
     /**
@@ -2563,8 +2532,7 @@ public class FormDialog extends Dialog {
         if (result == null || result instanceof JSONObject)
             return (JSONObject) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
     }
 
     /**
@@ -2578,15 +2546,13 @@ public class FormDialog extends Dialog {
      * @return the value if found, or the defaultValue provided if not found,
      *         ClassCastException if the object found is not a JSONArray
      */
-    public static JSONArray getJSONArray(JSONObject obj, String key, Object defaultValue)
-            throws RuntimeException, ClassCastException {
+    public static JSONArray getJSONArray(JSONObject obj, String key, Object defaultValue) throws RuntimeException, ClassCastException {
         Object result = getJSON(obj, key, defaultValue);
 
         if (result == null || result instanceof JSONArray)
             return (JSONArray) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
     }
 
     /**
@@ -2600,8 +2566,7 @@ public class FormDialog extends Dialog {
      * @return the value if found, or the defaultValue provided if not found,
      *         ClassCastException if the object found is not a String
      */
-    public static String getString(JSONObject obj, String key, Object defaultValue)
-            throws RuntimeException, ClassCastException {
+    public static String getString(JSONObject obj, String key, Object defaultValue) throws RuntimeException, ClassCastException {
         Object result = getJSON(obj, key, defaultValue);
 
         if (result == null || result instanceof String)
@@ -2628,8 +2593,7 @@ public class FormDialog extends Dialog {
         if (result instanceof Long)
             return (int) (long) result;
 
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
+        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
     }
 
     /**
@@ -2686,8 +2650,7 @@ public class FormDialog extends Dialog {
 
                     result = attributeValue.equals(value);
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals \"" + value
-                                + "\" --> " + result);
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals \"" + value + "\" --> " + result);
                     break;
 
                 case "in":
@@ -2701,8 +2664,7 @@ public class FormDialog extends Dialog {
                         }
                     }
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> "
-                                + result);
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
                     break;
 
                 case "exists":
@@ -2716,8 +2678,7 @@ public class FormDialog extends Dialog {
 
                     result = attributeValue.equalsIgnoreCase(value);
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals (ignore case) \""
-                                + value + "\" --> " + result);
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals (ignore case) \"" + value + "\" --> " + result);
                     break;
 
                 case "iin":
@@ -2731,8 +2692,7 @@ public class FormDialog extends Dialog {
                         }
                     }
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> "
-                                + result);
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
                     break;
 
                 case "matches":
@@ -2740,22 +2700,18 @@ public class FormDialog extends Dialog {
 
                     result = (attributeValue != null) && attributeValue.matches(value);
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") matches \"" + value
-                                + "\" --> " + result);
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") matches \"" + value + "\" --> " + result);
                     break;
 
                 default:
-                    throw new RuntimeException("Unknown operation type \"" + operation
-                            + "\" in filter.\n\nValid operations are \"equals\", \"exists\", \"iequals\" and \"matches\".");
+                    throw new RuntimeException("Unknown operation type \"" + operation + "\" in filter.\n\nValid operations are \"equals\", \"exists\", \"iequals\" and \"matches\".");
             }
 
-            // in AND mode, all the tests must return true, so if the current
-            // test is false, then the complete filter returns false
+            // in AND mode, all the tests must return true, so if the current test is false, then the complete filter returns false
             if (result == false && type.equals("AND"))
                 return false;
 
-            // in OR mode, one test at lease must return true, so if the current
-            // test is true, then the complete filter returns true
+            // in OR mode, one test at lease must return true, so if the current test is true, then the complete filter returns true
             if (result == true && type.equals("OR"))
                 return true;
         }
