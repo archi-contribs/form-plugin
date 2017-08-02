@@ -18,6 +18,9 @@ public class FormVarList {
         if ( eObject == null )
             return;
         
+        if ( variable == null || variable.isEmpty() || !(variable.startsWith("${") && variable.endsWith("}")) || variable.equals("${void}") )
+            return;
+        
         HashMap<String, Set<Control>> map = varList.get(eObject);
         Set<Control> controls = null;
         
