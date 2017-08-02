@@ -81,6 +81,8 @@ public class FormLogger {
 		String className = clazz.getName();
 		
 		if ( initialised ) {
+		    if ( message == null )
+		        message = "An error occured.";
 			String[] lines = message.split("\n");
 			if ( lines.length == 1 ) {
 				logger.log(className, level, "- "+message.replace("\r",""), t);
