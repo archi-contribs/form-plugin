@@ -2265,10 +2265,10 @@ public class FormDialog extends Dialog {
                                     }
                                     
                                     int excelLastLine = (int) table.getData("excelLastLine");
-                                    for ( int line = excelFirstLine+table.getItemCount()-1; line < excelLastLine; ++line) {
-                                        if ( logger.isTraceEnabled() ) logger.trace("   '" + excelSheet + " : removing values from line "+(line-1));
+                                    for ( int line = excelFirstLine+table.getItemCount(); line < excelLastLine; ++line) {               // we do not decrease excelFirstLine by 1 because it has already been done earlier
+                                        if ( logger.isTraceEnabled() ) logger.trace("   '" + excelSheet + " : removing values from line "+line);
                                         
-                                        Row row = sheet.getRow(line - 1);                                                // we decrease the provided value because POI lines begin at zero
+                                        Row row = sheet.getRow(line);
                                         
                                         for (int col = 0; col < table.getColumnCount(); ++col) {
                                             TableColumn tableColumn = table.getColumn(col);
