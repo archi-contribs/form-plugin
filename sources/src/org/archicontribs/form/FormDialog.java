@@ -2183,8 +2183,11 @@ public class FormDialog extends Dialog {
                                                         case "CCombo":
                                                             value = ((CCombo) editor.getEditor()).getText();
                                                             break;
+                                                        case "Label":
+                                                            value = ((Label) editor.getEditor()).getText();
+                                                            break;
                                                         default:
-                                                            throw new RuntimeException("ExportToExcel : Do not know how to export columns of class " + editor.getClass().getSimpleName());
+                                                            throw new RuntimeException("ExportToExcel : Do not know how to export columns of class " + editor.getEditor().getClass().getSimpleName());
                                                     }
 
                                                 String excelCellType = (String) tableColumn.getData("excelCellType");
