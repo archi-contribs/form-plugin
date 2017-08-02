@@ -2282,10 +2282,16 @@ public class FormDialog extends Dialog {
 
                                                 switch (excelDefault) {
                                                     case "blank":
+                                                        if ( row == null ) {
+                                                            row = sheet.createRow(line - 1);
+                                                        }
                                                         cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
                                                         cell.setCellType(CellType.BLANK);
                                                         break;
                                                     case "zero":
+                                                        if ( row == null ) {
+                                                            row = sheet.createRow(line - 1);
+                                                        }
                                                         cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
                                                         switch (excelCellType) {
                                                             case "string":
@@ -2303,16 +2309,16 @@ public class FormDialog extends Dialog {
                                                             case "formula":
                                                                 cell.setCellType(CellType.FORMULA);
                                                                 cell.setCellValue("");
-                                                            default:
-                                                                cell.setCellType(CellType.BLANK);
                                                                 break;
                                                         }
                                                         break;
                                                     case "delete":
-                                                        cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
-                                                        if ( cell != null )
-                                                            row.removeCell(cell);
-                                                        break;
+                                                        if ( row != null ) {
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                                                            if ( cell != null )
+                                                                row.removeCell(cell);
+                                                            break;
+                                                        }
                                                 }
                                             }
                                         }
@@ -2323,7 +2329,7 @@ public class FormDialog extends Dialog {
                 }
             } catch (RuntimeException e) {
                 closePopup();
-                popup(Level.ERROR, "Failed to update Excel file.\n\n" + e.getMessage());
+                popup(Level.ERROR, "Failed to update Excel file.", e);
                 exportOk = false;
             }
 
