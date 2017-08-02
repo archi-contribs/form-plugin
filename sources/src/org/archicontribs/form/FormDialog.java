@@ -427,8 +427,8 @@ public class FormDialog extends Dialog {
         String alignment = getString(jsonObject, "alignment", "left");
         String excelSheet = getString(jsonObject, "excelSheet", null);
         String excelCell = getString(jsonObject, "excelCell", null);
-        String excelCellType = getString(jsonObject, "excelCellType", "string");
-        String excelDefault = getString(jsonObject, "excelDefault", "blank");
+        String excelCellType = getString(jsonObject, "excelCellType", "string").toLowerCase();
+        String excelDefault = getString(jsonObject, "excelDefault", "blank").toLowerCase();
 
         if (logger.isTraceEnabled()) {
             logger.trace("      x = " + debugValue(x, 0));
@@ -496,6 +496,12 @@ public class FormDialog extends Dialog {
             default:
                 throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
         }
+
+        if ( !FormPlugin.areEqual(excelCellType, "string") && !FormPlugin.areEqual(excelCellType, "numeric") && !FormPlugin.areEqual(excelCellType, "boolean") && !FormPlugin.areEqual(excelCellType, "formula") )
+            throw new RuntimeException(FormPosition.getPosition("excelCellType") + "\n\nInvalid excelCellType value, must be \"string\", \"numeric\", \"boolean\" or \"formula\"."); 
+        
+        if ( !FormPlugin.areEqual(excelDefault, "blank") && !FormPlugin.areEqual(excelDefault, "zero") && !FormPlugin.areEqual(excelDefault, "delete") )
+            throw new RuntimeException(FormPosition.getPosition("excelDefault") + "\n\nInvalid excelDefault value, must be \"blank\", \"zero\" or \"delete\"."); 
 
         if (excelSheet != null) {
             excelSheets.add(excelSheet);
@@ -958,6 +964,7 @@ public class FormDialog extends Dialog {
         String tooltip = getString(jsonObject, "tooltip", null);
         String excelSheet = getString(jsonObject, "excelSheet", null);
         int excelFirstLine = getInt(jsonObject, "excelFirstLine", 1);
+        int excelLastLine = getInt(jsonObject, "excelLastLine", 0);
 
         if (logger.isDebugEnabled())
             logger.debug("   Creating table");
@@ -972,6 +979,7 @@ public class FormDialog extends Dialog {
             logger.trace("      tooltip = " + debugValue(tooltip, null));
             logger.trace("      excelSheet = " + debugValue(excelSheet, null));
             logger.trace("      excelFirstLine = " + debugValue(excelFirstLine, 1));
+            logger.trace("      excelLastLine = " + debugValue(excelLastLine, 0));
         }
 
         Table table = new Table(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE | SWT.FULL_SELECTION);
@@ -998,6 +1006,7 @@ public class FormDialog extends Dialog {
             excelSheets.add(excelSheet);
             table.setData("excelSheet", excelSheet);
             table.setData("excelFirstLine", excelFirstLine);
+            table.setData("excelLastLine", excelLastLine);
         }
 
         // we iterate over the "columns" entries
@@ -2143,7 +2152,7 @@ public class FormDialog extends Dialog {
                                     if (logger.isDebugEnabled())
                                         logger.debug("Exporting table");
                                     Table table = (Table) control;
-                                    int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	// Excel lines begin at zero
+                                    int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	            // we decrease the provided value because POI lines begin at zero
                                     for (int line = 0; line < table.getItemCount(); ++line) {
                                         TableItem tableItem = table.getItem(line);
                                         Row row = sheet.getRow(excelFirstLine + line);
@@ -2181,93 +2190,69 @@ public class FormDialog extends Dialog {
                                                 String excelCellType = (String) tableColumn.getData("excelCellType");
                                                 String excelDefault = (String) tableColumn.getData("excelDefault");
 
-                                                switch (excelCellType) {
-                                                    case "string":
-                                                        if (value.isEmpty()) {
-                                                            switch (excelDefault) {
-                                                                case "blank":
-                                                                    cell.setCellType(CellType.BLANK);
-                                                                    break;
-                                                                case "zero":
+                                                if ( value.isEmpty() ) {
+                                                    switch (excelDefault) {
+                                                        case "blank":
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                            cell.setCellType(CellType.BLANK);
+                                                            break;
+                                                        case "zero":
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                            switch (excelCellType) {
+                                                                case "string":
                                                                     cell.setCellType(CellType.STRING);
                                                                     cell.setCellValue("");
                                                                     break;
-                                                                default:
-                                                                    ;
-                                                            }
-                                                        } else {
-                                                            cell.setCellType(CellType.STRING);
-                                                            cell.setCellValue(value);
-                                                        }
-                                                        break;
-
-                                                    case "numeric":
-                                                        if (value.isEmpty()) {
-                                                            switch (excelDefault) {
-                                                                case "blank":
-                                                                    cell.setCellType(CellType.BLANK);
-                                                                    break;
-                                                                case "zero":
-                                                                    cell.setCellType(CellType.BLANK);
+                                                                case "numeric":
+                                                                    cell.setCellType(CellType.NUMERIC);
                                                                     cell.setCellValue(0.0);
                                                                     break;
-                                                                default:
-                                                                    ;
+                                                                case "boolean":
+                                                                    cell.setCellType(CellType.BOOLEAN);
+                                                                    cell.setCellValue(false);
+                                                                    break;
+                                                                case "formula":
+                                                                    cell.setCellType(CellType.FORMULA);
+                                                                    cell.setCellValue("");
+                                                                    break;
                                                             }
-                                                        } else {
+                                                            break;
+                                                        case "delete":
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                                                            if ( cell != null )
+                                                                row.removeCell(cell);
+                                                            break;
+                                                    }
+                                                } else {
+                                                    cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                    switch (excelCellType) {
+                                                        case "string":
+                                                            cell.setCellType(CellType.STRING);
+                                                            cell.setCellValue(value);
+                                                            break;
+                                                        case "numeric":
                                                             cell.setCellType(CellType.NUMERIC);
                                                             try {
                                                                 cell.setCellValue(Double.parseDouble(value));
                                                             } catch (NumberFormatException e) {
                                                                 throw new RuntimeException("ExportToExcel : cell " + excelColumn + row.getRowNum() + " : failed to convert \"" + value + "\" to numeric.", e);
                                                             }
-                                                        }
-                                                        break;
-
-                                                    case "boolean":
-                                                        if (value.isEmpty()) {
-                                                            switch (excelDefault) {
-                                                                case "blank":
-                                                                    cell.setCellType(CellType.BLANK);
-                                                                    break;
-                                                                case "zero":
-                                                                    cell.setCellType(CellType.BOOLEAN);
-                                                                    cell.setCellValue(false);
-                                                                    break;
-                                                                default:
-                                                                    ;
-                                                            }
-                                                        } else {
+                                                            break;
+                                                        case "boolean":
                                                             cell.setCellType(CellType.BOOLEAN);
                                                             cell.setCellValue(Boolean.parseBoolean(value));
-                                                        }
-                                                        break;
-
-                                                    case "formula":
-                                                        if (value.isEmpty()) {
-                                                            switch (excelDefault) {
-                                                                case "blank":
-                                                                    cell.setCellType(CellType.BLANK);
-                                                                    break;
-                                                                case "zero":
-                                                                    cell.setCellType(CellType.FORMULA);
-                                                                    cell.setCellValue("");
-                                                                    break;
-                                                                default:
-                                                                    ;
-                                                            }
-                                                        } else {
+                                                            break;
+                                                        case "formula":
                                                             cell.setCellType(CellType.FORMULA);
                                                             cell.setCellFormula(value);
-                                                        }
-                                                        break;
-
-                                                    case "blank":
-                                                        cell.setCellType(CellType.BLANK);
-                                                        break;
-
-                                                    default:
-                                                        throw new RuntimeException("ExportToExcel : cell " + excelColumn + row.getRowNum() + " : don't know to deal with excell cell Type \"" + excelCellType + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
+                                                            break;
+                                                        case "blank":
+                                                            cell.setCellType(CellType.BLANK);
+                                                            break;
+    
+                                                        default:
+                                                            throw new RuntimeException("ExportToExcel : cell " + excelColumn + row.getRowNum() + " : don't know to deal with excell cell Type \"" + excelCellType + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
+                                                    }
                                                 }
 
                                                 if (logger.isTraceEnabled())
@@ -2275,9 +2260,58 @@ public class FormDialog extends Dialog {
                                             }
                                         }
                                     }
-                                } else
-                                    if (logger.isDebugEnabled())
-                                        logger.debug("control is not a label, nor a text, nor a table !");
+                                    
+                                    int excelLastLine = (int) table.getData("excelLastLine");
+                                    for ( int line = excelFirstLine+table.getItemCount()-1; line < excelLastLine; ++line) {
+                                        if ( logger.isTraceEnabled() ) logger.trace("   '" + excelSheet + " : removing values from line "+(line-1));
+                                        
+                                        Row row = sheet.getRow(line - 1);                                                // we decrease the provided value because POI lines begin at zero
+                                        
+                                        for (int col = 0; col < table.getColumnCount(); ++col) {
+                                            TableColumn tableColumn = table.getColumn(col);
+                                            String excelCellType = (String) tableColumn.getData("excelCellType");
+                                            String excelDefault = (String) tableColumn.getData("excelDefault");
+                                            String excelColumn = (String) tableColumn.getData("excelColumn");
+                                            CellReference ref = new CellReference(excelColumn);
+                                            Cell cell;
+
+                                            switch (excelDefault) {
+                                                case "blank":
+                                                    cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                    cell.setCellType(CellType.BLANK);
+                                                    break;
+                                                case "zero":
+                                                    cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                    switch (excelCellType) {
+                                                        case "string":
+                                                            cell.setCellType(CellType.STRING);
+                                                            cell.setCellValue("");
+                                                            break;
+                                                        case "numeric":
+                                                            cell.setCellType(CellType.NUMERIC);
+                                                            cell.setCellValue(0.0);
+                                                            break;
+                                                        case "boolean":
+                                                            cell.setCellType(CellType.BOOLEAN);
+                                                            cell.setCellValue(false);
+                                                            break;
+                                                        case "formula":
+                                                            cell.setCellType(CellType.FORMULA);
+                                                            cell.setCellValue("");
+                                                        default:
+                                                            cell.setCellType(CellType.BLANK);
+                                                            break;
+                                                    }
+                                                    break;
+                                                case "delete":
+                                                    cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                                                    if ( cell != null )
+                                                        row.removeCell(cell);
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                }
                         }
                     }
                 }
