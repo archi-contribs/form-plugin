@@ -366,7 +366,7 @@ public class FormDialog extends Dialog {
         while (objectsIterator.hasNext()) {
             JSONObject jsonObject = objectsIterator.next();
 
-            switch (getString(jsonObject, "class")) {
+            switch (getString(jsonObject, "class").toLowerCase()) {
                 case "check":
                     createCheck(jsonObject, composite);
                     break;
