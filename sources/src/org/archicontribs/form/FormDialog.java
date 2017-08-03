@@ -2134,7 +2134,7 @@ public class FormDialog extends Dialog {
                                         text = ((Label) control).getText();
                                         break;
                                     case "CCombo":
-                                            text = ((CCombo) control).getText();
+                                        text = ((CCombo) control).getText();
                                         break;
                                     case "Button":
                                         String[]values = (String[])control.getData("values");
@@ -2175,16 +2175,20 @@ public class FormDialog extends Dialog {
                                                 else
                                                     switch (editor.getEditor().getClass().getSimpleName()) {
                                                         case "StyledText":
-                                                            value = ((StyledText) editor.getEditor()).getText();
+                                                            value = ((StyledText)editor.getEditor()).getText();
                                                             break;
                                                         case "Button":
-                                                            value = ((Button) editor.getEditor()).getText();
+                                                            String[]values = (String[])tableColumn.getData("values");
+                                                            if ( values == null )
+                                                                value = String.valueOf(((Button)editor.getEditor()).getSelection());
+                                                            else
+                                                                value = values[((Button)editor.getEditor()).getSelection()?0:1];
                                                             break;
                                                         case "CCombo":
-                                                            value = ((CCombo) editor.getEditor()).getText();
+                                                            value = ((CCombo)editor.getEditor()).getText();
                                                             break;
                                                         case "Label":
-                                                            value = ((Label) editor.getEditor()).getText();
+                                                            value = ((Label)editor.getEditor()).getText();
                                                             break;
                                                         default:
                                                             throw new RuntimeException("ExportToExcel : Do not know how to export columns of class " + editor.getEditor().getClass().getSimpleName());
