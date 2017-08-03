@@ -104,9 +104,14 @@ import com.archimatetool.model.INameable;
  * 
  * v1.5.3 :		30/06/2017		Accept to change IDs
  * 
- * v1.5.4 :     26/07/2017      Add "in" and "iin" tests
- *                              Add ${source:xxx} and ${target:xxx} variables range
- *                              Add ${void} variable
+ * v1.5.4 :     05/08/2017      Add "in" and "iin" tests
+ *                              Add "${source:xxx}" and "${target:xxx}" variables range
+ *                              Add "${void}" variable
+ *                              Bug corrections in export to Excel
+ *                              Add "delete" excelDefault behaviour
+ *                              Updating a control updates in real time all the other controls that refer to the same variable
+ *                              Add "foreground" and "background" keywords for table columns
+ *                              Labels are now in wrap mode
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
