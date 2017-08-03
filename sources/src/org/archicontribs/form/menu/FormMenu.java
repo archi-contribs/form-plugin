@@ -32,6 +32,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
 import com.archimatetool.model.IDiagramModel;
@@ -141,12 +142,15 @@ public class FormMenu extends ExtensionContributionFactory {
 		                            break;
 		                        
 		                        case "view" :
-    	                            if ( !(selectedObject instanceof IDiagramModelObject) ) {
+    	                            if ( !(selectedObject instanceof IDiagramModelObject) && !(selectedObject instanceof IArchimateDiagramModel) ) {
 	                                    logger.error(getPosition("refers")+" - the form refers to the object's view but the object \""+selectedObject.getClass().getSimpleName()+"\" is not inside a view");
 	                                    continue loopOnForms;
 	                                }
     	                            
-	                                selectedObject = getContainer(selectedObject);
+                                    if ( selectedObject instanceof IDiagramModelObject ) {
+                                        selectedObject = getContainer(selectedObject);
+                                    }
+                                    
                                     if ( logger.isTraceEnabled() ) logger.trace("Refers to the view "+FormPlugin.getDebugName(selectedObject));
 		                            break;
 		                            
