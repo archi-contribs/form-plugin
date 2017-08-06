@@ -1,19 +1,52 @@
-## v1.3 :	27/075/2017
+## v1.5.4:	05/08/2017
+* Add "in" and "iin" tests
+* Add "${source:xxx}" and "${target:xxx}" variables scope when selected object is a relationship
+* Add "${void}" variable
+* Bug corrections in export to Excel
+* Add "delete" excelDefault behaviour
+* Updating a control updates in real time all the other controls that refer to the same variable
+* Add "foreground" and "background" keywords for table columns
+* Labels are now in wrap mode
+
+* TODO list
+  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+  * Create a graphical interface to generate the form as the configuration file becomes quite complex to be managed manually)
+ 
+## v1.5.3:	30/06/2017
+* Accept to change IDs
+ 
+## v1.5.2:	21/06/2017
+* Correct default value on combo controls
+ 
+## v1.5.1:	19/06/2017
+* Removed dependency to Eclipse library which invalidated the form plugin
+ 
+## v1.5:	17/06/2017
+* Finally, it is now possible to choose the configuration file(s) on the preference page
+* Add first online help pages
+* The selected object can now be a referenced view, a canvas or a sketch view
+ 
+## v1.4.1:	06/06/2017
+* Solve "failed to get the model" error message
+
+## v1.4:	02/06/2017
+* Allow to select components directly on the tree on the left side of Archi window
+* Allow to select folders
+* Allow to select the model itself
+* Rewrite of error message to be more helpful in searching the error cause
+* Set the WRAP bit of the text controls
+* Solve bug which avoided the tooltip to showup on some controls
+
+## v1.3:	27/05/2017
 * Allow to nest variables
 * Allow to change the char used to separate variable name from variable scope (default is ':')
-* TODO list
-  * Allow to select elements or relationships from the model tree (left side of Archi window)
-  * Allow to select the model itself
-  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
-  * Add an option in the preferences to choose the configuration file(s) instead of forcing it in the plugin's folder
-  * Create a graphical interface to generate the form as the configuration file becomes quite complex to be managed manually)
 
-## v1.2 : 23/05/2017
+## v1.2: 23/05/2017
  * The plugin is now able to automatically download updates from GitHub
  * Solve a bug which prevent the form to save the updated values if it was related to a relationship
  * Add the ability to change the font name, size and style of label, text and combo controls
 
-## v1.1 :	21/05/2017
+## v1.1:	21/05/2017
 * The plugin now uses Eclipse Commands to allow undo / redo
 * Change the plugin behaviour to update variables only when the OK button is clicked rather than on every keystroke
 * It is now possible to choose to which component the form refers to: the selected component in the view, the view itself, or the whole model
@@ -30,12 +63,12 @@
   * Add the ability to choose what to do when a variable is set to empty : ignore, create, or delete
   * Add the ability to set combo box as editable (it is possible to write any value) or not editable (only values listed in the combo can be selected)
 
-## v1.0 :	16/04/2017
+## v1.0:	16/04/2017
 * Add ability to change foreground and background color of all components
 * Add ability to export to Excel files
 * Update dynamic tables filter to add "AND" and "OR" genre
 
-## v0.2 :	04/03/2017
+## v0.2:	04/03/2017
 * Solve several bugs
 * Add a preference page
 * Add log4j support for logging
@@ -44,5 +77,5 @@
 * The keywords are now case insensitive
 * Add ability to sort table columns
 
-### v0.1 : 28/11/2016
+### v0.1: 28/11/2016
 * Plug-in creation
