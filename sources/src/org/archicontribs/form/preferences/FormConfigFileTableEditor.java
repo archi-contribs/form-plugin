@@ -54,7 +54,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private Button btnEdit;
 	private Button btnDown;
 
-	private Button btnCheck;
+	private Button btnGenerate;
 	private Button btnDiscard;
 	private Button btnSave;
 	
@@ -135,23 +135,23 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		});
 		btnEdit.setEnabled(false);
 
-		btnCheck = new Button(grpConfigFiles, SWT.NONE);
-		btnCheck.setText("Check");
+		btnGenerate = new Button(grpConfigFiles, SWT.NONE);
+		btnGenerate.setText("Generate");
 		fd = new FormData();
 		fd.top = new FormAttachment(btnEdit, 5);
 		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
-		btnCheck.setLayoutData(fd);
-		btnCheck.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { checkCallback(); }
+		btnGenerate.setLayoutData(fd);
+		btnGenerate.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) { generateCallback(); }
 			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnCheck.setEnabled(false);
+		btnGenerate.setEnabled(false);
 
 		btnRemove = new Button(grpConfigFiles, SWT.NONE);
 		btnRemove.setText("Remove");
 		fd = new FormData();
-		fd.top = new FormAttachment(btnCheck, 5);
+		fd.top = new FormAttachment(btnGenerate, 5);
 		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
 		btnRemove.setLayoutData(fd);
@@ -385,7 +385,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		btnNew.setEnabled(!editMode);
 		btnEdit.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
 		btnRemove.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
-		btnCheck.setEnabled(editMode || ((tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0)));
+		btnGenerate.setEnabled(editMode || ((tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0)));
 		btnUp.setEnabled(!editMode && (tblConfigFiles.getSelectionIndex() > 0));
 		btnDown.setEnabled(!editMode && (tblConfigFiles.getSelectionIndex() < tblConfigFiles.getItemCount()-1));
 		tblConfigFiles.setEnabled(!editMode);
@@ -394,11 +394,19 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	}
 
 	/**
-	 * Called when the "check" button has been pressed
+	 * Called when the "generate" button has been pressed
 	 */
-	private void checkCallback() {
-		if ( logger.isTraceEnabled() ) logger.trace("checkCallback()");
-		//TODO : check the validity of the file
+	private void generateCallback() {
+		if ( logger.isTraceEnabled() ) logger.trace("generateCallback()");
+		
+		//TODO : create the tree
+		//TODO : if the file does exist : read the file and populate the tree 
+		//TODO : create the corresponding form with real controls but without any callback (do not manage callback)
+		//TODO : when a tree entry is selected : show all properties that can be filled in with explanations and default values as tooltip
+		//TODO : mandatory ones shall be red bordered
+		//TODO : popup to generate variables (selected/view/model + id/name/documentation/property + property name)
+		//TODO : buttons to add new controls (before / after), up/down existing controls and delete controls
+		//TODO : create or update properties of existing control must update the form in real time
 	}
 
 	/**
@@ -430,7 +438,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 			btnNew.setEnabled(true);
 			btnEdit.setEnabled(false);
 			btnRemove.setEnabled(false);
-			btnCheck.setEnabled(false);
+			btnGenerate.setEnabled(false);
 			btnUp.setEnabled(false);
 			btnDown.setEnabled(false);
 			tblConfigFiles.setEnabled(true);
