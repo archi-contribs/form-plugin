@@ -118,19 +118,12 @@ public class FormDialog extends Dialog {
 
     private HashSet<String>         excelSheets       = new HashSet<String>();
 
-    public FormDialog(JSONObject json, EObject selectedObject) {
+    public FormDialog(String configFilename, JSONObject json, EObject selectedObject) {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        String configFilename;
         this.selectedObject = selectedObject;
 
         if (logger.isDebugEnabled())
             logger.debug("Creating new FormDialog for " + selectedObject.getClass().getSimpleName() + " \"" + ((INameable) selectedObject).getName() + "\".");
-
-        try {
-            configFilename = Paths.get(FormPlugin.pluginsFilename.replace(".jar", ".conf")).toRealPath().toString();
-        } catch (IOException e) {
-            configFilename = FormPlugin.pluginsFilename.replace(".jar", ".conf");
-        }
 
         try {
             createContents(json);

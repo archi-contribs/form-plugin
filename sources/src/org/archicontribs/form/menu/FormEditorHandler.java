@@ -53,7 +53,7 @@ public class FormEditorHandler extends AbstractHandler {
 				case "model" :    selectedObject = FormMenu.getModel(selectedObject);     break;
 			}
 			
-			new FormDialog(form, selectedObject);
+			new FormDialog(configFilename, form, selectedObject);
 			
 		} catch (IOException e) {
 			FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file:\n"+configFilename,e);
