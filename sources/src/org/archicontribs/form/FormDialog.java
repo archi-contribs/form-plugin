@@ -171,8 +171,6 @@ public class FormDialog extends Dialog {
     private String         variableSeparator       = null;
     
     private String         globalWhenEmpty         = null;
-    private String         excelRunBefore          = null;
-    private String         excelRunAfter           = null;
 
     /**
      * Parses the configuration file and create the corresponding graphical
@@ -196,8 +194,6 @@ public class FormDialog extends Dialog {
         String buttonExportText = FormVariable.expand(getString(form, "buttonExport", defaultButtonExportText),
                 variableSeparator, selectedObject);
         globalWhenEmpty = getString(form, "whenEmpty", null);
-        excelRunBefore = getString(form, "excelRunBefore", null);
-        excelRunAfter = getString(form, "excelRunAfter", null);
 
         if (logger.isTraceEnabled()) {
             logger.trace("   name = " + debugValue(formName, defaultDialogName));
@@ -212,8 +208,6 @@ public class FormDialog extends Dialog {
             logger.trace("   ok = " + debugValue(buttonOkText, defaultButtonOkText));
             logger.trace("   cancel = " + debugValue(buttonCancelText, defaultButtonCancelText));
             logger.trace("   whenEmpty = " + debugValue(globalWhenEmpty, null));
-            logger.trace("   excelRunBefore = " + debugValue(excelRunBefore, null));
-            logger.trace("   excelRunAfter = " + debugValue(excelRunAfter, null));
         }
 
         if (globalWhenEmpty != null) {
