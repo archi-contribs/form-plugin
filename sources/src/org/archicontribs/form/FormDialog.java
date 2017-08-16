@@ -154,20 +154,22 @@ public class FormDialog extends Dialog {
 
     private final String[] whenEmptyValidStrings   = new String[] { "ignore", "create", "delete" };
 
+    public static final int      defaultDialogWidth      = 850;
+    public static final int      defaultDialogHeight     = 600;
+    public static final int      defaultDialogSpacing    = 4;
+    public static final String   defaultDialogName       = "Form plugin";
+    public static final String   defaultDialogBackground = null;
+    public static final String   defaultTabBackground    = null;
+    public static final int      defaultButtonWidth      = 90;
+    public static final int      defaultButtonHeight     = 25;
+    public static final String   defaultButtonOkText     = "Ok";
+    public static final String   defaultButtonCancelText = "Cancel";
+    public static final String   defaultButtonExportText = "Export to Excel";
+    public static final String   defaultName             = "tab";
+    public static final String   defaultVariableSeparator= ":";
+    
     private String         variableSeparator       = null;
-
-    private final int      defaultDialogWidth      = 850;
-    private final int      defaultDialogHeight     = 600;
-    private final int      defaultDialogSpacing    = 4;
-    private final String   defaultDialogName       = "Form plugin";
-    private final String   defaultDialogBackground = null;
-    private final String   defaultTabBackground    = null;
-    private final int      defaultButtonWidth      = 90;
-    private final int      defaultButtonHeight     = 25;
-    private final String   defaultButtonOkText     = "Ok";
-    private final String   defaultButtonCancelText = "Cancel";
-    private final String   defaultButtonExportText = "Export to Excel";
-    private final String   defaultName             = "tab";
+    
     private String         globalWhenEmpty         = null;
     private String         excelRunBefore          = null;
     private String         excelRunAfter           = null;
@@ -177,7 +179,7 @@ public class FormDialog extends Dialog {
      * controls
      */
     private void createContents(JSONObject form) throws IOException, ParseException, RuntimeException {
-        variableSeparator = getString(form, "variableSeparator", ":");
+        variableSeparator = getString(form, "variableSeparator", defaultVariableSeparator);
         String formName = FormVariable.expand(getString(form, "name", defaultDialogName), variableSeparator,
                 selectedObject);
         FormPosition.setFormName(formName);
