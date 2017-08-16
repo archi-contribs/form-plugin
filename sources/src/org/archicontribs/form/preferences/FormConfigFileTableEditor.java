@@ -415,22 +415,22 @@ public class FormConfigFileTableEditor extends FieldEditor {
             if ( !f.exists() ) {
                 try {
                     if ( !f.createNewFile() ) {
-                       logger.error("Failed : cannot create");
+                        FormDialog.popup(Level.ERROR, "Failed : cannot create");
                        return;
                     }
                 } catch (IOException | SecurityException e) {
-                    logger.error("Failed : cannot create", e);
+                    FormDialog.popup(Level.ERROR, "Failed : cannot create", e);
                     return;
                 }
              }
     
             if( f.isDirectory() ) {
-                logger.error("Failed : is a directory");
+                FormDialog.popup(Level.ERROR, "Failed : is a directory");
                 return;
             }
     
             if ( !f.canRead() | !f.canWrite() ) {
-                logger.error("Failed : permission denied");
+                FormDialog.popup(Level.ERROR, "Failed : permission denied");
                 return;
             }
             
@@ -441,7 +441,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
                     fw.write("{\n    \"version\": 2,\n    \"org.archicontribs.form\": {}\n}");
                     fw.close();
                 } catch (IOException e) {
-                    logger.error("Failed : cannot write header", e);
+                    FormDialog.popup(Level.ERROR, "Failed : cannot write header", e);
                     return;
                 }
             }
@@ -452,14 +452,14 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 try {
                     version = FormDialog.getInt(json, "version");
                     if ( version != 2 ) {
-                        logger.error("Ignored : not the right version (should be 2).");
+                        FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 2).");
                         return;
                     }
                 } catch (ClassCastException e) {
-                    logger.error("Ignored : the version specified is not an integer (should be 2).");
+                    FormDialog.popup(Level.ERROR, "Failed : the version specified is not an integer (should be 2).");
                     return;
                 } catch (RuntimeException e) {
-                    logger.error("Ignored : the version is not specified (should be 2).");
+                    FormDialog.popup(Level.ERROR, "Failed : the version is not specified (should be 2).");
                     return;
                 }
                 
@@ -467,26 +467,16 @@ public class FormConfigFileTableEditor extends FieldEditor {
             
                 new FormGenerate(configFilename, form);
             } catch (IOException e) {
-                logger.error("I/O Error while reading configuration file \""+configFilename+"\"",e);
+                FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file \""+configFilename+"\"",e);
             } catch (ParseException e) {
                 if ( e.getMessage() !=null )
-                    logger.error("Parsing error while reading configuration file \""+configFilename+"\"",e);
+                    FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+configFilename+"\"",e);
                 else
-                    logger.error("Parsing error while reading configuration file \""+configFilename+"\" : Unexpected "+e.getUnexpectedObject().toString()+" at position "+e.getPosition());
+                    FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+configFilename+"\" : Unexpected "+e.getUnexpectedObject().toString()+" at position "+e.getPosition());
             }  catch (ClassCastException e) {
-                logger.error("Wrong key type in the configuration files \""+configFilename+"\"",e);
+                FormDialog.popup(Level.ERROR, "Wrong key type in the configuration files \""+configFilename+"\"",e);
             }
 		}
-
-		
-		//TODO : create the tree
-		//TODO : if the file does exist : read the file and populate the tree 
-		//TODO : create the corresponding form with real controls but without any callback (do not manage callback)
-		//TODO : when a tree entry is selected : show all properties that can be filled in with explanations and default values as tooltip
-		//TODO : mandatory ones shall be red bordered
-		//TODO : popup to generate variables (selected/view/model + id/name/documentation/property + property name)
-		//TODO : buttons to add new controls (before / after), up/down existing controls and delete controls
-		//TODO : create or update properties of existing control must update the form in real time
 	}
 
 	/**
