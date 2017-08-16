@@ -40,7 +40,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -464,10 +463,9 @@ public class FormConfigFileTableEditor extends FieldEditor {
                     return;
                 }
                 
-                JSONArray forms = FormDialog.getJSONArray(json, FormPlugin.PLUGIN_ID);
-                if ( logger.isTraceEnabled() ) logger.trace("Configuration file has got "+forms.size()+" forms.");
+                JSONObject form = FormDialog.getJSONObject(json, FormPlugin.PLUGIN_ID);
             
-                new FormGenerate(configFilename, json);
+                new FormGenerate(configFilename, form);
             } catch (IOException e) {
                 logger.error("I/O Error while reading configuration file \""+configFilename+"\"",e);
             } catch (ParseException e) {
