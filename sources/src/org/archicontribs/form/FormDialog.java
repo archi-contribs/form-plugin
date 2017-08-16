@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -138,10 +137,12 @@ public class FormDialog extends Dialog {
                 dialog.dispose();
             return;
         } catch (ClassCastException e) {
-            FormDialog.popup(Level.ERROR, "Wrong key type in the configuration files:\n" + configFilename, e);
+            popup(Level.ERROR, "Wrong key type in the configuration file \"" + configFilename + "\"", e);
+            if (dialog != null)
+                dialog.dispose();
+            return;
         } catch (RuntimeException e) {
-            popup(Level.ERROR, "Please check your configuration file.\n\n" + e.getMessage());
-            logger.error(e.getMessage(), e);
+            popup(Level.ERROR, "Please check your configuration file \"" + configFilename + "\"", e);
             if (dialog != null)
                 dialog.dispose();
             return;
