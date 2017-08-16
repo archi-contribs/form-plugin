@@ -7,12 +7,15 @@
 package org.archicontribs.form.preferences;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormDialog;
+import org.archicontribs.form.FormGenerate;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.jface.preference.FieldEditor;
@@ -37,6 +40,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class FormConfigFileTableEditor extends FieldEditor {
 	private static final FormLogger logger = new FormLogger(FormConfigFileTableEditor.class);
@@ -51,7 +58,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private Button btnUp;
 	private Button btnNew;
 	private Button btnRemove;
-	private Button btnEdit;
+	private Button btnProperties;
 	private Button btnDown;
 
 	private Button btnGenerate;
@@ -122,23 +129,23 @@ public class FormConfigFileTableEditor extends FieldEditor {
 			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
 
-		btnEdit = new Button(grpConfigFiles, SWT.NONE);
-		btnEdit.setText("Edit");
+		btnProperties = new Button(grpConfigFiles, SWT.NONE);
+		btnProperties.setText("Properties");
 		fd = new FormData();
 		fd.top = new FormAttachment(btnNew, 5);
 		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
-		btnEdit.setLayoutData(fd);
-		btnEdit.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { editCallback(true); }
+		btnProperties.setLayoutData(fd);
+		btnProperties.addSelectionListener(new SelectionListener() {
+			public void widgetSelected(SelectionEvent e) { propertiesCallback(true); }
 			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnEdit.setEnabled(false);
+		btnProperties.setEnabled(false);
 
 		btnGenerate = new Button(grpConfigFiles, SWT.NONE);
 		btnGenerate.setText("Generate");
 		fd = new FormData();
-		fd.top = new FormAttachment(btnEdit, 5);
+		fd.top = new FormAttachment(btnProperties, 5);
 		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
 		btnGenerate.setLayoutData(fd);
@@ -178,7 +185,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		});
 		tblConfigFiles.addListener(SWT.Selection, new Listener() {
 			public void handleEvent(Event e) {
-				editCallback(false);
+				propertiesCallback(false);
 			}
 		});
 		new TableColumn(tblConfigFiles, SWT.NONE);
@@ -233,7 +240,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		fd.bottom = new FormAttachment(btnSave, -5, SWT.TOP);
 		btnDiscard.setLayoutData(fd);
 		btnDiscard.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { editCallback(false); }
+			public void widgetSelected(SelectionEvent e) { propertiesCallback(false); }
 			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
 		btnDiscard.setVisible(false);
@@ -322,7 +329,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		tblConfigFiles.deselectAll();
 		
 		// we show up the edition widgets
-		editCallback(true);
+		propertiesCallback(true);
 	}
 
 	/**
@@ -364,13 +371,13 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		}
 		tableItem.setText(txtFile.getText());
 
-		editCallback(false);
+		propertiesCallback(false);
 
 		tblConfigFiles.setSelection(tableItem);
 		tblConfigFiles.notifyListeners(SWT.Selection, new Event());
 	}
 
-	private void editCallback(boolean editMode) {
+	private void propertiesCallback(boolean editMode) {
 		String filename = "";
 
 		if ( tblConfigFiles.getSelectionIndex() != -1 )
@@ -383,7 +390,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		btnDiscard.setVisible(editMode);
 
 		btnNew.setEnabled(!editMode);
-		btnEdit.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
+		btnProperties.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
 		btnRemove.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
 		btnGenerate.setEnabled(editMode || ((tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0)));
 		btnUp.setEnabled(!editMode && (tblConfigFiles.getSelectionIndex() > 0));
@@ -398,6 +405,81 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	 */
 	private void generateCallback() {
 		if ( logger.isTraceEnabled() ) logger.trace("generateCallback()");
+		
+		if ( tblConfigFiles.getSelectionIndex() != -1 ) {
+    		String configFilename = tblConfigFiles.getItem(tblConfigFiles.getSelectionIndex()).getText();
+            
+    		if ( logger.isDebugEnabled() ) logger.debug("Opening configuration file \""+configFilename+"\" ...");
+    
+            File f = new File(configFilename);
+            
+            if ( !f.exists() ) {
+                try {
+                    if ( !f.createNewFile() ) {
+                       logger.error("Failed : cannot create");
+                       return;
+                    }
+                } catch (IOException | SecurityException e) {
+                    logger.error("Failed : cannot create", e);
+                    return;
+                }
+             }
+    
+            if( f.isDirectory() ) {
+                logger.error("Failed : is a directory");
+                return;
+            }
+    
+            if ( !f.canRead() | !f.canWrite() ) {
+                logger.error("Failed : permission denied");
+                return;
+            }
+            
+            // if the file is empty, we insert the header
+            if ( f.length() == 0 ) {
+                try {
+                    FileWriter fw = new FileWriter(configFilename);
+                    fw.write("{\n    \"version\": 2,\n    \"org.archicontribs.form\": {}\n}");
+                    fw.close();
+                } catch (IOException e) {
+                    logger.error("Failed : cannot write header", e);
+                    return;
+                }
+            }
+
+            try {
+                JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
+                int version;
+                try {
+                    version = FormDialog.getInt(json, "version");
+                    if ( version != 2 ) {
+                        logger.error("Ignored : not the right version (should be 2).");
+                        return;
+                    }
+                } catch (ClassCastException e) {
+                    logger.error("Ignored : the version specified is not an integer (should be 2).");
+                    return;
+                } catch (RuntimeException e) {
+                    logger.error("Ignored : the version is not specified (should be 2).");
+                    return;
+                }
+                
+                JSONArray forms = FormDialog.getJSONArray(json, FormPlugin.PLUGIN_ID);
+                if ( logger.isTraceEnabled() ) logger.trace("Configuration file has got "+forms.size()+" forms.");
+            
+                new FormGenerate(configFilename, json);
+            } catch (IOException e) {
+                logger.error("I/O Error while reading configuration file \""+configFilename+"\"",e);
+            } catch (ParseException e) {
+                if ( e.getMessage() !=null )
+                    logger.error("Parsing error while reading configuration file \""+configFilename+"\"",e);
+                else
+                    logger.error("Parsing error while reading configuration file \""+configFilename+"\" : Unexpected "+e.getUnexpectedObject().toString()+" at position "+e.getPosition());
+            }  catch (ClassCastException e) {
+                logger.error("Wrong key type in the configuration files \""+configFilename+"\"",e);
+            }
+		}
+
 		
 		//TODO : create the tree
 		//TODO : if the file does exist : read the file and populate the tree 
@@ -426,7 +508,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 				if ( index > 0 )
 					tblConfigFiles.setSelection(index-1);
 			}
-			editCallback(false);
+			propertiesCallback(false);
 		} else {
 			lblFile.setVisible(false);
 			txtFile.setVisible(false);		
@@ -436,7 +518,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 			btnDiscard.setVisible(false);
 
 			btnNew.setEnabled(true);
-			btnEdit.setEnabled(false);
+			btnProperties.setEnabled(false);
 			btnRemove.setEnabled(false);
 			btnGenerate.setEnabled(false);
 			btnUp.setEnabled(false);
