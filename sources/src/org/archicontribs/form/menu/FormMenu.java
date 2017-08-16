@@ -80,6 +80,11 @@ public class FormMenu extends ExtensionContributionFactory {
             if ( logger.isDebugEnabled() ) logger.debug("Opening configuration file \""+configFilename+"\" ...");
 
 		    File f = new File(configFilename);
+		    
+		    if ( !f.exists() ) {
+               logger.error("Failed : does not exist");
+                continue;
+            } 
 
 		    if( f.isDirectory() ) {
 			    logger.error("Failed : is a directory");
