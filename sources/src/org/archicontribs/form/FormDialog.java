@@ -154,23 +154,23 @@ public class FormDialog extends Dialog {
 
     private final String[] whenEmptyValidStrings   = new String[] { "ignore", "create", "delete" };
 
-    public static final int      defaultDialogWidth      = 850;
-    public static final int      defaultDialogHeight     = 600;
-    public static final int      defaultDialogSpacing    = 4;
-    public static final String   defaultDialogName       = "Form plugin";
-    public static final String   defaultDialogBackground = null;
-    public static final String   defaultTabBackground    = null;
-    public static final int      defaultButtonWidth      = 90;
-    public static final int      defaultButtonHeight     = 25;
-    public static final String   defaultButtonOkText     = "Ok";
-    public static final String   defaultButtonCancelText = "Cancel";
-    public static final String   defaultButtonExportText = "Export to Excel";
-    public static final String   defaultTabName          = "tab";
-    public static final String   defaultVariableSeparator= ":";
+    public static final int      defaultDialogWidth       = 850;
+    public static final int      defaultDialogHeight      = 600;
+    public static final int      defaultDialogSpacing     = 4;
+    public static final String   defaultDialogName        = "Form plugin";
+    public static final String   defaultDialogBackground  = "";
+    public static final String   defaultTabBackground     = "";
+    public static final int      defaultButtonWidth       = 90;
+    public static final int      defaultButtonHeight      = 25;
+    public static final String   defaultButtonOkText      = "Ok";
+    public static final String   defaultButtonCancelText  = "Cancel";
+    public static final String   defaultButtonExportText  = "Export to Excel";
+    public static final String   defaultTabName           = "tab";
+    public static final String   defaultVariableSeparator = ":";
+    public static final String   defaultRefers            = "selected";
     
-    private String         variableSeparator       = null;
-    
-    private String         globalWhenEmpty         = null;
+    private String variableSeparator = null;
+    private String globalWhenEmpty   = null;
 
     /**
      * Parses the configuration file and create the corresponding graphical
