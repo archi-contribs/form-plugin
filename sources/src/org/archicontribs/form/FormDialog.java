@@ -165,7 +165,7 @@ public class FormDialog extends Dialog {
     public static final String   defaultButtonOkText     = "Ok";
     public static final String   defaultButtonCancelText = "Cancel";
     public static final String   defaultButtonExportText = "Export to Excel";
-    public static final String   defaultName             = "tab";
+    public static final String   defaultTabName          = "tab";
     public static final String   defaultVariableSeparator= ":";
     
     private String         variableSeparator       = null;
@@ -305,14 +305,14 @@ public class FormDialog extends Dialog {
             // we create one TabItem per array item
             JSONObject tab = tabsIterator.next();
 
-            String tabName = getString(tab, "name", defaultName);
+            String tabName = getString(tab, "name", defaultTabName);
 
             FormPosition.setTabName(tabName);
 
             String tabText = FormVariable.expand(tabName, variableSeparator, selectedObject);
 
             if (logger.isDebugEnabled())
-                logger.debug("Creating tab " + debugValue(tabText, defaultName));
+                logger.debug("Creating tab " + debugValue(tabText, defaultTabName));
 
             String tabBackground = getString(tab, "background", defaultTabBackground);
 
@@ -946,7 +946,7 @@ public class FormDialog extends Dialog {
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 100);
         int height = getInt(jsonObject, "height", 50);
-        String controlName = getString(jsonObject, "name", defaultName);
+        String controlName = getString(jsonObject, "name", defaultTabName);
         FormPosition.setControlName(controlName);
         FormPosition.setControlClass("table");
         String background = getString(jsonObject, "background", null);
@@ -963,7 +963,7 @@ public class FormDialog extends Dialog {
             logger.trace("      y = " + debugValue(y, 0));
             logger.trace("      width = " + debugValue(width, 100));
             logger.trace("      height = " + debugValue(height, 50));
-            logger.trace("      name = " + debugValue(controlName, defaultName));
+            logger.trace("      name = " + debugValue(controlName, defaultTabName));
             logger.trace("      background = " + debugValue(background, null));
             logger.trace("      foreground = " + debugValue(foreground, null));
             logger.trace("      tooltip = " + debugValue(tooltip, null));
