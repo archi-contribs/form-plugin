@@ -60,7 +60,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private Button btnProperties;
 	private Button btnDown;
 
-	private Button btnGenerate;
+	private Button btnGraphicalEditor;
 	private Button btnDiscard;
 	private Button btnSave;
 	
@@ -141,23 +141,23 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		});
 		btnProperties.setEnabled(false);
 
-		btnGenerate = new Button(grpConfigFiles, SWT.NONE);
-		btnGenerate.setText("Generate");
+		btnGraphicalEditor = new Button(grpConfigFiles, SWT.WRAP);
+		btnGraphicalEditor.setText("Graphical editor");
 		fd = new FormData();
 		fd.top = new FormAttachment(btnProperties, 5);
 		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
-		btnGenerate.setLayoutData(fd);
-		btnGenerate.addSelectionListener(new SelectionListener() {
+		btnGraphicalEditor.setLayoutData(fd);
+		btnGraphicalEditor.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) { generateCallback(); }
 			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnGenerate.setEnabled(false);
+		btnGraphicalEditor.setEnabled(false);
 
 		btnRemove = new Button(grpConfigFiles, SWT.NONE);
 		btnRemove.setText("Remove");
 		fd = new FormData();
-		fd.top = new FormAttachment(btnGenerate, 5);
+		fd.top = new FormAttachment(btnGraphicalEditor, 5);
 		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
 		btnRemove.setLayoutData(fd);
@@ -391,7 +391,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		btnNew.setEnabled(!editMode);
 		btnProperties.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
 		btnRemove.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
-		btnGenerate.setEnabled(editMode || ((tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0)));
+		btnGraphicalEditor.setEnabled(editMode || ((tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0)));
 		btnUp.setEnabled(!editMode && (tblConfigFiles.getSelectionIndex() > 0));
 		btnDown.setEnabled(!editMode && (tblConfigFiles.getSelectionIndex() < tblConfigFiles.getItemCount()-1));
 		tblConfigFiles.setEnabled(!editMode);
@@ -508,7 +508,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 			btnNew.setEnabled(true);
 			btnProperties.setEnabled(false);
 			btnRemove.setEnabled(false);
-			btnGenerate.setEnabled(false);
+			btnGraphicalEditor.setEnabled(false);
 			btnUp.setEnabled(false);
 			btnDown.setEnabled(false);
 			tblConfigFiles.setEnabled(true);
