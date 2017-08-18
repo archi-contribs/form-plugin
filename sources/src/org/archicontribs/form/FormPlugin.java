@@ -460,6 +460,14 @@ public class FormPlugin extends AbstractUIPlugin {
 	}
 	
 	/**
+     * Check if a string is null or empty<br>
+     * Replaces string.isEmpty() to avoid nullPointerException
+     */
+    public static boolean isEmpty(String str) {
+        return str==null || str.isEmpty();
+    }
+	
+	/**
 	 * Calculates the debug name of an EObject
 	 * @return getclass().getSimpleName()+":\""+getName()+"\"("+getId()+")"
 	 */
