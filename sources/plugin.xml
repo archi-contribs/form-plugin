@@ -14,11 +14,6 @@
                optional="false">
          </commandParameter>
          <commandParameter
-               id="org.archicontribs.form.formRank"
-               name="formRank"
-               optional="false">
-         </commandParameter>
-         <commandParameter
                id="org.archicontribs.form.selectionRank"
                name="selectionRank"
                optional="false">

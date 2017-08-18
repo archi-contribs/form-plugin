@@ -34,7 +34,6 @@ public class FormEditorHandler extends AbstractHandler {
 		Object[] selection = ((IStructuredSelection) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection()).toArray();
 		
 		String configFilename = event.getParameter("org.archicontribs.form.fileName");
-        int formRank = Integer.valueOf(event.getParameter("org.archicontribs.form.formRank"));
         int selectionRank = Integer.valueOf(event.getParameter("org.archicontribs.form.selectionRank"));
         
         for ( Shell shell: Display.getDefault().getShells() ) {
@@ -44,7 +43,7 @@ public class FormEditorHandler extends AbstractHandler {
 		// We do not redo all the testing as the file has just been parsed by the FormMenu class
 		try {
 			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-			JSONObject form = (JSONObject) FormDialog.getJSONArray(json, FormPlugin.PLUGIN_ID).get(formRank);
+			JSONObject form = FormDialog.getJSONObject(json, FormPlugin.PLUGIN_ID);
 			EObject selectedObject = FormMenu.getSelectedObject(selection[selectionRank]);
 						
 			switch ( FormDialog.getString(form,"refers", "selected").toLowerCase() ) {

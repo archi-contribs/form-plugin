@@ -27,7 +27,6 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 import org.eclipse.ui.menus.ExtensionContributionFactory;
 import org.eclipse.ui.menus.IContributionRoot;
 import org.eclipse.ui.services.IServiceLocator;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -113,121 +112,115 @@ public class FormMenu extends ExtensionContributionFactory {
                     continue loopOnConfigFiles;
     			}
     
-    			JSONArray forms = FormDialog.getJSONArray(json, FormPlugin.PLUGIN_ID);
-    			if ( logger.isTraceEnabled() ) logger.trace("Configuration file has got "+forms.size()+" forms.");
-    
-    			// we loop over the forms
-    			for ( int formRank = 0; formRank < forms.size(); ++formRank ) {
-    				JSONObject form = (JSONObject) forms.get(formRank);
-    
-    				HashSet<EObject>selected = new HashSet<EObject>();
-    				String variableSeparator = FormDialog.getString(form,"variableSeparator", ":");
+    			JSONObject form = FormDialog.getJSONObject(json, FormPlugin.PLUGIN_ID);
     				
-    				formName = FormDialog.getString(form,"name");
-    				if ( formName.isEmpty() ) {
-    				    logger.error(getPosition("name")+" - cannot be empty");
-    				    continue loopOnConfigFiles;
-    				}
-                    if ( logger.isDebugEnabled() ) logger.debug("Found form \""+formName+"\"");
-    
-    				JSONObject filter = FormDialog.getJSONObject(form, "filter", null);
-    				if ( (filter != null) && logger.isDebugEnabled() ) logger.debug("Applying filter to selected components");
-    
-    				//we loop over the selected components
-    				int menuEntries = 0;
-                    loopOnForms:
-    				for ( int selectionRank = 0; selectionRank < selection.length; ++selectionRank ) {
-    					if ( ++menuEntries <= menuEntriesLimit ) {
-    						EObject selectedObject = getSelectedObject(selection[selectionRank]);
+				formName = FormDialog.getString(form,"name");
+				if ( formName.isEmpty() ) {
+				    logger.error(getPosition("name")+" - cannot be empty");
+				    continue loopOnConfigFiles;
+				}
+                if ( logger.isDebugEnabled() ) logger.debug("Found form \""+formName+"\"");
 
-		                    String refers = FormDialog.getString(form,"refers", "selected");
-		                    switch ( refers.toLowerCase() ) {
-		                        case "selected" :
-		                            if ( logger.isTraceEnabled() ) logger.trace("Refers to selected object "+FormPlugin.getDebugName(selectedObject));
-		                            break;
-		                        
-		                        case "view" :
-    	                            if ( !(selectedObject instanceof IDiagramModelObject) && !(selectedObject instanceof IArchimateDiagramModel) ) {
-	                                    logger.error(getPosition("refers")+" - the form refers to the object's view but the object \""+selectedObject.getClass().getSimpleName()+"\" is not inside a view");
-	                                    continue loopOnForms;
-	                                }
-    	                            
-                                    if ( selectedObject instanceof IDiagramModelObject ) {
-                                        selectedObject = getContainer(selectedObject);
-                                    }
-                                    
-                                    if ( logger.isTraceEnabled() ) logger.trace("Refers to the view "+FormPlugin.getDebugName(selectedObject));
-		                            break;
-		                            
-		                        case "folder" :
-		                            if ( selectedObject instanceof IArchimateModel ) {
-	                                    logger.error(getPosition("refers")+" - the form refers to the object's folder but the object \""+selectedObject.getClass().getSimpleName()+"\" is not inside a folder");
-	                                    continue loopOnForms;
-	                                }
-	                                else if ( selectedObject instanceof IDiagramModelArchimateObject ) {
-	                                    selectedObject = ((IDiagramModelArchimateObject)selectedObject).getArchimateElement();
-	                                }
-	                                else if ( selectedObject instanceof IDiagramModelArchimateConnection ) {
-	                                    selectedObject = ((IDiagramModelArchimateConnection)selectedObject).getArchimateRelationship();
-	                                }
-	                                
-		                            selectedObject = getContainer(selectedObject);
-		                            
-	                                if ( logger.isTraceEnabled() ) logger.trace("Refers to the folder "+FormPlugin.getDebugName(selectedObject));
-		                            break;
-		                        case "model" :
-		                            selectedObject = getModel(selectedObject);
-		                            
-	                                if ( logger.isTraceEnabled() ) logger.trace("Refers to the model "+FormPlugin.getDebugName(selectedObject));
-		                            break;
-		                            
-		                        default :
-		                            logger.error(getPosition("refers")+" - unknown value, must be \"selected\", \"view\" or \"model\".");
-		                            continue loopOnConfigFiles;
-		                    }
-    
-    						// we guarantee than an object is not included in the same menu several times
-    						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, variableSeparator, filter)) ) {
-    							String menuLabel = FormVariable.expand(formName, variableSeparator, selectedObject);
-    							if ( logger.isDebugEnabled() ) logger.debug("Adding menu entry \""+menuLabel+"\"");
-    							
-    							// we add the parameters
-    							//    org.archicontribs.form.fileName            configuration file name
-    							//    org.archicontribs.form.formRank            rank of the form in the file
-    							//    org.archicontribs.form.selectionRank       rank of the selected object
-    							Map<String, Object> commandParameters = new HashMap<String, Object>();
-    							commandParameters.put("org.archicontribs.form.fileName", configFilename);
-    							commandParameters.put("org.archicontribs.form.formRank", String.valueOf(formRank));
-    							commandParameters.put("org.archicontribs.form.selectionRank", String.valueOf(selectionRank));
-    
-    							CommandContributionItemParameter p = new CommandContributionItemParameter(
-    									PlatformUI.getWorkbench().getActiveWorkbenchWindow(),	// serviceLocator
-    									"org.archicontribs.form.formMenuContributionItem",		// id
-    									"org.archicontribs.form.showForm",						// commandId
-    									commandParameters,										// parameters
-    									formMenuIcon,											// icon
-    									null,													// disabledIcon
-    									null,													// hoverIcon
-    									menuLabel,												// label
-    									null,													// mnemonic
-    									null,													// tooltip 
-    									CommandContributionItem.STYLE_PUSH,						// style
-    									null,													// helpContextId
-    									true);													// visibleEnabled
-    
-    							if ( logger.isDebugEnabled() ) logger.debug("Adding menu \""+formName+"\"");
-    
-    							CommandContributionItem item = new CommandContributionItem(p);
-    							item.setVisible(true);
-    							if ( addSeparator ) {
-    								additions.addContributionItem(new Separator(), null);
-    								addSeparator = false;
-    							}
-    							additions.addContributionItem(item, null);
-    							selected.add(selectedObject);
-    						}
-    					}
-    				}
+                
+                HashSet<EObject>selected = new HashSet<EObject>();
+                String variableSeparator = FormDialog.getString(form,"variableSeparator", ":");
+                
+                JSONObject filter = FormDialog.getJSONObject(form, "filter", null);
+				if ( (filter != null) && logger.isDebugEnabled() ) logger.debug("Applying filter to selected components");
+
+				//we loop over the selected components
+				int menuEntries = 0;
+                loopOnSelection:
+				for ( int selectionRank = 0; selectionRank < selection.length; ++selectionRank ) {
+					if ( ++menuEntries <= menuEntriesLimit ) {
+						EObject selectedObject = getSelectedObject(selection[selectionRank]);
+
+	                    String refers = FormDialog.getString(form,"refers", "selected");
+	                    switch ( refers.toLowerCase() ) {
+	                        case "selected" :
+	                            if ( logger.isTraceEnabled() ) logger.trace("Refers to selected object "+FormPlugin.getDebugName(selectedObject));
+	                            break;
+	                        
+	                        case "view" :
+	                            if ( !(selectedObject instanceof IDiagramModelObject) && !(selectedObject instanceof IArchimateDiagramModel) ) {
+                                    logger.error(getPosition("refers")+" - the form refers to the object's view but the object \""+selectedObject.getClass().getSimpleName()+"\" is not inside a view");
+                                    continue loopOnSelection;
+                                }
+	                            
+                                if ( selectedObject instanceof IDiagramModelObject ) {
+                                    selectedObject = getContainer(selectedObject);
+                                }
+                                
+                                if ( logger.isTraceEnabled() ) logger.trace("Refers to the view "+FormPlugin.getDebugName(selectedObject));
+	                            break;
+	                            
+	                        case "folder" :
+	                            if ( selectedObject instanceof IArchimateModel ) {
+                                    logger.error(getPosition("refers")+" - the form refers to the object's folder but the object \""+selectedObject.getClass().getSimpleName()+"\" is not inside a folder");
+                                    continue loopOnSelection;
+                                }
+                                else if ( selectedObject instanceof IDiagramModelArchimateObject ) {
+                                    selectedObject = ((IDiagramModelArchimateObject)selectedObject).getArchimateElement();
+                                }
+                                else if ( selectedObject instanceof IDiagramModelArchimateConnection ) {
+                                    selectedObject = ((IDiagramModelArchimateConnection)selectedObject).getArchimateRelationship();
+                                }
+                                
+	                            selectedObject = getContainer(selectedObject);
+	                            
+                                if ( logger.isTraceEnabled() ) logger.trace("Refers to the folder "+FormPlugin.getDebugName(selectedObject));
+	                            break;
+	                        case "model" :
+	                            selectedObject = getModel(selectedObject);
+	                            
+                                if ( logger.isTraceEnabled() ) logger.trace("Refers to the model "+FormPlugin.getDebugName(selectedObject));
+	                            break;
+	                            
+	                        default :
+	                            logger.error(getPosition("refers")+" - unknown value, must be \"selected\", \"view\", \"folder\" or \"model\".");
+	                            continue loopOnConfigFiles;
+	                    }
+
+						// we guarantee than an object is not included in the same menu several times
+						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, variableSeparator, filter)) ) {
+							String menuLabel = FormVariable.expand(formName, variableSeparator, selectedObject);
+							if ( logger.isDebugEnabled() ) logger.debug("Adding menu entry \""+menuLabel+"\"");
+							
+							// we add the parameters
+							//    org.archicontribs.form.fileName            configuration file name
+							//    org.archicontribs.form.formRank            rank of the form in the file
+							//    org.archicontribs.form.selectionRank       rank of the selected object
+							Map<String, Object> commandParameters = new HashMap<String, Object>();
+							commandParameters.put("org.archicontribs.form.fileName", configFilename);
+							commandParameters.put("org.archicontribs.form.selectionRank", String.valueOf(selectionRank));
+
+							CommandContributionItemParameter p = new CommandContributionItemParameter(
+									PlatformUI.getWorkbench().getActiveWorkbenchWindow(),	// serviceLocator
+									"org.archicontribs.form.formMenuContributionItem",		// id
+									"org.archicontribs.form.showForm",						// commandId
+									commandParameters,										// parameters
+									formMenuIcon,											// icon
+									null,													// disabledIcon
+									null,													// hoverIcon
+									menuLabel,												// label
+									null,													// mnemonic
+									null,													// tooltip 
+									CommandContributionItem.STYLE_PUSH,						// style
+									null,													// helpContextId
+									true);													// visibleEnabled
+
+							if ( logger.isDebugEnabled() ) logger.debug("Adding menu \""+formName+"\"");
+
+							CommandContributionItem item = new CommandContributionItem(p);
+							item.setVisible(true);
+							if ( addSeparator ) {
+								additions.addContributionItem(new Separator(), null);
+								addSeparator = false;
+							}
+							additions.addContributionItem(item, null);
+							selected.add(selectedObject);
+						}
+					}
     			}
     		} catch (IOException e) {
     			logger.error("I/O Error while reading configuration file \""+configFilename+"\"",e);
