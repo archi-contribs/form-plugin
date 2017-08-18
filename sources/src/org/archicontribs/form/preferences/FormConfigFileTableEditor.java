@@ -15,7 +15,7 @@ import java.nio.file.Paths;
 
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormDialog;
-import org.archicontribs.form.FormGenerate;
+import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.jface.preference.FieldEditor;
@@ -465,7 +465,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 
                 JSONObject form = FormDialog.getJSONObject(json, FormPlugin.PLUGIN_ID);
             
-                new FormGenerate(configFilename, form);
+                new FormGraphicalEditor(configFilename, form);
             } catch (IOException e) {
                 FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file \""+configFilename+"\"",e);
             } catch (ParseException e) {
