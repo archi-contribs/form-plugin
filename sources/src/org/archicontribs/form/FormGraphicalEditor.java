@@ -1,97 +1,36 @@
 package org.archicontribs.form;
 
-import java.awt.Desktop;
 import java.awt.Toolkit;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
-import java.text.Collator;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.log4j.Level;
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellReference;
 import org.archicontribs.form.graphicalEditorComposites.FormComposite;
 import org.archicontribs.form.graphicalEditorComposites.TabComposite;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.gef.commands.CommandStack;
-import org.eclipse.gef.commands.CompoundCommand;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.custom.StyleRange;
-import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.custom.TableEditor;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
-import com.archimatetool.editor.model.commands.NonNotifyingCompoundCommand;
-import com.archimatetool.model.IArchimateDiagramModel;
-import com.archimatetool.model.IArchimateElement;
-import com.archimatetool.model.IArchimateModel;
-import com.archimatetool.model.IArchimateRelationship;
-import com.archimatetool.model.IDiagramModel;
-import com.archimatetool.model.IDiagramModelArchimateConnection;
-import com.archimatetool.model.IDiagramModelArchimateObject;
-import com.archimatetool.model.IDiagramModelContainer;
-import com.archimatetool.model.IDiagramModelObject;
-import com.archimatetool.model.IFolder;
-import com.archimatetool.model.INameable;
-import com.florianingerl.util.regex.Pattern;
 
 /**
  * Create a Dialog with graphical controls as described in the configuration
@@ -212,26 +151,30 @@ public class FormGraphicalEditor extends Dialog {
             formDialog.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        TabFolder tabFolder = new TabFolder(formDialog, SWT.BORDER);
+        TabFolder tabFolder = new TabFolder(formDialog, SWT.NONE);
+        formDialog.setData("tabFolder", tabFolder);
         tabFolder.setBounds(dialogSpacing, dialogSpacing, tabFolderWidth, tabFolderHeight);
 
-        Button cancelButton = new Button(formDialog, SWT.NONE);
-        cancelButton.setBounds(tabFolderWidth + dialogSpacing - buttonWidth, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-        cancelButton.setText(buttonCancelText);
-        cancelButton.setEnabled(true);
+        Button buttonCancel = new Button(formDialog, SWT.NONE);
+        formDialog.setData("buttonCancel", buttonCancel);
+        buttonCancel.setBounds(tabFolderWidth + dialogSpacing - buttonWidth, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
+        buttonCancel.setText(buttonCancelText);
+        buttonCancel.setEnabled(true);
 
-        Button okButton = new Button(formDialog, SWT.NONE);
-        okButton.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 2 - dialogSpacing, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-        okButton.setText(buttonOkText);
-        okButton.setEnabled(true);
+        Button buttonOk = new Button(formDialog, SWT.NONE);
+        formDialog.setData("buttonOk", buttonOk);
+        buttonOk.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 2 - dialogSpacing, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
+        buttonOk.setText(buttonOkText);
+        buttonOk.setEnabled(true);
         
         // If there is at least one Excel sheet specified, then we show up the
         // "export to Excel" button
         //if (!excelSheets.isEmpty()) {
-        Button exportToExcelButton = new Button(formDialog, SWT.NONE);
-        exportToExcelButton.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 3 - dialogSpacing * 2, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-        exportToExcelButton.setText(buttonExportText);
-        exportToExcelButton.setEnabled(true);
+        Button buttonExport = new Button(formDialog, SWT.NONE);
+        formDialog.setData("buttonExport", buttonExport);
+        buttonExport.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 3 - dialogSpacing * 2, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
+        buttonExport.setText(buttonExportText);
+        buttonExport.setEnabled(true);
         //}
         
         // we create the propertiesDialog
@@ -273,14 +216,22 @@ public class FormGraphicalEditor extends Dialog {
                 	if ( composite != null ) {
                 		composite.setVisible(true);
                     	composite.setData("control", treeItem.getData("control"));
+                    	composite.setData("shell", propertiesDialog);
                     	composite.setData("treeItem", treeItem);
                     	
                     	switch ( composite.getClass().getSimpleName() ) {
                     		case "FormComposite" :
                     			formComposite.set("name", (String)treeItem.getData("name"));
                     			formComposite.set("variableSeparator", (String)treeItem.getData("variableSeparator"));
-                    			formComposite.set("width", ((int)treeItem.getData("width") == 0) ? "" : String.valueOf(treeItem.getData("width")));
+                    			formComposite.set("width", (int)treeItem.getData("width"));
+                    			formComposite.set("height", (int)treeItem.getData("height"));
+                    			formComposite.set("spacing", (int)treeItem.getData("spacing"));
                     			formComposite.set("background", (String)treeItem.getData("background"));
+                    			formComposite.set("buttonOk", (String)treeItem.getData("buttonOk"));
+                    			formComposite.set("buttonCancel", (String)treeItem.getData("buttonCancel"));
+                    			formComposite.set("buttonExport", (String)treeItem.getData("buttonExport"));
+                    			formComposite.set("whenEmpty", (String)treeItem.getData("whenEmpty"));
+                            	formComposite.set("refers", (String)treeItem.getData("refers"));
                     			break;
                     		case "TabComposite" :
                     			tabComposite.set("name", (String)treeItem.getData("name"));
