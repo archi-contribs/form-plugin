@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class TabComposite extends Composite {
-    private StyledText       txtName             = null;			// name
-    private Label            lblBackgroundColor  = null;			// background
+    private StyledText txtName             = null;			// name
+    private Label      lblBackgroundColor  = null;			// background
 
 	public TabComposite(Composite parent, int style) {
 		super(parent, style);
