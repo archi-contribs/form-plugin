@@ -18,12 +18,13 @@ import org.eclipse.swt.widgets.ColorDialog;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class TabComposite extends Composite {
-    private StyledText       txtName          = null;
-    private Label            backgroundColor  = null;
+    private StyledText       txtName             = null;			// name
+    private Label            lblBackgroundColor  = null;			// background
 
 	public TabComposite(Composite parent, int style) {
 		super(parent, style);
@@ -76,74 +77,75 @@ public class TabComposite extends Composite {
         btnBackgroundColorChooser.setText(" ... ");
         btnBackgroundColorChooser.addSelectionListener(colorChooser);
         
-        backgroundColor = new Label(this, SWT.BORDER);
+        lblBackgroundColor = new Label(this, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblBackground, 0, SWT.TOP);
         fd.left = new FormAttachment(txtName, 0, SWT.LEFT);
         fd.right = new FormAttachment(btnBackgroundColorChooser, -5);
-        backgroundColor.setLayoutData(fd);
+        lblBackgroundColor.setLayoutData(fd);
 	}
 	
 	private ModifyListener nameModifyListener = new ModifyListener() {
         public void modifyText(ModifyEvent e) {
+        	TreeItem treeItem = (TreeItem)getData("treeItem");
+        	if ( treeItem != null ) {
+        		treeItem.setText("Tab: "+txtName.getText());
+        		treeItem.setData("name", txtName.getText());
+        	}
+        	
         	TabItem tabItem = (TabItem)getData("control");
         	if ( tabItem != null )
         		tabItem.setText(txtName.getText());
-        	
-        	TreeItem tabTreeItem = (TreeItem)getData("treeItem");
-        	if ( tabTreeItem != null ) {
-        		tabTreeItem.setText("Tab: "+txtName.getText());
-        		tabTreeItem.setData("name", txtName.getText());
-        	}
         }
     };
     
     private SelectionAdapter colorEraser = new SelectionAdapter() {
     	public void widgetSelected(SelectionEvent event) {
-			Color color = backgroundColor.getBackground();
+    		TreeItem treeItem = (TreeItem)getData("treeItem");
+    		if ( treeItem != null ) {
+    			treeItem.setData("Background", "");
+    			lblBackgroundColor.setText("");
+    		}
+    		
+			Color color = lblBackgroundColor.getBackground();
 			if ( color != null )
 				color.dispose();
-			backgroundColor.setBackground(null);
+			lblBackgroundColor.setBackground(null);
 			
-    		TabItem tabItem = (TabItem)getData("control");
-    		if ( tabItem != null ) {
-    			Control control = tabItem.getControl();
-    			control.setBackground(null);
-    		}
-
-    		TreeItem tabTreeItem = (TreeItem)getData("treeItem");
-    		if ( tabTreeItem != null ) {
-    			tabTreeItem.setData("Background", "");
-    			backgroundColor.setText("");
+    		TabItem control = (TabItem)getData("control");
+    		if ( control != null ) {
+    			Control composite = control.getControl();
+    			composite.setBackground(null);
     		}
     	}
     };
     
     private SelectionAdapter colorChooser = new SelectionAdapter() {
     	public void widgetSelected(SelectionEvent event) {
-    		ColorDialog dlg = new ColorDialog(null);
-    		dlg.setRGB(backgroundColor.getBackground().getRGB());
+    		ColorDialog dlg = new ColorDialog((Shell)getData("shell"));
+    		dlg.setRGB(lblBackgroundColor.getBackground().getRGB());
     		dlg.setText("Choose a Color");
     		RGB rgb = dlg.open();
+    		
     		if (rgb != null) {
-				Color color = backgroundColor.getBackground();
+    			TreeItem treeItem = (TreeItem)getData("treeItem");
+    			if ( treeItem != null ) {
+    				treeItem.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
+    				lblBackgroundColor.setText(rgb.red+","+rgb.green+","+rgb.blue);
+    			}
+    			
+				Color color = lblBackgroundColor.getBackground();
 				if ( color != null )
 					color.dispose();
 				color = new Color(FormGraphicalEditor.display, rgb);
 				
-    			backgroundColor.setBackground(color);
-    			backgroundColor.setForeground( (rgb.red<=128 && rgb.green<=128 && rgb.blue<=128) ? FormGraphicalEditor.whiteColor : FormGraphicalEditor.blackColor);
+    			lblBackgroundColor.setBackground(color);
+    			lblBackgroundColor.setForeground( (rgb.red<=128 && rgb.green<=128 && rgb.blue<=128) ? FormGraphicalEditor.whiteColor : FormGraphicalEditor.blackColor);
 
     			TabItem tabItem = (TabItem)getData("control");
     			if ( tabItem != null ) {
     				Control control = tabItem.getControl();
     				control.setBackground(color);
-    			}
-
-    			TreeItem tabTreeItem = (TreeItem)getData("treeItem");
-    			if ( tabTreeItem != null ) {
-    				tabTreeItem.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
-    				backgroundColor.setText(rgb.red+","+rgb.green+","+rgb.blue);
     			}
     		}
     	}
@@ -152,25 +154,29 @@ public class TabComposite extends Composite {
     public void set(String key, String value) throws RuntimeException {
     	switch ( key ) {
     		case "name" :
+    			txtName.removeModifyListener(nameModifyListener);
     			txtName.setText(value);
-    			break;
+    			txtName.addModifyListener(nameModifyListener);
+    			return;
+    			
     		case "background" :
-    			backgroundColor.setText(value);
+    			lblBackgroundColor.setText(value);
 				if ( !FormPlugin.isEmpty(value) ) {
 					String[] colorArray = value.split(",");
-					backgroundColor.setBackground(new Color(FormGraphicalEditor.display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+					lblBackgroundColor.setBackground(new Color(FormGraphicalEditor.display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
 				}
-    			break;
-    		default:
-    			throw new RuntimeException("does not know key "+key);
+    			return;
     	}
-    	
+    	throw new RuntimeException("does not know key "+key);
     }
     
-    public String get(String key) throws RuntimeException {
+    public String getString(String key) throws RuntimeException {
     	switch ( key ) {
-    		case "name" :       return txtName.getText();
-    		case "background" : return backgroundColor.getBackground().getRed()+","+backgroundColor.getBackground().getGreen()+","+backgroundColor.getBackground().getBlue();
+    		case "name" :
+    			return txtName.getText();
+    			
+    		case "background" :
+    			return lblBackgroundColor.getBackground().getRed()+","+lblBackgroundColor.getBackground().getGreen()+","+lblBackgroundColor.getBackground().getBlue();
     	}
     	throw new RuntimeException("does not know key "+key);
     }
