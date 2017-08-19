@@ -75,6 +75,7 @@ import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDiagramModelArchimateObject;
+import com.archimatetool.model.IDiagramModelConnection;
 import com.archimatetool.model.IDiagramModelContainer;
 import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.IFolder;
@@ -152,8 +153,6 @@ public class FormDialog extends Dialog {
         dialog.layout();
     }
 
-    private final String[] whenEmptyValidStrings   = new String[] { "ignore", "create", "delete" };
-
     public static final int      defaultDialogWidth       = 850;
     public static final int      defaultDialogHeight      = 600;
     public static final int      defaultDialogSpacing     = 4;
@@ -167,7 +166,10 @@ public class FormDialog extends Dialog {
     public static final String   defaultButtonExportText  = "Export to Excel";
     public static final String   defaultTabName           = "tab";
     public static final String   defaultVariableSeparator = ":";
-    public static final String   defaultRefers            = "selected";
+    public static final String[] validRefers              = new String[] {"Selected", "Folder", "View", "Selected"};
+    public static final String   defaultRefers            = "Selected";
+    public static final String[] validWhenEmpty           = new String[] { "Ignore", "Create", "Delete" };
+    public static final String   defaultWhenEmpty         = "Ignore";
     
     private String variableSeparator = null;
     private String globalWhenEmpty   = null;
@@ -204,15 +206,15 @@ public class FormDialog extends Dialog {
             logger.trace("   background = " + debugValue(dialogBackground, defaultDialogBackground));
             logger.trace("   width = " + debugValue(buttonWidth, defaultButtonWidth));
             logger.trace("   height = " + debugValue(buttonHeight, defaultButtonHeight));
-            logger.trace("   refers = " + debugValue(getString(form, "refers", "selected"), "selected"));       // used in FormMenu class but deserves a debug line
+            logger.trace("   refers = " + debugValue(getString(form, "refers", defaultRefers), defaultRefers));       // used in FormMenu class but deserves a debug line
             logger.trace("   ok = " + debugValue(buttonOkText, defaultButtonOkText));
             logger.trace("   cancel = " + debugValue(buttonCancelText, defaultButtonCancelText));
-            logger.trace("   whenEmpty = " + debugValue(globalWhenEmpty, null));
+            logger.trace("   whenEmpty = " + debugValue(globalWhenEmpty, defaultWhenEmpty));
         }
 
         if (globalWhenEmpty != null) {
             globalWhenEmpty = globalWhenEmpty.toLowerCase();
-            if (!inArray(whenEmptyValidStrings, globalWhenEmpty))
+            if (!inArray(validWhenEmpty, globalWhenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + globalWhenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
@@ -230,7 +232,7 @@ public class FormDialog extends Dialog {
         Rectangle area = dialog.getClientArea();
         dialog.setSize(dialogWidth * 2 - area.width, dialogHeight * 2 - area.height);
 
-        if (dialogBackground != null) {
+        if ( !FormPlugin.isEmpty(dialogBackground) ) {
             String[] colorArray = dialogBackground.split(",");
             dialog.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
@@ -324,7 +326,7 @@ public class FormDialog extends Dialog {
             Composite composite = new Composite(tabFolder, SWT.NONE);
             tabItem.setControl(composite);
 
-            if (tabBackground != null) {
+            if ( !FormPlugin.isEmpty(tabBackground) ) {
                 String[] colorArray = tabBackground.split(",");
                 composite.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
             }
@@ -443,7 +445,7 @@ public class FormDialog extends Dialog {
         label.setLocation(x, y);
         label.setSize(width, height);
 
-        if (background != null) {
+        if ( background != null) {
             String[] colorArray = background.split(",");
             label.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         } else {
@@ -589,7 +591,7 @@ public class FormDialog extends Dialog {
 
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
-            if (!inArray(whenEmptyValidStrings, whenEmpty))
+            if (!inArray(validWhenEmpty, whenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
@@ -745,7 +747,7 @@ public class FormDialog extends Dialog {
 
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
-            if (!inArray(whenEmptyValidStrings, whenEmpty))
+            if (!inArray(validWhenEmpty, whenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
@@ -875,7 +877,7 @@ public class FormDialog extends Dialog {
 
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
-            if (!inArray(whenEmptyValidStrings, whenEmpty))
+            if (!inArray(validWhenEmpty, whenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
 
@@ -1071,7 +1073,7 @@ public class FormDialog extends Dialog {
 
                         if (whenEmpty != null) {
                             whenEmpty = whenEmpty.toLowerCase();
-                            if (!inArray(whenEmptyValidStrings, whenEmpty))
+                            if (!inArray(validWhenEmpty, whenEmpty))
                                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
                         }
 
@@ -1113,7 +1115,7 @@ public class FormDialog extends Dialog {
 
                         if (whenEmpty != null) {
                             whenEmpty = whenEmpty.toLowerCase();
-                            if (!inArray(whenEmptyValidStrings, whenEmpty))
+                            if (!inArray(validWhenEmpty, whenEmpty))
                                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
                         }
 
@@ -1164,7 +1166,7 @@ public class FormDialog extends Dialog {
 
                     if (whenEmpty != null) {
                         whenEmpty = whenEmpty.toLowerCase();
-                        if (!inArray(whenEmptyValidStrings, whenEmpty))
+                        if (!inArray(validWhenEmpty, whenEmpty))
                             throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
                     }
 
@@ -1309,7 +1311,9 @@ public class FormDialog extends Dialog {
                                 }
                             }
                         } else {
-                            throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to generate lines for unknown object class \"" + list.get(0).getClass().getSimpleName() + "\"");
+                        	if ( !(list.get(0) instanceof IDiagramModelConnection) ) {
+                        		throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to generate lines for unknown object class \"" + list.get(0).getClass().getSimpleName() + "\"");
+                        	}
                         }
     }
 
@@ -2010,9 +2014,6 @@ public class FormDialog extends Dialog {
 
         if (value == null || value.isEmpty()) {
             String whenEmpty = (String) control.getData("whenEmpty");
-
-            if (whenEmpty == null)
-                whenEmpty = "ignore";
 
             switch (whenEmpty) {
                 case "ignore":
