@@ -1,7 +1,10 @@
-package org.archicontribs.form.graphicalEditor;
+package org.archicontribs.form.Composites;
 
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
+import org.archicontribs.form.Editors.ColorEditor;
+import org.archicontribs.form.Editors.FormSizeEditor;
+import org.archicontribs.form.Editors.StringEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
@@ -19,7 +22,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FormComposite extends Composite {
-	private FormNameEditor          formNameEditor;     // name
+	private StringEditor            nameEditor;         // name
 	private FormSizeEditor          formSizeEditor;     // width, height, spacing						//TODO : rename spacing to margin
 	private ColorEditor             colorEditor;        // foreground, background
     private CCombo     comboRefers          = null;		// refers
@@ -36,12 +39,14 @@ public class FormComposite extends Composite {
 	
 	private void createContent() {
 		// name
-		formNameEditor = new FormNameEditor(this);
-		formNameEditor.setPosition(0);
+		nameEditor = new StringEditor(this);
+		nameEditor.setPosition(0);
+		nameEditor.setProperty("name");
+		nameEditor.mustSetControlText(true);
 				
         // width, height, spacing
 		formSizeEditor = new FormSizeEditor(this);
-		formSizeEditor.setPosition(formNameEditor.getControl());
+		formSizeEditor.setPosition(nameEditor.getControl());
         
         // Background
 		colorEditor = new ColorEditor(this);
@@ -261,7 +266,7 @@ public class FormComposite extends Composite {
     public void set(String key, String value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
     		case "name":
-    			formNameEditor.setName(value);
+    			nameEditor.setString(value);
     			return;
     			
     		case "foreground":
@@ -322,7 +327,7 @@ public class FormComposite extends Composite {
     
     public String getString(String key) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
-    		case "name":              return formNameEditor.getName();
+    		case "name":              return nameEditor.getString();
     		case "background":        return colorEditor.getBackground();
     		case "foreground":        return colorEditor.getForeground();
     		case "refers":            return FormPlugin.isEmpty(comboRefers.getText()) ? FormDialog.defaultRefers : comboRefers.getText();
