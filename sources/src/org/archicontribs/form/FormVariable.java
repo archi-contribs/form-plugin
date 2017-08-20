@@ -25,11 +25,17 @@ import com.florianingerl.util.regex.Pattern;
 public class FormVariable {
     private static final FormLogger logger = new FormLogger(FormVariable.class);
     
+    private static String variableSeparator = ":";
+    
+    public static void setVariableSeparator(String separator) {
+    	variableSeparator = separator;
+    }
+    
     /**
      * Expands an expression containing variables<br>
      * It may return an empty string, but never a null value
      */
-    public static String expand(String expression, String separator, EObject eObject) {
+    public static String expand(String expression, EObject eObject) {
         if ( expression == null )
             return "";
 
@@ -41,7 +47,7 @@ public class FormVariable {
         while (matcher.find()) {
             String variable = matcher.group(1);
             //if ( logger.isTraceEnabled() ) logger.trace("   matching "+variable);
-            String variableValue = getVariable(variable, separator, eObject);
+            String variableValue = getVariable(variable, eObject);
             if ( variableValue == null )
                 variableValue = "";
             matcher.appendReplacement(sb, Matcher.quoteReplacement(variableValue));
@@ -53,7 +59,7 @@ public class FormVariable {
     /**
      * Gets the real EObject that the variable refers to (as the variable can change the EObject using its scope)
      */
-    public static EObject getReferedEObject(String variable, String separator, EObject eObject) {
+    public static EObject getReferedEObject(String variable, EObject eObject) {
         if ( logger.isTraceEnabled() ) logger.trace("         getting real EObject the expression \""+variable+"\" refers to (from "+FormPlugin.getDebugName(eObject)+")");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
@@ -62,7 +68,7 @@ public class FormVariable {
             return null;
         }
         
-        String variableName = expand(variable.substring(2, variable.length()-1), separator, eObject);
+        String variableName = expand(variable.substring(2, variable.length()-1), eObject);
 
         //TODO : add a preference to choose between silently ignore or raise an error
         switch ( variableName.toLowerCase() ) {
@@ -78,13 +84,13 @@ public class FormVariable {
 
             default :
                     // check for ${property:xxx}
-                if ( variableName.toLowerCase().startsWith("property"+separator) ) {
+                if ( variableName.toLowerCase().startsWith("property"+variableSeparator) ) {
                 	if ( logger.isTraceEnabled() ) logger.trace("         --> itself");
                     return eObject;
                 }
 
                     // check for ${view:xxx}
-                else if ( variableName.toLowerCase().startsWith("view"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("view"+variableSeparator) ) {
                     if ( eObject instanceof IDiagramModel ) {
                     	if ( logger.isTraceEnabled() ) logger.trace("         --> itself");
                         return eObject;
@@ -97,7 +103,7 @@ public class FormVariable {
                 }
 
                     // check for ${model:xxx}
-                else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("model"+variableSeparator) ) {
                     if ( eObject instanceof IArchimateModelObject ) {
                     	if ( logger.isTraceEnabled() ) logger.trace("         --> "+FormPlugin.getDebugName(((IArchimateModelObject)eObject).getArchimateModel()));
                         return ((IArchimateModelObject)eObject).getArchimateModel();
@@ -115,7 +121,7 @@ public class FormVariable {
                 }
                 
                     // check for ${source:xxx}
-                else if ( variableName.toLowerCase().startsWith("source"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("source"+variableSeparator) ) {
                     EObject obj = eObject;
                     if ( eObject instanceof IDiagramModelArchimateObject) {
                         obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
@@ -133,7 +139,7 @@ public class FormVariable {
                 }
                     
                     // check for ${target:xxx}
-                else if ( variableName.toLowerCase().startsWith("target"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("target"+variableSeparator) ) {
                     EObject obj = eObject;
                     if ( eObject instanceof IDiagramModelArchimateObject) {
                         obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
@@ -156,22 +162,22 @@ public class FormVariable {
     /**
      * Gets the variable without its scope
      */
-    public static String getUnscoppedVariable(String variable, String separator, EObject eObject) {
+    public static String getUnscoppedVariable(String variable, EObject eObject) {
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
             return null;
         
-        String variableName = expand(variable.substring(2, variable.length()-1), separator, eObject);
+        String variableName = expand(variable.substring(2, variable.length()-1), eObject);
 
 	        // check for ${property:xxx}
-	    if ( variableName.toLowerCase().startsWith("view"+separator) )
-	    	return getUnscoppedVariable("${"+variableName.substring(5)+"}", separator, eObject);
-	    else if ( variableName.toLowerCase().startsWith("model"+separator) )
-	    	return getUnscoppedVariable("${"+variableName.substring(6)+"}", separator, eObject);
-	    else if ( variableName.toLowerCase().startsWith("source"+separator) )
-	    	return getUnscoppedVariable("${"+variableName.substring(7)+"}", separator, eObject);
-	    else if ( variableName.toLowerCase().startsWith("target"+separator) )
-	    	return getUnscoppedVariable("${"+variableName.substring(7)+"}", separator, eObject);
+	    if ( variableName.toLowerCase().startsWith("view"+variableSeparator) )
+	    	return getUnscoppedVariable("${"+variableName.substring(5)+"}", eObject);
+	    else if ( variableName.toLowerCase().startsWith("model"+variableSeparator) )
+	    	return getUnscoppedVariable("${"+variableName.substring(6)+"}", eObject);
+	    else if ( variableName.toLowerCase().startsWith("source"+variableSeparator) )
+	    	return getUnscoppedVariable("${"+variableName.substring(7)+"}", eObject);
+	    else if ( variableName.toLowerCase().startsWith("target"+variableSeparator) )
+	    	return getUnscoppedVariable("${"+variableName.substring(7)+"}", eObject);
 	    else return "${"+variableName+"}";
     }
     
@@ -179,14 +185,14 @@ public class FormVariable {
      * Gets the value of the variable<br>
      * can return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
      */
-    public static String getVariable(String variable, String separator, EObject eObject) {
+    public static String getVariable(String variable, EObject eObject) {
         //if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
             throw new RuntimeException(FormPosition.getPosition(null) + "\n\nThe expression \""+variable+"\" is not a variable (it should be enclosed between \"${\" and \"}\")");
         
-        String variableName = expand(variable.substring(2, variable.length()-1), separator, eObject);
+        String variableName = expand(variable.substring(2, variable.length()-1), eObject);
 
         //TODO : add a preference to choose between silently ignore or raise an error
         switch ( variableName.toLowerCase() ) {
@@ -217,7 +223,7 @@ public class FormVariable {
 
             default :
                     // check for ${property:xxx}
-                if ( variableName.toLowerCase().startsWith("property"+separator) ) {
+                if ( variableName.toLowerCase().startsWith("property"+variableSeparator) ) {
                     if ( eObject instanceof IDiagramModelArchimateObject )
                         eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
                     if ( eObject instanceof IDiagramModelArchimateConnection )
@@ -235,33 +241,33 @@ public class FormVariable {
                 }
 
                     // check for ${view:xxx}
-                else if ( variableName.toLowerCase().startsWith("view"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("view"+variableSeparator) ) {
                     if ( eObject instanceof IDiagramModel ) {
-                        return getVariable("${"+variableName.substring(5)+"}", separator, eObject);
+                        return getVariable("${"+variableName.substring(5)+"}", eObject);
                     }
                     else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                        return getVariable(variableName.substring(5), separator, ((IDiagramModelArchimateObject)eObject).getDiagramModel());
+                        return getVariable(variableName.substring(5), ((IDiagramModelArchimateObject)eObject).getDiagramModel());
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
                 }
 
                     // check for ${model:xxx}
-                else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("model"+variableSeparator) ) {
                     if ( eObject instanceof IArchimateModelObject ) {
-                        return getVariable("${"+variableName.substring(6)+"}", separator, ((IArchimateModelObject)eObject).getArchimateModel());
+                        return getVariable("${"+variableName.substring(6)+"}", ((IArchimateModelObject)eObject).getArchimateModel());
                     }
                     else if ( eObject instanceof IDiagramModelComponent ) {
-                        return getVariable("${"+variableName.substring(6)+"}", separator, ((IDiagramModelComponent)eObject).getDiagramModel().getArchimateModel());
+                        return getVariable("${"+variableName.substring(6)+"}", ((IDiagramModelComponent)eObject).getDiagramModel().getArchimateModel());
                     }
                     else if ( eObject instanceof IArchimateModel ) {
-                        return getVariable("${"+variableName.substring(6)+"}", separator, eObject);
+                        return getVariable("${"+variableName.substring(6)+"}", eObject);
                     }
                     
                     throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as we failed to get the object's model ("+eObject.getClass().getSimpleName()+").");
                 }
                 
                     // check for ${source:xxx}
-                else if ( variableName.toLowerCase().startsWith("source"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("source"+variableSeparator) ) {
                     EObject obj = eObject;
                     if ( eObject instanceof IDiagramModelArchimateObject) {
                         obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
@@ -272,13 +278,13 @@ public class FormVariable {
                     }
 
                     if ( obj instanceof IArchimateRelationship ) {
-                        return getVariable("${"+variableName.substring(7)+"}", separator, ((IArchimateRelationship)obj).getSource());
+                        return getVariable("${"+variableName.substring(7)+"}", ((IArchimateRelationship)obj).getSource());
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot get variable \""+variable+"\" as the object is not a relationship.");
                 }
                     
                     // check for ${target:xxx}
-                else if ( variableName.toLowerCase().startsWith("target"+separator) ) {
+                else if ( variableName.toLowerCase().startsWith("target"+variableSeparator) ) {
                     EObject obj = eObject;
                     if ( eObject instanceof IDiagramModelArchimateObject) {
                         obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
@@ -289,7 +295,7 @@ public class FormVariable {
                     }
                     
                     if ( obj instanceof IArchimateRelationship ) {
-                        return getVariable("${"+variableName.substring(7)+"}", separator, ((IArchimateRelationship)obj).getTarget());
+                        return getVariable("${"+variableName.substring(7)+"}", ((IArchimateRelationship)obj).getTarget());
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot get variable \""+variable+"\" as the object is not a relationship.");
                 }
