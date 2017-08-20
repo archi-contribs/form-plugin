@@ -1,6 +1,7 @@
 package org.archicontribs.form.Editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
@@ -205,18 +206,26 @@ public class SizeEditor {
     }
     
     public int getX() {
+    	if ( FormPlugin.isEmpty(txtX.getText()) )
+    		return 0;
     	return Integer.valueOf(txtX.getText());
     }
     
     public int getY() {
+    	if ( FormPlugin.isEmpty(txtY.getText()) )
+    		return 0;
     	return Integer.valueOf(txtY.getText());
     }
     
     public int getWidth() {
+    	if ( FormPlugin.isEmpty(txtWidth.getText()) )
+    		return 0;
 		return Integer.valueOf(txtWidth.getText());
     }
     
     public int getHeight() {
+    	if ( FormPlugin.isEmpty(txtHeight.getText()) )
+    		return 0;
 		return Integer.valueOf(txtHeight.getText());
     }
 }
