@@ -1,6 +1,7 @@
 package org.archicontribs.form.Composites;
 
 import org.archicontribs.form.Editors.ColorEditor;
+import org.archicontribs.form.Editors.FontEditor;
 import org.archicontribs.form.Editors.SizeEditor;
 import org.archicontribs.form.Editors.StringEditor;
 import org.eclipse.swt.custom.CCombo;
@@ -11,13 +12,13 @@ import org.eclipse.swt.widgets.Label;
 
 public class TextComposite extends Composite {
 	private StringEditor            nameEditor;         // name
-    private Label                   txtText;			// text
+    private StringEditor            textEditor;			// text
 	private SizeEditor              sizeEditor;         // x, y, width, height
 	private ColorEditor             colorEditor;        // foreground, background
-
-
+	private FontEditor				fontEditor;			// font, fontBold, fontItalic
+	private StringEditor		    tooltipEditor;      // tooltip
+	
     private Label      txtTooltip           = null;			// tooltip
-    private Label      lblFont              = null;         // font
     private CCombo     comboAlignment       = null;         // alignment
     private StyledText txtExcelSheet        = null;         // excelSheet
     private StyledText txtExcelCell         = null;         // excelCell
@@ -36,15 +37,32 @@ public class TextComposite extends Composite {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Text: ");
+		nameEditor.treeItemTextPrefix("Name: ");
+		
+		// text
+		textEditor = new StringEditor(this);
+		textEditor.setPosition(nameEditor.getControl());
+		textEditor.setProperty("text");
+		textEditor.mustSetTreeItemText(true);
+		textEditor.treeItemTextPrefix("Text: ");
 						
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(nameEditor.getControl());
+		sizeEditor.setPosition(textEditor.getControl());
 		        
 		// Background
 		colorEditor = new ColorEditor(this);
 		colorEditor.setPosition(sizeEditor.getControl());
+		
+		// font, fontBold, fontItalic
+		fontEditor = new FontEditor(this);
+		fontEditor.setPosition(colorEditor.getControl());
+		
+		// tooltip
+		tooltipEditor = new StringEditor(this, 5);
+		tooltipEditor.setPosition(fontEditor.getControl());
+		tooltipEditor.setProperty("tooltip");
+		tooltipEditor.mustSetControlTolltip(true);
 	}
 	
     public void set(String key, int value) throws RuntimeException {
