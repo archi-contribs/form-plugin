@@ -12,6 +12,8 @@ import org.archicontribs.form.Composites.TextComposite;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -26,6 +28,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -287,9 +291,76 @@ public class FormGraphicalEditor extends Dialog {
             }
         });
         
-        TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
-        formTreeItem.setText("Form: "+formName);
+        Menu treeMenu = new Menu(tree);
+        tree.setMenu(treeMenu);
+        treeMenu.addMenuListener(new MenuAdapter() {
+            public void menuShown(MenuEvent e) {
+                MenuItem[] items = treeMenu.getItems();
+                for (int i = 0; i < items.length; i++)
+                    items[i].dispose();
+                
+                TreeItem selectedItem = tree.getSelection()[0];
+                Menu subMenu;
+                MenuItem newItem;
+                switch ( (String)selectedItem.getData("class") ) {
+                	case "form":
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add tab");
+                        break;
+                        
+                	case "tab":
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Insert tab before ...");
+                		newItem = new MenuItem(treeMenu, SWT.SEPARATOR);
+            			newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add tab after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add label after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add text after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add combo after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add check after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add table after");
+                        break;
+                        
+                	case "label":
+                	case "text":
+                	case "combo":
+                	case "check":
+                	case "table":
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert label before");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert text before");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert combo before");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert check before");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert table before");
+                        newItem = new MenuItem(treeMenu, SWT.SEPARATOR);
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add label after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add text after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add combo after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add check after");
+                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add table after");
+                        break;
+
+                	case "columns":
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add column");
+                		break;
+                		
+                	case "column":
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert column before");
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add column after");
+                		break;
+                		
+                	case "lines":
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add line");
+                		break;
+                		
+                	case "line":
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert line before");
+                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add line after");
+                		break;
+                }
+            }
+        });
         
+        TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
+        formTreeItem.setExpanded(true);
+        formTreeItem.setText("Form: "+formName);
+        formTreeItem.setData("class", "form");
         formTreeItem.setData("control", formDialog);
         formTreeItem.setData("name", formName);
         formTreeItem.setData("variableSeparator", variableSeparator);
@@ -392,6 +463,7 @@ public class FormGraphicalEditor extends Dialog {
             
             TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
             tabTreeItem.setText("Tab: "+tabName);
+            tabTreeItem.setData("class", "tab");
             tabTreeItem.setData("composite", tabComposite);
             
             tabTreeItem.setData("control", tabItem);
@@ -461,7 +533,7 @@ public class FormGraphicalEditor extends Dialog {
     	
         TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
         treeItem.setText("Label: "+ (String)label.getData("name"));
-        
+        treeItem.setData("class", "label");
         treeItem.setData("name", label.getData("name"));
         treeItem.setData("text", label.getData("text"));
         treeItem.setData("x", label.getData("x"));
@@ -496,7 +568,7 @@ public class FormGraphicalEditor extends Dialog {
     	
         TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
         treeItem.setText("Text: "+ (String)text.getData("name"));
-        
+        treeItem.setData("class", "text");
         treeItem.setData("name", text.getData("name"));
         treeItem.setData("variable", text.getData("variable"));
         treeItem.setData("defaultText", text.getData("defaultText"));
@@ -592,7 +664,7 @@ public class FormGraphicalEditor extends Dialog {
 
         TreeItem comboTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
         comboTreeItem.setText("Combo: "+ comboName);
-        
+        comboTreeItem.setData("class", "combo");
         comboTreeItem.setData("composite", comboComposite);
         
         comboTreeItem.setData("name", comboName);
@@ -682,7 +754,7 @@ public class FormGraphicalEditor extends Dialog {
 
         TreeItem comboTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
         comboTreeItem.setText("Check: "+ checkName);
-        
+        comboTreeItem.setData("class", "check");
         comboTreeItem.setData("composite", comboComposite);
         
         comboTreeItem.setData("name", checkName);
@@ -754,7 +826,7 @@ public class FormGraphicalEditor extends Dialog {
         
         TreeItem tableTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
         tableTreeItem.setText("Table: "+ tableName);
-        
+        tableTreeItem.setData("class", "table");
         tableTreeItem.setData("name", tableName);
         tableTreeItem.setData("x", x);
         tableTreeItem.setData("y", y);
@@ -769,9 +841,11 @@ public class FormGraphicalEditor extends Dialog {
         
         TreeItem columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
         columnsTreeItem.setText("Columns");
+        columnsTreeItem.setData("class", "columns");
         
         TreeItem linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
         linesTreeItem.setText("Lines");
+        linesTreeItem.setData("class", "lines");
         
         // we iterate over the "columns" entries
         Iterator<JSONObject> columnsIterator = (FormDialog.getJSONArray(jsonObject, "columns")).iterator();
@@ -805,7 +879,7 @@ public class FormGraphicalEditor extends Dialog {
             
             TreeItem columnTreeItem = new TreeItem(columnsTreeItem, SWT.NONE);
             columnTreeItem.setText("Column: "+ columnName);
-            
+            columnTreeItem.setData("class", "column");
             columnTreeItem.setData("name", columnName);
             columnTreeItem.setData("class", columnClass);
             columnTreeItem.setData("width", width);
@@ -910,7 +984,8 @@ public class FormGraphicalEditor extends Dialog {
                 TreeItem lineTreeItem = new TreeItem(linesTreeItem, SWT.NONE);
                 
                 lineTreeItem.setData("cells", FormDialog.getJSONArray(line, "cells"));
-
+                lineTreeItem.setData("class", "line");
+                
                 if ((boolean) FormDialog.getJSON(line, "generate", false) == false) {
                     // static line
                     if (logger.isTraceEnabled())
