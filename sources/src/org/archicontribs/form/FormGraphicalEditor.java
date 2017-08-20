@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Level;
-import org.archicontribs.form.graphicalEditorComposites.FormComposite;
-import org.archicontribs.form.graphicalEditorComposites.TabComposite;
+import org.archicontribs.form.graphicalEditor.FormComposite;
+import org.archicontribs.form.graphicalEditor.TabComposite;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
