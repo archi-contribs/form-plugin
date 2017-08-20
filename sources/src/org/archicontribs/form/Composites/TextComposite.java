@@ -1,8 +1,8 @@
 package org.archicontribs.form.Composites;
 
 import org.archicontribs.form.Editors.ColorEditor;
-import org.archicontribs.form.Editors.NameEditor;
 import org.archicontribs.form.Editors.SizeEditor;
+import org.archicontribs.form.Editors.StringEditor;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormLayout;
@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 public class TextComposite extends Composite {
-	private NameEditor              nameEditor;         // name
+	private StringEditor            nameEditor;         // name
     private Label                   txtText;			// text
 	private SizeEditor              sizeEditor;         // x, y, width, height
 	private ColorEditor             colorEditor;        // foreground, background
@@ -32,8 +32,11 @@ public class TextComposite extends Composite {
 	
 	private void createContent() {
 		// name
-		nameEditor = new NameEditor(this);
+		nameEditor = new StringEditor(this);
 		nameEditor.setPosition(0);
+		nameEditor.setProperty("name");
+		nameEditor.mustSetTreeItemText(true);
+		nameEditor.treeItemTextPrefix("Text: ");
 						
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
@@ -67,7 +70,7 @@ public class TextComposite extends Composite {
     public void set(String key, String value) throws RuntimeException {
     	switch ( key ) {
     		case "name":
-    			nameEditor.setName(value);
+    			nameEditor.setString(value);
     			
     		case "foreground":
     			colorEditor.setForeground(value);
@@ -83,7 +86,7 @@ public class TextComposite extends Composite {
     public String getString(String key) throws RuntimeException {
     	switch ( key ) {
     		case "name":
-    			return nameEditor.getName();
+    			return nameEditor.getString();
     			
     		case "foreground":
     			return colorEditor.getForeground();

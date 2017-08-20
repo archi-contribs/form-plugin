@@ -1,7 +1,6 @@
 package org.archicontribs.form.Composites;
 
 import org.archicontribs.form.Editors.ColorEditor;
-import org.archicontribs.form.Editors.NameEditor;
 import org.archicontribs.form.Editors.SizeEditor;
 import org.archicontribs.form.Editors.StringEditor;
 import org.eclipse.swt.custom.CCombo;
