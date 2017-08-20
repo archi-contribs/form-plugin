@@ -184,9 +184,6 @@ public class ColorEditor {
     	if ( FormPlugin.isEmpty(rgbString) )
     		return;
     	
-    	if ( FormPlugin.isEmpty(rgbString) )
-    		return;
-    	
     	String rgb[] = rgbString.split(",");
     	if ( rgb.length != 3 )
     		return;
