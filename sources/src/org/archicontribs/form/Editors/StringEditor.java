@@ -141,16 +141,16 @@ public class StringEditor {
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, 10);
-        fd.left = new FormAttachment(0, 10);
+        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblString.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, 10);
-        fd.left = new FormAttachment(0, 10);
+        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblString.setLayoutData(fd);
 	}
