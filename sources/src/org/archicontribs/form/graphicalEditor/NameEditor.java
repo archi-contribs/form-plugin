@@ -38,7 +38,7 @@ public class NameEditor {
         fd.right = new FormAttachment(100, -10);
         txtName.setLayoutData(fd);
         txtName.addModifyListener(nameModifyListener);
-        txtName.setToolTipText("Name of the form.\n"+
+        txtName.setToolTipText("Name of the control.\n"+
         		"\n"+
         		"Can be any arbitrary text and may include variables."
         		);
@@ -75,10 +75,8 @@ public class NameEditor {
 	    			default : throw new RuntimeException("Do not know "+widget.getClass().getSimpleName()+" controls");
 	    		}
 	        	
-	    		if ( treeItem != null ) {
-		        	treeItem.setText(treeItemTextPrefix+txtName.getText());
+	    		if ( treeItem != null )
 		        	treeItem.setData("name", txtName.getText());
-	    		}
         	}
         }
     };
