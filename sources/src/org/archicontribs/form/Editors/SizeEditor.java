@@ -1,4 +1,4 @@
-package org.archicontribs.form.graphicalEditor;
+package org.archicontribs.form.Editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
 import org.eclipse.swt.SWT;
@@ -32,17 +32,17 @@ public class SizeEditor {
 		// x
 		lblX = new Label(parent, SWT.NONE);
 		FormData fd = new FormData();
-		fd.top = new FormAttachment(0, 10);
-		fd.left = new FormAttachment(0, 10);
-		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+		fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+		fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
 		lblX.setLayoutData(fd);
 		lblX.setText("X:");
 
 		txtX = new StyledText(parent, SWT.BORDER);
 		fd = new FormData();
 		fd.top = new FormAttachment(lblX, 0, SWT.TOP);
-		fd.left = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
-		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 40);
+		fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 40);
 		txtX.setLayoutData(fd);
 		txtX.setTextLimit(4);
 		txtX.addVerifyListener(numericVerifyListener);
@@ -52,17 +52,17 @@ public class SizeEditor {
 		// y
 		lblY = new Label(parent, SWT.NONE);
 		fd = new FormData();
-		fd.top = new FormAttachment(lblX, 10);
-		fd.left = new FormAttachment(0, 10);
-		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+		fd.top = new FormAttachment(lblX, FormGraphicalEditor.editorVerticalMargin);
+		fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
 		lblY.setLayoutData(fd);
 		lblY.setText("Y:");
 
 		txtY = new StyledText(parent, SWT.BORDER);
 		fd = new FormData();
 		fd.top = new FormAttachment(lblY, 0, SWT.TOP);
-		fd.left = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
-		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 40);
+		fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 40);
 		txtY.setLayoutData(fd);
 		txtY.setTextLimit(4);
 		txtY.addVerifyListener(numericVerifyListener);
@@ -72,17 +72,17 @@ public class SizeEditor {
 		// width
 		lblWidth = new Label(parent, SWT.NONE);
 		fd = new FormData();
-		fd.top = new FormAttachment(lblY, 10);
-		fd.left = new FormAttachment(0, 10);
-		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+		fd.top = new FormAttachment(lblY, FormGraphicalEditor.editorVerticalMargin);
+		fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+		fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
 		lblWidth.setLayoutData(fd);
 		lblWidth.setText("Width:");
 
 		txtWidth = new StyledText(parent, SWT.BORDER);
 		fd = new FormData();
 		fd.top = new FormAttachment(lblWidth, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 40);
+        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 40);
         txtWidth.setLayoutData(fd);
         txtWidth.setTextLimit(4);
         txtWidth.addVerifyListener(numericVerifyListener);
@@ -95,17 +95,17 @@ public class SizeEditor {
         // height
         lblHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblWidth, 10);
-        fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.top = new FormAttachment(lblWidth, FormGraphicalEditor.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblHeight.setLayoutData(fd);
         lblHeight.setText("Height:");
         
         txtHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblHeight, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 40);
+        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 40);
         txtHeight.setLayoutData(fd);
         txtHeight.setTextLimit(4);
         txtHeight.addVerifyListener(numericVerifyListener);
@@ -164,7 +164,7 @@ public class SizeEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, 10);
         fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblX.setLayoutData(fd);
 	}
 	
@@ -172,7 +172,7 @@ public class SizeEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, 10);
         fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblX.setLayoutData(fd);
 	}
 	
