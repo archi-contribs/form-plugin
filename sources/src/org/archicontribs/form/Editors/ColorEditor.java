@@ -1,4 +1,4 @@
-package org.archicontribs.form.graphicalEditor;
+package org.archicontribs.form.Editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormPlugin;
@@ -31,16 +31,16 @@ public class ColorEditor {
 		
 		lblColor = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, 10);
-        fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblColor.setLayoutData(fd);
         lblColor.setText("Color:");
         
         btnResetToDefault = new Button(parent, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(lblColor, 0, SWT.CENTER);
-        fd.right = new FormAttachment(100, -10);
+        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
         btnResetToDefault.setLayoutData(fd);
         btnResetToDefault.setImage(FormGraphicalEditor.binImage);
         btnResetToDefault.addSelectionListener(colorReset);
@@ -67,7 +67,7 @@ public class ColorEditor {
         lblSample = new Label(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblColor, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         fd.right = new FormAttachment(btnSelectForeground, -5);
         lblSample.setLayoutData(fd);
         lblSample.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
@@ -164,7 +164,7 @@ public class ColorEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, 10);
         fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblColor.setLayoutData(fd);
 	}
 	
@@ -172,7 +172,7 @@ public class ColorEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, 10);
         fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblColor.setLayoutData(fd);
 	}
 	
