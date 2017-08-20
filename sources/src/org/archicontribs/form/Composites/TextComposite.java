@@ -8,7 +8,6 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
 public class TextComposite extends Composite {
 	private StringEditor            nameEditor;         // name
@@ -18,7 +17,6 @@ public class TextComposite extends Composite {
 	private FontEditor				fontEditor;			// font, fontBold, fontItalic
 	private StringEditor		    tooltipEditor;      // tooltip
 	
-    private Label      txtTooltip           = null;			// tooltip
     private CCombo     comboAlignment       = null;         // alignment
     private StyledText txtExcelSheet        = null;         // excelSheet
     private StyledText txtExcelCell         = null;         // excelCell
