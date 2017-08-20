@@ -75,8 +75,10 @@ public class NameEditor {
 	    			default : throw new RuntimeException("Do not know "+widget.getClass().getSimpleName()+" controls");
 	    		}
 	        	
-	    		if ( treeItem != null )
+	    		if ( treeItem != null ) {
+		        	treeItem.setText(treeItemTextPrefix+txtName.getText());
 		        	treeItem.setData("name", txtName.getText());
+	    		}
         	}
         }
     };
