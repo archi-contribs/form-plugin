@@ -43,6 +43,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -180,8 +181,7 @@ public class FormDialog extends Dialog {
      */
     private void createContents(JSONObject form) throws IOException, ParseException, RuntimeException {
         variableSeparator = getString(form, "variableSeparator", defaultVariableSeparator);
-        String formName = FormVariable.expand(getString(form, "name", defaultDialogName), variableSeparator,
-                selectedObject);
+        String formName = FormVariable.expand(getString(form, "name", defaultDialogName), selectedObject);
         FormPosition.setFormName(formName);
         int dialogWidth = getInt(form, "width", defaultDialogWidth);
         int dialogHeight = getInt(form, "height", defaultDialogHeight);
@@ -189,12 +189,9 @@ public class FormDialog extends Dialog {
         String dialogBackground = getString(form, "background", defaultDialogBackground);
         int buttonWidth = getInt(form, "buttonWidth", defaultButtonWidth);
         int buttonHeight = getInt(form, "buttonHeight", defaultButtonHeight);
-        String buttonOkText = FormVariable.expand(getString(form, "buttonOk", defaultButtonOkText), variableSeparator,
-                selectedObject);
-        String buttonCancelText = FormVariable.expand(getString(form, "buttonCancel", defaultButtonCancelText),
-                variableSeparator, selectedObject);
-        String buttonExportText = FormVariable.expand(getString(form, "buttonExport", defaultButtonExportText),
-                variableSeparator, selectedObject);
+        String buttonOkText = FormVariable.expand(getString(form, "buttonOk", defaultButtonOkText), selectedObject);
+        String buttonCancelText = FormVariable.expand(getString(form, "buttonCancel", defaultButtonCancelText), selectedObject);
+        String buttonExportText = FormVariable.expand(getString(form, "buttonExport", defaultButtonExportText), selectedObject);
         globalWhenEmpty = getString(form, "whenEmpty", null);
 
         if (logger.isTraceEnabled()) {
@@ -219,7 +216,7 @@ public class FormDialog extends Dialog {
         }
 
         dialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        dialog.setText(FormVariable.expand(formName, variableSeparator, selectedObject));
+        dialog.setText(FormVariable.expand(formName, selectedObject));
         dialog.setLayout(null);
 
         int tabFolderWidth = dialogWidth - dialogSpacing * 2;
@@ -311,7 +308,7 @@ public class FormDialog extends Dialog {
 
             FormPosition.setTabName(tabName);
 
-            String tabText = FormVariable.expand(tabName, variableSeparator, selectedObject);
+            String tabText = FormVariable.expand(tabName, selectedObject);
 
             if (logger.isDebugEnabled())
                 logger.debug("Creating tab " + debugValue(tabText, defaultTabName));
@@ -357,6 +354,9 @@ public class FormDialog extends Dialog {
         Iterator<JSONObject> objectsIterator = getJSONArray(tab, "controls").iterator();
         while (objectsIterator.hasNext()) {
             JSONObject jsonObject = objectsIterator.next();
+            
+            String text = FormVariable.expand(getString(jsonObject, "text", ""), selectedObject);
+            String tooltip = FormVariable.expand(FormDialog.getString(jsonObject, "tooltip", ""), selectedObject);
 
             switch (getString(jsonObject, "class").toLowerCase()) {
                 case "check":
@@ -366,7 +366,12 @@ public class FormDialog extends Dialog {
                     createCombo(jsonObject, composite);
                     break;
                 case "label":
-                    createLabel(jsonObject, composite);
+                    Label label = createLabel(jsonObject, composite);
+                    if ( !FormPlugin.isEmpty(text) ) label.setText(text);
+                    if ( !FormPlugin.isEmpty(tooltip) ) label.setToolTipText(tooltip);
+                    if ( label.getData("excelSheet") != null ) excelSheets.add((String)label.getData("excelSheet"));
+                    // We reference the variable and the control to the eObject that the variable refers to
+                    formVarList.set(FormVariable.getReferedEObject(text, selectedObject), FormVariable.getUnscoppedVariable(text, selectedObject), label);
                     break;
                 case "table":
                     createTable(jsonObject, composite);
@@ -392,23 +397,21 @@ public class FormDialog extends Dialog {
      * @param composite
      *            the composite where the control will be created
      */
-    private Label createLabel(JSONObject jsonObject, Composite composite) {
-        String labelName = getString(jsonObject, "text", "label");
-        String labelText = FormVariable.expand(labelName, variableSeparator, selectedObject);
-
+    public static Label createLabel(JSONObject jsonObject, Composite composite) {
+        String labelName = getString(jsonObject, "name", "");
+        
         if (logger.isDebugEnabled())
-            logger.debug("   Creating label control " + debugValue(labelText, "label"));
+            logger.debug("   Creating label control " + debugValue(labelName, "label"));
+        
+        FormPosition.setControlName(labelName); FormPosition.setControlClass("label");
 
         Label label = new Label(composite, SWT.WRAP);		                  // we create the control at the very beginning because we need its default size which is dependent on its content
-        label.setText(labelText);
-        label.pack();
 
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", label.getSize().x);
-        int height = getInt(jsonObject, "height", label.getSize().y);
-        String controlName = getString(jsonObject, "name", labelName);
-        FormPosition.setControlName(controlName); FormPosition.setControlClass("label");
+        int width = getInt(jsonObject, "width", 0);
+        int height = getInt(jsonObject, "height", 0);
+        String labelText = getString(jsonObject, "text", "");
         String background = getString(jsonObject, "background", null);
         String foreground = getString(jsonObject, "foreground", null);
         String tooltip = getString(jsonObject, "tooltip", null);
@@ -423,11 +426,12 @@ public class FormDialog extends Dialog {
         String excelDefault = getString(jsonObject, "excelDefault", "blank").toLowerCase();
 
         if (logger.isTraceEnabled()) {
+            logger.trace("      name = " + labelName);
+            logger.trace("      text = " + labelText);
             logger.trace("      x = " + debugValue(x, 0));
             logger.trace("      y = " + debugValue(y, 0));
-            logger.trace("      width = " + debugValue(width, label.getSize().x));
-            logger.trace("      height = " + debugValue(height, label.getSize().y));
-            logger.trace("      name = " + debugValue(controlName, labelName));
+            logger.trace("      width = " + debugValue(width, 0));
+            logger.trace("      height = " + debugValue(height, 0));
             logger.trace("      background = " + debugValue(background, null));
             logger.trace("      foreground = " + debugValue(foreground, null));
             logger.trace("      tooltip = " + debugValue(tooltip, null));
@@ -441,9 +445,32 @@ public class FormDialog extends Dialog {
             logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
             logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
         }
+        
+        label.setData("name", labelName);
+        label.setData("text", labelText);
+        label.setData("x", x);
+        label.setData("y", y);
+        label.setData("width", width);
+        label.setData("height", height);
+        label.setData("background", background);
+        label.setData("foreground", foreground);
+        label.setData("tooltip", tooltip);
+        label.setData("fontName", fontName);
+        label.setData("fontSize", fontSize);
+        label.setData("fontBold", fontBold);
+        label.setData("fontItalic", fontItalic);
+        label.setData("alignment", alignment);
+        label.setData("excelSheet", excelSheet);
+        label.setData("excelCell", excelCell);
+        label.setData("excelCellType", excelCellType.toLowerCase());
+        label.setData("excelDefault", excelDefault.toLowerCase());
 
-        label.setLocation(x, y);
-        label.setSize(width, height);
+		if ( width == 0 || height == 0 ) {
+			Point p = label.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+			width = (width == 0) ? p.x : width;
+			height = (height == 0) ? p.y : height;
+		}
+		label.setBounds(x, y, width, height);
 
         if ( background != null) {
             String[] colorArray = background.split(",");
@@ -495,21 +522,6 @@ public class FormDialog extends Dialog {
         if ( !FormPlugin.areEqual(excelDefault, "blank") && !FormPlugin.areEqual(excelDefault, "zero") && !FormPlugin.areEqual(excelDefault, "delete") )
             throw new RuntimeException(FormPosition.getPosition("excelDefault") + "\n\nInvalid excelDefault value, must be \"blank\", \"zero\" or \"delete\"."); 
 
-        if (excelSheet != null) {
-            excelSheets.add(excelSheet);
-            label.setData("excelSheet", excelSheet);
-            label.setData("excelCell", excelCell);
-            label.setData("excelCellType", excelCellType.toLowerCase());
-            label.setData("excelDefault", excelDefault.toLowerCase());
-        }
-
-        if (tooltip != null) {
-            label.setToolTipText(FormVariable.expand(tooltip, variableSeparator, selectedObject));
-        }
-
-        // We reference the variable and the control to the eObject that the variable refers to
-        formVarList.set(FormVariable.getReferedEObject(labelName, variableSeparator, selectedObject), FormVariable.getUnscoppedVariable(labelName,variableSeparator, selectedObject), label);
-
         return label;
     }
 
@@ -528,10 +540,10 @@ public class FormDialog extends Dialog {
         String defaultText = getString(jsonObject, "default", null);
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
 
-        String variableValue = FormVariable.expand(variableName, variableSeparator, selectedObject);
+        String variableValue = FormVariable.expand(variableName, selectedObject);
 
         if (variableValue.isEmpty() || forceDefault)
-            variableValue = FormVariable.expand(defaultText, variableSeparator, selectedObject);
+            variableValue = FormVariable.expand(defaultText, selectedObject);
 
         StyledText text = new StyledText(composite, SWT.WRAP | SWT.BORDER);		                   // we create the control at the very beginning because we need its default size which is dependent on its content
 
@@ -642,8 +654,8 @@ public class FormDialog extends Dialog {
         }
         
         // We reference the variable and the control to the eObject that the variable refers to
-        EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject);
-        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, selectedObject);
+        EObject referedEObject = FormVariable.getReferedEObject(variableName, selectedObject);
+        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, selectedObject);
         text.setData("variable", unscoppedVariable);
         text.setData("eObject", referedEObject);
         text.setData("whenEmpty", whenEmpty);
@@ -658,7 +670,7 @@ public class FormDialog extends Dialog {
         }
 
         if (tooltip != null) {
-            text.setToolTipText(FormVariable.expand(tooltip, variableSeparator, selectedObject));
+            text.setToolTipText(FormVariable.expand(tooltip, selectedObject));
         } else
             if (regex != null) {
                 text.setData("pattern", Pattern.compile(regex));
@@ -687,10 +699,10 @@ public class FormDialog extends Dialog {
         String defaultText = getString(jsonObject, "default", "");
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
 
-        String variableValue = FormVariable.expand(variableName, variableSeparator, selectedObject);
+        String variableValue = FormVariable.expand(variableName, selectedObject);
 
         if (variableValue.isEmpty() || forceDefault)
-            variableValue = FormVariable.expand(defaultText, variableSeparator, selectedObject);
+            variableValue = FormVariable.expand(defaultText, selectedObject);
 
         CCombo combo = new CCombo(composite, SWT.NONE);						// we create the control at the very beginning because we need its default size which is dependent on its content
 
@@ -784,8 +796,8 @@ public class FormDialog extends Dialog {
         }
 
         // We reference the variable and the control to the eObject that the variable refers to
-        EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject);
-        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, selectedObject);
+        EObject referedEObject = FormVariable.getReferedEObject(variableName, selectedObject);
+        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, selectedObject);
         combo.setData("variable", unscoppedVariable);
         combo.setData("eObject", referedEObject);
         combo.setData("whenEmpty", whenEmpty);
@@ -800,7 +812,7 @@ public class FormDialog extends Dialog {
         }
 
         if (tooltip != null) {
-            combo.setToolTipText(FormVariable.expand(tooltip, variableSeparator, selectedObject));
+            combo.setToolTipText(FormVariable.expand(tooltip, selectedObject));
         }
         
         combo.addModifyListener(textModifyListener);
@@ -822,7 +834,7 @@ public class FormDialog extends Dialog {
         String[] values = (String[]) (getJSONArray(jsonObject, "values")).toArray(new String[0]);
 
         String variableName = getString(jsonObject, "variable");
-        String value = FormVariable.expand(variableName, variableSeparator, selectedObject);
+        String value = FormVariable.expand(variableName, selectedObject);
         String defaultValue = getString(jsonObject, "default", "");
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
 
@@ -909,8 +921,8 @@ public class FormDialog extends Dialog {
         }
 
         // We reference the variable and the control to the eObject that the variable refers to
-        EObject referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, selectedObject);
-        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, selectedObject);
+        EObject referedEObject = FormVariable.getReferedEObject(variableName, selectedObject);
+        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, selectedObject);
         check.setData("variable", unscoppedVariable);
         check.setData("eObject", referedEObject);
         check.setData("whenEmpty", whenEmpty);
@@ -925,7 +937,7 @@ public class FormDialog extends Dialog {
         }
 
         if (tooltip != null) {
-            check.setToolTipText(FormVariable.expand(tooltip, variableSeparator, selectedObject));
+            check.setToolTipText(FormVariable.expand(tooltip, selectedObject));
         }
 
         check.addSelectionListener(checkButtonSelectionListener);
@@ -991,7 +1003,7 @@ public class FormDialog extends Dialog {
         }
 
         if (tooltip != null) {
-            table.setToolTipText(FormVariable.expand(tooltip, variableSeparator, selectedObject));
+            table.setToolTipText(FormVariable.expand(tooltip, selectedObject));
         }
 
         if (excelSheet != null) {
@@ -1261,7 +1273,7 @@ public class FormDialog extends Dialog {
             for (IDiagramModelObject diagramObject : (EList<IDiagramModelObject>) list) {
                 if (logger.isTraceEnabled())
                     logger.trace("Found diagram object " + diagramObject.getName());
-                if (checkFilter(diagramObject, variableSeparator, filter)) {
+                if (checkFilter(diagramObject, filter)) {
                     if (diagramObject instanceof IDiagramModelArchimateObject)
                         addTableItem(table, (EObject) (((IDiagramModelArchimateObject) diagramObject).getArchimateElement()), values);
                     else
@@ -1279,7 +1291,7 @@ public class FormDialog extends Dialog {
                 for (IDiagramModelArchimateConnection diagramConnection : (EList<IDiagramModelArchimateConnection>) list) {
                     if (logger.isTraceEnabled())
                         logger.trace("Found diagram connection " + diagramConnection.getName());
-                    if (checkFilter(diagramConnection, variableSeparator, filter)) {
+                    if (checkFilter(diagramConnection, filter)) {
                         addTableItem(table, (EObject) diagramConnection.getArchimateRelationship(), values);
                     }
                 }
@@ -1288,7 +1300,7 @@ public class FormDialog extends Dialog {
                     for (IArchimateElement element : (EList<IArchimateElement>) list) {
                         if (logger.isTraceEnabled())
                             logger.trace("Found element " + element.getName());
-                        if (checkFilter(element, variableSeparator, filter)) {
+                        if (checkFilter(element, filter)) {
                             addTableItem(table, element, values);
                         }
                     }
@@ -1297,7 +1309,7 @@ public class FormDialog extends Dialog {
                         for (IArchimateRelationship relation : (EList<IArchimateRelationship>) list) {
                             if (logger.isTraceEnabled())
                                 logger.trace("Found relationship " + relation.getName());
-                            if (checkFilter(relation, variableSeparator, filter)) {
+                            if (checkFilter(relation, filter)) {
                                 addTableItem(table, relation, values);
                             }
                         }
@@ -1306,7 +1318,7 @@ public class FormDialog extends Dialog {
                             for (IDiagramModel view : (EList<IDiagramModel>) list) {
                                 if (logger.isTraceEnabled())
                                     logger.trace("Found diagram model " + view.getName());
-                                if (checkFilter(view, variableSeparator, filter)) {
+                                if (checkFilter(view, filter)) {
                                     addTableItem(table, view, values);
                                 }
                             }
@@ -1340,7 +1352,7 @@ public class FormDialog extends Dialog {
         for (int columnNumber = 0; columnNumber < jsonArray.size(); ++columnNumber) {
             TableColumn tableColumn = table.getColumn(columnNumber);
             String variableName = (String) jsonArray.get(columnNumber);
-            String itemText = FormVariable.expand(variableName, variableSeparator, eObject); 
+            String itemText = FormVariable.expand(variableName, eObject); 
 
             TableEditor editor;
             switch (((String)tableColumn.getData("class")).toLowerCase()) {
@@ -1360,8 +1372,8 @@ public class FormDialog extends Dialog {
                     }
                     editors[columnNumber] = editor;
                     // We reference the variable and the control to the eObject that the variable refers to
-                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
-                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    referedEObject = FormVariable.getReferedEObject(variableName, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, eObject);
                     formVarList.set(referedEObject, unscoppedVariable, label);
                     break;
 
@@ -1369,7 +1381,7 @@ public class FormDialog extends Dialog {
                     editor = new TableEditor(table);
                     StyledText text = new StyledText(table, SWT.WRAP);
                     if ( ((String)tableColumn.getData("default") != null && (itemText.isEmpty()) || (boolean)tableColumn.getData("forceDefault"))) {
-                        itemText = FormVariable.expand((String)tableColumn.getData("default"), variableSeparator, eObject);
+                        itemText = FormVariable.expand((String)tableColumn.getData("default"), eObject);
                     }
                     logger.trace("      adding text cell with value \"" + itemText + "\"");
                     text.setAlignment((int)tableColumn.getData("alignment"));
@@ -1384,15 +1396,15 @@ public class FormDialog extends Dialog {
                     }
                     
                     // We reference the variable and the control to the eObject that the variable refers to
-                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
-                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    referedEObject = FormVariable.getReferedEObject(variableName, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, eObject);
                     text.setData("eObject", referedEObject);
                     text.setData("variable", unscoppedVariable);
                     text.setData("whenEmpty", tableColumn.getData("whenEmpty"));
                     formVarList.set(referedEObject, unscoppedVariable, text);
 
                     if (table.getColumn(columnNumber).getData("tooltip") != null) {
-                        text.setToolTipText(FormVariable.expand((String) table.getColumn(columnNumber).getData("tooltip"), variableSeparator, eObject));
+                        text.setToolTipText(FormVariable.expand((String) table.getColumn(columnNumber).getData("tooltip"), eObject));
                     } else {
                         if (table.getColumn(columnNumber).getData("regexp") != null) {
                             String regex = (String) table.getColumn(columnNumber).getData("regexp");
@@ -1429,8 +1441,8 @@ public class FormDialog extends Dialog {
                     }
                     
                     // We reference the variable and the control to the eObject that the variable refers to
-                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
-                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    referedEObject = FormVariable.getReferedEObject(variableName, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, eObject);
                     combo.setData("eObject", referedEObject);
                     combo.setData("variable", unscoppedVariable);
                     combo.setData("whenEmpty", tableColumn.getData("whenEmpty"));
@@ -1439,7 +1451,7 @@ public class FormDialog extends Dialog {
                     combo.setEditable(editable != null && editable);
 
                     if (tableColumn.getData("tooltip") != null) {
-                        combo.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), variableSeparator, eObject));
+                        combo.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), eObject));
                     }
 
                     editor.grabHorizontal = true;
@@ -1457,8 +1469,8 @@ public class FormDialog extends Dialog {
                     check.setAlignment((int)tableColumn.getData("alignment"));
                     
                     // We reference the variable and the control to the eObject that the variable refers to
-                    referedEObject = FormVariable.getReferedEObject(variableName, variableSeparator, eObject);
-                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, variableSeparator, eObject);
+                    referedEObject = FormVariable.getReferedEObject(variableName, eObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, eObject);
                     check.setData("eObject", referedEObject);
                     check.setData("variable", unscoppedVariable);
                     check.setData("whenEmpty", tableColumn.getData("whenEmpty"));
@@ -1486,7 +1498,7 @@ public class FormDialog extends Dialog {
                     check.pack();
 
                     if (tableColumn.getData("tooltip") != null) {
-                        check.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), variableSeparator, eObject));
+                        check.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), eObject));
                     }
 
                     check.addSelectionListener(checkButtonSelectionListener);
@@ -2664,7 +2676,7 @@ public class FormDialog extends Dialog {
     /**
      * Checks whether the eObject fits in the filter rules
      */
-    public static boolean checkFilter(EObject eObject, String separator, JSONObject filterObject) {
+    public static boolean checkFilter(EObject eObject, JSONObject filterObject) {
         if (filterObject == null) {
             return true;
         }
@@ -2685,7 +2697,7 @@ public class FormDialog extends Dialog {
             String value;
             String[] values;
 
-            String attributeValue = FormVariable.expand(attribute, separator, eObject);
+            String attributeValue = FormVariable.expand(attribute, eObject);
 
             switch (operation.toLowerCase()) {
                 case "equals":
