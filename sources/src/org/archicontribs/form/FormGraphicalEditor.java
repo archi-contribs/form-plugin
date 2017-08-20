@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Level;
-import org.archicontribs.form.graphicalEditor.FormComposite;
-import org.archicontribs.form.graphicalEditor.TabComposite;
+import org.archicontribs.form.Composites.FormComposite;
+import org.archicontribs.form.Composites.LabelComposite;
+import org.archicontribs.form.Composites.TabComposite;
+import org.archicontribs.form.Composites.TextComposite;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -46,13 +49,17 @@ public class FormGraphicalEditor extends Dialog {
     public final static Image binImage         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/bin.png"));
     public final static Color blackColor       = new Color(display, 0, 0, 0);
     public final static Color whiteColor       = new Color(display, 255, 255, 255);
+    
+    public final static int   editorLeftposition   = 35;
+    public final static int   editorBorderMargin   = 10;
+    public final static int   editorVerticalMargin = 10;
 
     private Shell            propertiesDialog  = null;
     private Tree             tree              = null;
     private FormComposite    formComposite     = null;
     private TabComposite     tabComposite      = null;
-    private Composite        labelComposite    = null;
-    private Composite        textComposite     = null;
+    private LabelComposite   labelComposite    = null;
+    private TextComposite    textComposite     = null;
     private Composite        comboComposite    = null;
     private Composite        checkComposite    = null;
     private Composite        tableComposite    = null;
@@ -220,9 +227,8 @@ public class FormGraphicalEditor extends Dialog {
                     	composite.setData("treeItem", treeItem);
                     	
                     	switch ( composite.getClass().getSimpleName() ) {
-                    		case "FormComposite" :
+                    		case "FormComposite":
                     			formComposite.set("name", (String)treeItem.getData("name"));
-                    			formComposite.set("variableSeparator", (String)treeItem.getData("variableSeparator"));
                     			formComposite.set("width", (int)treeItem.getData("width"));
                     			formComposite.set("height", (int)treeItem.getData("height"));
                     			formComposite.set("spacing", (int)treeItem.getData("spacing"));
@@ -233,17 +239,48 @@ public class FormGraphicalEditor extends Dialog {
                     			formComposite.set("whenEmpty", (String)treeItem.getData("whenEmpty"));
                             	formComposite.set("refers", (String)treeItem.getData("refers"));
                     			break;
-                    		case "TabComposite" :
+                    			
+                    		case "TabComposite":
                     			tabComposite.set("name", (String)treeItem.getData("name"));
                     			tabComposite.set("background", (String)treeItem.getData("background"));
                     			break;
-                    		case "LabelComposite" : break;
-                    		case "TextComposite" : break;
-                    		case "ComboComposite" : break;
-                    		case "CheckComposite" : break;
-                    		case "TableComposite" : break;
-                    		case "ColumnComposite" : break;
-                    		case "LineComposite" : break;
+                    			
+                    		case "LabelComposite":
+                    			labelComposite.set("name", (String)treeItem.getData("name"));
+                    			labelComposite.set("text", (String)treeItem.getData("text"));
+                    			labelComposite.set("x", (int)treeItem.getData("x"));
+                    			labelComposite.set("y", (int)treeItem.getData("y"));
+                    			labelComposite.set("width", (int)treeItem.getData("width"));
+                    			labelComposite.set("height", (int)treeItem.getData("height"));
+                    			labelComposite.set("background", (String)treeItem.getData("background"));
+                    			break;
+                    			
+                    		case "TextComposite":
+                    			labelComposite.set("name", (String)treeItem.getData("name"));
+                    			labelComposite.set("variable", (String)treeItem.getData("variable"));
+                    			labelComposite.set("defaultText", (String)treeItem.getData("defaultText"));
+                    			labelComposite.set("forceDefault", (String)treeItem.getData("forceDefault"));
+                    			labelComposite.set("x", (int)treeItem.getData("x"));
+                    			labelComposite.set("y", (int)treeItem.getData("y"));
+                    			labelComposite.set("width", (int)treeItem.getData("width"));
+                    			labelComposite.set("height", (int)treeItem.getData("height"));
+                    			labelComposite.set("background", (String)treeItem.getData("background"));
+                    			break;
+                    			
+                    		case "ComboComposite":
+                    			break;
+                    			
+                    		case "CheckComposite":
+                    			break;
+                    			
+                    		case "TableComposite":
+                    			break;
+                    			
+                    		case "ColumnComposite":
+                    			break;
+                    			
+                    		case "LineComposite" :
+                    			break;
                     	}
                 	}
                 }
@@ -268,46 +305,33 @@ public class FormGraphicalEditor extends Dialog {
         formTreeItem.setData("buttonExport", buttonExportText);
         formTreeItem.setData("whenEmpty", globalWhenEmpty);
         
-        // we create the formComposite
-        formComposite = new FormComposite(propertiesDialog, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(0, 10);
         fd.left = new FormAttachment(tree, 10);
         fd.right = new FormAttachment(100, -10);
         fd.bottom = new FormAttachment(100, -10);
+        
+        // we create the formComposite
+        formComposite = new FormComposite(propertiesDialog, SWT.BORDER);
         formComposite.setLayoutData(fd);
         formTreeItem.setData("composite", formComposite);
         
         // we create the tabProperties composite
         tabComposite = new TabComposite(propertiesDialog, SWT.BORDER);
-        fd = new FormData();
-        fd.top = new FormAttachment(0, 10);
-        fd.left = new FormAttachment(tree, 10);
-        fd.right = new FormAttachment(100, -10);
-        fd.bottom = new FormAttachment(100, -10);
         tabComposite.setLayoutData(fd);
         
-        
-
-        labelComposite = new Composite(propertiesDialog, SWT.BORDER);
-        labelComposite.setVisible(false);
+        // we create the labelProperties composite
+        labelComposite = new LabelComposite(propertiesDialog, SWT.BORDER);
         labelComposite.setLayoutData(fd);
-        labelComposite.setLayout(new FormLayout());
         
-        textComposite = new Composite(propertiesDialog, SWT.BORDER);
-        textComposite.setVisible(false);
+        textComposite = new TextComposite(propertiesDialog, SWT.BORDER);
         textComposite.setLayoutData(fd);
-        textComposite.setLayout(new FormLayout());
         
         comboComposite = new Composite(propertiesDialog, SWT.BORDER);
-        comboComposite.setVisible(false);
         comboComposite.setLayoutData(fd);
-        comboComposite.setLayout(new FormLayout());
         
         checkComposite = new Composite(propertiesDialog, SWT.BORDER);
-        checkComposite.setVisible(false);
         checkComposite.setLayoutData(fd);
-        checkComposite.setLayout(new FormLayout());
         
         tableComposite = new Composite(propertiesDialog, SWT.BORDER);
         tableComposite.setVisible(false);
@@ -432,133 +456,33 @@ public class FormGraphicalEditor extends Dialog {
      * called by the createObjects() method
      */
     private void createLabel(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) {
-        String labelName = FormDialog.getString(jsonObject, "name", "");
-
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating label \"" + labelName +"\"");
+    	Label label = FormDialog.createLabel(jsonObject, composite);
+    	label.setText((String)label.getData("text"));
+    	
+        TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
+        treeItem.setText("Label: "+ (String)label.getData("name"));
         
-        FormPosition.setControlName(labelName);
-        FormPosition.setControlClass("label");
+        treeItem.setData("name", label.getData("name"));
+        treeItem.setData("text", label.getData("text"));
+        treeItem.setData("x", label.getData("x"));
+        treeItem.setData("y", label.getData("y"));
+        treeItem.setData("width", label.getData("width"));
+        treeItem.setData("height", label.getData("height"));
+        treeItem.setData("background", label.getData("background"));
+        treeItem.setData("foreground", label.getData("foreground"));
+        treeItem.setData("tooltip", label.getData("tooltip"));
+        treeItem.setData("fontName", label.getData("fontName"));
+        treeItem.setData("fontSize", label.getData("fontSize"));
+        treeItem.setData("fontBold", label.getData("fontBold"));
+        treeItem.setData("fontItalic", label.getData("fontItalic"));
+        treeItem.setData("alignment", label.getData("alignment"));
+        treeItem.setData("excelSheet", label.getData("excelSheet"));
+        treeItem.setData("excelCell", label.getData("excelCell"));
+        treeItem.setData("excelCellType", label.getData("excelCellType"));
+        treeItem.setData("excelDefault", label.getData("excelDefault"));
         
-        int x = FormDialog.getInt(jsonObject, "x", 0);
-        int y = FormDialog.getInt(jsonObject, "y", 0);
-        int width = FormDialog.getInt(jsonObject, "width", 0);
-        int height = FormDialog.getInt(jsonObject, "height", 0);
-        String labelText = FormDialog.getString(jsonObject, "text", "");
-        String background = FormDialog.getString(jsonObject, "background", "");
-        String foreground = FormDialog.getString(jsonObject, "foreground", "");
-        String tooltip = FormDialog.getString(jsonObject, "tooltip", "");
-        String fontName = FormDialog.getString(jsonObject, "fontName", "");
-        int fontSize = FormDialog.getInt(jsonObject, "fontSize", 0);
-        boolean fontBold = FormDialog.getBoolean(jsonObject, "fontBold", false);
-        boolean fontItalic = FormDialog.getBoolean(jsonObject, "fontItalic", false);
-        String alignment = FormDialog.getString(jsonObject, "alignment", "left");
-        String excelSheet = FormDialog.getString(jsonObject, "excelSheet", "");
-        String excelCell = FormDialog.getString(jsonObject, "excelCell", "");
-        String excelCellType = FormDialog.getString(jsonObject, "excelCellType", "string").toLowerCase();
-        String excelDefault = FormDialog.getString(jsonObject, "excelDefault", "blank").toLowerCase();
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("      x = " + FormDialog.debugValue(x, 0));
-            logger.trace("      y = " + FormDialog.debugValue(y, 0));
-            logger.trace("      width = " + FormDialog.debugValue(width, 0));
-            logger.trace("      height = " + FormDialog.debugValue(height, 0));
-            logger.trace("      text = " + FormDialog.debugValue(labelText, ""));
-            logger.trace("      background = " + FormDialog.debugValue(background, ""));
-            logger.trace("      foreground = " + FormDialog.debugValue(foreground, ""));
-            logger.trace("      tooltip = " + FormDialog.debugValue(tooltip, ""));
-            logger.trace("      fontName = " + FormDialog.debugValue(fontName, ""));
-            logger.trace("      fontSize = " + FormDialog.debugValue(fontSize, 0));
-            logger.trace("      fontBold = " + FormDialog.debugValue(fontBold, false));
-            logger.trace("      fontItalic = " + FormDialog.debugValue(fontItalic, false));
-            logger.trace("      alignment = " + FormDialog.debugValue(alignment, "left"));
-            logger.trace("      excelSheet = " + FormDialog.debugValue(excelSheet, ""));
-            logger.trace("      excelCell = " + FormDialog.debugValue(excelCell, ""));
-            logger.trace("      excelCellType = " + FormDialog.debugValue(excelCellType, "string"));
-            logger.trace("      excelDefault = " + FormDialog.debugValue(excelDefault, "blank"));
-        }
-        
-        TreeItem labelTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
-        labelTreeItem.setText("Label: "+ labelName);
-        
-        labelTreeItem.setData("name", labelName);
-        labelTreeItem.setData("text", labelText);
-        labelTreeItem.setData("x", x);
-        labelTreeItem.setData("y", y);
-        labelTreeItem.setData("width", width);
-        labelTreeItem.setData("height", height);
-        labelTreeItem.setData("background", background);
-        labelTreeItem.setData("foreground", foreground);
-        labelTreeItem.setData("tooltip", tooltip);
-        labelTreeItem.setData("fontName", fontName);
-        labelTreeItem.setData("fontSize", fontSize);
-        labelTreeItem.setData("fontBold", fontBold);
-        labelTreeItem.setData("fontItalic", fontItalic);
-        labelTreeItem.setData("alignment", alignment);
-        labelTreeItem.setData("excelSheet", excelSheet);
-        labelTreeItem.setData("excelCell", excelCell);
-        labelTreeItem.setData("excelCellType", excelCellType);
-        labelTreeItem.setData("excelDefault", excelDefault);
-        
-        Label label = new Label(composite, SWT.WRAP);                         // we create the control at the very beginning because we need its default size which is dependent on its content
-        label.setText(labelText);
-        label.pack();
-        
-        if ( width == 0 )
-            width = label.getSize().x;
-        if ( height == 0 )
-            height = label.getSize().y;
-        if ( fontSize == 0 )
-            fontSize = label.getFont().getFontData()[0].getHeight();
-
-        label.setLocation(x, y);
-        label.setSize(width, height);
-        
-        if ( !FormPlugin.isEmpty(background) ) {
-            String[] colorArray = background.split(",");
-            label.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        } else {
-            label.setBackground(composite.getBackground());
-        }
-
-        if ( !FormPlugin.isEmpty(foreground) ) {
-            String[] colorArray = foreground.split(",");
-            label.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty(fontName) ) {
-            int style = SWT.NORMAL;
-            if (fontBold)
-                style |= SWT.BOLD;
-            if (fontItalic)
-                style |= SWT.ITALIC;
-            label.setFont(new Font(label.getDisplay(), fontName, fontSize, style));
-        } else {
-            if ( (fontSize != label.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic ) {
-                int style = SWT.NORMAL;
-                if (fontBold)
-                    style |= SWT.BOLD;
-                if (fontItalic)
-                    style |= SWT.ITALIC;
-                label.setFont(FontDescriptor.createFrom(label.getFont()).setHeight(fontSize).setStyle(style).createFont(label.getDisplay()));
-            }
-        }
-        
-        switch ( alignment.toLowerCase() ) {
-            case "right" :
-                label.setAlignment(SWT.RIGHT);
-                break;
-            case "center":
-                label.setAlignment(SWT.CENTER);
-                break;
-            default :
-                label.setAlignment(SWT.LEFT);
-                break;
-        }
-        
-        if ( !FormPlugin.isEmpty(tooltip) ) {
-            label.setToolTipText(tooltip);
-        }
+        treeItem.setData("control", label);
+        treeItem.setData("composite", labelComposite);
     }
 
     /**
@@ -567,88 +491,38 @@ public class FormGraphicalEditor extends Dialog {
      * called by the createObjects() method
      */
     private void createText(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-        String textName = FormDialog.getString(jsonObject, "name", "");
+    	StyledText text = FormDialog.createText(jsonObject, composite);
+    	text.setText((String)text.getData("variable"));
+    	
+        TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
+        treeItem.setText("Text: "+ (String)text.getData("name"));
         
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating Text \"" + textName + "\"");
+        treeItem.setData("name", text.getData("name"));
+        treeItem.setData("variable", text.getData("variable"));
+        treeItem.setData("defaultText", text.getData("defaultText"));
+        treeItem.setData("forceDefault", text.getData("forceDefault"));
+        treeItem.setData("x", text.getData("x"));
+        treeItem.setData("y", text.getData("y"));
+        treeItem.setData("width", text.getData("width"));
+        treeItem.setData("height", text.getData("height"));
+        treeItem.setData("background", text.getData("background"));
+        treeItem.setData("foreground", text.getData("foreground"));
+        treeItem.setData("tooltip", text.getData("tooltip"));
+        treeItem.setData("regexp", text.getData("regexp"));
+        treeItem.setData("fontName", text.getData("fontName"));
+        treeItem.setData("fontSize", text.getData("fontSize"));
+        treeItem.setData("fontBold", text.getData("fontBold"));
+        treeItem.setData("fontItalic", text.getData("fontItalic"));
+        treeItem.setData("alignment", text.getData("alignment"));
+        treeItem.setData("editable", text.getData("editable"));
+        treeItem.setData("whenEmpty", text.getData("whenEmpty"));
+        treeItem.setData("excelSheet", text.getData("excelSheet"));
+        treeItem.setData("excelCell", text.getData("excelCell"));
+        treeItem.setData("excelCellType", text.getData("excelCellType"));
+        treeItem.setData("excelDefault", text.getData("excelDefault"));
         
-        FormPosition.setControlName(textName);
-        FormPosition.setControlClass("text");
-        
-        String variableName = FormDialog.getString(jsonObject, "variable", "");
-        String defaultText = FormDialog.getString(jsonObject, "default", "");
-        boolean forceDefault = FormDialog.getBoolean(jsonObject, "forceDefault", false);
-        int x = FormDialog.getInt(jsonObject, "x", 0);
-        int y = FormDialog.getInt(jsonObject, "y", 0);
-        int width = FormDialog.getInt(jsonObject, "width", 0);
-        int height = FormDialog.getInt(jsonObject, "height", 0);
-        String background = FormDialog.getString(jsonObject, "background", "");
-        String foreground = FormDialog.getString(jsonObject, "foreground", "");
-        String regex = FormDialog.getString(jsonObject, "regexp", "");
-        String tooltip = FormDialog.getString(jsonObject, "tooltip", "");
-        String fontName = FormDialog.getString(jsonObject, "fontName", "");
-        int fontSize = FormDialog.getInt(jsonObject, "fontSize", 0);
-        boolean fontBold = FormDialog.getBoolean(jsonObject, "fontBold", false);
-        boolean fontItalic = FormDialog.getBoolean(jsonObject, "fontItalic", false);
-        String alignment = FormDialog.getString(jsonObject, "alignment", "left");
-        boolean editable = FormDialog.getBoolean(jsonObject, "editable", true);
-        String whenEmpty = FormDialog.getString(jsonObject, "whenEmpty", globalWhenEmpty);
-        String excelSheet = FormDialog.getString(jsonObject, "excelSheet", "");
-        String excelCell = FormDialog.getString(jsonObject, "excelCell", "");
-        String excelCellType = FormDialog.getString(jsonObject, "excelCellType", "string");
-        String excelDefault = FormDialog.getString(jsonObject, "excelDefault", "blank");
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("      x = " + FormDialog.debugValue(x, 0));
-            logger.trace("      y = " + FormDialog.debugValue(y, 0));
-            logger.trace("      width = " + FormDialog.debugValue(width, 0));
-            logger.trace("      height = " + FormDialog.debugValue(height, 0));
-            logger.trace("      variable = " + variableName);
-            logger.trace("      default = " + FormDialog.debugValue(defaultText, ""));
-            logger.trace("      forceDefault = " + FormDialog.debugValue(forceDefault, false));
-            logger.trace("      background = " + FormDialog.debugValue(background, ""));
-            logger.trace("      foreground = " + FormDialog.debugValue(foreground, ""));
-            logger.trace("      regexp = " + FormDialog.debugValue(regex, ""));
-            logger.trace("      tooltip = " + FormDialog.debugValue(tooltip, ""));
-            logger.trace("      fontName = " + FormDialog.debugValue(fontName, ""));
-            logger.trace("      fontSize = " + FormDialog.debugValue(fontSize, 0));
-            logger.trace("      fontBold = " + FormDialog.debugValue(fontBold, false));
-            logger.trace("      fontItalic = " + FormDialog.debugValue(fontItalic, false));
-            logger.trace("      alignment = "+FormDialog.debugValue(alignment, "left"));
-            logger.trace("      editable = " + FormDialog.debugValue(editable, true));
-            logger.trace("      whenEmpty = " + FormDialog.debugValue(whenEmpty, globalWhenEmpty));
-            logger.trace("      excelSheet = " + FormDialog.debugValue(excelSheet, ""));
-            logger.trace("      excelCell = " + FormDialog.debugValue(excelCell, ""));
-            logger.trace("      excelCellType = " + FormDialog.debugValue(excelCellType, "string"));
-            logger.trace("      excelDefault = " + FormDialog.debugValue(excelDefault, "blank"));
-        }
-
-        TreeItem textTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
-        textTreeItem.setText("Text: "+ textName);
-        
-        textTreeItem.setData("name", textName);
-        textTreeItem.setData("x", x);
-        textTreeItem.setData("y", y);
-        textTreeItem.setData("width", width);
-        textTreeItem.setData("height", height);
-        textTreeItem.setData("variable", variableName);
-        textTreeItem.setData("default", defaultText);
-        textTreeItem.setData("forceDefault", forceDefault);
-        textTreeItem.setData("background", background);
-        textTreeItem.setData("foreground", foreground);
-        textTreeItem.setData("regexp", regex);
-        textTreeItem.setData("tooltip", tooltip);
-        textTreeItem.setData("fontName", fontName);
-        textTreeItem.setData("fontSize", fontSize);
-        textTreeItem.setData("fontBold", fontBold);
-        textTreeItem.setData("fontItalic", fontItalic);
-        textTreeItem.setData("alignment", alignment);
-        textTreeItem.setData("editable", editable);
-        textTreeItem.setData("whenEmpty", whenEmpty);
-        textTreeItem.setData("excelSheet", excelSheet);
-        textTreeItem.setData("excelCell", excelCell);
-        textTreeItem.setData("excelCellType", excelCellType);
-        textTreeItem.setData("excelDefault", excelDefault);
+        treeItem.setData("control", text);
+        treeItem.setData("composite", textComposite);
     }
 
     /**
@@ -718,6 +592,8 @@ public class FormGraphicalEditor extends Dialog {
 
         TreeItem comboTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
         comboTreeItem.setText("Combo: "+ comboName);
+        
+        comboTreeItem.setData("composite", comboComposite);
         
         comboTreeItem.setData("name", comboName);
         comboTreeItem.setData("x", x);
@@ -806,6 +682,8 @@ public class FormGraphicalEditor extends Dialog {
 
         TreeItem comboTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
         comboTreeItem.setText("Check: "+ checkName);
+        
+        comboTreeItem.setData("composite", comboComposite);
         
         comboTreeItem.setData("name", checkName);
         comboTreeItem.setData("x", x);
