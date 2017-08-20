@@ -1,5 +1,9 @@
-package org.archicontribs.form.graphicalEditor;
+package org.archicontribs.form.Composites;
 
+import org.archicontribs.form.Editors.ColorEditor;
+import org.archicontribs.form.Editors.NameEditor;
+import org.archicontribs.form.Editors.SizeEditor;
+import org.archicontribs.form.Editors.StringEditor;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormLayout;
@@ -7,13 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
 public class LabelComposite extends Composite {
-	private NameEditor              nameEditor;         // name
-    private Label                   txtText;			// text
+	private StringEditor            nameEditor;         // name
+    private StringEditor            textEditor;			// text
 	private SizeEditor              sizeEditor;         // x, y, width, height
 	private ColorEditor             colorEditor;        // foreground, background
+	private StringEditor            tooltipEditor;      // tooltip
 
-
-    private Label      txtTooltip           = null;			// tooltip
     private Label      lblFont              = null;         // font
     private CCombo     comboAlignment       = null;         // alignment
     private StyledText txtExcelSheet        = null;         // excelSheet
@@ -29,16 +32,31 @@ public class LabelComposite extends Composite {
 	
 	private void createContent() {
 		// name
-		nameEditor = new NameEditor(this);
+		nameEditor = new StringEditor(this);
 		nameEditor.setPosition(0);
+		nameEditor.setProperty("name");
+		nameEditor.mustSetTreeItemText(true);
+		nameEditor.treeItemTextPrefix("Label: ");
+		
+		// name
+		textEditor = new StringEditor(this, 5);
+		textEditor.setPosition(nameEditor.getControl());
+		textEditor.setProperty("text");
+		textEditor.mustSetControlText(true);
 						
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(nameEditor.getControl());
+		sizeEditor.setPosition(textEditor.getControl());
 		        
-		// Background
+		// foreground, background
 		colorEditor = new ColorEditor(this);
 		colorEditor.setPosition(sizeEditor.getControl());
+		
+		// tooltip
+		tooltipEditor = new StringEditor(this, 5);
+		tooltipEditor.setPosition(colorEditor.getControl());
+		tooltipEditor.setProperty("tooltip");
+		tooltipEditor.mustSetControlTolltip(true);
 	}
 	
     public void set(String key, int value) throws RuntimeException {
@@ -64,7 +82,8 @@ public class LabelComposite extends Composite {
     public void set(String key, String value) throws RuntimeException {
     	switch ( key ) {
     		case "name":
-    			nameEditor.setName(value);
+    			nameEditor.setString(value);
+    			return;
     			
     		case "foreground":
     			colorEditor.setForeground(value);
@@ -73,6 +92,14 @@ public class LabelComposite extends Composite {
     		case "background":
     			colorEditor.setBackround(value);
     			return;
+    			
+    		case "text":
+    			textEditor.setString(value);
+    			return;
+    			
+    		case "tooltip":
+    			tooltipEditor.setString(value);
+    			return;	
     	}
     	throw new RuntimeException("does not know key "+key);
     }
@@ -80,13 +107,19 @@ public class LabelComposite extends Composite {
     public String getString(String key) throws RuntimeException {
     	switch ( key ) {
     		case "name":
-    			return nameEditor.getName();
+    			return nameEditor.getString();
     			
     		case "foreground":
     			return colorEditor.getForeground();
     			
     		case "background":
     			return colorEditor.getBackground();
+    			
+    		case "text":
+    			return textEditor.getString();
+    			
+    		case "tooltip":
+    			return tooltipEditor.getString();
     	}
     	throw new RuntimeException("does not know key "+key);
     }
