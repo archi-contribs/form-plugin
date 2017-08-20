@@ -181,31 +181,37 @@ public class ColorEditor {
 	}
     
     public void setBackround(String rgbString) {
-    	if ( FormPlugin.isEmpty(rgbString) )
-    		return;
-    	
-    	String rgb[] = rgbString.split(",");
-    	if ( rgb.length != 3 )
-    		return;
-    	
-    	Color color = lblSample.getBackground();
-		if ( color != null )
-			color.dispose();
+    	Color color = null;
+
+    	if ( !FormPlugin.isEmpty(rgbString) ) {
+    		String rgb[] = rgbString.split(",");
+    		
+    		if ( rgb.length == 3 ) {
+    			color = lblSample.getBackground();
+    			if ( color != null )
+    				color.dispose();
+			
+    			color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
+    		}
+    	}
 		
-		color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
-		lblSample.setBackground(color);
+    	lblSample.setBackground(color);
     }
     
     public void setForeground(String rgbString) {
-    	String rgb[] = rgbString.split(",");
-    	if ( rgb.length != 3 )
-    		return;
+    	Color color = null;
     	
-    	Color color = lblSample.getForeground();
-		if ( color != null )
-			color.dispose();
-		
-		color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
+    	if ( !FormPlugin.isEmpty(rgbString) ) {
+	    	String rgb[] = rgbString.split(",");
+	    	if ( rgb.length == 3 ) {
+	    		color = lblSample.getForeground();
+				if ( color != null )
+					color.dispose();
+				
+				color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
+	    	}
+    	}
+    	
 		lblSample.setForeground(color);
     }
     
