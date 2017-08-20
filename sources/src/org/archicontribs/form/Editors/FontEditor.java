@@ -4,8 +4,11 @@ import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Font;
@@ -79,22 +82,26 @@ public class FontEditor {
         fd = new FormData();
         fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(lblFontSize, 5);
+        fd.right = new FormAttachment(txtFontSize, 25);
         txtFontSize.setTextLimit(2);
         txtFontSize.addVerifyListener(numericVerifyListener);
+        txtFontSize.addModifyListener(refreshFontModifyListener);
         txtFontSize.setLayoutData(fd);
         
         btnBold = new Button(parent, SWT.CHECK);
         fd = new FormData();
         fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(txtFontSize, 5);
+        fd.left = new FormAttachment(txtFontSize, FormGraphicalEditor.editorBorderMargin*2);
         btnBold.setLayoutData(fd);
+        btnBold.addSelectionListener(refreshFontSelectionListener);
         btnBold.setText("Bold");
         
         btnItalic = new Button(parent, SWT.CHECK);
         fd = new FormData();
         fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(btnBold, FormGraphicalEditor.editorVerticalMargin);
+        fd.left = new FormAttachment(btnBold, FormGraphicalEditor.editorBorderMargin*2);
         btnItalic.setLayoutData(fd);
+        btnItalic.addSelectionListener(refreshFontSelectionListener);
         btnItalic.setText("Italic");
 	}
 	
@@ -116,57 +123,86 @@ public class FontEditor {
     private SelectionAdapter fontChooser = new SelectionAdapter() {
         @Override
     	public void widgetSelected(SelectionEvent event) {
-        	Control    control = (Control)parent.getData("control");
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
-        	
             FontDialog dlg = new FontDialog((Shell)parent.getData("shell"));
+            dlg.setEffectsVisible(false);
             FontData fontData = dlg.open();
             if (fontData != null) {
-                Font font = new Font(((Shell)parent.getData("shell")).getDisplay(), fontData);
-            	lblSample.setFont(font);
             	lblSample.setText(fontData.getName());
             	txtFontSize.setText(String.valueOf(fontData.getHeight()));
             	btnBold.setSelection((fontData.getStyle()&SWT.BOLD) != 0);
             	btnItalic.setSelection((fontData.getStyle()&SWT.ITALIC) != 0);
             	
-				if ( control != null ) {
-					control.setFont(font);
-				}
-            	
-				if ( treeItem != null ) {
-					treeItem.setData("font", fontData.getName());
-					treeItem.setData("fontSize", fontData.getHeight());
-					treeItem.setData("fontBold", (fontData.getStyle()&SWT.BOLD) != 0);
-					treeItem.setData("fontItalic", (fontData.getStyle()&SWT.ITALIC) != 0);
-				}
+				setFont(true);
     		}
+    	}
+    };
+    
+    private SelectionListener refreshFontSelectionListener = new SelectionListener() {
+    	@Override
+    	public void widgetSelected(SelectionEvent event) {
+        	setFont(true);
+    	}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+    };
+    
+    private ModifyListener refreshFontModifyListener = new ModifyListener() {
+    	@Override
+    	public void modifyText(ModifyEvent event) {
+        	setFont(true);
     	}
     };
     
     private SelectionAdapter fontReset = new SelectionAdapter() {
         @Override
     	public void widgetSelected(SelectionEvent event) {
-        	Control    control = (Control)parent.getData("control");
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
-
         	lblSample.setText("");
+        	txtFontSize.setText("");
         	btnBold.setSelection(false);
         	btnItalic.setSelection(false);
         	
-			lblSample.setFont(null);
+        	setFont(true);
+        }
+    };
+    
+    private void setFont(boolean updateControl) {
+    	Font font;
+    	
+    	if ( FormPlugin.isEmpty(lblSample.getText()) && getFontSize()!=0 && !getBold() && !getItalic() )
+    		font = null;
+    	else {
+    		lblSample.setFont(null);
+    		
+			int fontSize = getFontSize();
+			if ( fontSize == 0 ) fontSize = 10;
+    		
+    		int style = SWT.NORMAL;
+	    	if ( getBold() ) style |= SWT.BOLD;
+	    	if ( getItalic() ) style |= SWT.ITALIC;
+	    	
+	    	font = new Font(FormGraphicalEditor.display, getFontName(), getFontSize(), style);
+    	}
+		lblSample.setFont(font);
+		
+		if ( updateControl) {
+			Control    control = (Control)parent.getData("control");
+			TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
 			
 			if ( control != null ) {
-				control.setFont(null);
+				control.setFont(font);
 			}
 			
 			if ( treeItem != null ) {
-				treeItem.setData("font", "");
-				treeItem.setData("fontSize", 0);
-				treeItem.setData("fontBold", false);
-				treeItem.setData("fontItalic", false);
+				treeItem.setData("font", getFontName());
+				treeItem.setData("fontSize", getFontSize());
+				treeItem.setData("fontBold", getBold());
+				treeItem.setData("fontItalic", getItalic());
 			}
-        }
-    };
+		}
+	}
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
@@ -187,42 +223,28 @@ public class FontEditor {
 	public StyledText getControl() {
 		return txtFontSize;
 	}
-	
-	private void setFont() {
-    	Font font = lblSample.getFont();
-    	
-    	if ( font != null )
-    		font.dispose();
-    	
-    	int style = SWT.NORMAL;
-    	if ( getBold() ) style |= SWT.BOLD;
-    	if ( getItalic() ) style |= SWT.ITALIC;
-    	
-    	font = new Font(FormGraphicalEditor.display, getfont(), getFontSize(), style);
-		lblSample.setFont(font);
-	}
     
-    public void setFont(String fontName) {
+    public void setFontName(String fontName) {
     	lblSample.setText(fontName);
-    	setFont();
+    	setFont(false);
     }
     
     public void setFontSize(int fontSize) {
     	txtFontSize.setText(String.valueOf(fontSize));
-    	setFont();
+    	setFont(false);
     }
     
     public void setBold(boolean isBold) {
     	btnBold.setSelection(isBold);
-    	setFont();
+    	setFont(false);
     }
     
     public void setItalic(boolean isItalic) {
     	btnItalic.setSelection(isItalic);
-    	setFont();
+    	setFont(false);
     }
     
-    public String getfont() {
+    public String getFontName() {
     	return lblSample.getText();
     }
     
@@ -233,10 +255,10 @@ public class FontEditor {
     }
     
     public boolean getBold() {
-    	return btnBold.getEnabled();
+    	return btnBold.getSelection();
     }
     
     public boolean getItalic() {
-    	return btnItalic.getEnabled();
+    	return btnItalic.getSelection();
     }
 }
