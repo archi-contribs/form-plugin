@@ -1,4 +1,4 @@
-package org.archicontribs.form.graphicalEditor;
+package org.archicontribs.form.Editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
 import org.eclipse.swt.SWT;
@@ -25,17 +25,17 @@ public class NameEditor {
 		
 		lblName = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, 10);
-        fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblName.setLayoutData(fd);
         lblName.setText("Name:");
         
         txtName = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblName, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
-        fd.right = new FormAttachment(100, -10);
+        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
         txtName.setLayoutData(fd);
         txtName.addModifyListener(nameModifyListener);
         txtName.setToolTipText("Name of the control.\n"+
@@ -87,7 +87,7 @@ public class NameEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, 10);
         fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblName.setLayoutData(fd);
 	}
 	
@@ -95,7 +95,7 @@ public class NameEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, 10);
         fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftpoition, 0);
+        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblName.setLayoutData(fd);
 	}
 	
