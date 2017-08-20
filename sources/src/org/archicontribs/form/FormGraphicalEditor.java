@@ -186,7 +186,7 @@ public class FormGraphicalEditor extends Dialog {
         
         // we create the propertiesDialog
         propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM);
-        propertiesDialog.setSize(600, 400);
+        propertiesDialog.setSize(800, 600);
         propertiesDialog.setLayout(new FormLayout());
         
         propertiesDialog.addListener(SWT.Close, new Listener() {
