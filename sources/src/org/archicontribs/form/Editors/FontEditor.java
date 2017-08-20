@@ -54,7 +54,7 @@ public class FontEditor {
         btnSelectFont = new Button(parent, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(lblFont, 0, SWT.CENTER);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(btnResetToDefault, -5);
         btnSelectFont.setLayoutData(fd);
         btnSelectFont.setText("f");
         btnSelectFont.addSelectionListener(fontChooser);
@@ -66,7 +66,7 @@ public class FontEditor {
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         fd.right = new FormAttachment(btnSelectFont, -5);
         lblSample.setLayoutData(fd);
-        lblSample.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
+        lblSample.setText("");
         
         lblFontSize = new Label(parent, SWT.NONE);
         fd = new FormData();
@@ -126,8 +126,8 @@ public class FontEditor {
             	lblSample.setFont(font);
             	lblSample.setText(fontData.getName());
             	txtFontSize.setText(String.valueOf(fontData.getHeight()));
-            	btnBold.setEnabled((fontData.getStyle()&SWT.BOLD) != 0);
-            	btnItalic.setEnabled((fontData.getStyle()&SWT.ITALIC) != 0);
+            	btnBold.setSelection((fontData.getStyle()&SWT.BOLD) != 0);
+            	btnItalic.setSelection((fontData.getStyle()&SWT.ITALIC) != 0);
             	
 				if ( control != null ) {
 					control.setFont(font);
@@ -150,8 +150,8 @@ public class FontEditor {
         	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
 
         	lblSample.setText("");
-        	btnBold.setEnabled(false);
-        	btnItalic.setEnabled(false);
+        	btnBold.setSelection(false);
+        	btnItalic.setSelection(false);
         	
 			lblSample.setFont(null);
 			
@@ -213,12 +213,12 @@ public class FontEditor {
     }
     
     public void setBold(boolean isBold) {
-    	btnBold.setEnabled(isBold);
+    	btnBold.setSelection(isBold);
     	setFont();
     }
     
     public void setItalic(boolean isItalic) {
-    	btnItalic.setEnabled(isItalic);
+    	btnItalic.setSelection(isItalic);
     	setFont();
     }
     
