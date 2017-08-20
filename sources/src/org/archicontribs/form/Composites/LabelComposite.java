@@ -1,6 +1,7 @@
 package org.archicontribs.form.Composites;
 
 import org.archicontribs.form.Editors.ColorEditor;
+import org.archicontribs.form.Editors.FontEditor;
 import org.archicontribs.form.Editors.SizeEditor;
 import org.archicontribs.form.Editors.StringEditor;
 import org.eclipse.swt.custom.CCombo;
@@ -14,6 +15,7 @@ public class LabelComposite extends Composite {
     private StringEditor            textEditor;			// text
 	private SizeEditor              sizeEditor;         // x, y, width, height
 	private ColorEditor             colorEditor;        // foreground, background
+	private FontEditor				fontEditor;			// font, fontBold, fontItalic
 	private StringEditor            tooltipEditor;      // tooltip
 
     private Label      lblFont              = null;         // font
@@ -51,9 +53,13 @@ public class LabelComposite extends Composite {
 		colorEditor = new ColorEditor(this);
 		colorEditor.setPosition(sizeEditor.getControl());
 		
+		// font, fontBold, fontItalic
+		fontEditor = new FontEditor(this);
+		fontEditor.setPosition(colorEditor.getControl());
+		
 		// tooltip
 		tooltipEditor = new StringEditor(this, 5);
-		tooltipEditor.setPosition(colorEditor.getControl());
+		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 	}
