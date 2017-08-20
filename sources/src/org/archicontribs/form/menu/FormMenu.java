@@ -123,7 +123,6 @@ public class FormMenu extends ExtensionContributionFactory {
 
                 
                 HashSet<EObject>selected = new HashSet<EObject>();
-                String variableSeparator = FormDialog.getString(form,"variableSeparator", ":");
                 
                 JSONObject filter = FormDialog.getJSONObject(form, "filter", null);
 				if ( (filter != null) && logger.isDebugEnabled() ) logger.debug("Applying filter to selected components");
@@ -182,8 +181,8 @@ public class FormMenu extends ExtensionContributionFactory {
 	                    }
 
 						// we guarantee than an object is not included in the same menu several times
-						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, variableSeparator, filter)) ) {
-							String menuLabel = FormVariable.expand(formName, variableSeparator, selectedObject);
+						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, filter)) ) {
+							String menuLabel = FormVariable.expand(formName, selectedObject);
 							if ( logger.isDebugEnabled() ) logger.debug("Adding menu entry \""+menuLabel+"\"");
 							
 							// we add the parameters
