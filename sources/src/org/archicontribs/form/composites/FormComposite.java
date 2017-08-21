@@ -56,7 +56,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		buttonOkEditor = new StringEditor(this, "OK button text:");
 		buttonOkEditor.setPosition(refersEditor.getControl());
 		buttonOkEditor.setProperty("buttonOk");
-		buttonOkEditor.setControlKey("buttonOk");
+		buttonOkEditor.setControlKey("buttonOkControl");
 		buttonOkEditor.mustSetControlText(true);
 		buttonOkEditor.setTooltipText("Text of the OK button\n\nDefault: OK.");
         
@@ -64,7 +64,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		buttonCancelEditor = new StringEditor(this, "Cancel button text:");
 		buttonCancelEditor.setPosition(buttonOkEditor.getControl());
 		buttonCancelEditor.setProperty("buttonCancel");
-		buttonCancelEditor.setControlKey("buttonCancel");
+		buttonCancelEditor.setControlKey("buttonCancelControl");
 		buttonCancelEditor.mustSetControlText(true);
 		buttonCancelEditor.setTooltipText("Text of the Cancel button\n\nDefault: Cancel.");
         
@@ -72,7 +72,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		buttonExportEditor = new StringEditor(this, "Export button text:");
 		buttonExportEditor.setPosition(buttonExportEditor.getControl());
 		buttonExportEditor.setProperty("buttonExport");
-		buttonExportEditor.setControlKey("buttonExport");
+		buttonExportEditor.setControlKey("buttonExportControl");
 		buttonExportEditor.mustSetControlText(true);
 		buttonExportEditor.setTooltipText("Text of the Export to Excel button\n\nDefault: Export to Excel.");
 		
