@@ -159,6 +159,7 @@ public class FormDialog extends Dialog {
     public static final int      defaultDialogSpacing     = 4;
     public static final String   defaultDialogName        = "Form plugin";
     public static final String   defaultDialogBackground  = "";
+    public static final String   defaultDialogForeground  = "";
     public static final String   defaultTabBackground     = "";
     public static final int      defaultButtonWidth       = 90;
     public static final int      defaultButtonHeight      = 25;
