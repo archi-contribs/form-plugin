@@ -257,18 +257,20 @@ public class FormGraphicalEditor extends Dialog {
                     			labelComposite.set("width", (int)treeItem.getData("width"));
                     			labelComposite.set("height", (int)treeItem.getData("height"));
                     			labelComposite.set("background", (String)treeItem.getData("background"));
+                    			labelComposite.set("alignment", (String)treeItem.getData("alignment"));
                     			break;
                     			
                     		case "TextComposite":
-                    			labelComposite.set("name", (String)treeItem.getData("name"));
-                    			labelComposite.set("variable", (String)treeItem.getData("variable"));
-                    			labelComposite.set("defaultText", (String)treeItem.getData("defaultText"));
-                    			labelComposite.set("forceDefault", (String)treeItem.getData("forceDefault"));
-                    			labelComposite.set("x", (int)treeItem.getData("x"));
-                    			labelComposite.set("y", (int)treeItem.getData("y"));
-                    			labelComposite.set("width", (int)treeItem.getData("width"));
-                    			labelComposite.set("height", (int)treeItem.getData("height"));
-                    			labelComposite.set("background", (String)treeItem.getData("background"));
+                    			textComposite.set("name", (String)treeItem.getData("name"));
+                    			textComposite.set("variable", (String)treeItem.getData("variable"));
+                    			textComposite.set("defaultText", (String)treeItem.getData("defaultText"));
+                    			textComposite.set("forceDefault", (String)treeItem.getData("forceDefault"));
+                    			textComposite.set("x", (int)treeItem.getData("x"));
+                    			textComposite.set("y", (int)treeItem.getData("y"));
+                    			textComposite.set("width", (int)treeItem.getData("width"));
+                    			textComposite.set("height", (int)treeItem.getData("height"));
+                    			textComposite.set("background", (String)treeItem.getData("background"));
+                    			textComposite.set("alignment", (String)treeItem.getData("alignment"));
                     			break;
                     			
                     		case "ComboComposite":
