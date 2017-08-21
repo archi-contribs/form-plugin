@@ -114,6 +114,14 @@ public class TextComposite extends Composite implements CompositeInterface {
             case "name":		nameEditor.setText((String)value); break;
     		case "foreground":	colorEditor.setForeground((String)value);
     		case "background":	colorEditor.setBackround((String)value); break;
+    		case "fontname":	  fontEditor.setFontName((String)value); break;
+    		case "fontsize":	  fontEditor.setFontSize((int)value); break;
+    		case "fontbold":	  fontEditor.setBold((boolean)value); break;
+    		case "fontitalic":	  fontEditor.setItalic((boolean)value); break;
+    		case "excelheet":     excelCellEditor.setText((String)value); break;
+    		case "excelcell":	  excelCellEditor.setText((String)value); break;
+    		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
+    		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
     		default:		throw new RuntimeException("does not know key "+key);
     	}
     }
