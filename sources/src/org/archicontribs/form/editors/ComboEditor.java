@@ -32,7 +32,6 @@ public class ComboEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblCombo.setLayoutData(fd);
-        lblCombo.setText("Choices:");
         
         combo = new CCombo(parent, SWT.BORDER);
         fd = new FormData();
