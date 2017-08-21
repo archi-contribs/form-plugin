@@ -64,7 +64,7 @@ public class LabelComposite extends Composite {
 		
 	      // tooltip
         alignmentEditor = new ComboEditor(this);
-        alignmentEditor.setPosition(fontEditor.getControl());
+        alignmentEditor.setPosition(tooltipEditor.getControl());
         alignmentEditor.setItems(new String[] {"", "left", "center", "right"});
         alignmentEditor.setTooltipText("Choose the alignment.\n\nDefault: left.");
         alignmentEditor.setProperty("alignment");
