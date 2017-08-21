@@ -183,14 +183,17 @@ public class FormDialog extends Dialog {
      */
     private void createContents(JSONObject form) throws IOException, ParseException, RuntimeException {
         variableSeparator = getString(form, "variableSeparator", defaultVariableSeparator);
-        String formName = FormVariable.expand(getString(form, "name", defaultDialogName), selectedObject);
+        String name = getString(form, "name", defaultDialogName);
+        String formName = FormVariable.expand(name, selectedObject);
         FormPosition.setFormName(formName);
         int dialogWidth = getInt(form, "width", defaultDialogWidth);
         int dialogHeight = getInt(form, "height", defaultDialogHeight);
         int dialogSpacing = getInt(form, "spacing", defaultDialogSpacing);
+        String dialogForeground = getString(form, "foreground", defaultDialogForeground);
         String dialogBackground = getString(form, "background", defaultDialogBackground);
         int buttonWidth = getInt(form, "buttonWidth", defaultButtonWidth);
         int buttonHeight = getInt(form, "buttonHeight", defaultButtonHeight);
+        String refers = getString(form, "refers", defaultRefers);
         String buttonOkText = FormVariable.expand(getString(form, "buttonOk", defaultButtonOkText), selectedObject);
         String buttonCancelText = FormVariable.expand(getString(form, "buttonCancel", defaultButtonCancelText), selectedObject);
         String buttonExportText = FormVariable.expand(getString(form, "buttonExport", defaultButtonExportText), selectedObject);
@@ -203,24 +206,26 @@ public class FormDialog extends Dialog {
             logger.trace("   height = " + debugValue(dialogHeight, defaultDialogHeight));
             logger.trace("   spacing = " + debugValue(dialogSpacing, defaultDialogSpacing));
             logger.trace("   background = " + debugValue(dialogBackground, defaultDialogBackground));
-            logger.trace("   width = " + debugValue(buttonWidth, defaultButtonWidth));
-            logger.trace("   height = " + debugValue(buttonHeight, defaultButtonHeight));
-            logger.trace("   refers = " + debugValue(getString(form, "refers", defaultRefers), defaultRefers));       // used in FormMenu class but deserves a debug line
-            logger.trace("   ok = " + debugValue(buttonOkText, defaultButtonOkText));
-            logger.trace("   cancel = " + debugValue(buttonCancelText, defaultButtonCancelText));
-            logger.trace("   whenEmpty = " + debugValue(globalWhenEmpty, defaultWhenEmpty));
+            logger.trace("   foreground = " + debugValue(dialogForeground, defaultDialogForeground));
+            logger.trace("   buttonWidth = " + debugValue(buttonWidth, defaultButtonWidth));
+            logger.trace("   buttonHeight = " + debugValue(buttonHeight, defaultButtonHeight));
+            logger.trace("   refers = " + debugValue(refers, defaultRefers));       // used in FormMenu class but deserves a debug line
+            logger.trace("   buttonOk = " + debugValue(buttonOkText, defaultButtonOkText));
+            logger.trace("   buttonCancel = " + debugValue(buttonCancelText, defaultButtonCancelText));
+            logger.trace("   buttonExport = " + debugValue(globalWhenEmpty, defaultWhenEmpty));
         }
+        
 
+        dialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        dialog.setText(FormVariable.expand(formName, selectedObject));
+        dialog.setLayout(null);
+        
         if (globalWhenEmpty != null) {
             globalWhenEmpty = globalWhenEmpty.toLowerCase();
             if (!inArray(validWhenEmpty, globalWhenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + globalWhenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
         }
-
-        dialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        dialog.setText(FormVariable.expand(formName, selectedObject));
-        dialog.setLayout(null);
-
+        
         int tabFolderWidth = dialogWidth - dialogSpacing * 2;
         int tabFolderHeight = dialogHeight - dialogSpacing * 3 - buttonHeight;
 
@@ -316,12 +321,16 @@ public class FormDialog extends Dialog {
                 logger.debug("Creating tab " + debugValue(tabText, defaultTabName));
 
             String tabBackground = getString(tab, "background", defaultTabBackground);
+            String tabForeground = getString(tab, "foreground", defaultTabForeground);
 
-            if (logger.isTraceEnabled())
+            if (logger.isTraceEnabled()) {
                 logger.trace("   background = " + debugValue(tabBackground, defaultTabBackground));
+                logger.trace("   foreground = " + debugValue(tabForeground, defaultTabForeground));
+            }
 
             TabItem tabItem = new TabItem(tabFolder, SWT.MULTI);
             tabItem.setText(tabText);
+            
             Composite composite = new Composite(tabFolder, SWT.NONE);
             tabItem.setControl(composite);
 
