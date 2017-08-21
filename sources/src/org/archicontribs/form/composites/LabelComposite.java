@@ -127,7 +127,7 @@ public class LabelComposite extends Composite {
     	        return;
     	        
     		case "name":
-    			nameEditor.setString(value);
+    			nameEditor.setText(value);
     			return;
     			
     		case "foreground":
@@ -139,11 +139,11 @@ public class LabelComposite extends Composite {
     			return;
     			
     		case "text":
-    			textEditor.setString(value);
+    			textEditor.setText(value);
     			return;
     			
     		case "tooltip":
-    			tooltipEditor.setString(value);
+    			tooltipEditor.setText(value);
     			return;	
     	}
     	throw new RuntimeException("does not know key "+key);
@@ -155,7 +155,7 @@ public class LabelComposite extends Composite {
     	        return alignmentEditor.getText();
     	        
     		case "name":
-    			return nameEditor.getString();
+    			return nameEditor.getText();
     			
     		case "foreground":
     			return colorEditor.getForeground();
@@ -164,10 +164,10 @@ public class LabelComposite extends Composite {
     			return colorEditor.getBackground();
     			
     		case "text":
-    			return textEditor.getString();
+    			return textEditor.getText();
     			
     		case "tooltip":
-    			return tooltipEditor.getString();
+    			return tooltipEditor.getText();
     	}
     	throw new RuntimeException("does not know key "+key);
     }
