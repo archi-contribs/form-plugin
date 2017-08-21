@@ -20,6 +20,9 @@ public class AlignmentEditor extends ComboEditor {
 		
 		combo=super.getControl();
 		combo.addSelectionListener(alignmentSelectionListener);
+		
+        super.setTooltipText("Choose the alignment.\n\nDefault: left.");
+        super.setItems(new String[] {"", "left", "center", "right"});
 	}
 	
 	private SelectionListener alignmentSelectionListener = new SelectionListener() {
