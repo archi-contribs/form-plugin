@@ -17,11 +17,10 @@ public class TextComposite extends Composite {
 	private FontEditor				fontEditor;			 // font, fontBold, fontItalic
 	private StringEditor		    tooltipEditor;       // tooltip
 	private AlignmentEditor         alignmentEditor;     // alignment
-	
 	private StringEditor            excelSheetEditor;    // excelSheet
 	private StringEditor            excelCellEditor;     // excelCell
 	private ComboEditor             excelCellTypeEditor; // excelCellType
-	private ComboEditor             excelDefaultEditor;  //excelDefault
+	private ComboEditor             excelDefaultEditor;  // excelDefault
 
 
 	public TextComposite(Composite parent, int style) {
@@ -54,7 +53,7 @@ public class TextComposite extends Composite {
 		colorEditor.setPosition(sizeEditor.getControl());
 		
 		// font, fontBold, fontItalic
-		fontEditor = new FontEditor(this, "Font");
+		fontEditor = new FontEditor(this, "Font:");
 		fontEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
