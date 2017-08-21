@@ -36,7 +36,7 @@ public class ComboEditor {
         fd = new FormData();
         fd.top = new FormAttachment(lblCombo, 0, SWT.TOP);
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        //fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
         combo.setLayoutData(fd);
         combo.addSelectionListener(comboSelectionListener);
 	}
