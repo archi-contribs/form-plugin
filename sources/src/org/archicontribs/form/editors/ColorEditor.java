@@ -15,7 +15,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 public class ColorEditor {
@@ -77,7 +76,6 @@ public class ColorEditor {
         @Override
     	public void widgetSelected(SelectionEvent event) {
         	Widget     widget = (Widget)parent.getData("control");
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
         	Color color;
         	
     		ColorDialog dlg = new ColorDialog((Shell)parent.getData("shell"));
@@ -104,10 +102,9 @@ public class ColorEditor {
 							((Shell)widget).setForeground(color);
 						else
 							((Control)widget).setForeground(color);
+
+	    				widget.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
 					}
-					
-	    			if ( treeItem != null )
-	    				treeItem.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
 				} else {
 					lblSample.setBackground(color);
 					
@@ -116,10 +113,9 @@ public class ColorEditor {
 							((Shell)widget).setBackground(color);
 						else
 							((Control)widget).setBackground(color);
+
+	    				widget.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
 					}
-					
-					if ( treeItem != null )
-	    				treeItem.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
 				}
     		}
     	}
@@ -129,7 +125,6 @@ public class ColorEditor {
         @Override
     	public void widgetSelected(SelectionEvent event) {
         	Widget     widget = (Widget)parent.getData("control");
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
         	Color color;
         	
 			color = lblSample.getForeground();
@@ -151,11 +146,9 @@ public class ColorEditor {
 					((Control)widget).setBackground(null);
 					((Control)widget).setForeground(null);
 				}
-			}
-			
-			if ( treeItem != null ) {
-				treeItem.setData("background", "");
-				treeItem.setData("foreground", "");
+
+				widget.setData("background", "");
+				widget.setData("foreground", "");
 			}
         }
     };
