@@ -14,7 +14,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TreeItem;
 
 public class SizeEditor {
 	private Label      lblX;
@@ -136,21 +135,18 @@ public class SizeEditor {
         @Override
         public void modifyText(ModifyEvent e) {
         	Control    control = (Control)parent.getData("control");
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
         	
         	int x = getX();
         	int y = getY();
         	int width = getWidth();
         	int height = getHeight();
         	
-        	if ( treeItem != null ) {
-        		treeItem.setData("x", x);
-        		treeItem.setData("y", y);
-        		treeItem.setData("width", width);
-        		treeItem.setData("height", height);
-        	}
-        	
-        	if ( control != null ) { 
+        	if ( control != null ) {
+        		control.setData("x", x);
+        		control.setData("y", y);
+        		control.setData("width", width);
+        		control.setData("height", height);
+ 
         		if ( width == 0 || height == 0 ) {
         			Point p = control.computeSize(SWT.DEFAULT, SWT.DEFAULT);
         			width = (width == 0) ? p.x : width;

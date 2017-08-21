@@ -84,12 +84,12 @@ public class StringEditor {
 	}
 	
 	public void setProperty(String property) {
-		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+		Widget widget = (Widget)parent.getData(controlKey);
 		
 		this.property = property;
 		
-    	if ( treeItem != null && property != null) {
-    	    setText((String)treeItem.getData(property));
+    	if ( widget != null && property != null) {
+    	    setText((String)widget.getData(property));
     	}
 	}
 	
@@ -134,9 +134,11 @@ public class StringEditor {
 	    		}
         	}
         	
-	    	if ( treeItem != null ) {
-		        if ( property != null ) treeItem.setData(property, getText());
-		        if ( mustSetTreeItemText ) treeItem.setText(treeItemTextPrefix+getText());
+        	if ( widget != null && property != null )
+        		widget.setData(property, getText());
+        	
+	    	if ( treeItem != null && mustSetTreeItemText ) {
+		        treeItem.setText(treeItemTextPrefix+getText());
         	}
         }
     };
