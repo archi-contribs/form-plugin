@@ -106,14 +106,14 @@ public class TextComposite extends Composite implements CompositeInterface {
 	
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key ) {
-    		case "x":			sizeEditor.setX((int)value); break;
-    		case "y":			sizeEditor.setY((int)value); break;
-    		case "width":		sizeEditor.setWidth((int)value); break;
-    		case "height":		sizeEditor.setHeight((int)value); break;
-            case "alignment":	alignmentEditor.setText((String)value); break;
-            case "name":		nameEditor.setText((String)value); break;
-    		case "foreground":	colorEditor.setForeground((String)value);
-    		case "background":	colorEditor.setBackround((String)value); break;
+    		case "x":			  sizeEditor.setX((int)value); break;
+    		case "y":			  sizeEditor.setY((int)value); break;
+    		case "width":		  sizeEditor.setWidth((int)value); break;
+    		case "height":		  sizeEditor.setHeight((int)value); break;
+            case "alignment":	  alignmentEditor.setText((String)value); break;
+            case "name":		  nameEditor.setText((String)value); break;
+    		case "foreground":	  colorEditor.setForeground((String)value); break;
+    		case "background":	  colorEditor.setBackround((String)value); break;
     		case "fontname":	  fontEditor.setFontName((String)value); break;
     		case "fontsize":	  fontEditor.setFontSize((int)value); break;
     		case "fontbold":	  fontEditor.setBold((boolean)value); break;
@@ -122,7 +122,7 @@ public class TextComposite extends Composite implements CompositeInterface {
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
     		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
-    		default:		throw new RuntimeException("does not know key "+key);
+    		default:			  throw new RuntimeException("does not know key "+key);
     	}
     }
 }
