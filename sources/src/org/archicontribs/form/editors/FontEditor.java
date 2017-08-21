@@ -221,6 +221,8 @@ public class FontEditor {
 	}
     
     public void setFontName(String fontName) {
+    	if ( fontName == null )
+    		fontName = "";
     	lblSample.setText(fontName);
     	setFont(false);
     }
