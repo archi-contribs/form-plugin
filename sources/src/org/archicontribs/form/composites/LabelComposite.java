@@ -1,7 +1,7 @@
 package org.archicontribs.form.composites;
 
+import org.archicontribs.form.editors.AlignmentEditor;
 import org.archicontribs.form.editors.ColorEditor;
-import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.FontEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
@@ -17,7 +17,7 @@ public class LabelComposite extends Composite {
 	private ColorEditor             colorEditor;        // foreground, background
 	private FontEditor				fontEditor;			// font, fontBold, fontItalic
 	private StringEditor            tooltipEditor;      // tooltip
-	private ComboEditor             alignmentEditor;    // alignment
+	private AlignmentEditor         alignmentEditor;    // alignment
 	    
     private StyledText txtExcelSheet        = null;         // excelSheet
     private StyledText txtExcelCell         = null;         // excelCell
@@ -63,10 +63,8 @@ public class LabelComposite extends Composite {
 		tooltipEditor.mustSetControlTolltip(true);
 		
 	      // tooltip
-        alignmentEditor = new ComboEditor(this);
+        alignmentEditor = new AlignmentEditor(this);
         alignmentEditor.setPosition(tooltipEditor.getControl());
-        alignmentEditor.setItems(new String[] {"", "left", "center", "right"});
-        alignmentEditor.setTooltipText("Choose the alignment.\n\nDefault: left.");
         alignmentEditor.setProperty("alignment");
 	}
 	
