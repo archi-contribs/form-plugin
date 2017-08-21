@@ -39,7 +39,7 @@ public class FormComposite extends Composite {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this);
+		nameEditor = new StringEditor(this, "Name");
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetControlText(true);
@@ -49,7 +49,7 @@ public class FormComposite extends Composite {
 		formSizeEditor.setPosition(nameEditor.getControl());
         
         // Background
-		colorEditor = new ColorEditor(this);
+		colorEditor = new ColorEditor(this, "Color :");
 		colorEditor.setPosition(formSizeEditor.getControl());
 		
         
