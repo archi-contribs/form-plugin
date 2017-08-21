@@ -32,14 +32,14 @@ public class LabelComposite extends Composite {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this);
+		nameEditor = new StringEditor(this, "Name:");
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.treeItemTextPrefix("Label: ");
 		
-		// name
-		textEditor = new StringEditor(this, 5);
+		// text
+		textEditor = new StringEditor(this, "Text:", 5);
 		textEditor.setPosition(nameEditor.getControl());
 		textEditor.setProperty("text");
 		textEditor.mustSetControlText(true);
@@ -49,21 +49,21 @@ public class LabelComposite extends Composite {
 		sizeEditor.setPosition(textEditor.getControl());
 		        
 		// foreground, background
-		colorEditor = new ColorEditor(this);
+		colorEditor = new ColorEditor(this, "Color:");
 		colorEditor.setPosition(sizeEditor.getControl());
 		
 		// font, fontBold, fontItalic
-		fontEditor = new FontEditor(this);
+		fontEditor = new FontEditor(this, "Font:");
 		fontEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
 	      // tooltip
-        alignmentEditor = new AlignmentEditor(this);
+        alignmentEditor = new AlignmentEditor(this, "Alignment:");
         alignmentEditor.setPosition(tooltipEditor.getControl());
         alignmentEditor.setProperty("alignment");
 	}
