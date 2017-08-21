@@ -10,7 +10,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.TreeItem;
 
 public class ComboEditor {
 	private Label      lblCombo;
@@ -47,22 +46,21 @@ public class ComboEditor {
 	}
 	
 	public void setProperty(String property) {
-		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
-		
 		this.property = property;
 		
-    	if ( treeItem != null && property != null) {
-	        setText((String)treeItem.getData(property));
+		Control control = (Control)parent.getData("control");
+		if ( control != null && property != null) {
+	        setText((String)control.getData(property));
     	}
 	}
 	
 	private SelectionListener comboSelectionListener = new SelectionListener() {
 	    @Override
         public void widgetSelected(SelectionEvent e) {
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+	    	Control control = (Control)parent.getData("control");
         	
-        	if ( treeItem != null ) {
-		        if ( property != null ) treeItem.setData(property, getText());
+        	if ( control != null && property != null ) {
+		        control.setData(property, getText());
         	}
         }
 
