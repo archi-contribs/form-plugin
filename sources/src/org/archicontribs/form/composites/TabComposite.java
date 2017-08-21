@@ -22,7 +22,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.TreeItem;
 
-public class TabComposite extends Composite {
+public class TabComposite extends Composite implements CompositeInterface {
     private StyledText txtName             = null;			// name
     private Label      lblBackgroundColor  = null;			// background
 
@@ -151,33 +151,23 @@ public class TabComposite extends Composite {
     	}
     };
     
-    public void set(String key, String value) throws RuntimeException {
+    public void set(String key, Object value) throws RuntimeException {
     	switch ( key ) {
     		case "name" :
     			txtName.removeModifyListener(nameModifyListener);
-    			txtName.setText(value);
+    			txtName.setText((String)value);
     			txtName.addModifyListener(nameModifyListener);
-    			return;
+    			break;
     			
     		case "background" :
-    			lblBackgroundColor.setText(value);
-				if ( !FormPlugin.isEmpty(value) ) {
-					String[] colorArray = value.split(",");
+    			lblBackgroundColor.setText((String)value);
+				if ( !FormPlugin.isEmpty((String)value) ) {
+					String[] colorArray = ((String)value).split(",");
 					lblBackgroundColor.setBackground(new Color(FormGraphicalEditor.display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
 				}
-    			return;
-    	}
-    	throw new RuntimeException("does not know key "+key);
-    }
-    
-    public String getString(String key) throws RuntimeException {
-    	switch ( key ) {
-    		case "name" :
-    			return txtName.getText();
+    			break;
     			
-    		case "background" :
-    			return lblBackgroundColor.getBackground().getRed()+","+lblBackgroundColor.getBackground().getGreen()+","+lblBackgroundColor.getBackground().getBlue();
+    		default:	throw new RuntimeException("does not know key "+key);
     	}
-    	throw new RuntimeException("does not know key "+key);
     }
 }
