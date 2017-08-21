@@ -237,11 +237,12 @@ public class FormGraphicalEditor extends Dialog {
                     			formComposite.set("height", (int)treeItem.getData("height"));
                     			formComposite.set("spacing", (int)treeItem.getData("spacing"));
                     			formComposite.set("background", (String)treeItem.getData("background"));
+                    			formComposite.set("foreground", (String)treeItem.getData("foreground"));
+                                formComposite.set("refers", (String)treeItem.getData("refers"));
                     			formComposite.set("buttonOk", (String)treeItem.getData("buttonOk"));
                     			formComposite.set("buttonCancel", (String)treeItem.getData("buttonCancel"));
                     			formComposite.set("buttonExport", (String)treeItem.getData("buttonExport"));
                     			formComposite.set("whenEmpty", (String)treeItem.getData("whenEmpty"));
-                            	formComposite.set("refers", (String)treeItem.getData("refers"));
                     			break;
                     			
                     		case "TabComposite":
