@@ -48,7 +48,7 @@ public class FormSizeEditor {
         fd = new FormData();
         fd.top = new FormAttachment(lblWidth, 0, SWT.TOP);
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(txtWidth, 40);
         txtWidth.setLayoutData(fd);
         txtWidth.setTextLimit(4);
         txtWidth.addVerifyListener(numericVerifyListener);
@@ -71,7 +71,7 @@ public class FormSizeEditor {
         fd = new FormData();
         fd.top = new FormAttachment(lblHeight, 0, SWT.TOP);
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(txtHeight, 40);
         txtHeight.setLayoutData(fd);
         txtHeight.setTextLimit(4);
         txtHeight.addVerifyListener(numericVerifyListener);
@@ -94,7 +94,7 @@ public class FormSizeEditor {
         fd = new FormData();
         fd.top = new FormAttachment(lblSpacing, 0, SWT.TOP);
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(txtSpacing, 40);
         txtSpacing.setLayoutData(fd);
         txtSpacing.setTextLimit(2);
         txtSpacing.addVerifyListener(numericVerifyListener);
@@ -117,7 +117,7 @@ public class FormSizeEditor {
         fd = new FormData();
         fd.top = new FormAttachment(lblButtonWidth, 0, SWT.TOP);
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(txtButtonWidth, 40);
         txtButtonWidth.setLayoutData(fd);
         txtButtonWidth.setTextLimit(3);
         txtButtonWidth.addVerifyListener(numericVerifyListener);
@@ -140,7 +140,7 @@ public class FormSizeEditor {
         fd = new FormData();
         fd.top = new FormAttachment(lblButtonHeight, 0, SWT.TOP);
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(txtButtonHeight, 40);
         txtButtonHeight.setLayoutData(fd);
         txtButtonHeight.setTextLimit(2);
         txtButtonHeight.addVerifyListener(numericVerifyListener);
