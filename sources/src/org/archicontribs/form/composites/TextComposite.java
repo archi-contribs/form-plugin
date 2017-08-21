@@ -131,7 +131,7 @@ public class TextComposite extends Composite {
                 return;
             
             case "name":
-    			nameEditor.setString(value);
+    			nameEditor.setText(value);
     			
     		case "foreground":
     			colorEditor.setForeground(value);
@@ -150,7 +150,7 @@ public class TextComposite extends Composite {
                 return alignmentEditor.getText();
                                 
     		case "name":
-    			return nameEditor.getString();
+    			return nameEditor.getText();
     			
     		case "foreground":
     			return colorEditor.getForeground();
