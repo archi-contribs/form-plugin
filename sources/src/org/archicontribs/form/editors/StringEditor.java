@@ -165,6 +165,8 @@ public class StringEditor {
     
     public void setText(String string) {
 		txtString.removeModifyListener(stringModifyListener);
+		if ( string == null )
+			string = "";
 		txtString.setText(string);
 		txtString.addModifyListener(stringModifyListener);
     }
