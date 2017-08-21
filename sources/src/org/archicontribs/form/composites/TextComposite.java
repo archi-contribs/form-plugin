@@ -1,6 +1,7 @@
 package org.archicontribs.form.composites;
 
 import org.archicontribs.form.editors.ColorEditor;
+import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.FontEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
@@ -16,8 +17,8 @@ public class TextComposite extends Composite {
 	private ColorEditor             colorEditor;        // foreground, background
 	private FontEditor				fontEditor;			// font, fontBold, fontItalic
 	private StringEditor		    tooltipEditor;      // tooltip
+	private ComboEditor             alignmentEditor;    // alignment
 	
-    private CCombo     comboAlignment       = null;         // alignment
     private StyledText txtExcelSheet        = null;         // excelSheet
     private StyledText txtExcelCell         = null;         // excelCell
     private CCombo     txtExcelCellType     = null;         // excelCellType
@@ -61,6 +62,13 @@ public class TextComposite extends Composite {
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
+		
+        // tooltip
+        alignmentEditor = new ComboEditor(this);
+        alignmentEditor.setPosition(tooltipEditor.getControl());
+        alignmentEditor.setItems(new String[] {"", "left", "center", "right"});
+        alignmentEditor.setTooltipText("Choose the alignment.\n\nDefault: left.");
+        alignmentEditor.setProperty("alignment");
 	}
 	
     public void set(String key, int value) throws RuntimeException {
@@ -85,7 +93,11 @@ public class TextComposite extends Composite {
 	
     public void set(String key, String value) throws RuntimeException {
     	switch ( key ) {
-    		case "name":
+            case "alignment":
+                alignmentEditor.setText(value);
+                return;
+            
+            case "name":
     			nameEditor.setString(value);
     			
     		case "foreground":
@@ -101,6 +113,9 @@ public class TextComposite extends Composite {
     
     public String getString(String key) throws RuntimeException {
     	switch ( key ) {
+            case "alignment":
+                return alignmentEditor.getText();
+                                
     		case "name":
     			return nameEditor.getString();
     			
