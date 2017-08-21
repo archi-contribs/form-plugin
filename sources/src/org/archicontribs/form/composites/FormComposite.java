@@ -8,7 +8,7 @@ import org.archicontribs.form.editors.StringEditor;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 
-public class FormComposite extends Composite {
+public class FormComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;         // name
 	private FormSizeEditor          formSizeEditor;     // width, height, spacing						//TODO : rename spacing to margin
 	private ColorEditor             colorEditor;        // foreground, background
@@ -91,83 +91,20 @@ public class FormComposite extends Composite {
                 );
 	}
     
-    public void set(String key, String value) throws RuntimeException {
+    public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
-    		case "name":
-    			nameEditor.setText(value);
-    			return;
-    			
-    		case "foreground":
-    			colorEditor.setBackround(value);
-    			
-    		case "background":
-    			colorEditor.setBackround(value);
-				
-    		case "refers":
-    			refersEditor.setText(value);
-    			return;
-    			
-    		case "buttonok":
-    			buttonOkEditor.setText(value);
-    			return;
-    			
-    		case "buttoncancel":
-    		    buttonCancelEditor.setText(value);
-    			return;
-    			
-    		case "buttonexport":
-    		    buttonExportEditor.setText(value);
-    			return;
-    			
-    		case "whenempty":
-    		    whenEmptyEditor.setText(value);
-    			return;
+    		case "name":		nameEditor.setText((String)value); break;
+    		case "foreground":	colorEditor.setBackround((String)value); break;
+    		case "background":	colorEditor.setBackround((String)value); break;
+    		case "refers":		refersEditor.setText((String)value); break;
+    		case "buttonok":	buttonOkEditor.setText((String)value); break;
+    		case "buttoncancel":buttonCancelEditor.setText((String)value); break;
+    		case "buttonexport":buttonExportEditor.setText((String)value); break;
+    		case "whenempty":   whenEmptyEditor.setText((String)value); break;
+    		case "width":		formSizeEditor.setWidth((int)value); break;
+    		case "height":		formSizeEditor.setHeight((int)value); break;
+    		case "spacing":		formSizeEditor.setSpacing((int)value); break;
+    		default:			throw new RuntimeException("does not know key "+key);
     	}
-    	throw new RuntimeException("does not know key "+key);
-    }
-    
-    public void set(String key, int value) throws RuntimeException {
-    	switch ( key.toLowerCase() ) {
-    		case "width":
-    			formSizeEditor.setWidth(value);
-    			return;
-    			
-    		case "height":
-    			formSizeEditor.setHeight(value);
-    			return;
-    			
-    		case "spacing":
-    			formSizeEditor.setSpacing(value);
-    			return;
-    	}
-    	throw new RuntimeException("does not know key "+key);
-    }
-    
-    public String getString(String key) throws RuntimeException {
-    	switch ( key.toLowerCase() ) {
-    		case "name":              return nameEditor.getText();
-    		case "background":        return colorEditor.getBackground();
-    		case "foreground":        return colorEditor.getForeground();
-    		case "refers":            return refersEditor.getText();
-    		case "buttonok":          return buttonOkEditor.getText();
-    		case "buttoncancel":      return buttonCancelEditor.getText();
-    		case "buttonexport":      return buttonExportEditor.getText();
-    		case "whenempty":         return whenEmptyEditor.getText();
-    	}
-    	throw new RuntimeException("does not know key "+key);
-    }
-    
-    public int getInt(String key) throws RuntimeException {
-    	switch ( key.toLowerCase() ) {
-    		case "width":
-    			return formSizeEditor.getWidth();
-
-    		case "height":
-    			return formSizeEditor.getHeight();
-    			
-    		case "spacing":
-    			return formSizeEditor.getSpacing();
-    	}
-    	throw new RuntimeException("does not know key "+key);
     }
 }
