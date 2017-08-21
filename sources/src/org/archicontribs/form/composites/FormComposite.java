@@ -70,7 +70,7 @@ public class FormComposite extends Composite implements CompositeInterface {
         
         // buttonExport
 		buttonExportEditor = new StringEditor(this, "Export button text:");
-		buttonExportEditor.setPosition(buttonExportEditor.getControl());
+		buttonExportEditor.setPosition(buttonCancelEditor.getControl());
 		buttonExportEditor.setProperty("buttonExport");
 		buttonExportEditor.setControlKey("buttonExportControl");
 		buttonExportEditor.mustSetControlText(true);
