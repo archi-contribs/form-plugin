@@ -9,7 +9,7 @@ import org.archicontribs.form.editors.StringEditor;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 
-public class TextComposite extends Composite {
+public class TextComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
     private StringEditor            textEditor;			 // text
 	private SizeEditor              sizeEditor;          // x, y, width, height
@@ -104,70 +104,17 @@ public class TextComposite extends Composite {
                 "Default: blank");
 	}
 	
-    public void set(String key, int value) throws RuntimeException {
+    public void set(String key, Object value) throws RuntimeException {
     	switch ( key ) {
-    		case "x":
-    			sizeEditor.setX(value);
-    			
-    		case "y":
-    			sizeEditor.setY(value);
-    			return;
-    			
-    		case "width":
-    			sizeEditor.setWidth(value);
-    			return;
-    			
-    		case "height":
-    			sizeEditor.setHeight(value);
-    			return;
+    		case "x":			sizeEditor.setX((int)value); break;
+    		case "y":			sizeEditor.setY((int)value); break;
+    		case "width":		sizeEditor.setWidth((int)value); break;
+    		case "height":		sizeEditor.setHeight((int)value); break;
+            case "alignment":	alignmentEditor.setText((String)value); break;
+            case "name":		nameEditor.setText((String)value); break;
+    		case "foreground":	colorEditor.setForeground((String)value);
+    		case "background":	colorEditor.setBackround((String)value); break;
+    		default:		throw new RuntimeException("does not know key "+key);
     	}
-    	throw new RuntimeException("does not know key "+key);
-    }
-	
-    public void set(String key, String value) throws RuntimeException {
-    	switch ( key ) {
-            case "alignment":
-                alignmentEditor.setText(value);
-                return;
-            
-            case "name":
-    			nameEditor.setText(value);
-    			
-    		case "foreground":
-    			colorEditor.setForeground(value);
-    			return;
-    			
-    		case "background":
-    			colorEditor.setBackround(value);
-    			return;
-    	}
-    	throw new RuntimeException("does not know key "+key);
-    }
-    
-    public String getString(String key) throws RuntimeException {
-    	switch ( key ) {
-            case "alignment":
-                return alignmentEditor.getText();
-                                
-    		case "name":
-    			return nameEditor.getText();
-    			
-    		case "foreground":
-    			return colorEditor.getForeground();
-    			
-    		case "background":
-    			return colorEditor.getBackground();
-    	}
-    	throw new RuntimeException("does not know key "+key);
-    }
-    
-    public int getInt(String key) throws RuntimeException {
-    	switch ( key ) {
-    		case "x":		return sizeEditor.getX();
-    		case "y":		return sizeEditor.getY();
-    		case "width": 	return sizeEditor.getWidth();
-    		case "height": 	return sizeEditor.getHeight();
-    	}
-    	throw new RuntimeException("does not know key "+key);
     }
 }
