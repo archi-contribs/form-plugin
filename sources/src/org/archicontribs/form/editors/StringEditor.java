@@ -1,7 +1,6 @@
 package org.archicontribs.form.editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
-import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
