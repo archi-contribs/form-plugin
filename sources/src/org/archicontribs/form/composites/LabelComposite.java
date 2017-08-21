@@ -6,11 +6,10 @@ import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.FontEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 
-public class LabelComposite extends ScrolledComposite implements CompositeInterface {
+public class LabelComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;         // name
     private StringEditor            textEditor;			// text
 	private SizeEditor              sizeEditor;         // x, y, width, height
@@ -117,7 +116,7 @@ public class LabelComposite extends ScrolledComposite implements CompositeInterf
     		case "fontsize":	  fontEditor.setFontSize((int)value); break;
     		case "fontbold":	  fontEditor.setBold((boolean)value); break;
     		case "fontitalic":	  fontEditor.setItalic((boolean)value); break;
-    		case "excelheet":     excelCellEditor.setText((String)value); break;
+    		case "excelsheet":    excelCellEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
     		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
