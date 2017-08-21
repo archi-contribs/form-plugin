@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class FormComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;         // name
-	private FormSizeEditor          formSizeEditor;     // width, height, spacing						//TODO : rename spacing to margin
+	private FormSizeEditor          formSizeEditor;     // width, height, spacing, buttonWidth, buttonHeight						//TODO : rename spacing to margin
 	private ColorEditor             colorEditor;        // foreground, background
     private ComboEditor             refersEditor; 		// refers
     private StringEditor            buttonOkEditor; 	// buttonOk
@@ -31,7 +31,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		nameEditor.setProperty("name");
 		nameEditor.mustSetControlText(true);
 				
-        // width, height, spacing
+        // width, height, spacing, buttonWidth, buttonHeight
 		formSizeEditor = new FormSizeEditor(this);
 		formSizeEditor.setPosition(nameEditor.getControl());
         
@@ -104,6 +104,8 @@ public class FormComposite extends Composite implements CompositeInterface {
     		case "width":		formSizeEditor.setWidth((int)value); break;
     		case "height":		formSizeEditor.setHeight((int)value); break;
     		case "spacing":		formSizeEditor.setSpacing((int)value); break;
+    		case "buttonwidth":	formSizeEditor.setButtonWidth((int)value); break;
+    		case "buttonheight":formSizeEditor.setButtonHeight((int)value); break;
     		default:			throw new RuntimeException("does not know key "+key);
     	}
     }
