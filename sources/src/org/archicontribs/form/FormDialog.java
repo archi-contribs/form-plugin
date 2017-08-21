@@ -367,7 +367,9 @@ public class FormDialog extends Dialog {
             JSONObject jsonObject = objectsIterator.next();
             
             String value;
-            String tooltip = FormVariable.expand(FormDialog.getString(jsonObject, "tooltip", ""), selectedObject);
+            String tooltip;
+            EObject referedEObject;
+            String unscoppedVariable;
 
             switch (getString(jsonObject, "class").toLowerCase()) {
                 case "check":
@@ -375,7 +377,28 @@ public class FormDialog extends Dialog {
                     break;
                     
                 case "combo":
-                    createCombo(jsonObject, composite);
+                    CCombo combo = createCombo(jsonObject, composite);
+                    
+                    value = FormVariable.expand(getString(jsonObject, "variable"), selectedObject);
+                    if (value.isEmpty() || (boolean)combo.getData("forceDefault"))
+                    	value = FormVariable.expand((String)combo.getData("defaultText"), selectedObject);
+                    if ( !FormPlugin.isEmpty(value) ) combo.setText(value);
+                    
+                    tooltip = (String)combo.getData("tooltip");
+                    if ( !FormPlugin.isEmpty(tooltip) ) {
+                        combo.setToolTipText(FormVariable.expand(tooltip, selectedObject));
+                    }
+                    
+                    // We reference the variable and the control to the eObject that the variable refers to
+                    referedEObject = FormVariable.getReferedEObject((String)combo.getData("variable"), selectedObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable((String)combo.getData("variable"), selectedObject);
+                    combo.setData("variable", unscoppedVariable);
+                    combo.setData("eObject", referedEObject);
+                    formVarList.set(referedEObject, unscoppedVariable, combo);
+
+                    if ( combo.getData("excelSheet") != null ) excelSheets.add((String)combo.getData("excelSheet"));
+                    
+                    combo.addModifyListener(textModifyListener);
                     break;
                     
                 case "label":
@@ -385,6 +408,7 @@ public class FormDialog extends Dialog {
                     if ( !FormPlugin.isEmpty(value) )
                     	label.setText(value);
                     
+                    tooltip = (String)label.getData("tooltip");
                     if ( !FormPlugin.isEmpty(tooltip) )
                     		label.setToolTipText(tooltip);
                     
@@ -406,19 +430,21 @@ public class FormDialog extends Dialog {
                         value = FormVariable.expand((String)text.getData("defaultText"), selectedObject);
                     if ( !FormPlugin.isEmpty(value) ) text.setText(value);
                     
+                    tooltip = (String)text.getData("tooltip");
                     if ( !FormPlugin.isEmpty(tooltip) ) {
                         text.setToolTipText(FormVariable.expand(tooltip, selectedObject));
-                    } else
+                    } else {
                         if (text.getData("regexp") != null) {
                             text.setData("pattern", Pattern.compile((String)text.getData("regexp")));
                             text.setToolTipText("Your text should match the following regexp :\n" + (String)text.getData("regexp"));
                         }
+                    }
 
                     text.addModifyListener(textModifyListener);
                     
                     // We reference the variable and the control to the eObject that the variable refers to
-                    EObject referedEObject = FormVariable.getReferedEObject((String)text.getData("variable"), selectedObject);
-                    String unscoppedVariable = FormVariable.getUnscoppedVariable((String)text.getData("variable"), selectedObject);
+                    referedEObject = FormVariable.getReferedEObject((String)text.getData("variable"), selectedObject);
+                    unscoppedVariable = FormVariable.getUnscoppedVariable((String)text.getData("variable"), selectedObject);
                     text.setData("variable", unscoppedVariable);
                     text.setData("eObject", referedEObject);
                     formVarList.set(referedEObject, unscoppedVariable, text);
@@ -734,7 +760,7 @@ public class FormDialog extends Dialog {
      * @param composite
      *            the composite where the control will be created
      */
-    private CCombo createCombo(JSONObject jsonObject, Composite composite) throws RuntimeException {
+    public static CCombo createCombo(JSONObject jsonObject, Composite composite) throws RuntimeException {
     	String controlName = getString(jsonObject, "name", "");
         
         if (logger.isDebugEnabled())
@@ -749,10 +775,6 @@ public class FormDialog extends Dialog {
         @SuppressWarnings("unchecked")
         String[] values = (String[]) (getJSONArray(jsonObject, "values")).toArray(new String[0]);
         
-        String variableValue = FormVariable.expand(variableName, selectedObject);
-        if (variableValue.isEmpty() || forceDefault)
-            variableValue = FormVariable.expand(defaultText, selectedObject);
-
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 0);
@@ -765,7 +787,7 @@ public class FormDialog extends Dialog {
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
         boolean editable = getBoolean(jsonObject, "editable", true);
-        String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
+        String whenEmpty = getString(jsonObject, "whenEmpty", null);
         String excelSheet = getString(jsonObject, "excelSheet", null);
         String excelCell = getString(jsonObject, "excelCell", null);
         String excelCellType = getString(jsonObject, "excelCellType", "string");
@@ -791,7 +813,7 @@ public class FormDialog extends Dialog {
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
             logger.trace("      editable = " + debugValue(editable, true));
-            logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
+            logger.trace("      whenEmpty = " + debugValue(whenEmpty, null));
             logger.trace("      excelSheet = " + debugValue(excelSheet, null));
             logger.trace("      excelCell = " + debugValue(excelCell, null));
             logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
@@ -825,8 +847,6 @@ public class FormDialog extends Dialog {
         combo.setData("keys", new String[]{"name", "variable", "values", "defaultText", "forceDefault",  "x", "y", "width", "height", "background", "foreground", "tooltip", "fontName", "fontSize", "fontBold", "fontItalic", "editable", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
         
         combo.setItems(values);
-        combo.setText(variableValue);
-        combo.pack();
 
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
@@ -865,28 +885,7 @@ public class FormDialog extends Dialog {
                 combo.setFont(FontDescriptor.createFrom(combo.getFont()).setHeight(fontSize).setStyle(style).createFont(combo.getDisplay()));
             }
         }
-
-        // We reference the variable and the control to the eObject that the variable refers to
-        EObject referedEObject = FormVariable.getReferedEObject(variableName, selectedObject);
-        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, selectedObject);
-        combo.setData("variable", unscoppedVariable);
-        combo.setData("eObject", referedEObject);
-        combo.setData("whenEmpty", whenEmpty);
-        formVarList.set(referedEObject, unscoppedVariable, combo);
-
-        if (excelSheet != null) {
-            excelSheets.add(excelSheet);
-            combo.setData("excelSheet", excelSheet);
-            combo.setData("excelCell", excelCell);
-            combo.setData("excelCellType", excelCellType.toLowerCase());
-            combo.setData("excelDefault", excelDefault.toLowerCase());
-        }
-
-        if (tooltip != null) {
-            combo.setToolTipText(FormVariable.expand(tooltip, selectedObject));
-        }
         
-        combo.addModifyListener(textModifyListener);
         return combo;
     }
 
