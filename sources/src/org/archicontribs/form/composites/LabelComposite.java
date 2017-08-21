@@ -6,10 +6,11 @@ import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.FontEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 
-public class LabelComposite extends Composite implements CompositeInterface {
+public class LabelComposite extends ScrolledComposite implements CompositeInterface {
 	private StringEditor            nameEditor;         // name
     private StringEditor            textEditor;			// text
 	private SizeEditor              sizeEditor;         // x, y, width, height
@@ -101,17 +102,25 @@ public class LabelComposite extends Composite implements CompositeInterface {
 	}
 	
     public void set(String key, Object value) throws RuntimeException {
-    	switch ( key ) {
-    		case "x":    		sizeEditor.setX((int)value); break;
-    		case "y":    		sizeEditor.setY((int)value); break;
-    		case "width":    	sizeEditor.setWidth((int)value); break;
-    		case "height":    	sizeEditor.setHeight((int)value); break;
-    	    case "alignment":   alignmentEditor.setText((String)value); break;
-    		case "name":    	nameEditor.setText((String)value); break;
-    		case "foreground":	colorEditor.setForeground((String)value); break;
-    		case "background":	colorEditor.setBackround((String)value); break;
-    		case "text":    	textEditor.setText((String)value); break;
-    		case "tooltip":    	tooltipEditor.setText((String)value); break;
+    	switch ( key.toLowerCase() ) {
+    		case "x":    		  sizeEditor.setX((int)value); break;
+    		case "y":    		  sizeEditor.setY((int)value); break;
+    		case "width":    	  sizeEditor.setWidth((int)value); break;
+    		case "height":    	  sizeEditor.setHeight((int)value); break;
+    	    case "alignment":     alignmentEditor.setText((String)value); break;
+    		case "name":    	  nameEditor.setText((String)value); break;
+    		case "foreground":	  colorEditor.setForeground((String)value); break;
+    		case "background":	  colorEditor.setBackround((String)value); break;
+    		case "text":    	  textEditor.setText((String)value); break;
+    		case "tooltip":    	  tooltipEditor.setText((String)value); break;
+    		case "fontname":	  fontEditor.setFontName((String)value); break;
+    		case "fontsize":	  fontEditor.setFontSize((int)value); break;
+    		case "fontbold":	  fontEditor.setBold((boolean)value); break;
+    		case "fontitalic":	  fontEditor.setItalic((boolean)value); break;
+    		case "excelheet":     excelCellEditor.setText((String)value); break;
+    		case "excelcell":	  excelCellEditor.setText((String)value); break;
+    		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
+    		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
     		default:			throw new RuntimeException("does not know key "+key);
     	}
     	
