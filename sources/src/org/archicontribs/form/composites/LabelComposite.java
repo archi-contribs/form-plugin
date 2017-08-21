@@ -14,7 +14,7 @@ public class LabelComposite extends Composite {
     private StringEditor            textEditor;			// text
 	private SizeEditor              sizeEditor;         // x, y, width, height
 	private ColorEditor             colorEditor;        // foreground, background
-	private FontEditor				fontEditor;			// font, fontBold, fontItalic
+	private FontEditor				fontEditor;			// fontName, fontSize, fontBold, fontItalic
 	private StringEditor            tooltipEditor;      // tooltip
 	private AlignmentEditor         alignmentEditor;    // alignment
     private StringEditor            excelSheetEditor;    // excelSheet
