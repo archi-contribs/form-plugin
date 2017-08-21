@@ -1,5 +1,6 @@
 package org.archicontribs.form.editors;
 
+import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
@@ -18,11 +19,13 @@ public class AlignmentEditor extends ComboEditor {
 	public AlignmentEditor(Composite parent) {
 		super(parent);
 		
+		this.parent = parent;
+		
 		combo=super.getControl();
 		combo.addSelectionListener(alignmentSelectionListener);
 		
         super.setTooltipText("Choose the alignment.\n\nDefault: left.");
-        super.setItems(new String[] {"", "left", "center", "right"});
+        super.setItems(new String[] {"left", "center", "right"});
 	}
 	
 	private SelectionListener alignmentSelectionListener = new SelectionListener() {
@@ -68,6 +71,8 @@ public class AlignmentEditor extends ComboEditor {
     @Override
     public void setText(String text) {
         combo.removeSelectionListener(alignmentSelectionListener);
+        if ( FormPlugin.isEmpty(text) )
+            text="left";
         super.setText(text);
         combo.addSelectionListener(alignmentSelectionListener);
     }   
