@@ -1,4 +1,4 @@
-package org.archicontribs.form.Composites;
+package org.archicontribs.form.composites;
 
 import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormPlugin;

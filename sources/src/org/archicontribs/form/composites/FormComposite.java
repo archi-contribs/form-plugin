@@ -1,10 +1,10 @@
-package org.archicontribs.form.Composites;
+package org.archicontribs.form.composites;
 
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
-import org.archicontribs.form.Editors.ColorEditor;
-import org.archicontribs.form.Editors.FormSizeEditor;
-import org.archicontribs.form.Editors.StringEditor;
+import org.archicontribs.form.editors.ColorEditor;
+import org.archicontribs.form.editors.FormSizeEditor;
+import org.archicontribs.form.editors.StringEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;

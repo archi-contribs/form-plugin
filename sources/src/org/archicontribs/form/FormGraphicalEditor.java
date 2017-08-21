@@ -5,10 +5,10 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Level;
-import org.archicontribs.form.Composites.FormComposite;
-import org.archicontribs.form.Composites.LabelComposite;
-import org.archicontribs.form.Composites.TabComposite;
-import org.archicontribs.form.Composites.TextComposite;
+import org.archicontribs.form.composites.FormComposite;
+import org.archicontribs.form.composites.LabelComposite;
+import org.archicontribs.form.composites.TabComposite;
+import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
