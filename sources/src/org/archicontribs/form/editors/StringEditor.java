@@ -90,7 +90,7 @@ public class StringEditor {
 		this.property = property;
 		
     	if ( treeItem != null && property != null) {
-	        setString((String)treeItem.getData(property));
+    	    setText((String)treeItem.getData(property));
     	}
 	}
 	
@@ -103,32 +103,32 @@ public class StringEditor {
         	if ( widget != null ) {
 	    		switch ( widget.getClass().getSimpleName() ) {
 	    			case "Label":
-	    				if ( mustSetControlText ) ((Label)widget).setText(getString());
-	    				if ( mustSetControlTolltip ) ((Label)widget).setToolTipText(getString());
+	    				if ( mustSetControlText ) ((Label)widget).setText(getText());
+	    				if ( mustSetControlTolltip ) ((Label)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "StyledText":
-	    				if ( mustSetControlText ) ((StyledText)widget).setText(getString());
-	    				if ( mustSetControlTolltip ) ((StyledText)widget).setToolTipText(getString());
+	    				if ( mustSetControlText ) ((StyledText)widget).setText(getText());
+	    				if ( mustSetControlTolltip ) ((StyledText)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "CCombo":
-	    				if ( mustSetControlText ) ((CCombo)widget).setText(getString());
-	    				if ( mustSetControlTolltip ) ((CCombo)widget).setToolTipText(getString());
+	    				if ( mustSetControlText ) ((CCombo)widget).setText(getText());
+	    				if ( mustSetControlTolltip ) ((CCombo)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "Button":
-	    				if ( mustSetControlText ) ((Button)widget).setText(getString());
-	    				if ( mustSetControlTolltip ) ((Button)widget).setToolTipText(getString());
+	    				if ( mustSetControlText ) ((Button)widget).setText(getText());
+	    				if ( mustSetControlTolltip ) ((Button)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "Shell":
-	    				if ( mustSetControlText ) ((Shell)widget).setText(getString());
-	    				if ( mustSetControlTolltip ) ((Shell)widget).setToolTipText(getString());
+	    				if ( mustSetControlText ) ((Shell)widget).setText(getText());
+	    				if ( mustSetControlTolltip ) ((Shell)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "Table":
-	    				if ( mustSetControlTolltip ) ((Shell)widget).setToolTipText(getString());
+	    				if ( mustSetControlTolltip ) ((Shell)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			default : throw new RuntimeException("Do not know "+widget.getClass().getSimpleName()+" controls");
@@ -136,8 +136,8 @@ public class StringEditor {
         	}
         	
 	    	if ( treeItem != null ) {
-		        if ( property != null ) treeItem.setData(property, getString());
-		        if ( mustSetTreeItemText ) treeItem.setText(treeItemTextPrefix+getString());
+		        if ( property != null ) treeItem.setData(property, getText());
+		        if ( mustSetTreeItemText ) treeItem.setText(treeItemTextPrefix+getText());
         	}
         }
     };
@@ -162,13 +162,13 @@ public class StringEditor {
 		return txtString;
 	}
     
-    public void setString(String string) {
+    public void setText(String string) {
 		txtString.removeModifyListener(stringModifyListener);
 		txtString.setText(string);
 		txtString.addModifyListener(stringModifyListener);
     }
     
-    public String getString() {
+    public String getText() {
     	return txtString.getText();
     }
 }
