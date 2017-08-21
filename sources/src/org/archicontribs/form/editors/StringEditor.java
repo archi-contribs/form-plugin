@@ -41,9 +41,7 @@ public class StringEditor {
         lblString.setLayoutData(fd);
         lblString.setText("String:");
         
-        if ( nbLines <= 0 )
-        	nbLines = 1;
-        if ( nbLines == 1 )
+        if ( nbLines <= 1 )
         	txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
         else
         	txtString = new StyledText(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -51,7 +49,8 @@ public class StringEditor {
         fd.top = new FormAttachment(lblString, 0, SWT.TOP);
         fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
-        fd.bottom = new FormAttachment(txtString, txtString.getLineHeight()*nbLines, SWT.TOP);
+        if ( nbLines > 1)
+            fd.bottom = new FormAttachment(txtString, (txtString.getLineHeight()+2)*(nbLines+1), SWT.TOP);     // we add the inter-lines height plus the scrollbar height
         txtString.setLayoutData(fd);
         txtString.addModifyListener(stringModifyListener);
 	}
