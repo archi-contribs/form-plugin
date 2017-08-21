@@ -452,8 +452,6 @@ public class FormDialog extends Dialog {
         
         FormPosition.setControlName(controlName); FormPosition.setControlClass("label");
 
-        Label label = new Label(composite, SWT.WRAP);		                  // we create the control at the very beginning because we need its default size which is dependent on its content
-
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 0);
@@ -463,7 +461,7 @@ public class FormDialog extends Dialog {
         String foreground = getString(jsonObject, "foreground", null);
         String tooltip = getString(jsonObject, "tooltip", null);
         String fontName = getString(jsonObject, "fontName", null);
-        int fontSize = getInt(jsonObject, "fontSize", label.getFont().getFontData()[0].getHeight());
+        int fontSize = getInt(jsonObject, "fontSize", 0);
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
         String alignment = getString(jsonObject, "alignment", "left");
@@ -483,7 +481,7 @@ public class FormDialog extends Dialog {
             logger.trace("      foreground = " + debugValue(foreground, null));
             logger.trace("      tooltip = " + debugValue(tooltip, null));
             logger.trace("      fontName = " + debugValue(fontName, null));
-            logger.trace("      fontSize = " + debugValue(fontSize, label.getFont().getFontData()[0].getHeight()));
+            logger.trace("      fontSize = " + debugValue(fontSize, 0));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
             logger.trace("      alignment = "+debugValue(alignment, "left"));
@@ -492,6 +490,8 @@ public class FormDialog extends Dialog {
             logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
             logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
         }
+        
+        Label label = new Label(composite, SWT.WRAP);
         
         label.setData("name", controlName);
         label.setData("text", controlText);
@@ -511,6 +511,7 @@ public class FormDialog extends Dialog {
         label.setData("excelCell", excelCell);
         label.setData("excelCellType", excelCellType.toLowerCase());
         label.setData("excelDefault", excelDefault.toLowerCase());
+        label.setData("keys", new String[]{"name", "text", "x", "y", "width", "height", "background", "foreground", "tooltip", "fontName", "fontSize", "fontBold", "fontItalic", "alignment", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
 
 		if ( width == 0 || height == 0 ) {
 			Point p = label.computeSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -590,21 +591,19 @@ public class FormDialog extends Dialog {
         
         FormPosition.setControlName(controlName); FormPosition.setControlClass("text");
         
-        StyledText text = new StyledText(composite, SWT.WRAP | SWT.BORDER);		                   // we create the control at the very beginning because we need its default size which is dependent on its content
-        
         String variableName = getString(jsonObject, "variable");
         String defaultText = getString(jsonObject, "default", null);
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", text.getSize().x);
-        int height = getInt(jsonObject, "height", text.getSize().y);
+        int width = getInt(jsonObject, "width", 0);
+        int height = getInt(jsonObject, "height", 0);
         String background = getString(jsonObject, "background", null);
         String foreground = getString(jsonObject, "foreground", null);
         String regex = getString(jsonObject, "regexp", null);
         String tooltip = getString(jsonObject, "tooltip", null);
         String fontName = getString(jsonObject, "fontName", null);
-        int fontSize = getInt(jsonObject, "fontSize", text.getFont().getFontData()[0].getHeight());
+        int fontSize = getInt(jsonObject, "fontSize", 0);
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
         String alignment = getString(jsonObject, "alignment", "left");
@@ -618,20 +617,20 @@ public class FormDialog extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("   Creating Text control \"" + variableName + "\"");
         if (logger.isTraceEnabled()) {
-            logger.trace("      name = " + debugValue(controlName, variableName));
+            logger.trace("      name = " + controlName);
             logger.trace("      variable = " + variableName);
-            logger.trace("      defaultText = " + debugValue(defaultText, ""));
+            logger.trace("      default = " + debugValue(defaultText, ""));
             logger.trace("      forceDefault = " + debugValue(forceDefault, false));
             logger.trace("      x = " + debugValue(x, 0));
             logger.trace("      y = " + debugValue(y, 0));
-            logger.trace("      width = " + debugValue(width, text.getSize().x));
-            logger.trace("      height = " + debugValue(height, text.getSize().y));
+            logger.trace("      width = " + debugValue(width, 0));
+            logger.trace("      height = " + debugValue(height, 0));
             logger.trace("      background = " + debugValue(background, null));
             logger.trace("      foreground = " + debugValue(foreground, null));
             logger.trace("      regexp = " + debugValue(regex, null));
             logger.trace("      tooltip = " + debugValue(tooltip, null));
             logger.trace("      fontName = " + debugValue(fontName, null));
-            logger.trace("      fontSize = " + debugValue(fontSize, text.getFont().getFontData()[0].getHeight()));
+            logger.trace("      fontSize = " + debugValue(fontSize, 0));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
             logger.trace("      alignment = "+debugValue(alignment, "left"));
@@ -642,6 +641,8 @@ public class FormDialog extends Dialog {
             logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
             logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
         }
+        
+        StyledText text = new StyledText(composite, SWT.WRAP | SWT.BORDER);		                   // we create the control at the very beginning because we need its default size which is dependent on its content
         
         text.setData("name", controlName);
         text.setData("variable", variableName);
@@ -666,7 +667,8 @@ public class FormDialog extends Dialog {
         text.setData("excelCell", excelCell);
         text.setData("excelCellType", excelCellType.toLowerCase());
         text.setData("excelDefault", excelDefault.toLowerCase());
-
+        text.setData("keys", new String[]{"name", "variable", "defaultText", "forceDefault", "x", "y", "width", "height", "background", "foreground", "tooltip", "regexp", "fontName", "fontSize", "fontBold", "fontItalic", "alignment", "editable", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
+        
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
             if (!inArray(validWhenEmpty, whenEmpty))
@@ -733,36 +735,33 @@ public class FormDialog extends Dialog {
      *            the composite where the control will be created
      */
     private CCombo createCombo(JSONObject jsonObject, Composite composite) throws RuntimeException {
-        @SuppressWarnings("unchecked")
-        String[] values = (String[]) (getJSONArray(jsonObject, "values")).toArray(new String[0]);
+    	String controlName = getString(jsonObject, "name", "");
+        
+        if (logger.isDebugEnabled())
+            logger.debug("   Creating combo control " + controlName);
+
+        FormPosition.setControlName(controlName); FormPosition.setControlClass("combo");
 
         String variableName = getString(jsonObject, "variable");
         String defaultText = getString(jsonObject, "default", "");
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
 
+        @SuppressWarnings("unchecked")
+        String[] values = (String[]) (getJSONArray(jsonObject, "values")).toArray(new String[0]);
+        
         String variableValue = FormVariable.expand(variableName, selectedObject);
-
         if (variableValue.isEmpty() || forceDefault)
             variableValue = FormVariable.expand(defaultText, selectedObject);
 
-        CCombo combo = new CCombo(composite, SWT.NONE);						// we create the control at the very beginning because we need its default size which is dependent on its content
-
-        combo.setItems(values);
-        combo.setText(variableValue);
-        combo.pack();
-
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", combo.getSize().x);
-        int height = getInt(jsonObject, "height", combo.getSize().y);
-        String controlName = getString(jsonObject, "name", variableName);
-        FormPosition.setControlName(controlName);
-        FormPosition.setControlClass("combo");
+        int width = getInt(jsonObject, "width", 0);
+        int height = getInt(jsonObject, "height", 0);
         String background = getString(jsonObject, "background", null);
         String foreground = getString(jsonObject, "foreground", null);
         String tooltip = getString(jsonObject, "tooltip", null);
         String fontName = getString(jsonObject, "fontName", null);
-        int fontSize = getInt(jsonObject, "fontSize", combo.getFont().getFontData()[0].getHeight());
+        int fontSize = getInt(jsonObject, "fontSize", 0);
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
         boolean editable = getBoolean(jsonObject, "editable", true);
@@ -775,19 +774,20 @@ public class FormDialog extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("   Creating combo \"" + variableName + "\"");
         if (logger.isTraceEnabled()) {
-            logger.trace("      x = " + x);
-            logger.trace("      y = " + y);
-            logger.trace("      width = " + debugValue(width, combo.getSize().x));
-            logger.trace("      height = " + debugValue(height, combo.getSize().y));
             logger.trace("      name = " + debugValue(controlName, variableName));
-            logger.trace("      background = " + debugValue(background, null));
-            logger.trace("      foreground = " + debugValue(foreground, null));
+            logger.trace("      variable = " + variableName);
             logger.trace("      values = " + values);
             logger.trace("      default = " + debugValue(defaultText, ""));
             logger.trace("      forceDefault = " + debugValue(forceDefault, false));
+            logger.trace("      x = " + x);
+            logger.trace("      y = " + y);
+            logger.trace("      width = " + debugValue(width, 0));
+            logger.trace("      height = " + debugValue(height, 0));
+            logger.trace("      background = " + debugValue(background, null));
+            logger.trace("      foreground = " + debugValue(foreground, null));
             logger.trace("      tooltip = " + debugValue(tooltip, null));
             logger.trace("      fontName = " + debugValue(fontName, null));
-            logger.trace("      fontSize = " + debugValue(fontSize, combo.getFont().getFontData()[0].getHeight()));
+            logger.trace("      fontSize = " + debugValue(fontSize, 0));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
             logger.trace("      editable = " + debugValue(editable, true));
@@ -797,6 +797,36 @@ public class FormDialog extends Dialog {
             logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
             logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
         }
+        
+        CCombo combo = new CCombo(composite, SWT.NONE);						// we create the control at the very beginning because we need its default size which is dependent on its content
+
+        combo.setData("name", controlName);
+        combo.setData("variable", variableName);
+        combo.setData("values", values);
+        combo.setData("default", defaultText);
+        combo.setData("forceDefault", forceDefault);
+        combo.setData("x", x);
+        combo.setData("y", y);
+        combo.setData("width", width);
+        combo.setData("height", height);
+        combo.setData("background", background);
+        combo.setData("foreground", foreground);
+        combo.setData("tooltip", tooltip);
+        combo.setData("fontName", fontName);
+        combo.setData("fontSize", fontSize);
+        combo.setData("fontBold", fontBold);
+        combo.setData("fontItalic", fontItalic);
+        combo.setData("editable", editable);
+        combo.setData("whenEmpty", whenEmpty);
+        combo.setData("excelSheet", excelSheet);
+        combo.setData("excelCell", excelCell);
+        combo.setData("excelCellType", excelCellType.toLowerCase());
+        combo.setData("excelDefault", excelDefault.toLowerCase());
+        combo.setData("keys", new String[]{"name", "variable", "values", "defaultText", "forceDefault",  "x", "y", "width", "height", "background", "foreground", "tooltip", "fontName", "fontSize", "fontBold", "fontItalic", "editable", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
+        
+        combo.setItems(values);
+        combo.setText(variableValue);
+        combo.pack();
 
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
@@ -871,31 +901,24 @@ public class FormDialog extends Dialog {
      *            the composite where the control will be created
      */
     private Button createCheck(JSONObject jsonObject, Composite composite) throws RuntimeException {
+    	String controlName = getString(jsonObject, "name", "");
+        
+        if (logger.isDebugEnabled())
+            logger.debug("   Creating check control " + controlName);
+
+        FormPosition.setControlName(controlName); FormPosition.setControlClass("check");
+        
         @SuppressWarnings("unchecked")
         String[] values = (String[]) (getJSONArray(jsonObject, "values")).toArray(new String[0]);
 
         String variableName = getString(jsonObject, "variable");
         String value = FormVariable.expand(variableName, selectedObject);
-        String defaultValue = getString(jsonObject, "default", "");
+        String defaultText = getString(jsonObject, "default", "");
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
-
-        Button check = new Button(composite, SWT.CHECK);
-        if ( values == null || values.length == 0 ) {
-            check.setData("values", null);
-            check.setSelection(Boolean.valueOf((value.isEmpty() || forceDefault)?defaultValue:value));
-        } else {
-            check.setData("values", values);
-            check.setSelection(values[0].equals((value.isEmpty() || forceDefault)?defaultValue:value));
-        }
-        check.pack();
-
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", check.getSize().x);
-        int height = getInt(jsonObject, "height", check.getSize().y);
-        String controlName = getString(jsonObject, "name", variableName);
-        FormPosition.setControlName(controlName);
-        FormPosition.setControlClass("check");
+        int width = getInt(jsonObject, "width", 0);
+        int height = getInt(jsonObject, "height", 0);
         String background = getString(jsonObject, "background", null);
         String foreground = getString(jsonObject, "foreground", null);
         String tooltip = getString(jsonObject, "tooltip", null);
@@ -909,17 +932,19 @@ public class FormDialog extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("   Creating check \"" + variableName + "\"");
         if (logger.isTraceEnabled()) {
+            logger.trace("      name = " + debugValue(controlName, variableName));
+            logger.trace("      variable = " + variableName);
+            logger.trace("      values = " + values);
+            logger.trace("      default = " + debugValue(defaultText, ""));
+            logger.trace("      forceDefault = " + debugValue(forceDefault, false));
             logger.trace("      x = " + debugValue(x, 0));
             logger.trace("      y = " + debugValue(y, 0));
-            logger.trace("      width = " + debugValue(width, check.getSize().x));
-            logger.trace("      height = " + debugValue(height, check.getSize().y));
+            logger.trace("      width = " + debugValue(width, 0));
+            logger.trace("      height = " + debugValue(height, 0));
             logger.trace("      name = " + debugValue(controlName, variableName));
             logger.trace("      background = " + debugValue(background, null));
             logger.trace("      foreground = " + debugValue(foreground, null));
             logger.trace("      alignment = "+debugValue(alignment, "left"));
-            logger.trace("      values = " + values);
-            logger.trace("      default = " + debugValue(defaultValue, ""));
-            logger.trace("      forceDefault = " + debugValue(forceDefault, false));
             logger.trace("      tooltip = " + debugValue(tooltip, null));
             logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
             logger.trace("      excelSheet = " + debugValue(excelSheet, null));
@@ -927,6 +952,37 @@ public class FormDialog extends Dialog {
             logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
             logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
         }
+        
+        Button check = new Button(composite, SWT.CHECK);
+        
+        check.setData("name", controlName);
+        check.setData("variable", variableName);
+        check.setData("values", values);
+        check.setData("default", defaultText);
+        check.setData("forceDefault", forceDefault);
+        check.setData("x", x);
+        check.setData("y", y);
+        check.setData("width", width);
+        check.setData("height", height);
+        check.setData("background", background);
+        check.setData("foreground", foreground);
+        check.setData("alignment", alignment);
+        check.setData("tooltip", tooltip);
+        check.setData("whenEmpty", whenEmpty);
+        check.setData("excelSheet", excelSheet);
+        check.setData("excelCell", excelCell);
+        check.setData("excelCellType", excelCellType.toLowerCase());
+        check.setData("excelDefault", excelDefault.toLowerCase());
+        check.setData("keys", new String[]{"name", "variable", "values", "defaultText", "forceDefault",  "x", "y", "width", "height", "background", "foreground", "alignment", "tooltip", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
+        
+        if ( values == null || values.length == 0 ) {
+            check.setData("values", null);
+            check.setSelection(Boolean.valueOf((value.isEmpty() || forceDefault)?defaultText:value));
+        } else {
+            check.setData("values", values);
+            check.setSelection(values[0].equals((value.isEmpty() || forceDefault)?defaultText:value));
+        }
+        check.pack();
 
         if (whenEmpty != null) {
             whenEmpty = whenEmpty.toLowerCase();
@@ -997,13 +1053,17 @@ public class FormDialog extends Dialog {
      */
     @SuppressWarnings("unchecked")
     private Table createTable(JSONObject jsonObject, Composite composite) throws RuntimeException {
+    	String controlName = getString(jsonObject, "name", "");
+        
+        if (logger.isDebugEnabled())
+            logger.debug("   Creating check control " + controlName);
+
+        FormPosition.setControlName(controlName); FormPosition.setControlClass("table");
+        
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 100);
         int height = getInt(jsonObject, "height", 50);
-        String controlName = getString(jsonObject, "name", defaultTabName);
-        FormPosition.setControlName(controlName);
-        FormPosition.setControlClass("table");
         String background = getString(jsonObject, "background", null);
         String foreground = getString(jsonObject, "foreground", null);
         String tooltip = getString(jsonObject, "tooltip", null);
@@ -1014,11 +1074,11 @@ public class FormDialog extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("   Creating table");
         if (logger.isTraceEnabled()) {
+            logger.trace("      name = " + controlName);
             logger.trace("      x = " + debugValue(x, 0));
             logger.trace("      y = " + debugValue(y, 0));
             logger.trace("      width = " + debugValue(width, 100));
             logger.trace("      height = " + debugValue(height, 50));
-            logger.trace("      name = " + debugValue(controlName, defaultTabName));
             logger.trace("      background = " + debugValue(background, null));
             logger.trace("      foreground = " + debugValue(foreground, null));
             logger.trace("      tooltip = " + debugValue(tooltip, null));
@@ -1028,6 +1088,19 @@ public class FormDialog extends Dialog {
         }
 
         Table table = new Table(composite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE | SWT.FULL_SELECTION);
+        table.setData("name", controlName);
+        table.setData("x", x);
+        table.setData("y", y);
+        table.setData("width", width);
+        table.setData("height", height);
+        table.setData("background", background);
+        table.setData("foreground", foreground);
+        table.setData("tooltip", tooltip);
+        table.setData("excelSheet", excelSheet);
+        table.setData("excelFirstLine", excelFirstLine);
+        table.setData("excelLastLine", excelLastLine);
+        table.setData("keys", new String[]{"name", "x", "y", "width", "height", "background", "foreground", "tooltip", "excelSheet", "excelFirstLine", "excelLastLine"});
+        
         table.setLinesVisible(true);
         table.setHeaderVisible(true);
         table.setLocation(x, y);
