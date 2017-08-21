@@ -1,6 +1,7 @@
 package org.archicontribs.form.composites;
 
 import org.archicontribs.form.editors.ColorEditor;
+import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.FontEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
@@ -8,7 +9,6 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
 public class LabelComposite extends Composite {
 	private StringEditor            nameEditor;         // name
@@ -17,9 +17,8 @@ public class LabelComposite extends Composite {
 	private ColorEditor             colorEditor;        // foreground, background
 	private FontEditor				fontEditor;			// font, fontBold, fontItalic
 	private StringEditor            tooltipEditor;      // tooltip
-
-    private Label      lblFont              = null;         // font
-    private CCombo     comboAlignment       = null;         // alignment
+	private ComboEditor             alignmentEditor;    // alignment
+	    
     private StyledText txtExcelSheet        = null;         // excelSheet
     private StyledText txtExcelCell         = null;         // excelCell
     private CCombo     txtExcelCellType     = null;         // excelCellType
@@ -62,6 +61,13 @@ public class LabelComposite extends Composite {
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
+		
+	      // tooltip
+        alignmentEditor = new ComboEditor(this);
+        alignmentEditor.setPosition(fontEditor.getControl());
+        alignmentEditor.setItems(new String[] {"", "left", "center", "right"});
+        alignmentEditor.setTooltipText("Choose the alignment.\n\nDefault: left.");
+        alignmentEditor.setProperty("alignment");
 	}
 	
     public void set(String key, int value) throws RuntimeException {
@@ -86,6 +92,10 @@ public class LabelComposite extends Composite {
 	
     public void set(String key, String value) throws RuntimeException {
     	switch ( key ) {
+    	    case "alignment":
+    	        alignmentEditor.setText(value);
+    	        return;
+    	        
     		case "name":
     			nameEditor.setString(value);
     			return;
@@ -111,6 +121,9 @@ public class LabelComposite extends Composite {
     
     public String getString(String key) throws RuntimeException {
     	switch ( key ) {
+    	    case "alignment":
+    	        return alignmentEditor.getText();
+    	        
     		case "name":
     			return nameEditor.getString();
     			
