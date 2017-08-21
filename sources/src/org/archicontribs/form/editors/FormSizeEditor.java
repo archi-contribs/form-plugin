@@ -107,7 +107,7 @@ public class FormSizeEditor {
         // buttonWidth
         lblButtonWidth = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtSpacing, FormGraphicalEditor.editorVerticalMargin);
+        fd.top = new FormAttachment(lblSpacing, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblButtonWidth.setLayoutData(fd);
@@ -130,7 +130,7 @@ public class FormSizeEditor {
         // buttonHeight
         lblButtonHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtButtonWidth, FormGraphicalEditor.editorVerticalMargin);
+        fd.top = new FormAttachment(lblButtonWidth, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblButtonHeight.setLayoutData(fd);
@@ -237,7 +237,7 @@ public class FormSizeEditor {
 	}
 	
 	public StyledText getControl() {
-		return txtSpacing;
+		return txtButtonHeight;
 	}
     
     public void setWidth(int width) {
