@@ -16,8 +16,8 @@ public class AlignmentEditor extends ComboEditor {
     private CCombo     combo;           // alignment
     private Composite  parent;
 	
-	public AlignmentEditor(Composite parent) {
-		super(parent);
+	public AlignmentEditor(Composite parent, String labelText) {
+		super(parent, labelText);
 		
 		this.parent = parent;
 		

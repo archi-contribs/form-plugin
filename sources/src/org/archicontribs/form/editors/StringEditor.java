@@ -27,11 +27,11 @@ public class StringEditor {
 	private boolean    mustSetControlText = false;
 	private boolean    mustSetControlTolltip = false;
 	
-	public StringEditor(Composite parent) {
-		this(parent, 1);
+	public StringEditor(Composite parent, String labelText) {
+		this(parent, labelText, 1);
 	}
 	
-	public StringEditor(Composite parent, int nbLines) {
+	public StringEditor(Composite parent, String labelText, int nbLines) {
 		this.parent = parent;
 		
 		lblString = new Label(parent, SWT.NONE);
@@ -40,6 +40,7 @@ public class StringEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblString.setLayoutData(fd);
+        lblString.setText(labelText);
         
         if ( nbLines <= 1 )
         	txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
@@ -86,14 +87,7 @@ public class StringEditor {
     	if ( treeItem != null && property != null) {
 	        setString((String)treeItem.getData(property));
     	}
-    	
-        if ( FormPlugin.isEmpty(lblString.getText()) )
-            setLabel(property.substring(0, 1).toUpperCase()+property.substring(1)+":");
 	}
-	
-    public void setLabel(String labelText) {
-        lblString.setText(labelText);
-    }
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override

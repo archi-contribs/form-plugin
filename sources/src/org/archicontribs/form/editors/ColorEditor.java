@@ -26,7 +26,7 @@ public class ColorEditor {
 	private Button     btnResetToDefault;
 	private Composite  parent;
 	
-	public ColorEditor(Composite parent) {
+	public ColorEditor(Composite parent, String labelText) {
 		this.parent = parent;
 		
 		lblColor = new Label(parent, SWT.NONE);
@@ -35,7 +35,7 @@ public class ColorEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblColor.setLayoutData(fd);
-        lblColor.setText("Color:");
+        lblColor.setText(labelText);
         
         btnResetToDefault = new Button(parent, SWT.NONE);
         fd = new FormData();

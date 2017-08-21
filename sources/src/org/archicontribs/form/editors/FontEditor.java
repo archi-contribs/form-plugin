@@ -34,7 +34,7 @@ public class FontEditor {
 	private Button     btnItalic;
 	private Composite  parent;
 	
-	public FontEditor(Composite parent) {
+	public FontEditor(Composite parent, String labelText) {
 		this.parent = parent;
 		
 		lblFont = new Label(parent, SWT.NONE);
@@ -43,7 +43,7 @@ public class FontEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblFont.setLayoutData(fd);
-        lblFont.setText("Font:");
+        lblFont.setText("labelText");
         
         btnResetToDefault = new Button(parent, SWT.NONE);
         fd = new FormData();

@@ -1,7 +1,6 @@
 package org.archicontribs.form.editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
-import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
@@ -19,11 +18,11 @@ public class ComboEditor {
 	private Composite  parent;
 	private String     property = null;
 	
-	public ComboEditor(Composite parent) {
-		this(parent, 1);
+	public ComboEditor(Composite parent, String labelText) {
+		this(parent, labelText, 1);
 	}
 	
-	public ComboEditor(Composite parent, int nbLines) {
+	public ComboEditor(Composite parent, String labelText, int nbLines) {
 		this.parent = parent;
 		
 		lblCombo = new Label(parent, SWT.NONE);
@@ -32,6 +31,7 @@ public class ComboEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblCombo.setLayoutData(fd);
+        lblCombo.setText(labelText);
         
         combo = new CCombo(parent, SWT.BORDER);
         fd = new FormData();
@@ -54,13 +54,6 @@ public class ComboEditor {
     	if ( treeItem != null && property != null) {
 	        setText((String)treeItem.getData(property));
     	}
-    	
-    	if ( FormPlugin.isEmpty(lblCombo.getText()) )
-    	    setLabel(property.substring(0, 1).toUpperCase()+property.substring(1)+":");
-	}
-	
-	public void setLabel(String labelText) {
-	    lblCombo.setText(labelText);
 	}
 	
 	private SelectionListener comboSelectionListener = new SelectionListener() {
