@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Level;
+import org.archicontribs.form.composites.CompositeInterface;
 import org.archicontribs.form.composites.FormComposite;
 import org.archicontribs.form.composites.LabelComposite;
 import org.archicontribs.form.composites.TabComposite;
@@ -12,9 +13,12 @@ import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
@@ -24,6 +28,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -31,6 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -57,21 +63,22 @@ public class FormGraphicalEditor extends Dialog {
     
     public final static int   editorLeftposition   = 35;
     public final static int   editorBorderMargin   = 10;
-    public final static int   editorVerticalMargin = 10;
+    public final static int   editorVerticalMargin = 5;
 
-    private Shell            propertiesDialog  = null;
-    private Tree             tree              = null;
-    private FormComposite    formComposite     = null;
-    private TabComposite     tabComposite      = null;
-    private LabelComposite   labelComposite    = null;
-    private TextComposite    textComposite     = null;
-    private Composite        comboComposite    = null;
-    private Composite        checkComposite    = null;
-    private Composite        tableComposite    = null;
-    private Composite        columnComposite   = null;
-    private Composite        lineComposite     = null;
+    private Shell             propertiesDialog  = null;
+    private Tree              tree              = null;
+    private ScrolledComposite scrolledcomposite = null;
+    private FormComposite     formComposite     = null;
+    private TabComposite      tabComposite      = null;
+    private LabelComposite    labelComposite    = null;
+    private TextComposite     textComposite     = null;
+    private Composite         comboComposite    = null;
+    private Composite         checkComposite    = null;
+    private Composite         tableComposite    = null;
+    private Composite         columnComposite   = null;
+    private Composite         lineComposite     = null;
     
-    private Shell            formDialog        = null;
+    private Shell             formDialog        = null;
     
     private String           variableSeparator = null;
     private String           globalWhenEmpty   = null;
@@ -146,7 +153,7 @@ public class FormGraphicalEditor extends Dialog {
         
         // we create the formDialog
         
-        formDialog  = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        formDialog  = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL );
         formDialog.setText(formName);
         formDialog.setSize(dialogWidth, dialogHeight);
         formDialog.setLayout(null);
@@ -170,13 +177,11 @@ public class FormGraphicalEditor extends Dialog {
         tabFolder.setBounds(dialogSpacing, dialogSpacing, tabFolderWidth, tabFolderHeight);
 
         Button buttonCancel = new Button(formDialog, SWT.NONE);
-        formDialog.setData("buttonCancel", buttonCancel);
         buttonCancel.setBounds(tabFolderWidth + dialogSpacing - buttonWidth, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
         buttonCancel.setText(buttonCancelText);
         buttonCancel.setEnabled(true);
 
         Button buttonOk = new Button(formDialog, SWT.NONE);
-        formDialog.setData("buttonOk", buttonOk);
         buttonOk.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 2 - dialogSpacing, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
         buttonOk.setText(buttonOkText);
         buttonOk.setEnabled(true);
@@ -185,14 +190,33 @@ public class FormGraphicalEditor extends Dialog {
         // "export to Excel" button
         //if (!excelSheets.isEmpty()) {
         Button buttonExport = new Button(formDialog, SWT.NONE);
-        formDialog.setData("buttonExport", buttonExport);
         buttonExport.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 3 - dialogSpacing * 2, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
         buttonExport.setText(buttonExportText);
         buttonExport.setEnabled(true);
         //}
         
+        formDialog.setData("name", formName);
+        formDialog.setData("variableSeparator", variableSeparator);
+        formDialog.setData("width", dialogWidth);
+        formDialog.setData("height", dialogHeight);
+        formDialog.setData("spacing", dialogSpacing);
+        formDialog.setData("background", dialogBackground);
+        formDialog.setData("foreground", dialogForeground);
+        formDialog.setData("buttonWidth", buttonWidth);
+        formDialog.setData("buttonHeight", buttonHeight);
+        formDialog.setData("refers", refers);
+        formDialog.setData("buttonOk", buttonOkText);
+        formDialog.setData("buttonCancel", buttonCancelText);
+        formDialog.setData("buttonExport", buttonExportText);
+        formDialog.setData("whenEmpty", globalWhenEmpty);
+        
+        formDialog.setData("buttonOkControl", buttonOk);
+        formDialog.setData("buttonCancelControl", buttonCancel);
+        formDialog.setData("buttonExportControl", buttonExport);
+        formDialog.setData("keys",  new String[] {"name", /*"variableSeparator",*/ "width", "height", "spacing", "background", "foreground", "buttonWidth","buttonHeight", "refers", "buttonOk", "buttonCancel", "buttonExport"});
+        
         // we create the propertiesDialog
-        propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM);
+        propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE);
         propertiesDialog.setSize(800, 600);
         propertiesDialog.setLayout(new FormLayout());
         
@@ -202,18 +226,32 @@ public class FormGraphicalEditor extends Dialog {
             }
           });
         
+        Sash sash = new Sash(propertiesDialog, SWT.VERTICAL);
+        FormData fd = new FormData();
+        fd.top = new FormAttachment(0, 0);
+        fd.bottom = new FormAttachment(100, 0);
+        fd.left = new FormAttachment(0, 300);
+        sash.setLayoutData(fd);
+        sash.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+              ((FormData) sash.getLayoutData()).left = new FormAttachment(0, event.x);
+              sash.getParent().layout();
+            }
+          });
+        
         tree = new Tree(propertiesDialog, SWT.BORDER);
         tree.setHeaderVisible(false);
         tree.setLinesVisible(true);
-        FormData fd = new FormData();
+        fd = new FormData();
         fd.top = new FormAttachment(0, 10);
         fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(50, -5);
+        fd.right = new FormAttachment(sash, -5);
         fd.bottom = new FormAttachment(100, -10);
         tree.setLayoutData(fd);
         tree.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
                 // hide the current composite and show up the composite linked to the selected treeItem
+            	/*
                 formComposite.setVisible(false);
                 tabComposite.setVisible(false);
                 labelComposite.setVisible(false);
@@ -223,19 +261,29 @@ public class FormGraphicalEditor extends Dialog {
                 tableComposite.setVisible(false);
                 columnComposite.setVisible(false);
                 lineComposite.setVisible(false);
+                */
+            	scrolledcomposite.setContent(null);
                 
                 if ( tree.getSelectionCount() != 0 ) {
                 	TreeItem treeItem = tree.getSelection()[0];
-                	Composite composite = (Composite)treeItem.getData("composite");
+                	CompositeInterface composite = (CompositeInterface)treeItem.getData("composite");
+                	scrolledcomposite.setContent((Composite)composite);
+                	scrolledcomposite.setExpandHorizontal(true);
+                	scrolledcomposite.setExpandVertical(true);
+                	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+                	
                 	if ( composite != null ) {
+                		Control control = (Control)treeItem.getData("control");
+                		
                 		composite.setVisible(true);
                         composite.setData("shell", propertiesDialog);
                         composite.setData("treeItem", treeItem);
                         composite.setData("class", treeItem.getData("class"));
-                        composite.setData("control", treeItem.getData("control"));
+                        composite.setData("control", control);
                         
-                        for (String key: (String [])treeItem.getData("keys") )
-                            composite.setData(key, treeItem.getData("key"));
+                        for ( String key: (String [])control.getData("keys") ) {
+                        	composite.set(key, control.getData(key));
+                        }
                 	}
                 }
             }
@@ -307,71 +355,35 @@ public class FormGraphicalEditor extends Dialog {
         });
         
         TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
-        formTreeItem.setExpanded(true);
         formTreeItem.setText("Form: "+formName);
         formTreeItem.setData("class", "form");
         formTreeItem.setData("control", formDialog);
         
-        formTreeItem.setData("name", formName);
-        formTreeItem.setData("variableSeparator", variableSeparator);
-        formTreeItem.setData("width", dialogWidth);
-        formTreeItem.setData("height", dialogHeight);
-        formTreeItem.setData("spacing", dialogSpacing);
-        formTreeItem.setData("background", dialogBackground);
-        formTreeItem.setData("foreground", dialogForeground);
-        formTreeItem.setData("buttonWidth", buttonWidth);
-        formTreeItem.setData("buttonHeight", buttonHeight);
-        formTreeItem.setData("refers", refers);
-        formTreeItem.setData("buttonOk", buttonOkText);
-        formTreeItem.setData("buttonCancel", buttonCancelText);
-        formTreeItem.setData("buttonExport", buttonExportText);
-        formTreeItem.setData("whenEmpty", globalWhenEmpty);
-        formTreeItem.setData("keys", new String[] {"name", "variableSeparator", "width", "height", "spacing", "background", "foreground", "buttonWidth", "buttonHeight", "refers", "buttonOk", "buttonCancel", "buttonExport", "whenEmpty"});
-        
         fd = new FormData();
         fd.top = new FormAttachment(0, 10);
-        fd.left = new FormAttachment(tree, 10);
+        fd.left = new FormAttachment(sash, 5);
         fd.right = new FormAttachment(100, -10);
         fd.bottom = new FormAttachment(100, -10);
         
-        // we create the formComposite
-        formComposite = new FormComposite(propertiesDialog, SWT.BORDER);
-        formComposite.setLayoutData(fd);
+        scrolledcomposite = new ScrolledComposite(propertiesDialog, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        scrolledcomposite.setLayoutData(fd);
+        
+        
+        // we create the composites
+        formComposite = new FormComposite(scrolledcomposite, SWT.BORDER);
+        tabComposite = new TabComposite(scrolledcomposite, SWT.BORDER);
+        labelComposite = new LabelComposite(scrolledcomposite, SWT.BORDER);
+        textComposite = new TextComposite(scrolledcomposite, SWT.BORDER);
+        comboComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        checkComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        tableComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        columnComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        lineComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        
         formTreeItem.setData("composite", formComposite);
         
-        // we create the tabProperties composite
-        tabComposite = new TabComposite(propertiesDialog, SWT.BORDER);
-        tabComposite.setLayoutData(fd);
-        
-        // we create the labelProperties composite
-        labelComposite = new LabelComposite(propertiesDialog, SWT.BORDER);
-        labelComposite.setLayoutData(fd);
-        
-        textComposite = new TextComposite(propertiesDialog, SWT.BORDER);
-        textComposite.setLayoutData(fd);
-        
-        comboComposite = new Composite(propertiesDialog, SWT.BORDER);
-        comboComposite.setLayoutData(fd);
-        
-        checkComposite = new Composite(propertiesDialog, SWT.BORDER);
-        checkComposite.setLayoutData(fd);
-        
-        tableComposite = new Composite(propertiesDialog, SWT.BORDER);
-        tableComposite.setVisible(false);
-        tableComposite.setLayoutData(fd);
-        tableComposite.setLayout(new FormLayout());
-        
-        columnComposite = new Composite(propertiesDialog, SWT.BORDER);
-        columnComposite.setVisible(false);
-        columnComposite.setLayoutData(fd);
-        columnComposite.setLayout(new FormLayout());
-        
-        lineComposite = new Composite(propertiesDialog, SWT.BORDER);
-        lineComposite.setVisible(false);
-        lineComposite.setLayoutData(fd);
-        lineComposite.setLayout(new FormLayout());
-        
         createTabs(form, formTreeItem, tabFolder);
+        formTreeItem.setExpanded(true);
         
         tree.setSelection(formTreeItem);
         tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties and display the corresponding form
@@ -407,8 +419,14 @@ public class FormGraphicalEditor extends Dialog {
             
             TabItem tabItem = new TabItem(tabFolder, SWT.MULTI);
             tabItem.setText(tabName);
+            
             Composite composite = new Composite(tabFolder, SWT.NONE);
             tabItem.setControl(composite);
+            
+            composite.setData("name", tabName);
+            composite.setData("background",  tabBackground);
+            composite.setData("foreground",  tabForeground);
+            composite.setData("keys", new String[] {"name", "background", "foreground"});
             
             if ( !FormPlugin.isEmpty(tabBackground) ) {
                 String[] colorArray = tabBackground.split(",");
@@ -419,11 +437,7 @@ public class FormGraphicalEditor extends Dialog {
             tabTreeItem.setText("Tab: "+tabName);
             tabTreeItem.setData("class", "tab");
             tabTreeItem.setData("composite", tabComposite);
-            
-            tabTreeItem.setData("control", tabItem);
-            tabTreeItem.setData("name", tabName);
-            tabTreeItem.setData("background", tabBackground);
-            tabTreeItem.setData("keys", new String[] {"class", "control", "name", "background", "foreground"});
+            tabTreeItem.setData("control", composite);
 
             createControls(tab, tabTreeItem, composite);
             composite.layout();
@@ -485,37 +499,12 @@ public class FormGraphicalEditor extends Dialog {
     private void createLabel(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) {
     	Label label = FormDialog.createLabel(jsonObject, composite);
     	label.setText((String)label.getData("text"));
-    	
-    	String[] keys = new String[] {
-    	        "name",
-    	        "text",
-    	        "x",
-    	        "y",
-    	        "width",
-    	        "height",
-    	        "background",
-    	        "foreground",
-    	        "tooltip",
-    	        "fontName",
-    	        "fontSize",
-    	        "fontBold",
-    	        "fontItalic",
-    	        "alignment",
-    	        "excelSheet",
-    	        "excelCell",
-    	        "excelCellType",
-    	        "excelDefault"
-    	        };
  	
         TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
         treeItem.setText("Label: "+ (String)label.getData("name"));
         treeItem.setData("composite", labelComposite);
         treeItem.setData("class", "label");
         treeItem.setData("control", label);        
-
-        treeItem.setData("keys", keys);
-        for (String key: keys)
-            treeItem.setData(key, label.getData(key));
     }
 
     /**
@@ -527,41 +516,12 @@ public class FormGraphicalEditor extends Dialog {
     	StyledText text = FormDialog.createText(jsonObject, composite);
     	text.setText((String)text.getData("variable"));
     	
-    	String[] keys = new String[] {
-    	        "name",
-    	        "variable",
-    	        "defaultText",
-    	        "forceDefault",
-    	        "x",
-    	        "y",
-    	        "width",
-    	        "height",
-    	        "background",
-    	        "foreground",
-    	        "tooltip",
-    	        "fontName",
-    	        "fontSize",
-    	        "fontBold",
-    	        "fontItalic",
-    	        "alignment",
-    	        "editable",
-    	        "whenEmpty",
-    	        "excelSheet",
-    	        "excelCell",
-    	        "excelCellType",
-    	        "excelDefault"
-    	        };
-    	
         TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
         treeItem.setText("Text: "+ (String)text.getData("name"));
         
         treeItem.setData("composite", textComposite);
         treeItem.setData("class", "text");        
         treeItem.setData("control", text);
-        
-        treeItem.setData("keys", keys);
-        for (String key: keys)
-            treeItem.setData(key, text.getData(key));
     }
 
     /**
@@ -573,73 +533,12 @@ public class FormGraphicalEditor extends Dialog {
         CCombo combo = FormDialog.createCombo(jsonObject, composite);
         combo.setText((String)combo.getData("variable"));
         
-        String[] keys = new String[] {
-                "name",
-                "variable",
-                "defaultText",
-                "forceDefault",
-                "x",
-                "y",
-                "width",
-                "height",
-                "background",
-                "foreground",
-                "tooltip",
-                "fontName",
-                "fontSize",
-                "fontBold",
-                "fontItalic",
-                "alignment",
-                "editable",
-                "whenEmpty",
-                "excelSheet",
-                "excelCell",
-                "excelCellType",
-                "excelDefault"
-                };
-        
         TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
         treeItem.setText("Combo: "+ (String)combo.getData("name"));
         
         treeItem.setData("composite", textComposite);
         treeItem.setData("class", "combo");        
         treeItem.setData("control", combo);
-        
-        treeItem.setData("keys", keys);
-        for (String key: keys)
-            treeItem.setData(key, combo.getData(key));
-        ----------------------
-        
-
-
-        treeItem.setData("composite", comboComposite);
-        treeItem.setData("class", "combo");
-        treeItem.setData("control", combo);
-        treeItem.setData("name", comboName);
-        treeItem.setData("x", x);
-        treeItem.setData("y", y);
-        treeItem.setData("width", width);
-        treeItem.setData("height", height);
-        treeItem.setData("variable", variableName);
-        treeItem.setData("values", values);
-        treeItem.setData("default", defaultText);
-        treeItem.setData("forceDefault", forceDefault);
-        treeItem.setData("background", background);
-        treeItem.setData("foreground", foreground);
-        treeItem.setData("regexp", regex);
-        treeItem.setData("tooltip", tooltip);
-        treeItem.setData("fontName", fontName);
-        treeItem.setData("fontSize", fontSize);
-        treeItem.setData("fontBold", fontBold);
-        treeItem.setData("fontItalic", fontItalic);
-        treeItem.setData("alignment", alignment);
-        treeItem.setData("editable", editable);
-        treeItem.setData("whenEmpty", whenEmpty);
-        treeItem.setData("excelSheet", excelSheet);
-        treeItem.setData("excelCell", excelCell);
-        treeItem.setData("excelCellType", excelCellType);
-        treeItem.setData("excelDefault", excelDefault);
-        treeItem.setData("keys", new String[] {"class", "control", "name", "variable", "defaultText", "forceDefault", "x", "y", "width", "height", "background", "foreground", "tooltip", "fontName", "fontSize", "fontBold", "fontItalic", "alignment", "editable", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
     }
 
     /**
