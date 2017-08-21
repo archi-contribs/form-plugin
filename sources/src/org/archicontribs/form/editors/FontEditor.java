@@ -21,7 +21,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TreeItem;
 
 public class FontEditor {
 	private Label      lblFont;
@@ -189,17 +188,14 @@ public class FontEditor {
 		
 		if ( updateControl) {
 			Control    control = (Control)parent.getData("control");
-			TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
 			
 			if ( control != null ) {
 				control.setFont(font);
-			}
-			
-			if ( treeItem != null ) {
-				treeItem.setData("font", getFontName());
-				treeItem.setData("fontSize", getFontSize());
-				treeItem.setData("fontBold", getBold());
-				treeItem.setData("fontItalic", getItalic());
+
+				control.setData("font", getFontName());
+				control.setData("fontSize", getFontSize());
+				control.setData("fontBold", getBold());
+				control.setData("fontItalic", getItalic());
 			}
 		}
 	}
