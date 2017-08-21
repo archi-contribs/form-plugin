@@ -161,6 +161,7 @@ public class FormDialog extends Dialog {
     public static final String   defaultDialogBackground  = "";
     public static final String   defaultDialogForeground  = "";
     public static final String   defaultTabBackground     = "";
+    public static final String   defaultTabForeground     = "";
     public static final int      defaultButtonWidth       = 90;
     public static final int      defaultButtonHeight      = 25;
     public static final String   defaultButtonOkText      = "Ok";
