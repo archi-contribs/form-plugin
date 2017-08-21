@@ -1,6 +1,7 @@
 package org.archicontribs.form.editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyledText;
@@ -39,7 +40,6 @@ public class StringEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
         lblString.setLayoutData(fd);
-        lblString.setText("String:");
         
         if ( nbLines <= 1 )
         	txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
@@ -82,12 +82,18 @@ public class StringEditor {
 		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
 		
 		this.property = property;
-		lblString.setText(property.substring(0, 1).toUpperCase()+property.substring(1)+":");
 		
     	if ( treeItem != null && property != null) {
 	        setString((String)treeItem.getData(property));
     	}
+    	
+        if ( FormPlugin.isEmpty(lblString.getText()) )
+            setLabel(property.substring(0, 1).toUpperCase()+property.substring(1)+":");
 	}
+	
+    public void setLabel(String labelText) {
+        lblString.setText(labelText);
+    }
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
