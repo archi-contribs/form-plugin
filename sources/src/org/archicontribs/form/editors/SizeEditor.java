@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 
 public class SizeEditor {
+    private Label      lblPosition;
 	private Label      lblX;
 	private StyledText txtX;
 	private Label      lblY;
@@ -29,20 +30,28 @@ public class SizeEditor {
 	public SizeEditor(Composite parent) {
 		this.parent = parent;
 		
+	      // x
+        lblPosition = new Label(parent, SWT.NONE);
+        FormData fd = new FormData();
+        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        lblPosition.setLayoutData(fd);
+        lblPosition.setText("Position:");
+		
 		// x
 		lblX = new Label(parent, SWT.NONE);
-		FormData fd = new FormData();
-		fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-		fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-		fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+		fd = new FormData();
+        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
 		lblX.setLayoutData(fd);
 		lblX.setText("X:");
 
 		txtX = new StyledText(parent, SWT.BORDER);
 		fd = new FormData();
-		fd.top = new FormAttachment(lblX, 0, SWT.TOP);
-		fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
-		fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition+40);
+		fd.top = new FormAttachment(lblX, 0, SWT.CENTER);
+		fd.left = new FormAttachment(lblX, 0);
+		fd.right = new FormAttachment(txtX, 40);
 		txtX.setLayoutData(fd);
 		txtX.setTextLimit(4);
 		txtX.setLeftMargin(2);
@@ -53,17 +62,16 @@ public class SizeEditor {
 		// y
 		lblY = new Label(parent, SWT.NONE);
 		fd = new FormData();
-		fd.top = new FormAttachment(txtX, FormGraphicalEditor.editorVerticalMargin);
-		fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-		fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+        fd.left = new FormAttachment(txtX, FormGraphicalEditor.editorBorderMargin);
 		lblY.setLayoutData(fd);
 		lblY.setText("Y:");
 
 		txtY = new StyledText(parent, SWT.BORDER);
 		fd = new FormData();
-		fd.top = new FormAttachment(lblY, 0, SWT.TOP);
-		fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
-		fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition+40);
+        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+        fd.left = new FormAttachment(lblY, 0);
+        fd.right = new FormAttachment(txtY, 40);
 		txtY.setLayoutData(fd);
 		txtY.setTextLimit(4);
 		txtY.setLeftMargin(2);
@@ -74,17 +82,16 @@ public class SizeEditor {
 		// width
 		lblWidth = new Label(parent, SWT.NONE);
 		fd = new FormData();
-		fd.top = new FormAttachment(txtY, FormGraphicalEditor.editorVerticalMargin);
-		fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-		fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+        fd.left = new FormAttachment(txtY, FormGraphicalEditor.editorBorderMargin);
 		lblWidth.setLayoutData(fd);
 		lblWidth.setText("Width:");
 
 		txtWidth = new StyledText(parent, SWT.BORDER);
 		fd = new FormData();
-		fd.top = new FormAttachment(lblWidth, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition+40);
+        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+        fd.left = new FormAttachment(lblWidth, 0);
+        fd.right = new FormAttachment(txtWidth, 40);
         txtWidth.setLayoutData(fd);
         txtWidth.setTextLimit(4);
         txtWidth.setLeftMargin(2);
@@ -98,17 +105,16 @@ public class SizeEditor {
         // height
         lblHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtWidth, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+        fd.left = new FormAttachment(txtWidth, FormGraphicalEditor.editorBorderMargin);
         lblHeight.setLayoutData(fd);
         lblHeight.setText("Height:");
         
         txtHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblHeight, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition+40);
+        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+        fd.left = new FormAttachment(lblHeight, 0);
+        fd.right = new FormAttachment(txtHeight, 40);
         txtHeight.setLayoutData(fd);
         txtHeight.setTextLimit(4);
         txtHeight.setLeftMargin(2);
@@ -166,7 +172,7 @@ public class SizeEditor {
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
-        lblX.setLayoutData(fd);
+        lblPosition.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -174,7 +180,7 @@ public class SizeEditor {
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
-        lblX.setLayoutData(fd);
+        lblPosition.setLayoutData(fd);
 	}
 	
 	public StyledText getControl() {
