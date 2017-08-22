@@ -18,10 +18,6 @@ public class ComboEditor {
 	private String     property = null;
 	
 	public ComboEditor(Composite parent, String labelText) {
-		this(parent, labelText, 1);
-	}
-	
-	public ComboEditor(Composite parent, String labelText, int nbLines) {
 		this.parent = parent;
 		
 		lblCombo = new Label(parent, SWT.NONE);
