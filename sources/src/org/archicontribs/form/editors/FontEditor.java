@@ -171,7 +171,7 @@ public class FontEditor {
     private void setFont(boolean updateControl) {
     	Font font;
     	
-    	if ( FormPlugin.isEmpty(lblSample.getText()) && getFontSize()!=0 && !getBold() && !getItalic() )
+    	if ( FormPlugin.isEmpty(lblSample.getText()) && getFontSize()==0 && !getBold() && !getItalic() )
     		font = null;
     	else {
     		lblSample.setFont(null);
