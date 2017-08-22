@@ -568,7 +568,7 @@ public class FormDialog extends Dialog {
                 style |= SWT.ITALIC;
             label.setFont(new Font(label.getDisplay(), fontName, fontSize, style));
         } else {
-            if ((fontSize != label.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic) {
+            if ( fontSize!=0 || fontBold || fontItalic) {
                 int style = SWT.NORMAL;
                 if (fontBold)
                     style |= SWT.BOLD;
@@ -726,7 +726,7 @@ public class FormDialog extends Dialog {
                 style |= SWT.ITALIC;
             text.setFont(new Font(text.getDisplay(), fontName, fontSize, style));
         } else {
-            if ((fontSize != text.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic) {
+            if (fontSize!=0 || fontBold || fontItalic) {
                 int style = SWT.NORMAL;
                 if (fontBold)
                     style |= SWT.BOLD;
@@ -880,7 +880,7 @@ public class FormDialog extends Dialog {
                 style |= SWT.ITALIC;
             combo.setFont(new Font(combo.getDisplay(), fontName, fontSize, style));
         } else {
-            if ((fontSize != combo.getFont().getFontData()[0].getHeight()) || fontBold || fontItalic) {
+            if (fontSize !=0 || fontBold || fontItalic) {
                 int style = SWT.NORMAL;
                 if (fontBold)
                     style |= SWT.BOLD;
