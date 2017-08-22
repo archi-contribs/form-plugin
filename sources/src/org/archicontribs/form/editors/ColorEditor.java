@@ -135,16 +135,19 @@ public class ColorEditor {
 			if ( color != null )
 				color.dispose();
 			
+			color = null;
+			
+			
 			lblSample.setBackground(null);
 			lblSample.setForeground(null);
 			
 			if ( widget != null ) {
 				if ( widget instanceof Shell ) {
-					((Shell)widget).setBackground(null);
-					((Shell)widget).setForeground(null);
+					((Shell)widget).setBackground(((Shell)widget).getParent().getBackground());
+					((Shell)widget).setForeground(((Shell)widget).getParent().getForeground());
 				} else {
-					((Control)widget).setBackground(null);
-					((Control)widget).setForeground(null);
+					((Control)widget).setBackground(((Control)widget).getParent().getBackground());
+					((Control)widget).setForeground(((Control)widget).getParent().getForeground());
 				}
 
 				widget.setData("background", "");
@@ -186,6 +189,14 @@ public class ColorEditor {
 			
     			color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
     		}
+    	} else {
+            Widget widget = (Widget)parent.getData("control");
+            if ( widget != null ) {
+                if ( widget instanceof Shell )
+                    color = ((Shell)widget).getParent().getBackground();
+                else
+                    color = ((Control)widget).getParent().getBackground();
+            }
     	}
 		
     	lblSample.setBackground(color);
@@ -203,7 +214,15 @@ public class ColorEditor {
 				
 				color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
 	    	}
-    	}
+    	} else {
+            Widget widget = (Widget)parent.getData("control");
+            if ( widget != null ) {
+                if ( widget instanceof Shell )
+                    color = ((Shell)widget).getParent().getForeground();
+                else
+                    color = ((Control)widget).getParent().getForeground();
+            }
+        }
     	
 		lblSample.setForeground(color);
     }
