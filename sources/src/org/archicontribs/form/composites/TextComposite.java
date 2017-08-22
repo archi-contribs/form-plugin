@@ -1,6 +1,7 @@
 package org.archicontribs.form.composites;
 
 import org.archicontribs.form.editors.AlignmentEditor;
+import org.archicontribs.form.editors.CheckEditor;
 import org.archicontribs.form.editors.ColorEditor;
 import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.FontEditor;
@@ -11,7 +12,9 @@ import org.eclipse.swt.widgets.Composite;
 
 public class TextComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
-    private StringEditor            textEditor;			 // text
+    private StringEditor            variableEditor;	     // variable
+    private StringEditor            defaultTextEditor;   // defaultText
+    private CheckEditor             forceDefaultEditor;  // forceDefault
 	private SizeEditor              sizeEditor;          // x, y, width, height
 	private ColorEditor             colorEditor;         // foreground, background
 	private FontEditor				fontEditor;			 // font, fontBold, fontItalic
@@ -37,16 +40,24 @@ public class TextComposite extends Composite implements CompositeInterface {
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.treeItemTextPrefix("Name: ");
 		
-		// text
-		textEditor = new StringEditor(this, "Text:");
-		textEditor.setPosition(nameEditor.getControl());
-		textEditor.setProperty("text");
-		textEditor.mustSetTreeItemText(true);
-		textEditor.treeItemTextPrefix("Text: ");
+		// variable
+		variableEditor = new StringEditor(this, "Variable:");
+		variableEditor.setPosition(nameEditor.getControl());
+		variableEditor.setProperty("variable");
+		
+	    // defaultText
+        defaultTextEditor = new StringEditor(this, "Default text:");
+        defaultTextEditor.setPosition(variableEditor.getControl());
+        defaultTextEditor.setProperty("defaultText");
+        
+        // defaultText
+        forceDefaultEditor = new CheckEditor(this, "Force default:");
+        forceDefaultEditor.setPosition(defaultTextEditor.getControl());
+        forceDefaultEditor.setProperty("forceDefault");
 						
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(textEditor.getControl());
+		sizeEditor.setPosition(forceDefaultEditor.getControl());
 		        
 		// Background
 		colorEditor = new ColorEditor(this, "Color:");
