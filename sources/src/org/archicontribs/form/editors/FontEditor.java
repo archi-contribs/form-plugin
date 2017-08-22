@@ -229,7 +229,10 @@ public class FontEditor {
     }
     
     public void setFontSize(int fontSize) {
-    	txtFontSize.setText(String.valueOf(fontSize));
+    	if ( fontSize <= 0 )
+    	    txtFontSize.setText("");
+    	else
+    	    txtFontSize.setText(String.valueOf(fontSize));
     	setFont(false);
     }
     
