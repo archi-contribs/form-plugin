@@ -91,7 +91,7 @@ import com.florianingerl.util.regex.Pattern;
  *
  */
 public class FormDialog extends Dialog {
-    // TODO: add a "continueonerror" property
+    // TODO: add a "continue on error" option
     private static final FormLogger logger            = new FormLogger(FormDialog.class);
 
     protected static Display        display           = Display.getDefault();
@@ -174,7 +174,7 @@ public class FormDialog extends Dialog {
     public static final String[] validWhenEmpty           = new String[] { "Ignore", "Create", "Delete" };
     public static final String   defaultWhenEmpty         = "Ignore";
     
-    private String variableSeparator = null;
+    private String globalVariableSeparator = ":";
     private String globalWhenEmpty   = null;
 
     /**
@@ -182,7 +182,7 @@ public class FormDialog extends Dialog {
      * controls
      */
     private void createContents(JSONObject form) throws IOException, ParseException, RuntimeException {
-        variableSeparator = getString(form, "variableSeparator", defaultVariableSeparator);
+        globalVariableSeparator = getString(form, "variableSeparator", defaultVariableSeparator);
         String name = getString(form, "name", defaultDialogName);
         String formName = FormVariable.expand(name, selectedObject);
         FormPosition.setFormName(formName);
@@ -197,11 +197,11 @@ public class FormDialog extends Dialog {
         String buttonOkText = FormVariable.expand(getString(form, "buttonOk", defaultButtonOkText), selectedObject);
         String buttonCancelText = FormVariable.expand(getString(form, "buttonCancel", defaultButtonCancelText), selectedObject);
         String buttonExportText = FormVariable.expand(getString(form, "buttonExport", defaultButtonExportText), selectedObject);
-        globalWhenEmpty = getString(form, "whenEmpty", null);
+        globalWhenEmpty = getString(form, "whenEmpty", defaultWhenEmpty);
 
         if (logger.isTraceEnabled()) {
             logger.trace("   name = " + debugValue(formName, defaultDialogName));
-            logger.trace("   variableSeparator = " + debugValue(variableSeparator, "."));
+            logger.trace("   variableSeparator = " + debugValue(globalVariableSeparator, defaultVariableSeparator));
             logger.trace("   width = " + debugValue(dialogWidth, defaultDialogWidth));
             logger.trace("   height = " + debugValue(dialogHeight, defaultDialogHeight));
             logger.trace("   spacing = " + debugValue(dialogSpacing, defaultDialogSpacing));
@@ -215,7 +215,6 @@ public class FormDialog extends Dialog {
             logger.trace("   buttonExport = " + debugValue(globalWhenEmpty, defaultWhenEmpty));
         }
         
-
         dialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         dialog.setText(FormVariable.expand(formName, selectedObject));
         dialog.setLayout(null);
@@ -483,18 +482,18 @@ public class FormDialog extends Dialog {
         int width = getInt(jsonObject, "width", 0);
         int height = getInt(jsonObject, "height", 0);
         String controlText = getString(jsonObject, "text", "");
-        String background = getString(jsonObject, "background", null);
-        String foreground = getString(jsonObject, "foreground", null);
-        String tooltip = getString(jsonObject, "tooltip", null);
-        String fontName = getString(jsonObject, "fontName", null);
+        String background = getString(jsonObject, "background", "");
+        String foreground = getString(jsonObject, "foreground", "");
+        String tooltip = getString(jsonObject, "tooltip", "");
+        String fontName = getString(jsonObject, "fontName", "");
         int fontSize = getInt(jsonObject, "fontSize", 0);
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
-        String alignment = getString(jsonObject, "alignment", "left");
-        String excelSheet = getString(jsonObject, "excelSheet", null);
-        String excelCell = getString(jsonObject, "excelCell", null);
-        String excelCellType = getString(jsonObject, "excelCellType", "string").toLowerCase();
-        String excelDefault = getString(jsonObject, "excelDefault", "blank").toLowerCase();
+        String alignment = getString(jsonObject, "alignment", "");
+        String excelSheet = getString(jsonObject, "excelSheet", "");
+        String excelCell = getString(jsonObject, "excelCell", "");
+        String excelCellType = getString(jsonObject, "excelCellType", "");
+        String excelDefault = getString(jsonObject, "excelDefault", "");
 
         if (logger.isTraceEnabled()) {
             logger.trace("      name = " + controlName);
@@ -503,18 +502,18 @@ public class FormDialog extends Dialog {
             logger.trace("      y = " + debugValue(y, 0));
             logger.trace("      width = " + debugValue(width, 0));
             logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      background = " + debugValue(background, null));
-            logger.trace("      foreground = " + debugValue(foreground, null));
-            logger.trace("      tooltip = " + debugValue(tooltip, null));
-            logger.trace("      fontName = " + debugValue(fontName, null));
+            logger.trace("      background = " + debugValue(background, ""));
+            logger.trace("      foreground = " + debugValue(foreground, ""));
+            logger.trace("      tooltip = " + debugValue(tooltip, ""));
+            logger.trace("      fontName = " + debugValue(fontName, ""));
             logger.trace("      fontSize = " + debugValue(fontSize, 0));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
-            logger.trace("      alignment = "+debugValue(alignment, "left"));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, null));
-            logger.trace("      excelCell = " + debugValue(excelCell, null));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
+            logger.trace("      alignment = "+debugValue(alignment, ""));
+            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
+            logger.trace("      excelCell = " + debugValue(excelCell, ""));
+            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
+            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
         }
         
         Label label = new Label(composite, SWT.WRAP);
@@ -535,8 +534,8 @@ public class FormDialog extends Dialog {
         label.setData("alignment", alignment);
         label.setData("excelSheet", excelSheet);
         label.setData("excelCell", excelCell);
-        label.setData("excelCellType", excelCellType.toLowerCase());
-        label.setData("excelDefault", excelDefault.toLowerCase());
+        label.setData("excelCellType", excelCellType);
+        label.setData("excelDefault", excelDefault);
         label.setData("keys", new String[]{"name", "text", "x", "y", "width", "height", "background", "foreground", "tooltip", "fontName", "fontSize", "fontBold", "fontItalic", "alignment", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
 
 		if ( width == 0 || height == 0 ) {
@@ -618,27 +617,27 @@ public class FormDialog extends Dialog {
         FormPosition.setControlName(controlName); FormPosition.setControlClass("text");
         
         String variableName = getString(jsonObject, "variable");
-        String defaultText = getString(jsonObject, "default", null);
+        String defaultText = getString(jsonObject, "default", "");
         boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
         int x = getInt(jsonObject, "x", 0);
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 0);
         int height = getInt(jsonObject, "height", 0);
-        String background = getString(jsonObject, "background", null);
-        String foreground = getString(jsonObject, "foreground", null);
-        String regex = getString(jsonObject, "regexp", null);
-        String tooltip = getString(jsonObject, "tooltip", null);
-        String fontName = getString(jsonObject, "fontName", null);
+        String background = getString(jsonObject, "background", "");
+        String foreground = getString(jsonObject, "foreground", "");
+        String regex = getString(jsonObject, "regexp", "");
+        String tooltip = getString(jsonObject, "tooltip", "");
+        String fontName = getString(jsonObject, "fontName", "");
         int fontSize = getInt(jsonObject, "fontSize", 0);
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
-        String alignment = getString(jsonObject, "alignment", "left");
+        String alignment = getString(jsonObject, "alignment", "");
         boolean editable = getBoolean(jsonObject, "editable", true);
-        String whenEmpty = getString(jsonObject, "whenEmpty", null);
-        String excelSheet = getString(jsonObject, "excelSheet", null);
-        String excelCell = getString(jsonObject, "excelCell", null);
-        String excelCellType = getString(jsonObject, "excelCellType", "string");
-        String excelDefault = getString(jsonObject, "excelDefault", "blank");
+        String whenEmpty = getString(jsonObject, "whenEmpty", "");
+        String excelSheet = getString(jsonObject, "excelSheet", "");
+        String excelCell = getString(jsonObject, "excelCell", "");
+        String excelCellType = getString(jsonObject, "excelCellType", "");
+        String excelDefault = getString(jsonObject, "excelDefault", "");
 
         if (logger.isDebugEnabled())
             logger.debug("   Creating Text control \"" + variableName + "\"");
@@ -651,21 +650,21 @@ public class FormDialog extends Dialog {
             logger.trace("      y = " + debugValue(y, 0));
             logger.trace("      width = " + debugValue(width, 0));
             logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      background = " + debugValue(background, null));
-            logger.trace("      foreground = " + debugValue(foreground, null));
-            logger.trace("      regexp = " + debugValue(regex, null));
-            logger.trace("      tooltip = " + debugValue(tooltip, null));
-            logger.trace("      fontName = " + debugValue(fontName, null));
+            logger.trace("      background = " + debugValue(background, ""));
+            logger.trace("      foreground = " + debugValue(foreground, ""));
+            logger.trace("      regexp = " + debugValue(regex, ""));
+            logger.trace("      tooltip = " + debugValue(tooltip, ""));
+            logger.trace("      fontName = " + debugValue(fontName, ""));
             logger.trace("      fontSize = " + debugValue(fontSize, 0));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
-            logger.trace("      alignment = "+debugValue(alignment, "left"));
+            logger.trace("      alignment = "+debugValue(alignment, ""));
             logger.trace("      editable = " + debugValue(editable, true));
-            logger.trace("      whenEmpty = " + debugValue(whenEmpty, null));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, null));
-            logger.trace("      excelCell = " + debugValue(excelCell, null));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
+            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
+            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
+            logger.trace("      excelCell = " + debugValue(excelCell, ""));
+            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
+            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
         }
         
         StyledText text = new StyledText(composite, SWT.WRAP | SWT.BORDER);		                   // we create the control at the very beginning because we need its default size which is dependent on its content
@@ -779,19 +778,19 @@ public class FormDialog extends Dialog {
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 0);
         int height = getInt(jsonObject, "height", 0);
-        String background = getString(jsonObject, "background", null);
-        String foreground = getString(jsonObject, "foreground", null);
-        String tooltip = getString(jsonObject, "tooltip", null);
-        String fontName = getString(jsonObject, "fontName", null);
+        String background = getString(jsonObject, "background", "");
+        String foreground = getString(jsonObject, "foreground", "");
+        String tooltip = getString(jsonObject, "tooltip", "");
+        String fontName = getString(jsonObject, "fontName", "");
         int fontSize = getInt(jsonObject, "fontSize", 0);
         boolean fontBold = getBoolean(jsonObject, "fontBold", false);
         boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
         boolean editable = getBoolean(jsonObject, "editable", true);
-        String whenEmpty = getString(jsonObject, "whenEmpty", null);
-        String excelSheet = getString(jsonObject, "excelSheet", null);
-        String excelCell = getString(jsonObject, "excelCell", null);
-        String excelCellType = getString(jsonObject, "excelCellType", "string");
-        String excelDefault = getString(jsonObject, "excelDefault", "blank");
+        String whenEmpty = getString(jsonObject, "whenEmpty", "");
+        String excelSheet = getString(jsonObject, "excelSheet", "");
+        String excelCell = getString(jsonObject, "excelCell", "");
+        String excelCellType = getString(jsonObject, "excelCellType", "");
+        String excelDefault = getString(jsonObject, "excelDefault", "");
 
         if (logger.isDebugEnabled())
             logger.debug("   Creating combo \"" + variableName + "\"");
@@ -805,19 +804,19 @@ public class FormDialog extends Dialog {
             logger.trace("      y = " + y);
             logger.trace("      width = " + debugValue(width, 0));
             logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      background = " + debugValue(background, null));
-            logger.trace("      foreground = " + debugValue(foreground, null));
-            logger.trace("      tooltip = " + debugValue(tooltip, null));
-            logger.trace("      fontName = " + debugValue(fontName, null));
+            logger.trace("      background = " + debugValue(background, ""));
+            logger.trace("      foreground = " + debugValue(foreground, ""));
+            logger.trace("      tooltip = " + debugValue(tooltip, ""));
+            logger.trace("      fontName = " + debugValue(fontName, ""));
             logger.trace("      fontSize = " + debugValue(fontSize, 0));
             logger.trace("      fontBold = " + debugValue(fontBold, false));
             logger.trace("      fontItalic = " + debugValue(fontItalic, false));
             logger.trace("      editable = " + debugValue(editable, true));
-            logger.trace("      whenEmpty = " + debugValue(whenEmpty, null));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, null));
-            logger.trace("      excelCell = " + debugValue(excelCell, null));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
+            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
+            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
+            logger.trace("      excelCell = " + debugValue(excelCell, ""));
+            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
+            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
         }
         
         CCombo combo = new CCombo(composite, SWT.NONE);						// we create the control at the very beginning because we need its default size which is dependent on its content
@@ -918,15 +917,15 @@ public class FormDialog extends Dialog {
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 0);
         int height = getInt(jsonObject, "height", 0);
-        String background = getString(jsonObject, "background", null);
-        String foreground = getString(jsonObject, "foreground", null);
-        String tooltip = getString(jsonObject, "tooltip", null);
-        String alignment = getString(jsonObject, "alignment", "left");
-        String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
-        String excelSheet = getString(jsonObject, "excelSheet", null);
-        String excelCell = getString(jsonObject, "excelCell", null);
-        String excelCellType = getString(jsonObject, "excelCellType", "string");
-        String excelDefault = getString(jsonObject, "excelDefault", "blank");
+        String background = getString(jsonObject, "background", "");
+        String foreground = getString(jsonObject, "foreground", "");
+        String tooltip = getString(jsonObject, "tooltip", "");
+        String alignment = getString(jsonObject, "alignment", "");
+        String whenEmpty = getString(jsonObject, "whenEmpty", "");
+        String excelSheet = getString(jsonObject, "excelSheet", "");
+        String excelCell = getString(jsonObject, "excelCell", "");
+        String excelCellType = getString(jsonObject, "excelCellType", "");
+        String excelDefault = getString(jsonObject, "excelDefault", "");
 
         if (logger.isDebugEnabled())
             logger.debug("   Creating check \"" + variableName + "\"");
@@ -941,15 +940,15 @@ public class FormDialog extends Dialog {
             logger.trace("      width = " + debugValue(width, 0));
             logger.trace("      height = " + debugValue(height, 0));
             logger.trace("      name = " + debugValue(controlName, variableName));
-            logger.trace("      background = " + debugValue(background, null));
-            logger.trace("      foreground = " + debugValue(foreground, null));
-            logger.trace("      alignment = "+debugValue(alignment, "left"));
-            logger.trace("      tooltip = " + debugValue(tooltip, null));
-            logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, null));
-            logger.trace("      excelCell = " + debugValue(excelCell, null));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
+            logger.trace("      background = " + debugValue(background, ""));
+            logger.trace("      foreground = " + debugValue(foreground, ""));
+            logger.trace("      alignment = "+debugValue(alignment, ""));
+            logger.trace("      tooltip = " + debugValue(tooltip, ""));
+            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
+            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
+            logger.trace("      excelCell = " + debugValue(excelCell, ""));
+            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
+            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
         }
         
         Button check = new Button(composite, SWT.CHECK);
@@ -1063,10 +1062,10 @@ public class FormDialog extends Dialog {
         int y = getInt(jsonObject, "y", 0);
         int width = getInt(jsonObject, "width", 100);
         int height = getInt(jsonObject, "height", 50);
-        String background = getString(jsonObject, "background", null);
-        String foreground = getString(jsonObject, "foreground", null);
-        String tooltip = getString(jsonObject, "tooltip", null);
-        String excelSheet = getString(jsonObject, "excelSheet", null);
+        String background = getString(jsonObject, "background", "");
+        String foreground = getString(jsonObject, "foreground", "");
+        String tooltip = getString(jsonObject, "tooltip", "");
+        String excelSheet = getString(jsonObject, "excelSheet", "");
         int excelFirstLine = getInt(jsonObject, "excelFirstLine", 1);
         int excelLastLine = getInt(jsonObject, "excelLastLine", 0);
 
@@ -1078,10 +1077,10 @@ public class FormDialog extends Dialog {
             logger.trace("      y = " + debugValue(y, 0));
             logger.trace("      width = " + debugValue(width, 100));
             logger.trace("      height = " + debugValue(height, 50));
-            logger.trace("      background = " + debugValue(background, null));
-            logger.trace("      foreground = " + debugValue(foreground, null));
-            logger.trace("      tooltip = " + debugValue(tooltip, null));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, null));
+            logger.trace("      background = " + debugValue(background, ""));
+            logger.trace("      foreground = " + debugValue(foreground, ""));
+            logger.trace("      tooltip = " + debugValue(tooltip, ""));
+            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
             logger.trace("      excelFirstLine = " + debugValue(excelFirstLine, 1));
             logger.trace("      excelLastLine = " + debugValue(excelLastLine, 0));
         }
@@ -1134,24 +1133,24 @@ public class FormDialog extends Dialog {
             String columnName = getString(column, "name", "(no name)");
             FormPosition.setColumnName(columnName);
             String columnClass = getString(column, "class");
-            String columnTooltip = getString(column, "tooltype", null);
-            int columnWidth = getInt(column, "width", (10 + columnName.length() * 8));
-            String excelColumn = getString(column, "excelColumn", null);
-            String excelCellType = getString(column, "excelCellType", "string");
-            String excelDefault = getString(column, "excelDefault", "blank");
-            background = getString(column, "background", null);
-            foreground = getString(column, "foreground", null);
+            String columnTooltip = getString(column, "tooltype", "");
+            int columnWidth = getInt(column, "width", 0);
+            String excelColumn = getString(column, "excelColumn", "");
+            String excelCellType = getString(column, "excelCellType", "");
+            String excelDefault = getString(column, "excelDefault", "");
+            background = getString(column, "background", "");
+            foreground = getString(column, "foreground", "");
 
             if (logger.isDebugEnabled())
                 logger.debug("   Creating column \"" + columnName + "\" of class \"" + columnClass + "\"");
             if (logger.isTraceEnabled()) {
-                logger.trace("      background = " + debugValue(background, null));
-                logger.trace("      foreground = " + debugValue(foreground, null));
-                logger.trace("      width = " + debugValue(columnWidth, (10 + columnName.length() * 8)));
-                logger.trace("      tooltip = " + debugValue(columnTooltip, null));
-                logger.trace("      excelColumn = " + debugValue(excelColumn, null));
-                logger.trace("      excelCellType = " + debugValue(excelCellType, "string"));
-                logger.trace("      excelDefault = " + debugValue(excelDefault, "blank"));
+                logger.trace("      background = " + debugValue(background, ""));
+                logger.trace("      foreground = " + debugValue(foreground, ""));
+                logger.trace("      width = " + debugValue(columnWidth, 0));
+                logger.trace("      tooltip = " + debugValue(columnTooltip, ""));
+                logger.trace("      excelColumn = " + debugValue(excelColumn, ""));
+                logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
+                logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
             }
 
             TableColumn tableColumn = new TableColumn(table, SWT.NONE);
@@ -1165,6 +1164,9 @@ public class FormDialog extends Dialog {
             tableColumn.setData("excelDefault", excelDefault.toLowerCase());
             tableColumn.setData("tooltip", tooltip);
             
+            if ( columnWidth == 0 )
+                columnWidth = (10 + columnName.length() * 8);
+                
             if (background != null) {
                 String[] colorArray = background.split(",");
                 tableColumn.setData("background", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
@@ -1183,14 +1185,14 @@ public class FormDialog extends Dialog {
                 case "check":
                     if (JSONContainsKey(column, "values")) {
                         String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
-                        String defaultValue = getString(column, "default", null);
+                        String defaultValue = getString(column, "default", "");
                         boolean forceDefault = getBoolean(column, "forceDefault", false);
                         String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
                         alignment = getString(column, "alignment", "left");
 
                         if (logger.isTraceEnabled()) {
                             logger.trace("      values = " + values);
-                            logger.trace("      default = " + debugValue(defaultValue, null));
+                            logger.trace("      default = " + debugValue(defaultValue, ""));
                             logger.trace("      forceDefault = " + debugValue(forceDefault, false));
                             logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
                             logger.trace("      alignment = "+debugValue(alignment, "left"));
@@ -1227,15 +1229,15 @@ public class FormDialog extends Dialog {
                 case "combo":
                     if (column.containsKey("values")) {
                         String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
-                        String defaultValue = getString(column, "default", null);
+                        String defaultValue = getString(column, "default", "");
                         Boolean editable = getBoolean(column, "editable", true);
-                        String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
+                        String whenEmpty = getString(jsonObject, "whenEmpty", "");
 
                         if (logger.isTraceEnabled()) {
                             logger.trace("      values = " + values);
-                            logger.trace("      default = " + debugValue(defaultValue, null));
+                            logger.trace("      default = " + debugValue(defaultValue, ""));
                             logger.trace("      editable = " + debugValue(editable, true));
-                            logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
+                            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
                         }
 
                         if (whenEmpty != null) {
@@ -1249,8 +1251,7 @@ public class FormDialog extends Dialog {
                         tableColumn.setData("editable", editable);
                         tableColumn.setData("whenEmpty", whenEmpty);
                     } else {
-                        throw new RuntimeException(
-                                FormPosition.getPosition(null) + "\n\nMissing mandatory attribute \"values\".");
+                        throw new RuntimeException(FormPosition.getPosition(null) + "\n\nMissing mandatory attribute \"values\".");
                     }
                     break;
                 case "label":
@@ -1275,18 +1276,18 @@ public class FormDialog extends Dialog {
                     }
                     break;
                 case "text":
-                    String regexp = getString(column, "regexp", null);
-                    String defaultText = getString(column, "default", null);
-                    String whenEmpty = getString(column, "whenEmpty", globalWhenEmpty);
+                    String regexp = getString(column, "regexp", "");
+                    String defaultText = getString(column, "default", "");
+                    String whenEmpty = getString(column, "whenEmpty", "");
                     boolean forceDefault = getBoolean(column, "forceDefault", false);
-                    alignment = getString(column, "alignment", "left");
+                    alignment = getString(column, "alignment", "");
 
                     if (logger.isTraceEnabled()) {
-                        logger.trace("      regexp = " + debugValue(regexp, null));
-                        logger.trace("      default = " + debugValue(defaultText, null));
+                        logger.trace("      regexp = " + debugValue(regexp, ""));
+                        logger.trace("      default = " + debugValue(defaultText, ""));
                         logger.trace("      forceDefault = " + debugValue(forceDefault, false));
-                        logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
-                        logger.trace("      alignment = "+debugValue(alignment, "left"));
+                        logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
+                        logger.trace("      alignment = "+debugValue(alignment, ""));
                     }
 
                     if (whenEmpty != null) {
@@ -2148,18 +2149,18 @@ public class FormDialog extends Dialog {
                 case "create":
                     if (logger.isTraceEnabled())
                         logger.trace("   value is empty : creating property.");
-                    FormVariable.setVariable(unscoppedVariable, variableSeparator, "", referedEObject);
+                    FormVariable.setVariable(unscoppedVariable, globalVariableSeparator, "", referedEObject);
                     break;
                 case "delete":
                     if (logger.isTraceEnabled())
                         logger.trace("   value is empty : deleting property.");
-                    FormVariable.setVariable(unscoppedVariable, variableSeparator, null, referedEObject);
+                    FormVariable.setVariable(unscoppedVariable, globalVariableSeparator, null, referedEObject);
                     break;
             }
         } else {
             if (logger.isTraceEnabled())
                 logger.trace("   value is not empty.");
-            FormVariable.setVariable(unscoppedVariable, variableSeparator, value, referedEObject);
+            FormVariable.setVariable(unscoppedVariable, globalVariableSeparator, value, referedEObject);
         }
     }
 
