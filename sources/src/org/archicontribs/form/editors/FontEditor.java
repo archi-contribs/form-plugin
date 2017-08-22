@@ -42,7 +42,7 @@ public class FontEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblFont.setLayoutData(fd);
-        lblFont.setText("labelText");
+        lblFont.setText("Font:");
         
         btnResetToDefault = new Button(parent, SWT.NONE);
         fd = new FormData();
