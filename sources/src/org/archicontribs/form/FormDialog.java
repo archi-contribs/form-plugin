@@ -395,7 +395,8 @@ public class FormDialog extends Dialog {
                     combo.setData("eObject", referedEObject);
                     formVarList.set(referedEObject, unscoppedVariable, combo);
 
-                    if ( combo.getData("excelSheet") != null ) excelSheets.add((String)combo.getData("excelSheet"));
+                    if ( !FormPlugin.isEmpty((String)combo.getData("excelSheet")) )
+                        excelSheets.add((String)combo.getData("excelSheet"));
                     
                     combo.addModifyListener(textModifyListener);
                     break;
@@ -411,7 +412,8 @@ public class FormDialog extends Dialog {
                     if ( !FormPlugin.isEmpty(tooltip) )
                     		label.setToolTipText(tooltip);
                     
-                    if ( label.getData("excelSheet") != null ) excelSheets.add((String)label.getData("excelSheet"));
+                    if ( !FormPlugin.isEmpty((String)label.getData("excelSheet")) )
+                        excelSheets.add((String)label.getData("excelSheet"));
                     
                     // We reference the variable and the control to the eObject that the variable refers to
                     formVarList.set(FormVariable.getReferedEObject(value, selectedObject), FormVariable.getUnscoppedVariable(value, selectedObject), label);
@@ -433,7 +435,7 @@ public class FormDialog extends Dialog {
                     if ( !FormPlugin.isEmpty(tooltip) ) {
                         text.setToolTipText(FormVariable.expand(tooltip, selectedObject));
                     } else {
-                        if (text.getData("regexp") != null) {
+                        if ( !FormPlugin.isEmpty((String)text.getData("regexp")) ) {
                             text.setData("pattern", Pattern.compile((String)text.getData("regexp")));
                             text.setToolTipText("Your text should match the following regexp :\n" + (String)text.getData("regexp"));
                         }
@@ -448,7 +450,8 @@ public class FormDialog extends Dialog {
                     text.setData("eObject", referedEObject);
                     formVarList.set(referedEObject, unscoppedVariable, text);
                     
-                    if ( text.getData("excelSheet") != null ) excelSheets.add((String)text.getData("excelSheet"));
+                    if ( !FormPlugin.isEmpty((String)text.getData("excelSheet")) )
+                        excelSheets.add((String)text.getData("excelSheet"));
                     break;
                     
                 default:
@@ -545,19 +548,19 @@ public class FormDialog extends Dialog {
 		}
 		label.setBounds(x, y, width, height);
 
-        if ( background != null) {
+        if ( !FormPlugin.isEmpty(background) ) {
             String[] colorArray = background.split(",");
             label.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         } else {
             label.setBackground(composite.getBackground());
         }
 
-        if (foreground != null) {
+        if ( !FormPlugin.isEmpty(foreground) ) {
             String[] colorArray = foreground.split(",");
             label.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (fontName != null) {
+        if ( !FormPlugin.isEmpty(fontName) ) {
             int style = SWT.NORMAL;
             if (fontBold)
                 style |= SWT.BOLD;
@@ -576,11 +579,12 @@ public class FormDialog extends Dialog {
         }
         
         switch ( alignment.toLowerCase() ) {
-            case "right" :
-                label.setAlignment(SWT.RIGHT);
-                break;
+            case "":
             case "left" :
                 label.setAlignment(SWT.LEFT);
+                break;
+            case "right" :
+                label.setAlignment(SWT.RIGHT);
                 break;
             case "center":
                 label.setAlignment(SWT.CENTER);
@@ -694,7 +698,7 @@ public class FormDialog extends Dialog {
         text.setData("excelDefault", excelDefault.toLowerCase());
         text.setData("keys", new String[]{"name", "variable", "defaultText", "forceDefault", "x", "y", "width", "height", "background", "foreground", "tooltip", "regexp", "fontName", "fontSize", "fontBold", "fontItalic", "alignment", "editable", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
         
-        if (whenEmpty != null) {
+        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
             whenEmpty = whenEmpty.toLowerCase();
             if (!inArray(validWhenEmpty, whenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
@@ -704,17 +708,17 @@ public class FormDialog extends Dialog {
         text.setSize(width, height);
         text.setEditable(editable);
 
-        if (background != null) {
+        if ( !FormPlugin.isEmpty((String)background) ) {
             String[] colorArray = background.split(",");
             text.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (foreground != null) {
+        if ( !FormPlugin.isEmpty((String)foreground) ) {
             String[] colorArray = foreground.split(",");
             text.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (fontName != null) {
+        if ( !FormPlugin.isEmpty((String)fontName) ) {
             int style = SWT.NORMAL;
             if (fontBold)
                 style |= SWT.BOLD;
@@ -847,7 +851,7 @@ public class FormDialog extends Dialog {
         
         combo.setItems(values);
 
-        if (whenEmpty != null) {
+        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
             whenEmpty = whenEmpty.toLowerCase();
             if (!inArray(validWhenEmpty, whenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
@@ -857,17 +861,17 @@ public class FormDialog extends Dialog {
         combo.setSize(width, height);
         combo.setEditable(editable);
 
-        if (background != null) {
+        if ( !FormPlugin.isEmpty((String)background) ) {
             String[] colorArray = background.split(",");
             combo.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (foreground != null) {
+        if ( !FormPlugin.isEmpty((String)foreground) ) {
             String[] colorArray = foreground.split(",");
             combo.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (fontName != null) {
+        if ( !FormPlugin.isEmpty((String)fontName) ) {
             int style = SWT.NORMAL;
             if (fontBold)
                 style |= SWT.BOLD;
@@ -907,7 +911,7 @@ public class FormDialog extends Dialog {
         FormPosition.setControlName(controlName); FormPosition.setControlClass("check");
         
         @SuppressWarnings("unchecked")
-        String[] values = (String[]) (getJSONArray(jsonObject, "values")).toArray(new String[0]);
+        String[] values = (String[]) (getJSONArray(jsonObject, "values", "")).toArray(new String[0]);
 
         String variableName = getString(jsonObject, "variable");
         String value = FormVariable.expand(variableName, selectedObject);
@@ -973,7 +977,7 @@ public class FormDialog extends Dialog {
         check.setData("excelDefault", excelDefault.toLowerCase());
         check.setData("keys", new String[]{"name", "variable", "values", "defaultText", "forceDefault",  "x", "y", "width", "height", "background", "foreground", "alignment", "tooltip", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
         
-        if ( values == null || values.length == 0 ) {
+        if ( values.length == 0 ) {
             check.setData("values", null);
             check.setSelection(Boolean.valueOf((value.isEmpty() || forceDefault)?defaultText:value));
         } else {
@@ -982,7 +986,7 @@ public class FormDialog extends Dialog {
         }
         check.pack();
 
-        if (whenEmpty != null) {
+        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
             whenEmpty = whenEmpty.toLowerCase();
             if (!inArray(validWhenEmpty, whenEmpty))
                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
@@ -991,21 +995,22 @@ public class FormDialog extends Dialog {
         check.setLocation(x, y);
         check.setSize(width, height);
 
-        if (background != null) {
+        if ( !FormPlugin.isEmpty((String)background) ) {
             String[] colorArray = background.split(",");
             check.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (foreground != null) {
+        if ( !FormPlugin.isEmpty((String)foreground) ) {
             String[] colorArray = foreground.split(",");
             check.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
         
         switch ( alignment.toLowerCase() ) {
-            case "right" :
+            case "right":
                 check.setAlignment(SWT.RIGHT);
                 break;
-            case "left" :
+            case "":
+            case "left":
                 check.setAlignment(SWT.LEFT);
                 break;
             case "center":
@@ -1018,20 +1023,13 @@ public class FormDialog extends Dialog {
         // We reference the variable and the control to the eObject that the variable refers to
         EObject referedEObject = FormVariable.getReferedEObject(variableName, selectedObject);
         String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, selectedObject);
-        check.setData("variable", unscoppedVariable);
         check.setData("eObject", referedEObject);
-        check.setData("whenEmpty", whenEmpty);
         formVarList.set(referedEObject, unscoppedVariable, check);
 
-        if (excelSheet != null) {
+        if ( !FormPlugin.isEmpty((String)excelSheet) )
             excelSheets.add(excelSheet);
-            check.setData("excelSheet", excelSheet);
-            check.setData("excelCell", excelCell);
-            check.setData("excelCellType", excelCellType.toLowerCase());
-            check.setData("excelDefault", excelDefault.toLowerCase());
-        }
 
-        if (tooltip != null) {
+        if ( !FormPlugin.isEmpty((String)tooltip) ) {
             check.setToolTipText(FormVariable.expand(tooltip, selectedObject));
         }
 
@@ -1104,26 +1102,22 @@ public class FormDialog extends Dialog {
         table.setLocation(x, y);
         table.setSize(width, height);
 
-        if (background != null) {
+        if ( !FormPlugin.isEmpty((String)background) ) {
             String[] colorArray = background.split(",");
             table.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (foreground != null) {
+        if ( !FormPlugin.isEmpty((String)foreground) ) {
             String[] colorArray = foreground.split(",");
             table.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
         }
 
-        if (tooltip != null) {
+        if ( !FormPlugin.isEmpty((String)tooltip) ) {
             table.setToolTipText(FormVariable.expand(tooltip, selectedObject));
         }
 
-        if (excelSheet != null) {
+        if ( !FormPlugin.isEmpty((String)excelSheet) )
             excelSheets.add(excelSheet);
-            table.setData("excelSheet", excelSheet);
-            table.setData("excelFirstLine", excelFirstLine);
-            table.setData("excelLastLine", excelLastLine);
-        }
 
         // we iterate over the "columns" entries
         Iterator<JSONObject> columnsIterator = (getJSONArray(jsonObject, "columns")).iterator();
@@ -1167,12 +1161,12 @@ public class FormDialog extends Dialog {
             if ( columnWidth == 0 )
                 columnWidth = (10 + columnName.length() * 8);
                 
-            if (background != null) {
+            if ( !FormPlugin.isEmpty((String)background) ) {
                 String[] colorArray = background.split(",");
                 tableColumn.setData("background", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
             }
 
-            if (foreground != null) {
+            if ( !FormPlugin.isEmpty((String)foreground) ) {
                 String[] colorArray = foreground.split(",");
                 tableColumn.setData("foreground", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
             }
@@ -1198,7 +1192,7 @@ public class FormDialog extends Dialog {
                             logger.trace("      alignment = "+debugValue(alignment, "left"));
                         }
 
-                        if (whenEmpty != null) {
+                        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
                             whenEmpty = whenEmpty.toLowerCase();
                             if (!inArray(validWhenEmpty, whenEmpty))
                                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
@@ -1240,7 +1234,7 @@ public class FormDialog extends Dialog {
                             logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
                         }
 
-                        if (whenEmpty != null) {
+                        if ( !FormPlugin.isEmpty((String)whenEmpty)) {
                             whenEmpty = whenEmpty.toLowerCase();
                             if (!inArray(validWhenEmpty, whenEmpty))
                                 throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
@@ -1290,7 +1284,7 @@ public class FormDialog extends Dialog {
                         logger.trace("      alignment = "+debugValue(alignment, ""));
                     }
 
-                    if (whenEmpty != null) {
+                    if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
                         whenEmpty = whenEmpty.toLowerCase();
                         if (!inArray(validWhenEmpty, whenEmpty))
                             throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
@@ -1460,8 +1454,7 @@ public class FormDialog extends Dialog {
         // we need to store the widgets to retreive them later on
         TableEditor[] editors = new TableEditor[jsonArray.size()];
 
-        logger.trace("   adding line for " + eObject.getClass().getSimpleName() + " \""
-                + (((INameable) eObject).getName() == null ? "" : ((INameable) eObject).getName()) + "\"");
+        logger.trace("   adding line for " + eObject.getClass().getSimpleName() + " \"" + (((INameable) eObject).getName() == null ? "" : ((INameable) eObject).getName()) + "\"");
 
         for (int columnNumber = 0; columnNumber < jsonArray.size(); ++columnNumber) {
             TableColumn tableColumn = table.getColumn(columnNumber);
@@ -1494,7 +1487,7 @@ public class FormDialog extends Dialog {
                 case "text":
                     editor = new TableEditor(table);
                     StyledText text = new StyledText(table, SWT.WRAP);
-                    if ( ((String)tableColumn.getData("default") != null && (itemText.isEmpty()) || (boolean)tableColumn.getData("forceDefault"))) {
+                    if ( !FormPlugin.isEmpty((String)tableColumn.getData("default")) && (itemText.isEmpty()) || (boolean)tableColumn.getData("forceDefault") ) {
                         itemText = FormVariable.expand((String)tableColumn.getData("default"), eObject);
                     }
                     logger.trace("      adding text cell with value \"" + itemText + "\"");
@@ -1517,10 +1510,10 @@ public class FormDialog extends Dialog {
                     text.setData("whenEmpty", tableColumn.getData("whenEmpty"));
                     formVarList.set(referedEObject, unscoppedVariable, text);
 
-                    if (table.getColumn(columnNumber).getData("tooltip") != null) {
+                    if ( !FormPlugin.isEmpty((String)table.getColumn(columnNumber).getData("tooltip")) ) {
                         text.setToolTipText(FormVariable.expand((String) table.getColumn(columnNumber).getData("tooltip"), eObject));
                     } else {
-                        if (table.getColumn(columnNumber).getData("regexp") != null) {
+                        if ( !FormPlugin.isEmpty((String)table.getColumn(columnNumber).getData("regexp")) ) {
                             String regex = (String) table.getColumn(columnNumber).getData("regexp");
                             text.setData("pattern", Pattern.compile(regex));
                             text.setToolTipText("Your text should match the following regex :\n" + regex);
@@ -1538,9 +1531,8 @@ public class FormDialog extends Dialog {
                     editor = new TableEditor(table);
                     CCombo combo = new CCombo(table, SWT.NONE);
                     if (itemText.isEmpty()) {
-                        String defaultValue = (String)tableColumn.getData("default");
-                        if (defaultValue != null)
-                            itemText = defaultValue;
+                        if ( !FormPlugin.isEmpty((String)tableColumn.getData("default")) )
+                            itemText = (String)tableColumn.getData("default");
                     }
                     logger.trace("      adding combo cell with value \"" + itemText + "\"");
                     combo.setText(itemText);
@@ -1564,7 +1556,7 @@ public class FormDialog extends Dialog {
                     Boolean editable = (Boolean)tableColumn.getData("editable");
                     combo.setEditable(editable != null && editable);
 
-                    if (tableColumn.getData("tooltip") != null) {
+                    if ( !FormPlugin.isEmpty((String)tableColumn.getData("tooltip")) ) {
                         combo.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), eObject));
                     }
 
@@ -1611,7 +1603,7 @@ public class FormDialog extends Dialog {
                     }
                     check.pack();
 
-                    if (tableColumn.getData("tooltip") != null) {
+                    if ( !FormPlugin.isEmpty((String)tableColumn.getData("tooltip")) ) {
                         check.setToolTipText(FormVariable.expand((String)tableColumn.getData("tooltip"), eObject));
                     }
 
