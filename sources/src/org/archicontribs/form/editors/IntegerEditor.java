@@ -30,16 +30,17 @@ public class IntegerEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblInteger.setLayoutData(fd);
         lblInteger.setText(labelText);
         
         txtInteger = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblInteger, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
         txtInteger.setLayoutData(fd);
+        txtInteger.setLeftMargin(2);
         txtInteger.addVerifyListener(numericVerifyListener);
         txtInteger.addModifyListener(stringModifyListener);
 	}
@@ -92,7 +93,7 @@ public class IntegerEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblInteger.setLayoutData(fd);
 	}
 	
@@ -100,7 +101,7 @@ public class IntegerEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblInteger.setLayoutData(fd);
 	}
 	

@@ -32,7 +32,7 @@ public class ColorEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblColor.setLayoutData(fd);
         lblColor.setText(labelText);
         
@@ -66,7 +66,7 @@ public class ColorEditor {
         lblSample = new Label(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblColor, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(btnSelectForeground, -5);
         lblSample.setLayoutData(fd);
         lblSample.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
@@ -157,7 +157,7 @@ public class ColorEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblColor.setLayoutData(fd);
 	}
 	
@@ -165,7 +165,7 @@ public class ColorEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblColor.setLayoutData(fd);
 	}
 	

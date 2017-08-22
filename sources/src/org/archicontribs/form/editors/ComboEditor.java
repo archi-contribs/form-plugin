@@ -28,15 +28,14 @@ public class ComboEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblCombo.setLayoutData(fd);
         lblCombo.setText(labelText);
         
         combo = new CCombo(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblCombo, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
-        //fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         combo.setLayoutData(fd);
         combo.addSelectionListener(comboSelectionListener);
 	}
@@ -75,7 +74,7 @@ public class ComboEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblCombo.setLayoutData(fd);
 	}
 	
@@ -83,7 +82,7 @@ public class ComboEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblCombo.setLayoutData(fd);
 	}
 	

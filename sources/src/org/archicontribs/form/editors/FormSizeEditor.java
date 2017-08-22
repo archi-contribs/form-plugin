@@ -40,17 +40,18 @@ public class FormSizeEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblWidth.setLayoutData(fd);
         lblWidth.setText("Width:");
         
         txtWidth = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblWidth, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(txtWidth, 40);
         txtWidth.setLayoutData(fd);
         txtWidth.setTextLimit(4);
+        txtWidth.setLeftMargin(2);
         txtWidth.addVerifyListener(numericVerifyListener);
         txtWidth.addModifyListener(sizeModifyListener);
         txtWidth.setToolTipText("Width of the form dialog.\n"+
@@ -61,19 +62,20 @@ public class FormSizeEditor {
         // height
         lblHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblWidth, FormGraphicalEditor.editorVerticalMargin);
+        fd.top = new FormAttachment(txtWidth, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblHeight.setLayoutData(fd);
         lblHeight.setText("Height:");
         
         txtHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblHeight, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(txtHeight, 40);
         txtHeight.setLayoutData(fd);
         txtHeight.setTextLimit(4);
+        txtHeight.setLeftMargin(2);
         txtHeight.addVerifyListener(numericVerifyListener);
         txtHeight.addModifyListener(sizeModifyListener);
         txtHeight.setToolTipText("Height of the form dialog.\n"+
@@ -84,19 +86,20 @@ public class FormSizeEditor {
         // spacing
         lblSpacing = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblHeight, FormGraphicalEditor.editorVerticalMargin);
+        fd.top = new FormAttachment(txtHeight, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblSpacing.setLayoutData(fd);
         lblSpacing.setText("Spacing:");
         
         txtSpacing = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblSpacing, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(txtSpacing, 40);
         txtSpacing.setLayoutData(fd);
         txtSpacing.setTextLimit(2);
+        txtSpacing.setLeftMargin(2);
         txtSpacing.addVerifyListener(numericVerifyListener);
         txtSpacing.addModifyListener(sizeModifyListener);
         txtSpacing.setToolTipText("Space to leave bewteen the form border and the tab in the form dialog.\n"+
@@ -107,19 +110,20 @@ public class FormSizeEditor {
         // buttonWidth
         lblButtonWidth = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSpacing, FormGraphicalEditor.editorVerticalMargin);
+        fd.top = new FormAttachment(txtSpacing, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblButtonWidth.setLayoutData(fd);
         lblButtonWidth.setText("Buttons width:");
         
         txtButtonWidth = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblButtonWidth, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(txtButtonWidth, 40);
         txtButtonWidth.setLayoutData(fd);
         txtButtonWidth.setTextLimit(3);
+        txtButtonWidth.setLeftMargin(2);
         txtButtonWidth.addVerifyListener(numericVerifyListener);
         txtButtonWidth.addModifyListener(sizeModifyListener);
         txtButtonWidth.setToolTipText("Width of the Ok, Cancel and Export to Excel buttons\n"+
@@ -130,19 +134,20 @@ public class FormSizeEditor {
         // buttonHeight
         lblButtonHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblButtonWidth, FormGraphicalEditor.editorVerticalMargin);
+        fd.top = new FormAttachment(txtButtonWidth, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblButtonHeight.setLayoutData(fd);
         lblButtonHeight.setText("Buttons height:");
         
         txtButtonHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblButtonHeight, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(txtButtonHeight, 40);
         txtButtonHeight.setLayoutData(fd);
         txtButtonHeight.setTextLimit(2);
+        txtButtonHeight.setLeftMargin(2);
         txtButtonHeight.addVerifyListener(numericVerifyListener);
         txtButtonHeight.addModifyListener(sizeModifyListener);
         txtButtonHeight.setToolTipText("Height of the Ok, Cancel and Export to Excel buttons\n"+
@@ -224,7 +229,7 @@ public class FormSizeEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblWidth.setLayoutData(fd);
 	}
 	
@@ -232,7 +237,7 @@ public class FormSizeEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblWidth.setLayoutData(fd);
 	}
 	

@@ -40,7 +40,7 @@ public class FontEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblFont.setLayoutData(fd);
         lblFont.setText("labelText");
         
@@ -65,7 +65,7 @@ public class FontEditor {
         lblSample = new Label(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblFont, 0, SWT.TOP);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(btnSelectFont, -5);
         lblSample.setLayoutData(fd);
         lblSample.setText("");
@@ -73,7 +73,7 @@ public class FontEditor {
         lblFontSize = new Label(parent, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblFontSize.setLayoutData(fd);
         lblFontSize.setText("Font size: ");
         
@@ -83,6 +83,7 @@ public class FontEditor {
         fd.left = new FormAttachment(lblFontSize, 5);
         fd.right = new FormAttachment(txtFontSize, 25);
         txtFontSize.setTextLimit(2);
+        txtFontSize.setLeftMargin(2);
         txtFontSize.addVerifyListener(numericVerifyListener);
         txtFontSize.addModifyListener(refreshFontModifyListener);
         txtFontSize.setLayoutData(fd);
@@ -204,7 +205,7 @@ public class FontEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblFont.setLayoutData(fd);
 	}
 	
@@ -212,7 +213,7 @@ public class FontEditor {
         FormData fd = new FormData();
         fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(FormGraphicalEditor.editorLeftposition, 0);
+        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblFont.setLayoutData(fd);
 	}
 	

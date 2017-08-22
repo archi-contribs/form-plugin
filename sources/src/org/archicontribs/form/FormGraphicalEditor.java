@@ -10,7 +10,6 @@ import org.archicontribs.form.composites.FormComposite;
 import org.archicontribs.form.composites.LabelComposite;
 import org.archicontribs.form.composites.TabComposite;
 import org.archicontribs.form.composites.TextComposite;
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -19,8 +18,8 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
@@ -61,7 +60,7 @@ public class FormGraphicalEditor extends Dialog {
     public final static Color blackColor       = new Color(display, 0, 0, 0);
     public final static Color whiteColor       = new Color(display, 255, 255, 255);
     
-    public final static int   editorLeftposition   = 35;
+    public final static int   editorLeftposition   = 150;
     public final static int   editorBorderMargin   = 10;
     public final static int   editorVerticalMargin = 5;
 
@@ -217,19 +216,48 @@ public class FormGraphicalEditor extends Dialog {
         
         // we create the propertiesDialog
         propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE);
-        propertiesDialog.setSize(800, 600);
+        propertiesDialog.setSize(1000, 600);
         propertiesDialog.setLayout(new FormLayout());
+        
+        Button btnCancel = new Button(propertiesDialog, SWT.NONE);
+        FormData fd = new FormData();
+        fd.right = new FormAttachment(100, -editorBorderMargin);
+        fd.bottom = new FormAttachment(100, -editorBorderMargin);
+        btnCancel.setLayoutData(fd);
+        btnCancel.setText("Cancel");
+        btnCancel.addSelectionListener(new SelectionListener() {
+            @Override public void widgetSelected(SelectionEvent event) {cancel();}
+            @Override public void widgetDefaultSelected(SelectionEvent e) {widgetSelected(e);}
+        });
+        
+        Button btnSave = new Button(propertiesDialog, SWT.NONE);
+        fd = new FormData();
+        fd.right = new FormAttachment(btnCancel, -editorBorderMargin);
+        fd.bottom = new FormAttachment(100, -editorBorderMargin);
+        btnSave.setLayoutData(fd);
+        btnSave.setText("Save");
+        btnSave.addSelectionListener(new SelectionListener() {
+            @Override public void widgetSelected(SelectionEvent event) {save();}
+            @Override public void widgetDefaultSelected(SelectionEvent e) {widgetSelected(e);}
+        });
+        
+        Label horizontalBar = new Label(propertiesDialog, SWT.HORIZONTAL);
+        fd = new FormData();
+        fd.bottom = new FormAttachment(btnSave, -editorBorderMargin, SWT.TOP);
+        fd.left = new FormAttachment(0, 0);
+        fd.right = new FormAttachment(0, 0);
+        horizontalBar.setLayoutData(fd);
         
         propertiesDialog.addListener(SWT.Close, new Listener() {
             public void handleEvent(Event event) {
-              close();
+              cancel();
             }
-          });
+        });
         
         Sash sash = new Sash(propertiesDialog, SWT.VERTICAL);
-        FormData fd = new FormData();
+        fd = new FormData();
         fd.top = new FormAttachment(0, 0);
-        fd.bottom = new FormAttachment(100, 0);
+        fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
         fd.left = new FormAttachment(0, 300);
         sash.setLayoutData(fd);
         sash.addSelectionListener(new SelectionAdapter() {
@@ -241,12 +269,12 @@ public class FormGraphicalEditor extends Dialog {
         
         tree = new Tree(propertiesDialog, SWT.BORDER);
         tree.setHeaderVisible(false);
-        tree.setLinesVisible(true);
+        tree.setLinesVisible(false);
         fd = new FormData();
-        fd.top = new FormAttachment(0, 10);
-        fd.left = new FormAttachment(0, 10);
-        fd.right = new FormAttachment(sash, -5);
-        fd.bottom = new FormAttachment(100, -10);
+        fd.top = new FormAttachment(0, editorBorderMargin);
+        fd.left = new FormAttachment(0, editorBorderMargin);
+        fd.right = new FormAttachment(sash, -editorBorderMargin/2);
+        fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
         tree.setLayoutData(fd);
         tree.addListener(SWT.Selection, new Listener() {
             public void handleEvent(Event event) {
@@ -359,13 +387,12 @@ public class FormGraphicalEditor extends Dialog {
         formTreeItem.setData("class", "form");
         formTreeItem.setData("control", formDialog);
         
-        fd = new FormData();
-        fd.top = new FormAttachment(0, 10);
-        fd.left = new FormAttachment(sash, 5);
-        fd.right = new FormAttachment(100, -10);
-        fd.bottom = new FormAttachment(100, -10);
-        
         scrolledcomposite = new ScrolledComposite(propertiesDialog, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        fd = new FormData();
+        fd.top = new FormAttachment(0, editorBorderMargin);
+        fd.left = new FormAttachment(sash, editorBorderMargin/2);
+        fd.right = new FormAttachment(100, -editorBorderMargin);
+        fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
         scrolledcomposite.setLayoutData(fd);
         
         
@@ -858,9 +885,9 @@ public class FormGraphicalEditor extends Dialog {
         close();
     }
 
-    private void ok() {
+    private void save() {
         if (logger.isDebugEnabled())
-            logger.debug("Ok button selected by user.");
+            logger.debug("Save button selected by user.");
 
         //TODO: save the json content 
 
