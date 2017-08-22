@@ -62,7 +62,7 @@ public class FormGraphicalEditor extends Dialog {
     
     public final static int   editorLeftposition   = 150;
     public final static int   editorBorderMargin   = 10;
-    public final static int   editorVerticalMargin = 5;
+    public final static int   editorVerticalMargin = 10;
 
     private Shell             propertiesDialog  = null;
     private Tree              tree              = null;
