@@ -593,10 +593,10 @@ public class FormDialog extends Dialog {
                 throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
         }
 
-        if ( !FormPlugin.areEqual(excelCellType, "string") && !FormPlugin.areEqual(excelCellType, "numeric") && !FormPlugin.areEqual(excelCellType, "boolean") && !FormPlugin.areEqual(excelCellType, "formula") )
+        if ( !FormPlugin.isEmpty(excelCellType) && !FormPlugin.areEqual(excelCellType, "string") && !FormPlugin.areEqual(excelCellType, "numeric") && !FormPlugin.areEqual(excelCellType, "boolean") && !FormPlugin.areEqual(excelCellType, "formula") )
             throw new RuntimeException(FormPosition.getPosition("excelCellType") + "\n\nInvalid excelCellType value, must be \"string\", \"numeric\", \"boolean\" or \"formula\"."); 
         
-        if ( !FormPlugin.areEqual(excelDefault, "blank") && !FormPlugin.areEqual(excelDefault, "zero") && !FormPlugin.areEqual(excelDefault, "delete") )
+        if ( !FormPlugin.isEmpty(excelCellType) && !FormPlugin.areEqual(excelDefault, "blank") && !FormPlugin.areEqual(excelDefault, "zero") && !FormPlugin.areEqual(excelDefault, "delete") )
             throw new RuntimeException(FormPosition.getPosition("excelDefault") + "\n\nInvalid excelDefault value, must be \"blank\", \"zero\" or \"delete\"."); 
 
         return label;
@@ -737,11 +737,12 @@ public class FormDialog extends Dialog {
         }
         
         switch ( alignment.toLowerCase() ) {
-            case "right" :
-                text.setAlignment(SWT.RIGHT);
-                break;
+            case "":
             case "left" :
                 text.setAlignment(SWT.LEFT);
+                break;
+            case "right" :
+                text.setAlignment(SWT.RIGHT);
                 break;
             case "center":
                 text.setAlignment(SWT.CENTER);
@@ -1204,11 +1205,12 @@ public class FormDialog extends Dialog {
                         tableColumn.setData("whenEmpty", whenEmpty);
                         
                         switch ( alignment.toLowerCase() ) {
-                            case "right" :
-                                tableColumn.setData("alignment", SWT.RIGHT);
-                                break;
+                            case "":
                             case "left" :
                                 tableColumn.setData("alignment", SWT.LEFT);
+                                break;
+                            case "right" :
+                                tableColumn.setData("alignment", SWT.RIGHT);
                                 break;
                             case "center":
                                 tableColumn.setData("alignment", SWT.CENTER);
@@ -1296,11 +1298,12 @@ public class FormDialog extends Dialog {
                     tableColumn.setData("whenEmpty", whenEmpty);
                     
                     switch ( alignment.toLowerCase() ) {
-                        case "right" :
-                            tableColumn.setData("alignment", SWT.RIGHT);
-                            break;
+                        case "":
                         case "left" :
                             tableColumn.setData("alignment", SWT.LEFT);
+                            break;
+                        case "right" :
+                            tableColumn.setData("alignment", SWT.RIGHT);
                             break;
                         case "center":
                             tableColumn.setData("alignment", SWT.CENTER);
@@ -1372,8 +1375,7 @@ public class FormDialog extends Dialog {
      *            the JSONObject representing a filter if any
      */
     @SuppressWarnings("unchecked")
-    private void addTableItems(Table table, EList<?> list, JSONArray values, JSONObject filter)
-            throws RuntimeException {
+    private void addTableItems(Table table, EList<?> list, JSONArray values, JSONObject filter) throws RuntimeException {
         if ((list == null) || list.isEmpty())
             return;
 
