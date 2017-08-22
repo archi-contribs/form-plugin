@@ -117,12 +117,15 @@ public class TextComposite extends Composite implements CompositeInterface {
 	
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key ) {
+            case "name":          nameEditor.setText((String)value); break;
+            case "variable":      variableEditor.setText((String)value); break;
+            case "defaultText":   defaultTextEditor.setText((String)value);
+            case "forceDefault":  forceDefaultEditor.setChecked((boolean)value);
     		case "x":			  sizeEditor.setX((int)value); break;
     		case "y":			  sizeEditor.setY((int)value); break;
     		case "width":		  sizeEditor.setWidth((int)value); break;
     		case "height":		  sizeEditor.setHeight((int)value); break;
             case "alignment":	  alignmentEditor.setText((String)value); break;
-            case "name":		  nameEditor.setText((String)value); break;
     		case "foreground":	  colorEditor.setForeground((String)value); break;
     		case "background":	  colorEditor.setBackround((String)value); break;
     		case "fontname":	  fontEditor.setFontName((String)value); break;
