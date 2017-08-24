@@ -309,6 +309,8 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
     	
     	if ( logger.isTraceEnabled() ) logger.trace("Saving preferences in preference store");
     	
+    	FormPlugin.INSTANCE.getPreferenceStore().setValue("checkForUpdateAtStartup", btnCheckForUpdateAtStartupButton.getSelection());
+    	
     	table.store();
     	
    	    	// the loggerMode is a private property, so we use reflection to access it
