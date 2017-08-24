@@ -114,6 +114,7 @@ import com.archimatetool.model.INameable;
  *                              Labels are now in wrap mode
  * 
  * v1.6 :		15/08/2017		Add graphical interface to generate the configuration file
+ * 								fix check for update at startup
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
