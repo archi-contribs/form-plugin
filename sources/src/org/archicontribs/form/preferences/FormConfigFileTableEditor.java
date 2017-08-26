@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormJsonParser;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.jface.preference.FieldEditor;
@@ -65,6 +66,8 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private Button btnSave;
 	
 	private static final IPreferenceStore store = FormPlugin.INSTANCE.getPreferenceStore();
+	
+	private static final FormJsonParser jsonParser = new FormJsonParser();
 
 	/**
 	 * Creates a table field editor.
@@ -448,10 +451,10 @@ public class FormConfigFileTableEditor extends FieldEditor {
 
             try {
                 JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-                int version;
+                Integer version;
                 try {
-                    version = FormDialog.getInt(json, "version");
-                    if ( version != 2 ) {
+                    version = jsonParser.getInt(json, "version");
+                    if ( version != null && version != 2 ) {
                         FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 2).");
                         return;
                     }
@@ -463,7 +466,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
                     return;
                 }
                 
-                JSONObject form = FormDialog.getJSONObject(json, FormPlugin.PLUGIN_ID);
+                JSONObject form = jsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
             
                 new FormGraphicalEditor(configFilename, form);
             } catch (IOException e) {
