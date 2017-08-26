@@ -1,5 +1,6 @@
 package org.archicontribs.form.editors;
 
+import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -71,9 +72,7 @@ public class AlignmentEditor extends ComboEditor {
     @Override
     public void setText(String text) {
         combo.removeSelectionListener(alignmentSelectionListener);
-        if ( FormPlugin.isEmpty(text) )
-            text="left";
-        super.setText(text);
+        super.setText(FormPlugin.isEmpty(text) ? FormDialog.validAlignment[0] : text);
         combo.addSelectionListener(alignmentSelectionListener);
     }   
 }
