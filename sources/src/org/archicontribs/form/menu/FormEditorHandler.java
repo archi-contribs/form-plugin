@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormDialog;
+import org.archicontribs.form.FormJsonParser;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -28,6 +29,8 @@ import org.json.simple.parser.ParseException;
 public class FormEditorHandler extends AbstractHandler {
     public static final Cursor CURSOR_WAIT = new Cursor(null, SWT.CURSOR_WAIT);
     public static final Cursor CURSOR_ARROW = new Cursor(null, SWT.CURSOR_ARROW);
+    
+    private static final FormJsonParser jsonParser = new FormJsonParser();
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -43,13 +46,16 @@ public class FormEditorHandler extends AbstractHandler {
 		// We do not redo all the testing as the file has just been parsed by the FormMenu class
 		try {
 			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-			JSONObject form = FormDialog.getJSONObject(json, FormPlugin.PLUGIN_ID);
+			JSONObject form = jsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
 			EObject selectedObject = FormMenu.getSelectedObject(selection[selectionRank]);
-						
-			switch ( FormDialog.getString(form,"refers", "selected").toLowerCase() ) {
-				case "view" :
-				case "folder" :   selectedObject = FormMenu.getContainer(selectedObject); break;
-				case "model" :    selectedObject = FormMenu.getModel(selectedObject);     break;
+			
+			String refers = jsonParser.getString(form,"refers");
+			if ( FormPlugin.isEmpty("refers") )
+				refers = FormDialog.validRefers[0];
+			switch ( refers.toLowerCase() ) {
+				case "container":   selectedObject = FormMenu.getContainer(selectedObject); break;
+				case "model":    	selectedObject = FormMenu.getModel(selectedObject);     break;
+				//case "selected": selectedObject remains the same
 			}
 			
 			new FormDialog(configFilename, form, selectedObject);
