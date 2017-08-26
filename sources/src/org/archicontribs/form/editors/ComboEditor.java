@@ -92,7 +92,7 @@ public class ComboEditor {
     
     public void setText(String text) {
         combo.removeSelectionListener(comboSelectionListener);
-        combo.setText(text);
+        combo.setText(text==null ? "" : text);
         combo.addSelectionListener(comboSelectionListener);
     }
     
