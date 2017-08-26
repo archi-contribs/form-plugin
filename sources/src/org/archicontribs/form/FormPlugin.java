@@ -28,9 +28,18 @@ import org.apache.log4j.Level;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.program.Program;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
@@ -127,12 +136,14 @@ public class FormPlugin extends AbstractUIPlugin {
 	public static final String pluginVersion = "1.6";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
-	
+
 	public static final String storeConfigFilesPrefix = "configFile";
-	
+
 	public static String pluginsFolder;
 	public static String pluginsPackage;
 	public static String pluginsFilename;
+
+	private static boolean mustIgnoreErrors = false;
 
 	/**
 	 * static instance that allow to keep information between calls of the plugin
@@ -155,19 +166,19 @@ public class FormPlugin extends AbstractUIPlugin {
 		preferenceStore.setDefault("loggerLevel",		        "INFO");
 		preferenceStore.setDefault("loggerFilename",	        System.getProperty("user.home")+File.separator+pluginName+".log");
 		preferenceStore.setDefault("loggerExpert",		        "log4j.rootLogger                               = INFO, stdout, file\n"+
-																"\n"+
-																"log4j.appender.stdout                          = org.apache.log4j.ConsoleAppender\n"+
-																"log4j.appender.stdout.Target                   = System.out\n"+
-																"log4j.appender.stdout.layout                   = org.apache.log4j.PatternLayout\n"+
-																"log4j.appender.stdout.layout.ConversionPattern = %d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n\n"+
-																"\n"+
-																"log4j.appender.file                            = org.apache.log4j.FileAppender\n"+
-																"log4j.appender.file.ImmediateFlush             = true\n"+
-																"log4j.appender.file.Append                     = false\n"+
-																"log4j.appender.file.Encoding                   = UTF-8\n"+
-																"log4j.appender.file.File                       = "+(System.getProperty("user.home")+File.separator+pluginName+".log").replace("\\", "\\\\")+"\n"+
-																"log4j.appender.file.layout                     = org.apache.log4j.PatternLayout\n"+
-																"log4j.appender.file.layout.ConversionPattern   = %d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n");
+				"\n"+
+				"log4j.appender.stdout                          = org.apache.log4j.ConsoleAppender\n"+
+				"log4j.appender.stdout.Target                   = System.out\n"+
+				"log4j.appender.stdout.layout                   = org.apache.log4j.PatternLayout\n"+
+				"log4j.appender.stdout.layout.ConversionPattern = %d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n\n"+
+				"\n"+
+				"log4j.appender.file                            = org.apache.log4j.FileAppender\n"+
+				"log4j.appender.file.ImmediateFlush             = true\n"+
+				"log4j.appender.file.Append                     = false\n"+
+				"log4j.appender.file.Encoding                   = UTF-8\n"+
+				"log4j.appender.file.File                       = "+(System.getProperty("user.home")+File.separator+pluginName+".log").replace("\\", "\\\\")+"\n"+
+				"log4j.appender.file.layout                     = org.apache.log4j.PatternLayout\n"+
+				"log4j.appender.file.layout.ConversionPattern   = %d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n");
 		logger = new FormLogger(FormPlugin.class);
 		logger.info("Initialising "+pluginName+" plugin ...");
 
@@ -213,6 +224,13 @@ public class FormPlugin extends AbstractUIPlugin {
 		}
 	}
 
+	public static void setMustIgnoreErrors(boolean ignoreErrors) {
+		mustIgnoreErrors = ignoreErrors;
+	}
+	public static boolean mustIgnoreErrors() {
+		return mustIgnoreErrors;
+	}
+
 	@Override
 	public IPreferenceStore getPreferenceStore() {
 		if (preferenceStore == null) {
@@ -220,7 +238,7 @@ public class FormPlugin extends AbstractUIPlugin {
 		}
 		return preferenceStore;
 	}
-	
+
 	private static ProgressBar updateProgressbar = null;
 	private static int updateDownloaded = 0;
 	public static void checkForUpdate(boolean verbose) {
@@ -231,7 +249,7 @@ public class FormPlugin extends AbstractUIPlugin {
 					FormDialog.popup("Please wait while checking for new form plugin ...");
 				else
 					logger.debug("Checking for a new plugin version on GitHub");
-				
+
 				// We connect to GitHub and get the latest plugin file version
 				// Do not forget the "-Djdk.http.auth.tunneling.disabledSchemes=" in the ini file if you connect through a proxy
 				String PLUGIN_API_URL = "https://api.github.com/repos/archi-contribs/form-plugin/contents";
@@ -244,22 +262,22 @@ public class FormPlugin extends AbstractUIPlugin {
 					Authenticator.setDefault(new Authenticator() {
 						@Override
 						protected PasswordAuthentication getPasswordAuthentication() {
-						    logger.debug("requestor type = "+getRequestorType());
+							logger.debug("requestor type = "+getRequestorType());
 							if (getRequestorType() == RequestorType.PROXY) {
 								String prot = getRequestingProtocol().toLowerCase();
 								String host = System.getProperty(prot + ".proxyHost", "");
 								String port = System.getProperty(prot + ".proxyPort", "80");
 								String user = System.getProperty(prot + ".proxyUser", "");
 								String pass = System.getProperty(prot + ".proxyPassword", "");
-								
+
 								if ( logger.isDebugEnabled() ) {
-								    logger.debug("proxy request from "+getRequestingHost()+":"+getRequestingPort());
-								    logger.debug("proxy configuration:");
-								    logger.debug("   prot : "+prot);
-								    logger.debug("   host : "+host);
-								    logger.debug("   port : "+port);
-								    logger.debug("   user : "+user);
-								    logger.debug("   pass : xxxxx");
+									logger.debug("proxy request from "+getRequestingHost()+":"+getRequestingPort());
+									logger.debug("proxy configuration:");
+									logger.debug("   prot : "+prot);
+									logger.debug("   host : "+host);
+									logger.debug("   port : "+port);
+									logger.debug("   user : "+user);
+									logger.debug("   pass : xxxxx");
 								}
 
 								// we check if the request comes from the proxy, else we do not send the password (for security reason)
@@ -269,16 +287,16 @@ public class FormPlugin extends AbstractUIPlugin {
 									logger.debug("Setting PasswordAuthenticator");
 									return new PasswordAuthentication(user, pass.toCharArray());
 								} else {
-								    logger.debug("Not setting PasswordAuthenticator as the request does not come from the proxy (host + port)");
+									logger.debug("Not setting PasswordAuthenticator as the request does not come from the proxy (host + port)");
 								}
 							}
 							return null;
 						}  
 					});
-					
-					
-                    if ( logger.isDebugEnabled() ) logger.debug("connecting to "+PLUGIN_API_URL);
-                    HttpsURLConnection conn = (HttpsURLConnection)new URL(PLUGIN_API_URL).openConnection();
+
+
+					if ( logger.isDebugEnabled() ) logger.debug("connecting to "+PLUGIN_API_URL);
+					HttpsURLConnection conn = (HttpsURLConnection)new URL(PLUGIN_API_URL).openConnection();
 
 					if ( logger.isDebugEnabled() ) logger.debug("getting file list");
 					JSONArray result = (JSONArray)parser.parse(new InputStreamReader(conn.getInputStream()));
@@ -338,7 +356,7 @@ public class FormPlugin extends AbstractUIPlugin {
 							logger.info("You already have got the latest version : "+pluginVersion);
 						return;
 					}
-					
+
 					if ( !pluginsFilename.endsWith(".jar") ) {
 						if ( verbose )
 							FormDialog.popup(Level.ERROR,"A new version of the form plugin is available:\n     actual version: "+pluginVersion+"\n     new version: "+(String)entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
@@ -349,13 +367,13 @@ public class FormPlugin extends AbstractUIPlugin {
 
 					boolean ask = true;
 					while ( ask ) {
-					    switch ( FormDialog.question("A new version of the form plugin is available:\n     actual version: "+pluginVersion+"\n     new version: "+(String)entry.getKey()+"\n\nDo you wish to download and install it ?", new String[] {"Yes", "No", "Check release note"}) ) {
-					        case 0 : ask = false ; break;  // Yes
-					        case 1 : return ;              // No
-					        case 2 : ask = true ;          // release note
-        					         Program.launch(RELEASENOTE_URL);
-        					         break;
-					    }
+						switch ( FormDialog.question("A new version of the form plugin is available:\n     actual version: "+pluginVersion+"\n     new version: "+(String)entry.getKey()+"\n\nDo you wish to download and install it ?", new String[] {"Yes", "No", "Check release note"}) ) {
+							case 0 : ask = false ; break;  // Yes
+							case 1 : return ;              // No
+							case 2 : ask = true ;          // release note
+							Program.launch(RELEASENOTE_URL);
+							break;
+						}
 					}
 
 					Display.getDefault().syncExec(new Runnable() { @Override public void run() { updateProgressbar = FormDialog.progressbarPopup("Downloading new version of form plugin ..."); }});
@@ -461,24 +479,140 @@ public class FormPlugin extends AbstractUIPlugin {
 	}
 	
 	/**
-     * Check if a string is null or empty<br>
-     * Replaces string.isEmpty() to avoid nullPointerException
-     */
-    public static boolean isEmpty(String str) {
-        return str==null || str.isEmpty();
-    }
-	
+	 * Check if two strings are equals<br>
+	 * Replaces string.equalsIgnoreCase() to avoid nullPointerException
+	 */
+	public static boolean areEqualIgnoreCase(String str1, String str2) {
+		if ( str1 == null )
+			return str2 == null;
+
+		if ( str2 == null )
+			return false;			// as str1 cannot be null at this stage
+
+		return str1.equalsIgnoreCase(str2);
+	}
+
+	/**
+	 * Check if a string is null or empty<br>
+	 * Replaces string.isEmpty() to avoid nullPointerException
+	 */
+	public static boolean isEmpty(String str) {
+		return str==null || str.isEmpty();
+	}
+
 	/**
 	 * Calculates the debug name of an EObject
 	 * @return getclass().getSimpleName()+":\""+getName()+"\"("+getId()+")"
 	 */
 	public static String getDebugName(EObject eObject) {
 		if ( eObject == null ) 
-		    return "null";
-		
+			return "null";
+
 		StringBuilder debugName = new StringBuilder(eObject.getClass().getSimpleName());
 		debugName.append(":\""+((INameable)eObject).getName()+"\"");
 		debugName.append("("+((IIdentifier)eObject).getId()+")");
 		return debugName.toString();
+	}
+
+	/**
+	 * Throw a RuntimeException with the errStrin ,except when if in "mustIgnoreError" mode 
+	 */
+	public static void error(String errString) {
+		if ( mustIgnoreErrors )
+			logger.error(errString);
+		else 
+			throw new RuntimeException(errString);
+	}
+
+	/**
+	 * Throw a RuntimeException with the errStrin ,except when if in "mustIgnoreError" mode 
+	 */
+	public static void error(String errString, Exception e) {
+		if ( mustIgnoreErrors )
+			logger.error(errString, e);
+		else 
+			throw new RuntimeException(errString, e);
+	}
+
+	/**
+	 * Sets the control's foreground color according to the RGB values encoded in the foreground parameter, or to its parent's foreground in case of error 
+	 */
+	public static void setColor(Control control, String color, int colorType) {
+		assert (colorType==SWT.FOREGROUND || colorType==SWT.BACKGROUND);
+
+		String colorTypeString = colorType==SWT.FOREGROUND ? "foreground" : "background";
+
+		if ( !FormPlugin.isEmpty(color) ) {
+			String[] colorArray = color.split(",");
+			if ( colorArray.length != 3 ) {
+				error(FormPosition.getPosition(colorTypeString) + "\n\nCannot set "+colorTypeString+" as it is not under the \"R,G,B\" form (where R, G and B are numeric values between 0 and 255).");
+			} else try {
+				if ( colorType == SWT.FOREGROUND )
+					control.setForeground(new Color(control.getDisplay(), Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+				else
+					control.setBackground(new Color(control.getDisplay(), Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+			} catch (Exception e) {
+				error(FormPosition.getPosition(colorTypeString) + "\n\nFailed to set "+colorTypeString, e);
+			}
+		} else if ( !(control instanceof Shell) ) {
+			try {
+				if ( colorType == SWT.FOREGROUND )
+					control.setForeground(control.getParent().getForeground());
+				else
+					control.setBackground(control.getParent().getBackground());
+			} catch (Exception e) {
+				error(FormPosition.getPosition(colorTypeString) + "\n\nFailed to set "+colorTypeString+" from parent's one.", e);
+			}
+		}
+	}
+
+	/**
+	 * Sets the control's font  color according to the RGB vlues encoded in the foreground parameter, or to its parent's foreground in case of error 
+	 */
+	public static void setFont(Control control, String fontName, Integer fontSize, Boolean fontBold, Boolean fontItalic) {
+		if ( FormPlugin.isEmpty(fontName) && (fontSize == null || fontSize <= 0) && fontBold != null && fontItalic != null ) {
+			try {
+				control.setFont(control.getParent().getFont());
+			} catch (Exception e) {
+				error(FormPosition.getPosition("font") + "\n\nFailed to set font from parent's one.", e);
+			}
+        } else {
+            int style = SWT.NORMAL;
+            if ( fontBold != null && fontBold )   style |= SWT.BOLD;
+            if ( fontItalic != null && fontItalic ) style |= SWT.ITALIC;
+            if ( fontSize == null ) fontSize = 0;
+            try {
+	            if ( FormPlugin.isEmpty(fontName) )
+	            	control.setFont(FontDescriptor.createFrom(control.getFont()).setHeight(fontSize).setStyle(style).createFont(control.getDisplay()));
+	            else
+	            	control.setFont(new Font(control.getDisplay(), fontName, fontSize, style));
+            } catch (Exception e) {
+				error(FormPosition.getPosition("font") + "\n\nFailed to set font.", e);
+            }
+        }
+	}
+	
+	/**
+	 * Sets the control's alignment if defined
+	 */
+	public static void setAlignment(Control control, String alignment) {
+		if ( !FormPlugin.isEmpty(alignment) ) {
+			int alignmentValue;
+			switch ( alignment.toLowerCase() ) {
+	            case "left":   alignmentValue = SWT.LEFT;  break;
+	            case "right":  alignmentValue = SWT.RIGHT; break;
+	            case "center": alignmentValue = SWT.CENTER;break;
+	            default:
+	            	error(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value \""+alignment+"\", must be \"right\", \"left\" or \"center\".");
+	            	return;
+			}
+			switch ( control.getClass().getSimpleName() ) {
+				case "Label":		((Label)control).setAlignment(alignmentValue); break;
+				case "StyledText":	((StyledText)control).setAlignment(alignmentValue); break;
+				case "Button":		((Button)control).setAlignment(alignmentValue); break;
+				default:
+	            	throw new RuntimeException("Cannot set alignment to a "+control.getClass().getSimpleName());
+			}
+        }
 	}
 }
