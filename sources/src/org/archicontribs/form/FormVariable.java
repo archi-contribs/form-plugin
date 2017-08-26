@@ -60,7 +60,7 @@ public class FormVariable {
      * Gets the real EObject that the variable refers to (as the variable can change the EObject using its scope)
      */
     public static EObject getReferedEObject(String variable, EObject eObject) {
-        if ( logger.isTraceEnabled() ) logger.trace("         getting real EObject the expression \""+variable+"\" refers to (from "+FormPlugin.getDebugName(eObject)+")");
+        if ( logger.isTraceEnabled() ) logger.trace("         getting refered EObject from variable \""+variable+"\" (source object = "+FormPlugin.getDebugName(eObject)+")");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") ) {
