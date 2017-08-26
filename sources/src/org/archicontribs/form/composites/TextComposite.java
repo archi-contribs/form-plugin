@@ -21,6 +21,7 @@ public class TextComposite extends Composite implements CompositeInterface {
 	private FontEditor				fontEditor;			 // font, fontBold, fontItalic
 	private StringEditor		    tooltipEditor;       // tooltip
 	private StringEditor		    regexpEditor;        // regexp
+	private ComboEditor             whenEmptyEditor;  	 // whenEmpty
 	private AlignmentEditor         alignmentEditor;     // alignment
 	private StringEditor            excelSheetEditor;    // excelSheet
 	private StringEditor            excelCellEditor;     // excelCell
@@ -85,9 +86,15 @@ public class TextComposite extends Composite implements CompositeInterface {
 		regexpEditor.setPosition(tooltipEditor.getControl());
 		regexpEditor.setProperty("regexp");
 		
+		// whenempty
+		whenEmptyEditor = new ComboEditor(this, "When empty:");
+		whenEmptyEditor.setPosition(regexpEditor.getControl());
+		whenEmptyEditor.setItems(new String[] {"", "ignore", "create", "delete"});
+		whenEmptyEditor.setProperty("whenEmpty");
+		
         // alignment
         alignmentEditor = new AlignmentEditor(this, "Alignment:");
-        alignmentEditor.setPosition(regexpEditor.getControl());
+        alignmentEditor.setPosition(whenEmptyEditor.getControl());
         alignmentEditor.setItems(new String[] {"", "left", "center", "right"});
         alignmentEditor.setTooltipText("Choose the alignment.\n\nDefault: left.");
         alignmentEditor.setProperty("alignment");
@@ -147,7 +154,8 @@ public class TextComposite extends Composite implements CompositeInterface {
     		case "fontitalic":	  fontEditor.setItalic((Boolean)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "regexp":    	  regexpEditor.setText((String)value); break;
-    		case "excelheet":     excelCellEditor.setText((String)value); break;
+    		case "whenempty":     whenEmptyEditor.setText((String)value); break;
+    		case "excelsheet":    excelCellEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
     		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
