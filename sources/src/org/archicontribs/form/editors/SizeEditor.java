@@ -187,27 +187,27 @@ public class SizeEditor {
 		return txtHeight;
 	}
 	
-    public void setX(int x) {
+    public void setX(Integer x) {
     	txtX.removeModifyListener(sizeModifyListener);
-		txtX.setText(String.valueOf(x));
+		txtX.setText(x==null ? "" : String.valueOf(x));
 		txtX.addModifyListener(sizeModifyListener);
     }
     
-    public void setY(int y) {
+    public void setY(Integer y) {
     	txtY.removeModifyListener(sizeModifyListener);
-    	txtY.setText(String.valueOf(y));
+    	txtY.setText(y==null ? "" : String.valueOf(y));
     	txtY.addModifyListener(sizeModifyListener);
     }
     
-    public void setWidth(int width) {
+    public void setWidth(Integer width) {
 		txtWidth.removeModifyListener(sizeModifyListener);
-		txtWidth.setText(String.valueOf(width));
+		txtWidth.setText(width==null ? "" : String.valueOf(width));
 		txtWidth.addModifyListener(sizeModifyListener);
     }
     
-    public void setHeight(int height) {
+    public void setHeight(Integer height) {
 		txtHeight.removeModifyListener(sizeModifyListener);
-		txtHeight.setText(String.valueOf(height));
+		txtHeight.setText(height==null ? "" : String.valueOf(height));
 		txtHeight.addModifyListener(sizeModifyListener);
     }
     
