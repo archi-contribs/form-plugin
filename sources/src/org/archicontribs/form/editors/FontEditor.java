@@ -222,17 +222,12 @@ public class FontEditor {
 	}
     
     public void setFontName(String fontName) {
-    	if ( fontName == null )
-    		fontName = "";
-    	lblSample.setText(fontName);
+    	lblSample.setText(fontName==null ? "" : fontName);
     	setFont(false);
     }
     
     public void setFontSize(int fontSize) {
-    	if ( fontSize <= 0 )
-    	    txtFontSize.setText("");
-    	else
-    	    txtFontSize.setText(String.valueOf(fontSize));
+  	    txtFontSize.setText(fontSize<=0 ? "" : String.valueOf(fontSize));
     	setFont(false);
     }
     
