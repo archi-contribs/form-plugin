@@ -757,7 +757,6 @@ public class FormJsonParser {
      * @param composite
      *            the composite where the control will be created
      */
-    @SuppressWarnings("unchecked")
     public Table createTable(JSONObject jsonObject, Composite parent) throws RuntimeException {
     	logger.debug("   Creating table control");
         
