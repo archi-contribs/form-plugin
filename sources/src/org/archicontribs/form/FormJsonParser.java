@@ -229,12 +229,12 @@ public class FormJsonParser {
         tabItem.setControl(composite);
         
         // we register the values from the configuration file that are needed by the graphical editor
-        tabItem.setData("name",              name);
-        tabItem.setData("foreground",        foreground);
-        tabItem.setData("background",        background);
+        composite.setData("name",              name);
+        composite.setData("foreground",        foreground);
+        composite.setData("background",        background);
         // list of the keys that needs to be edited in the graphical editor
         // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
-        tabItem.setData("editable keys", new String[] {"name", "foreground", "background"});
+        composite.setData("editable keys", new String[] {"name", "foreground", "background"});
 
     	// name
         if ( name != null )
