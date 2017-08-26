@@ -86,9 +86,9 @@ public class CheckEditor {
 		return check;
 	}
     
-    public void setChecked(boolean checked) {
+    public void setChecked(Boolean checked) {
         check.removeSelectionListener(checkSelectionListener);
-        check.setSelection(checked);
+        check.setSelection(checked!=null && checked);
         check.removeSelectionListener(checkSelectionListener);
     }
     
