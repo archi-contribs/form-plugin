@@ -438,7 +438,7 @@ public class FormJsonParser {
         text.setData("name", name);
         text.setData("variable", variable);
         text.setData("defaultText", defaultText);
-        text.setData("forceDefault", defaultText);
+        text.setData("forceDefault", forceDefault);
         text.setData("x", x);
         text.setData("y", y);
         text.setData("width", width);
