@@ -197,7 +197,7 @@ public class FormSizeEditor {
 		        formHeight = formHeight * 2 - area.height;
 		        form.setSize(formWidth, formHeight);
 		        
-		        TabFolder tabFolder = (TabFolder)form.getData("tabFolder");
+		        TabFolder tabFolder = (TabFolder)form.getData("tab folder");
 		        if ( tabFolder != null ) {
 		            
 		            area = form.getClientArea();
@@ -206,17 +206,17 @@ public class FormSizeEditor {
 		            
 		            tabFolder.setBounds(formSpacing, formSpacing, tabFolderWidth, tabFolderHeight);
 		            
-		            Button buttonCancel = (Button)form.getData("buttonCancel");
+		            Button buttonCancel = (Button)form.getData("cancel button");
 		            if ( buttonCancel != null ) {
 		            	buttonCancel.setBounds(tabFolderWidth+formSpacing-buttonWidth, tabFolderHeight+formSpacing*2, buttonWidth, buttonHeight);
 		            }
 		            
-		            Button buttonOk = (Button)form.getData("buttonOk");
+		            Button buttonOk = (Button)form.getData("ok button");
 		            if ( buttonOk != null ) {
 		            	buttonOk.setBounds(tabFolderWidth-(buttonWidth*2), tabFolderHeight+(formSpacing*2), buttonWidth, buttonHeight);
 		            }
 		            
-		            Button buttonExport = (Button)form.getData("buttonExport");
+		            Button buttonExport = (Button)form.getData("export button");
 		            if ( buttonExport != null ) {
 		            	buttonExport.setBounds(tabFolderWidth-(buttonWidth*3)-formSpacing, tabFolderHeight+(formSpacing*2), buttonWidth, buttonHeight);
 			        }
