@@ -114,8 +114,8 @@ public class LabelComposite extends Composite implements CompositeInterface {
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "fontname":	  fontEditor.setFontName((String)value); break;
     		case "fontsize":	  fontEditor.setFontSize((Integer)value); break;
-    		case "fontbold":	  fontEditor.setBold((boolean)value); break;
-    		case "fontitalic":	  fontEditor.setItalic((boolean)value); break;
+    		case "fontbold":	  fontEditor.setBold((Boolean)value); break;
+    		case "fontitalic":	  fontEditor.setItalic((Boolean)value); break;
     		case "excelsheet":    excelCellEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
