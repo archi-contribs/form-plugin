@@ -111,11 +111,11 @@ public class FormComposite extends Composite implements CompositeInterface {
     		case "buttoncancel":      buttonCancelEditor.setText((String)value); break;
     		case "buttonexport":      buttonExportEditor.setText((String)value); break;
     		case "whenempty":         whenEmptyEditor.setText((String)value); break;
-    		case "width":		      if ( value != null && (int)value > 0 ) formSizeEditor.setWidth((int)value); break;
-    		case "height":		      if ( value != null && (int)value > 0 ) formSizeEditor.setHeight((int)value); break;
-    		case "spacing":		      formSizeEditor.setSpacing((int)value); break;
-    		case "buttonwidth":	      formSizeEditor.setButtonWidth((value==null || (int)value<0) ? FormDialog.defaultButtonWidth : (int)value); break;
-    		case "buttonheight":      formSizeEditor.setButtonHeight((value==null || (int)value<0) ? FormDialog.defaultButtonHeight : (int)value); break;
+    		case "width":		      formSizeEditor.setWidth((Integer)value); break;
+    		case "height":		      formSizeEditor.setHeight((Integer)value); break;
+    		case "spacing":		      formSizeEditor.setSpacing((Integer)value); break;
+    		case "buttonwidth":	      formSizeEditor.setButtonWidth((Integer)value); break;
+    		case "buttonheight":      formSizeEditor.setButtonHeight((Integer)value); break;
     		default:
     			throw new RuntimeException("does not know key "+key);
     	}
