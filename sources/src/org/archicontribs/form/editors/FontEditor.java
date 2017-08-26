@@ -226,8 +226,8 @@ public class FontEditor {
     	setFont(false);
     }
     
-    public void setFontSize(int fontSize) {
-  	    txtFontSize.setText(fontSize<=0 ? "" : String.valueOf(fontSize));
+    public void setFontSize(Integer fontSize) {
+  	    txtFontSize.setText(fontSize==null ? "" : String.valueOf(fontSize));
     	setFont(false);
     }
     
