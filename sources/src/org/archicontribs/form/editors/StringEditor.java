@@ -84,6 +84,16 @@ public class StringEditor {
 	    this.controlKey = controlKey;
 	}
 	
+	public void setTextLimit(int limit) {
+		txtString.setTextLimit(limit);
+	}
+	
+	public void setWidth(int width) {
+		FormData fd = (FormData)txtString.getLayoutData();
+		fd.right = new FormAttachment(txtString, width);
+		txtString.layout();
+	}
+	
 	public void setProperty(String property) {
 		Widget widget = (Widget)parent.getData(controlKey);
 		
@@ -166,9 +176,7 @@ public class StringEditor {
     
     public void setText(String string) {
 		txtString.removeModifyListener(stringModifyListener);
-		if ( string == null )
-			string = "";
-		txtString.setText(string);
+		txtString.setText(string==null ? "" : string);
 		txtString.addModifyListener(stringModifyListener);
     }
     
