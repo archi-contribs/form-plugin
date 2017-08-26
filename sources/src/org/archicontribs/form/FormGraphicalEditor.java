@@ -79,145 +79,104 @@ public class FormGraphicalEditor extends Dialog {
     
     private Shell             formDialog        = null;
     
-    private String           variableSeparator = null;
-    private String           globalWhenEmpty   = null;
+	public static final Image FORM_ICON         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
+	public static final Image TAB_ICON          = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
+	public static final Image LABEL_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/label.png"));
+	public static final Image TEXT_ICON         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/text.png"));
+	public static final Image CHECK_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/check.png"));
+	public static final Image COMBO_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/combo.png"));
+	public static final Image TABLE_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/table.png"));
+	public static final Image COLUMN_ICON       = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/column.png"));
+	public static final Image LINE_ICON         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/line.png"));
+    
+    
+    private static final FormJsonParser jsonParser = new FormJsonParser();
     
     public FormGraphicalEditor(String configFilename, JSONObject json) {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
         try {
-            createForm(json);
-        } catch (IOException e) {
-            FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file \"" + configFilename + "\"", e);
-            close();
-            return;
-        } catch (ParseException e) {
-            FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \"" + configFilename + "\"", e);
-            close();
-            return;
+            formDialog = jsonParser.createShell(json, getParent());
+            
+            TreeItem formTreeItem = createPropertiesDialog(json);
+            formTreeItem.setImage(FORM_ICON);
+            formTreeItem.setText(formDialog.getText());
+            formTreeItem.setData("class", "form");
+            formTreeItem.setData("control", formDialog);
+
+            
+            formComposite.setData("ok button", formDialog.getData("ok button"));
+            formComposite.setData("cancel button", formDialog.getData("cancel button"));
+            formComposite.setData("export button", formDialog.getData("export button"));
+            formComposite.setData("tab folder", formDialog.getData("tab folder"));
+            formComposite.setData("tabs array", formDialog.getData("tabs array"));
+            
+            TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+            
+            // we create one TabItem per tab array item
+            JSONArray tabs = (JSONArray)formDialog.getData("tabs array");
+            if ( tabs != null ) {
+            	@SuppressWarnings("unchecked")
+				Iterator<JSONObject> tabsIterator = tabs.iterator();
+                while (tabsIterator.hasNext()) {
+                    JSONObject jsonTab = tabsIterator.next();
+                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder);
+                    
+                    TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
+                    tabTreeItem.setImage(TAB_ICON);
+                    tabTreeItem.setText(tabItem.getText());
+                    tabTreeItem.setData("class", "tab");
+                    tabTreeItem.setData("control", tabItem.getControl());
+                    
+                    JSONArray controls = (JSONArray)tabItem.getData("controls array");
+                    if ( controls != null ) {
+                        Composite tabItemComposite = (Composite)tabItem.getControl();
+                        @SuppressWarnings("unchecked")
+						Iterator<JSONObject> controlsIterator = controls.iterator();
+                        while (controlsIterator.hasNext()) {
+                            JSONObject jsonControl = controlsIterator.next();
+                            createControl(jsonControl, tabItemComposite, tabTreeItem);
+                        }
+                        tabItemComposite.layout();
+                    }
+                }
+            }
+            
+            formTreeItem.setExpanded(true);
+            
+            tree.setSelection(formTreeItem);
+            tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties
+           
+            // If there is at least one Excel sheet specified, then we show up the "export to Excel" button
+            //if (excelSheets.isEmpty()) {
+            //    exportButton.setVisible(false);
+            //}
         } catch (ClassCastException e) {
             FormDialog.popup(Level.ERROR, "Wrong key type in the configuration file \"" + configFilename + "\"", e);
-            close();
+            if (formDialog != null)
+            	formDialog.dispose();
             return;
         } catch (RuntimeException e) {
-            FormDialog.popup(Level.ERROR, "Please check your configuration file \"" + configFilename +"\"", e);
-            close();
+            FormDialog.popup(Level.ERROR, "Please check your configuration file \"" + configFilename + "\"", e);
+            if (formDialog != null)
+            	formDialog.dispose();
             return;
         }
 
-        propertiesDialog.open();
-        propertiesDialog.layout();
-        
         formDialog.open();
         formDialog.layout();
+        
+        propertiesDialog.open();
+        propertiesDialog.layout();
     }
 
     /**
-     * Parses the configuration file and create the corresponding graphical controls
+     * creates the propertiesDialog shell
      */
-    private void createForm(JSONObject form) throws IOException, ParseException, RuntimeException {
-        // we gather the config file content
-        String formName = FormDialog.getString(form, "name", "");
-        FormPosition.setFormName(formName);
-        variableSeparator = FormDialog.getString(form, "variableSeparator", FormDialog.defaultVariableSeparator);
-        int dialogWidth = FormDialog.getInt(form, "width", FormDialog.defaultDialogWidth);
-        int dialogHeight = FormDialog.getInt(form, "height", FormDialog.defaultDialogHeight);
-        int dialogSpacing = FormDialog.getInt(form, "spacing", FormDialog.defaultDialogSpacing);
-        String dialogBackground = FormDialog.getString(form, "background", FormDialog.defaultDialogBackground);
-        String dialogForeground = FormDialog.getString(form, "foreground", FormDialog.defaultDialogForeground);
-        String refers = FormDialog.getString(form, "refers", FormDialog.defaultRefers);
-        int buttonWidth = FormDialog.getInt(form, "buttonWidth", FormDialog.defaultButtonWidth);
-        int buttonHeight = FormDialog.getInt(form, "buttonHeight", FormDialog.defaultButtonHeight);
-        String buttonOkText = FormDialog.getString(form, "buttonOk", FormDialog.defaultButtonOkText);
-        String buttonCancelText = FormDialog.getString(form, "buttonCancel", FormDialog.defaultButtonCancelText);
-        String buttonExportText = FormDialog.getString(form, "buttonExport", FormDialog.defaultButtonExportText);
-        globalWhenEmpty = FormDialog.getString(form, "whenEmpty", "");
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("   name = " + FormDialog.debugValue(formName, ""));
-            logger.trace("   variableSeparator = " + FormDialog.debugValue(variableSeparator, FormDialog.defaultVariableSeparator));
-            logger.trace("   width = " + FormDialog.debugValue(dialogWidth, FormDialog.defaultDialogWidth));
-            logger.trace("   height = " + FormDialog.debugValue(dialogHeight, FormDialog.defaultDialogHeight));
-            logger.trace("   spacing = " + FormDialog.debugValue(dialogSpacing, FormDialog.defaultDialogSpacing));
-            logger.trace("   background = " + FormDialog.debugValue(dialogBackground, FormDialog.defaultDialogBackground));
-            logger.trace("   foreground = " + FormDialog.debugValue(dialogForeground, FormDialog.defaultDialogForeground));
-            logger.trace("   buttonWidth = " + FormDialog.debugValue(buttonWidth, FormDialog.defaultButtonWidth));
-            logger.trace("   buttonHeight = " + FormDialog.debugValue(buttonHeight, FormDialog.defaultButtonHeight));
-            logger.trace("   refers = " + FormDialog.debugValue(refers, FormDialog.defaultRefers));
-            logger.trace("   buttonOk = " + FormDialog.debugValue(buttonOkText, FormDialog.defaultButtonOkText));
-            logger.trace("   buttonCancel = " + FormDialog.debugValue(buttonCancelText, FormDialog.defaultButtonCancelText));
-            logger.trace("   buttonExport = " + FormDialog.debugValue(buttonExportText, FormDialog.defaultButtonExportText));
-            logger.trace("   whenEmpty = " + FormDialog.debugValue(globalWhenEmpty, ""));
-        }
-        
-        // we create the formDialog
-        
-        formDialog  = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL );
-        formDialog.setText(formName);
-        formDialog.setSize(dialogWidth, dialogHeight);
-        formDialog.setLayout(null);
-        
-        int tabFolderWidth = dialogWidth - dialogSpacing * 2;
-        int tabFolderHeight = dialogHeight - dialogSpacing * 3 - buttonHeight;
-        
-        formDialog.setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - dialogWidth) / 4, (Toolkit.getDefaultToolkit().getScreenSize().height - dialogHeight) / 4, dialogWidth, dialogHeight);
-        // we resize the dialog because we want the width and height to be the
-        // client's area width and height
-        Rectangle area = formDialog.getClientArea();
-        formDialog.setSize(dialogWidth * 2 - area.width, dialogHeight * 2 - area.height);
-        
-        if ( !FormPlugin.isEmpty(dialogBackground) ) {
-            String[] colorArray = dialogBackground.split(",");
-            formDialog.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        TabFolder tabFolder = new TabFolder(formDialog, SWT.NONE);
-        formDialog.setData("tabFolder", tabFolder);
-        tabFolder.setBounds(dialogSpacing, dialogSpacing, tabFolderWidth, tabFolderHeight);
-
-        Button buttonCancel = new Button(formDialog, SWT.NONE);
-        buttonCancel.setBounds(tabFolderWidth + dialogSpacing - buttonWidth, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-        buttonCancel.setText(buttonCancelText);
-        buttonCancel.setEnabled(true);
-
-        Button buttonOk = new Button(formDialog, SWT.NONE);
-        buttonOk.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 2 - dialogSpacing, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-        buttonOk.setText(buttonOkText);
-        buttonOk.setEnabled(true);
-        
-        // If there is at least one Excel sheet specified, then we show up the
-        // "export to Excel" button
-        //if (!excelSheets.isEmpty()) {
-        Button buttonExport = new Button(formDialog, SWT.NONE);
-        buttonExport.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 3 - dialogSpacing * 2, tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-        buttonExport.setText(buttonExportText);
-        buttonExport.setEnabled(true);
-        //}
-        
-        formDialog.setData("name", formName);
-        formDialog.setData("variableSeparator", variableSeparator);
-        formDialog.setData("width", dialogWidth);
-        formDialog.setData("height", dialogHeight);
-        formDialog.setData("spacing", dialogSpacing);
-        formDialog.setData("background", dialogBackground);
-        formDialog.setData("foreground", dialogForeground);
-        formDialog.setData("buttonWidth", buttonWidth);
-        formDialog.setData("buttonHeight", buttonHeight);
-        formDialog.setData("refers", refers);
-        formDialog.setData("buttonOk", buttonOkText);
-        formDialog.setData("buttonCancel", buttonCancelText);
-        formDialog.setData("buttonExport", buttonExportText);
-        formDialog.setData("whenEmpty", globalWhenEmpty);
-        
-        formDialog.setData("buttonOkControl", buttonOk);
-        formDialog.setData("buttonCancelControl", buttonCancel);
-        formDialog.setData("buttonExportControl", buttonExport);
-        formDialog.setData("keys",  new String[] {"name", /*"variableSeparator",*/ "width", "height", "spacing", "background", "foreground", "buttonWidth","buttonHeight", "refers", "buttonOk", "buttonCancel", "buttonExport"});
-        
-        // we create the propertiesDialog
-        propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE);
-        propertiesDialog.setSize(1000, 600);
-        propertiesDialog.setLayout(new FormLayout());
+    private TreeItem createPropertiesDialog(JSONObject json) {
+    	propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE);
+    	propertiesDialog.setSize(1000, 600);
+    	propertiesDialog.setLayout(new FormLayout());
         
         Button btnCancel = new Button(propertiesDialog, SWT.NONE);
         FormData fd = new FormData();
@@ -276,46 +235,7 @@ public class FormGraphicalEditor extends Dialog {
         fd.right = new FormAttachment(sash, -editorBorderMargin/2);
         fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
         tree.setLayoutData(fd);
-        tree.addListener(SWT.Selection, new Listener() {
-            public void handleEvent(Event event) {
-                // hide the current composite and show up the composite linked to the selected treeItem
-            	/*
-                formComposite.setVisible(false);
-                tabComposite.setVisible(false);
-                labelComposite.setVisible(false);
-                textComposite.setVisible(false);
-                comboComposite.setVisible(false);
-                checkComposite.setVisible(false);
-                tableComposite.setVisible(false);
-                columnComposite.setVisible(false);
-                lineComposite.setVisible(false);
-                */
-            	scrolledcomposite.setContent(null);
-                
-                if ( tree.getSelectionCount() != 0 ) {
-                	TreeItem treeItem = tree.getSelection()[0];
-                	CompositeInterface composite = (CompositeInterface)treeItem.getData("composite");
-                	scrolledcomposite.setContent((Composite)composite);
-                	scrolledcomposite.setExpandHorizontal(true);
-                	scrolledcomposite.setExpandVertical(true);
-                	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
-                	
-                	if ( composite != null ) {
-                		Control control = (Control)treeItem.getData("control");
-                		
-                		composite.setVisible(true);
-                        composite.setData("shell", propertiesDialog);
-                        composite.setData("treeItem", treeItem);
-                        composite.setData("class", treeItem.getData("class"));
-                        composite.setData("control", control);
-                        
-                        for ( String key: (String [])control.getData("keys") ) {
-                        	composite.set(key, control.getData(key));
-                        }
-                	}
-                }
-            }
-        });
+        tree.addListener(SWT.Selection, treeSelectionListener);
         
         Menu treeMenu = new Menu(tree);
         tree.setMenu(treeMenu);
@@ -383,9 +303,6 @@ public class FormGraphicalEditor extends Dialog {
         });
         
         TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
-        formTreeItem.setText("Form: "+formName);
-        formTreeItem.setData("class", "form");
-        formTreeItem.setData("control", formDialog);
         
         scrolledcomposite = new ScrolledComposite(propertiesDialog, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         fd = new FormData();
@@ -409,67 +326,52 @@ public class FormGraphicalEditor extends Dialog {
         
         formTreeItem.setData("composite", formComposite);
         
-        createTabs(form, formTreeItem, tabFolder);
-        formTreeItem.setExpanded(true);
-        
-        tree.setSelection(formTreeItem);
-        tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties and display the corresponding form
+        return formTreeItem;
     }
-
+    
     /**
-     * Creates the dialog tabItems<br>
-     * <br>
-     * called by the createContents() method
+     * this listener is called each time a treeItem is selected in the tree
      */
-    private void createTabs(JSONObject form, TreeItem formTreeItem, TabFolder tabFolder) throws RuntimeException {
-    	// we iterate over the "tabs" array attributes
-        JSONArray tabs = FormDialog.getJSONArray(form, "tabs");
-
-        @SuppressWarnings("unchecked")
-        Iterator<JSONObject> tabsIterator = tabs.iterator();
-        while (tabsIterator.hasNext()) {
-            JSONObject tab = tabsIterator.next();
-            String tabName = FormDialog.getString(tab, "name", "");
-
-            FormPosition.setTabName(tabName);
-
-            if (logger.isDebugEnabled())
-                logger.debug("Creating tab \"" + FormDialog.debugValue(tabName, FormDialog.defaultTabName) + "\"");
-
-            String tabBackground = FormDialog.getString(tab, "background", FormDialog.defaultTabBackground);
-            String tabForeground = FormDialog.getString(tab, "foreground", FormDialog.defaultTabForeground);
-
-            if (logger.isTraceEnabled()) {
-                logger.trace("   background = " + FormDialog.debugValue(tabBackground, FormDialog.defaultTabBackground));
-                logger.trace("   foreground = " + FormDialog.debugValue(tabForeground, FormDialog.defaultTabForeground));
+    private Listener treeSelectionListener = new Listener() {
+        public void handleEvent(Event event) {
+            // hide the current composite and show up the composite linked to the selected treeItem
+        	/*
+            formComposite.setVisible(false);
+            tabComposite.setVisible(false);
+            labelComposite.setVisible(false);
+            textComposite.setVisible(false);
+            comboComposite.setVisible(false);
+            checkComposite.setVisible(false);
+            tableComposite.setVisible(false);
+            columnComposite.setVisible(false);
+            lineComposite.setVisible(false);
+            */
+        	scrolledcomposite.setContent(null);
+            
+            if ( tree.getSelectionCount() != 0 ) {
+            	TreeItem treeItem = tree.getSelection()[0];
+            	CompositeInterface composite = (CompositeInterface)treeItem.getData("composite");
+            	scrolledcomposite.setContent((Composite)composite);
+            	scrolledcomposite.setExpandHorizontal(true);
+            	scrolledcomposite.setExpandVertical(true);
+            	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+            	
+            	if ( composite != null ) {
+            		Control control = (Control)treeItem.getData("control");
+            		
+            		composite.setVisible(true);
+                    composite.setData("shell", propertiesDialog);
+                    composite.setData("treeItem", treeItem);
+                    composite.setData("class", treeItem.getData("class"));
+                    composite.setData("control", control);
+                    
+                    for ( String key: (String [])control.getData("editable keys") ) {
+                    	composite.set(key, control.getData(key));
+                    }
+            	}
             }
-            
-            TabItem tabItem = new TabItem(tabFolder, SWT.MULTI);
-            tabItem.setText(tabName);
-            
-            Composite composite = new Composite(tabFolder, SWT.NONE);
-            tabItem.setControl(composite);
-            
-            composite.setData("name", tabName);
-            composite.setData("background",  tabBackground);
-            composite.setData("foreground",  tabForeground);
-            composite.setData("keys", new String[] {"name", "background", "foreground"});
-            
-            if ( !FormPlugin.isEmpty(tabBackground) ) {
-                String[] colorArray = tabBackground.split(",");
-                composite.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-            }
-            
-            TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
-            tabTreeItem.setText("Tab: "+tabName);
-            tabTreeItem.setData("class", "tab");
-            tabTreeItem.setData("composite", tabComposite);
-            tabTreeItem.setData("control", composite);
-
-            createControls(tab, tabTreeItem, composite);
-            composite.layout();
         }
-    }
+    };
 
     /**
      * Creates the dialog controls. The following controls are currently managed:<br>
@@ -480,180 +382,74 @@ public class FormGraphicalEditor extends Dialog {
      * <li>text
      * <br>
      * called by the createTabs() method
+     * 
+     * @param tab
+     *            The JSON object to parse
+     * @param composite
+     *            The composite where the control will be created
      */
-    private void createControls(JSONObject tab, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-        // we iterate over the "controls" entries
-        @SuppressWarnings("unchecked")
-        Iterator<JSONObject> objectsIterator = FormDialog.getJSONArray(tab, "controls").iterator();
-        while (objectsIterator.hasNext()) {
-            JSONObject jsonObject = objectsIterator.next();
-            
-            String controlClass = FormDialog.getString(jsonObject, "class").toLowerCase();
-            String name = FormDialog.getString(jsonObject, "name", "");
-            
-            FormPosition.setControlName(name);
-            FormPosition.setControlClass(controlClass);
-           
-            switch ( controlClass ) {
-                case "check":
-                    createCheck(jsonObject, tabTreeItem, composite);
-                    break;
-                case "combo":
-                    createCombo(jsonObject, tabTreeItem, composite);
-                    break;
-                case "label":
-                    createLabel(jsonObject, tabTreeItem, composite);
-                    break;
-                case "table":
-                    createTable(jsonObject, tabTreeItem, composite);
-                    break;
-                case "text":
-                    createText(jsonObject, tabTreeItem, composite);
-                    break;
-                default:
-                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonObject.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+    private void createControl(JSONObject jsonObject, Composite parent, TreeItem parentTreeItem) throws RuntimeException {
+            FormJsonParser jsonParser = new FormJsonParser();
+            TreeItem treeItem;
+
+            String clazz = jsonParser.getString(jsonObject, "class");
+            if ( clazz != null ) {
+	            switch ( clazz.toLowerCase() ) {
+	                case "check":
+	                    Button check = jsonParser.createCheck(jsonObject, parent);
+	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
+	    	            treeItem.setImage(CHECK_ICON);
+	    	            treeItem.setText((String)check.getData("name"));
+	    	            treeItem.setData("composite", checkComposite);
+	    	            treeItem.setData("class", "check");
+	    	            treeItem.setData("control", check); 
+	                    break;
+	                    
+	                case "combo":
+	                    CCombo combo = jsonParser.createCombo(jsonObject, parent);
+	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
+	    	            treeItem.setImage(COMBO_ICON);
+	    	            treeItem.setText((String)combo.getData("name"));
+	    	            treeItem.setData("composite", comboComposite);
+	    	            treeItem.setData("class", "combo");
+	    	            treeItem.setData("control", combo); 
+	                    break;
+	                    
+	                case "label":
+	                    Label label = jsonParser.createLabel(jsonObject, parent);
+	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
+	    	            treeItem.setImage(LABEL_ICON);
+	    	            treeItem.setText((String)label.getData("name"));
+	    	            treeItem.setData("composite", labelComposite);
+	    	            treeItem.setData("class", "label");
+	    	            treeItem.setData("control", label); 
+	                    break;
+	                    
+	                case "table":
+	                	//TODO : jsonParser.createTable(jsonObject, parent);
+	                    break;
+	                    
+	                case "text":
+	                    StyledText text = jsonParser.createText(jsonObject, parent);
+	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
+	    	            treeItem.setImage(TEXT_ICON);
+	    	            treeItem.setText((String)text.getData("name"));
+	    	            treeItem.setData("composite", textComposite);
+	    	            treeItem.setData("class", "text");
+	    	            treeItem.setData("control", text); 
+	                    break;
+	                    
+	                default:
+	                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonObject.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+	            }
             }
             FormPosition.resetControlName();
             FormPosition.resetControlClass();
-        }
     }
+    
 
-    /**
-     * Create a Label control<br>
-     * <br>
-     * called by the createObjects() method
-     */
-    private void createLabel(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) {
-    	Label label = FormDialog.createLabel(jsonObject, composite);
-    	label.setText((String)label.getData("text"));
- 	
-        TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
-        treeItem.setText("Label: "+ (String)label.getData("name"));
-        treeItem.setData("composite", labelComposite);
-        treeItem.setData("class", "label");
-        treeItem.setData("control", label);        
-    }
 
-    /**
-     * Create a text control<br>
-     * <br>
-     * called by the createObjects() method
-     */
-    private void createText(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-    	StyledText text = FormDialog.createText(jsonObject, composite);
-    	text.setText((String)text.getData("variable"));
-    	
-        TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
-        treeItem.setText("Text: "+ (String)text.getData("name"));
-        
-        treeItem.setData("composite", textComposite);
-        treeItem.setData("class", "text");        
-        treeItem.setData("control", text);
-    }
-
-    /**
-     * Create a Combo control<br>
-     * <br>
-     * called by the createObjects() method
-     */
-    private void createCombo(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-        CCombo combo = FormDialog.createCombo(jsonObject, composite);
-        combo.setText((String)combo.getData("variable"));
-        
-        TreeItem treeItem = new TreeItem(tabTreeItem, SWT.NONE);
-        treeItem.setText("Combo: "+ (String)combo.getData("name"));
-        
-        treeItem.setData("composite", textComposite);
-        treeItem.setData("class", "combo");        
-        treeItem.setData("control", combo);
-    }
-
-    /**
-     * Create a check button control<br>
-     * <br>
-     * called by the createObjects() method
-     * 
-     * @param jsonObject
-     *            the JSON object to parse
-     * @param composite
-     *            the composite where the control will be created
-     */
-    private void createCheck(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-        String checkName = FormDialog.getString(jsonObject, "name", "");
-        
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating Check \"" + checkName + "\"");
-        
-        FormPosition.setControlName(checkName);
-        FormPosition.setControlClass("check");
-        
-        String variableName = FormDialog.getString(jsonObject, "variable", "");
-        @SuppressWarnings("unchecked")
-        String[] values = (String[]) (FormDialog.getJSONArray(jsonObject, "values")).toArray(new String[0]);
-        String defaultValue = FormDialog.getString(jsonObject, "default", "");
-        boolean forceDefault = FormDialog.getBoolean(jsonObject, "forceDefault", false);
-        int x = FormDialog.getInt(jsonObject, "x", 0);
-        int y = FormDialog.getInt(jsonObject, "y", 0);
-        int width = FormDialog.getInt(jsonObject, "width", 0);
-        int height = FormDialog.getInt(jsonObject, "height", 0);
-        boolean editable = FormDialog.getBoolean(jsonObject, "editable", true);
-        String background = FormDialog.getString(jsonObject, "background", "");
-        String foreground = FormDialog.getString(jsonObject, "foreground", "");
-        String tooltip = FormDialog.getString(jsonObject, "tooltip", "");
-        String alignment = FormDialog.getString(jsonObject, "alignment", "left");
-        String whenEmpty = FormDialog.getString(jsonObject, "whenEmpty", globalWhenEmpty);
-        String excelSheet = FormDialog.getString(jsonObject, "excelSheet", "");
-        String excelCell = FormDialog.getString(jsonObject, "excelCell", "");
-        String excelCellType = FormDialog.getString(jsonObject, "excelCellType", "string");
-        String excelDefault = FormDialog.getString(jsonObject, "excelDefault", "blank");
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("      x = " + FormDialog.debugValue(x, 0));
-            logger.trace("      y = " + FormDialog.debugValue(y, 0));
-            logger.trace("      width = " + FormDialog.debugValue(width, 0));
-            logger.trace("      height = " + FormDialog.debugValue(height, 0));
-            logger.trace("      background = " + FormDialog.debugValue(background, ""));
-            logger.trace("      foreground = " + FormDialog.debugValue(foreground, ""));
-            logger.trace("      alignment = "+FormDialog.debugValue(alignment, "left"));
-            logger.trace("      values = " + values);
-            logger.trace("      default = " + FormDialog.debugValue(defaultValue, ""));
-            logger.trace("      forceDefault = " + FormDialog.debugValue(forceDefault, false));
-            logger.trace("      tooltip = " + FormDialog.debugValue(tooltip, ""));
-            logger.trace("      editable = " + FormDialog.debugValue(editable, true));
-            logger.trace("      whenEmpty = " + FormDialog.debugValue(whenEmpty, globalWhenEmpty));
-            logger.trace("      excelSheet = " + FormDialog.debugValue(excelSheet, ""));
-            logger.trace("      excelCell = " + FormDialog.debugValue(excelCell, ""));
-            logger.trace("      excelCellType = " + FormDialog.debugValue(excelCellType, "string"));
-            logger.trace("      excelDefault = " + FormDialog.debugValue(excelDefault, "blank"));
-        }
-
-        TreeItem comboTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
-        comboTreeItem.setText("Check: "+ checkName);
-        comboTreeItem.setData("class", "check");
-        comboTreeItem.setData("composite", comboComposite);
-        
-        comboTreeItem.setData("name", checkName);
-        comboTreeItem.setData("x", x);
-        comboTreeItem.setData("y", y);
-        comboTreeItem.setData("width", width);
-        comboTreeItem.setData("height", height);
-        comboTreeItem.setData("variable", variableName);
-        comboTreeItem.setData("values", values);
-        comboTreeItem.setData("default", defaultValue);
-        comboTreeItem.setData("forceDefault", forceDefault);
-        comboTreeItem.setData("background", background);
-        comboTreeItem.setData("foreground", foreground);
-        comboTreeItem.setData("tooltip", tooltip);
-        comboTreeItem.setData("alignment", alignment);
-        comboTreeItem.setData("editable", editable);
-        comboTreeItem.setData("whenEmpty", whenEmpty);
-        comboTreeItem.setData("excelSheet", excelSheet);
-        comboTreeItem.setData("excelCell", excelCell);
-        comboTreeItem.setData("excelCellType", excelCellType);
-        comboTreeItem.setData("excelDefault", excelDefault);
-    }
-
-    /**
+     /**
      * Create a Table control<br>
      * <br>
      * called by the createObjects() method
@@ -665,7 +461,8 @@ public class FormGraphicalEditor extends Dialog {
      */
     @SuppressWarnings("unchecked")
     private void createTable(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-        String tableName = FormDialog.getString(jsonObject, "name", "");
+    	/*
+        String tableName = jsonParser.getString(jsonObject, "name", "");
         
         if (logger.isDebugEnabled())
             logger.debug("   Creating table \"" + tableName + "\"");
@@ -673,16 +470,16 @@ public class FormGraphicalEditor extends Dialog {
         FormPosition.setControlName(tableName);
         FormPosition.setControlClass("table");
         
-        int x = FormDialog.getInt(jsonObject, "x", 0);
-        int y = FormDialog.getInt(jsonObject, "y", 0);
-        int width = FormDialog.getInt(jsonObject, "width", 100);
-        int height = FormDialog.getInt(jsonObject, "height", 50);
-        String background = FormDialog.getString(jsonObject, "background", "");
-        String foreground = FormDialog.getString(jsonObject, "foreground", "");
-        String tooltip = FormDialog.getString(jsonObject, "tooltip", "");
-        String excelSheet = FormDialog.getString(jsonObject, "excelSheet", "");
-        int excelFirstLine = FormDialog.getInt(jsonObject, "excelFirstLine", 1);
-        int excelLastLine = FormDialog.getInt(jsonObject, "excelLastLine", 0);
+        int x = jsonParser.getInt(jsonObject, "x", 0);
+        int y = jsonParser.getInt(jsonObject, "y", 0);
+        int width = jsonParser.getInt(jsonObject, "width", 100);
+        int height = jsonParser.getInt(jsonObject, "height", 50);
+        String background = jsonParser.getString(jsonObject, "background", "");
+        String foreground = jsonParser.getString(jsonObject, "foreground", "");
+        String tooltip = jsonParser.getString(jsonObject, "tooltip", "");
+        String excelSheet = jsonParser.getString(jsonObject, "excelSheet", "");
+        int excelFirstLine = jsonParser.getInt(jsonObject, "excelFirstLine", 1);
+        int excelLastLine = jsonParser.getInt(jsonObject, "excelLastLine", 0);
 
         if (logger.isDebugEnabled())
             logger.debug("   Creating table");
@@ -723,22 +520,22 @@ public class FormGraphicalEditor extends Dialog {
         linesTreeItem.setData("class", "lines");
         
         // we iterate over the "columns" entries
-        Iterator<JSONObject> columnsIterator = (FormDialog.getJSONArray(jsonObject, "columns")).iterator();
+        Iterator<JSONObject> columnsIterator = (jsonParser.getJSONArray(jsonObject, "columns")).iterator();
         while (columnsIterator.hasNext()) {
             JSONObject column = columnsIterator.next();
 
-            String columnName = FormDialog.getString(column, "name", "");
+            String columnName = jsonParser.getString(column, "name", "");
             FormPosition.setColumnName(columnName);
             
-            String columnClass = FormDialog.getString(column, "class").toLowerCase();
+            String columnClass = jsonParser.getString(column, "class").toLowerCase();
             
-            tooltip = FormDialog.getString(column, "tooltip", "");
-            width = FormDialog.getInt(column, "width", 0);
-            background = FormDialog.getString(column, "background", "");
-            foreground = FormDialog.getString(column, "foreground", "");
-            String excelColumn = FormDialog.getString(column, "excelColumn", "");
-            String excelCellType = FormDialog.getString(column, "excelCellType", "string");
-            String excelDefault = FormDialog.getString(column, "excelDefault", "blank");
+            tooltip = jsonParser.getString(column, "tooltip", "");
+            width = jsonParser.getInt(column, "width", 0);
+            background = jsonParser.getString(column, "background", "");
+            foreground = jsonParser.getString(column, "foreground", "");
+            String excelColumn = jsonParser.getString(column, "excelColumn", "");
+            String excelCellType = jsonParser.getString(column, "excelCellType", "string");
+            String excelDefault = jsonParser.getString(column, "excelDefault", "blank");
 
             if (logger.isDebugEnabled())
                 logger.debug("   Creating column \"" + columnName + "\" of class \"" + columnClass + "\"");
@@ -769,7 +566,7 @@ public class FormGraphicalEditor extends Dialog {
 
             switch (columnClass) {
                 case "label":
-                    alignment = FormDialog.getString(column, "alignment", "left");
+                    alignment = jsonParser.getString(column, "alignment", "left");
                     
                     if (logger.isTraceEnabled()) {
                         logger.trace("      alignment = "+FormDialog.debugValue(alignment, "left"));
@@ -779,11 +576,11 @@ public class FormGraphicalEditor extends Dialog {
                     break;
                     
                 case "text":
-                    String regexp = FormDialog.getString(column, "regexp", "");
-                    String defaultText = FormDialog.getString(column, "default", "");
-                    String whenEmpty = FormDialog.getString(column, "whenEmpty", globalWhenEmpty);
-                    boolean forceDefault = FormDialog.getBoolean(column, "forceDefault", false);
-                    alignment = FormDialog.getString(column, "alignment", "left");
+                    String regexp = jsonParser.getString(column, "regexp", "");
+                    String defaultText = jsonParser.getString(column, "default", "");
+                    String whenEmpty = jsonParser.getString(column, "whenEmpty", globalWhenEmpty);
+                    boolean forceDefault = jsonParser.getBoolean(column, "forceDefault", false);
+                    alignment = jsonParser.getString(column, "alignment", "left");
 
                     if (logger.isTraceEnabled()) {
                         logger.trace("      regexp = " + FormDialog.debugValue(regexp, ""));
@@ -801,11 +598,11 @@ public class FormGraphicalEditor extends Dialog {
                     break;
                     
                 case "combo":
-                    String[] values = (String[]) (FormDialog.getJSONArray(column, "values")).toArray(new String[0]);
-                    String defaultValue = FormDialog.getString(column, "default", "");
-                    Boolean editable = FormDialog.getBoolean(column, "editable", true);
-                    whenEmpty = FormDialog.getString(jsonObject, "whenEmpty", globalWhenEmpty);
-                    alignment = FormDialog.getString(column, "alignment", "left");
+                    String[] values = (String[]) (jsonParser.getJSONArray(column, "values")).toArray(new String[0]);
+                    String defaultValue = jsonParser.getString(column, "default", "");
+                    Boolean editable = jsonParser.getBoolean(column, "editable", true);
+                    whenEmpty = jsonParser.getString(jsonObject, "whenEmpty", globalWhenEmpty);
+                    alignment = jsonParser.getString(column, "alignment", "left");
 
                     if (logger.isTraceEnabled()) {
                         logger.trace("      values = " + values);
@@ -822,11 +619,11 @@ public class FormGraphicalEditor extends Dialog {
                     columnTreeItem.setData("alignment", alignment);
                     break;
                 case "check":
-                    values = (String[]) (FormDialog.getJSONArray(column, "values")).toArray(new String[0]);
-                    defaultValue = FormDialog.getString(column, "default", "");
-                    forceDefault = FormDialog.getBoolean(column, "forceDefault", false);
-                    whenEmpty = FormDialog.getString(jsonObject, "whenEmpty", globalWhenEmpty);
-                    alignment = FormDialog.getString(column, "alignment", "left");
+                    values = (String[]) (jsonParser.getJSONArray(column, "values")).toArray(new String[0]);
+                    defaultValue = jsonParser.getString(column, "default", "");
+                    forceDefault = jsonParser.getBoolean(column, "forceDefault", false);
+                    whenEmpty = jsonParser.getString(jsonObject, "whenEmpty", globalWhenEmpty);
+                    alignment = jsonParser.getString(column, "alignment", "left");
 
                     if (logger.isTraceEnabled()) {
                         logger.trace("      values = " + values);
@@ -843,14 +640,14 @@ public class FormGraphicalEditor extends Dialog {
                     columnTreeItem.setData("alignment", alignment);
                     break;
                 default:
-                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" +FormDialog.getString(column, "class") + "\" (valid values are \"check\", \"combo\", \"label\" and \"text\").");
+                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" +jsonParser.getString(column, "class") + "\" (valid values are \"check\", \"combo\", \"label\" and \"text\").");
             }
         }
         FormPosition.resetColumnName();
 
 
         // we iterate over the "lines" entries
-        JSONArray lines = FormDialog.getJSONArray(jsonObject, "lines");
+        JSONArray lines = jsonParser.getJSONArray(jsonObject, "lines");
         if (lines != null) {
             Iterator<JSONObject> linesIterator = lines.iterator();
             while (linesIterator.hasNext()) {
@@ -858,10 +655,10 @@ public class FormGraphicalEditor extends Dialog {
                 
                 TreeItem lineTreeItem = new TreeItem(linesTreeItem, SWT.NONE);
                 
-                lineTreeItem.setData("cells", FormDialog.getJSONArray(line, "cells"));
+                lineTreeItem.setData("cells", jsonParser.getJSONArray(line, "cells"));
                 lineTreeItem.setData("class", "line");
                 
-                if ((boolean) FormDialog.getJSON(line, "generate", false) == false) {
+                if ((boolean) jsonParser.getJSON(line, "generate", false) == false) {
                     // static line
                     if (logger.isTraceEnabled())
                         logger.trace("Creating static line");
@@ -872,10 +669,11 @@ public class FormGraphicalEditor extends Dialog {
                         logger.trace("Generating dynamic lines");
                     
                     lineTreeItem.setText("Dynamic lines");
-                    lineTreeItem.setData("filter", FormDialog.getJSONObject(line, "filter"));
+                    lineTreeItem.setData("filter", jsonParser.getJSONObject(line, "filter"));
                 }
             }
         }
+        */
     }
 
     private void cancel() {
