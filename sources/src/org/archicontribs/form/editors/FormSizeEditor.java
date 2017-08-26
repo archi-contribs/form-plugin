@@ -245,33 +245,33 @@ public class FormSizeEditor {
 		return txtButtonHeight;
 	}
     
-    public void setWidth(int width) {
+    public void setWidth(Integer width) {
 		txtWidth.removeModifyListener(sizeModifyListener);
-		txtWidth.setText(String.valueOf(width));
+		txtWidth.setText(width==null ? "" : String.valueOf(width));
 		txtWidth.addModifyListener(sizeModifyListener);
     }
     
-    public void setHeight(int height) {
+    public void setHeight(Integer height) {
 		txtHeight.removeModifyListener(sizeModifyListener);
-		txtHeight.setText(String.valueOf(height));
+		txtHeight.setText(height==null ? "" : String.valueOf(height));
 		txtHeight.addModifyListener(sizeModifyListener);
     }
     
-    public void setButtonWidth(int buttonWidth) {
+    public void setButtonWidth(Integer buttonWidth) {
 		txtButtonWidth.removeModifyListener(sizeModifyListener);
-		txtButtonWidth.setText(String.valueOf(buttonWidth));
+		txtButtonWidth.setText(buttonWidth==null ? "" : String.valueOf(buttonWidth));
 		txtButtonWidth.addModifyListener(sizeModifyListener);
     }
     
-    public void setButtonHeight(int buttonHeight) {
+    public void setButtonHeight(Integer buttonHeight) {
 		txtButtonHeight.removeModifyListener(sizeModifyListener);
-		txtButtonHeight.setText(String.valueOf(buttonHeight));
+		txtButtonHeight.setText(buttonHeight==null ? "" : String.valueOf(buttonHeight));
 		txtButtonHeight.addModifyListener(sizeModifyListener);
     }
     
-    public void setSpacing(int spacing) {
+    public void setSpacing(Integer spacing) {
 		txtSpacing.removeModifyListener(sizeModifyListener);
-		txtSpacing.setText(String.valueOf(spacing));
+		txtSpacing.setText(spacing==null ? "" : String.valueOf(spacing));
 		txtSpacing.addModifyListener(sizeModifyListener);
     }
     
