@@ -119,8 +119,8 @@ public class TextComposite extends Composite implements CompositeInterface {
     	switch ( key ) {
             case "name":          nameEditor.setText((String)value); break;
             case "variable":      variableEditor.setText((String)value); break;
-            case "defaultText":   defaultTextEditor.setText((String)value);
-            case "forceDefault":  forceDefaultEditor.setChecked((Boolean)value);
+            case "defaultText":   defaultTextEditor.setText((String)value); break;
+            case "forceDefault":  forceDefaultEditor.setChecked((Boolean)value); break;
     		case "x":			  sizeEditor.setX((Integer)value); break;
     		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
