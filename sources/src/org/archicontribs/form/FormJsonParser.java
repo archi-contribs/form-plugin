@@ -601,7 +601,8 @@ public class FormJsonParser {
         	combo.setItems(values);
         
         // editable
-        combo.setEditable(editable);
+        if ( editable != null )
+        	combo.setEditable(editable);
         
 		// text
         if ( variable != null )
