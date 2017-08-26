@@ -16,6 +16,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -250,10 +251,8 @@ public class FormJsonParser {
     }
     
     /**
-     * Create a Label control<br>
+     * Create a Label control
      * <br>
-     * called by the createObjects() method
-     * 
      * @param jsonObject
      *            the JSON object to parse
      * @param composite
@@ -369,8 +368,6 @@ public class FormJsonParser {
     /**
      * Create a text control<br>
      * <br>
-     * called by the createObjects() method
-     * 
      * @param jsonObject
      *            the JSON object to parse
      * @param composite
@@ -508,8 +505,6 @@ public class FormJsonParser {
     /**
      * Create a Combo control<br>
      * <br>
-     * called by the createObjects() method
-     * 
      * @param jsonObject
      *            the JSON object to parse
      * @param composite
@@ -645,8 +640,6 @@ public class FormJsonParser {
     /**
      * Create a check button control<br>
      * <br>
-     * called by the createObjects() method
-     * 
      * @param jsonObject
      *            the JSON object to parse
      * @param composite
@@ -691,8 +684,8 @@ public class FormJsonParser {
             logger.trace("      y = " + debugValue(y, 0));
             logger.trace("      width = " + debugValue(width, 0));
             logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      background = " + debugValue(background, ""));
-            logger.trace("      foreground = " + debugValue(foreground, ""));
+            logger.trace("      background = " + debugValue(background, "parent's"));
+            logger.trace("      foreground = " + debugValue(foreground, "parent's"));
             logger.trace("      alignment = "+debugValue(alignment, ""));
             logger.trace("      tooltip = " + debugValue(tooltip, ""));
             logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
@@ -755,6 +748,329 @@ public class FormJsonParser {
    
         return check;
     }
+    
+    /**
+     * Create a table control<br>
+     * <br>
+     * @param jsonObject
+     *            the JSON object to parse
+     * @param composite
+     *            the composite where the control will be created
+     */
+    @SuppressWarnings("unchecked")
+    private Table createTable(JSONObject jsonObject, Composite parent) throws RuntimeException {
+    	logger.debug("   Creating table control");
+        
+        String name           = getString(jsonObject, "name");
+        FormPosition.setControlName(name);
+        FormPosition.setControlClass("table");
+
+        Integer x              = getInt(jsonObject, "x");
+        Integer y              = getInt(jsonObject, "y");
+        Integer width          = getInt(jsonObject, "width");
+        Integer height         = getInt(jsonObject, "height");
+        String  background     = getString(jsonObject, "background");
+        String  foreground     = getString(jsonObject, "foreground");
+        String  tooltip        = getString(jsonObject, "tooltip");
+        String  excelSheet     = getString(jsonObject, "excelSheet");
+        Integer excelFirstLine = getInt(jsonObject, "excelFirstLine");
+        Integer excelLastLine  = getInt(jsonObject, "excelLastLine");
+        
+        Table table = new Table(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE | SWT.FULL_SELECTION);
+        table.setLinesVisible(true);
+        table.setHeaderVisible(true);
+
+        if (logger.isTraceEnabled()) {
+            logger.trace("      name = " + name);
+            logger.trace("      x = " + debugValue(x, 0));
+            logger.trace("      y = " + debugValue(y, 0));
+            logger.trace("      width = " + debugValue(width, 100));
+            logger.trace("      height = " + debugValue(height, 50));
+            logger.trace("      background = " + debugValue(background, "parent's"));
+            logger.trace("      foreground = " + debugValue(foreground, "parent's"));
+            logger.trace("      tooltip = " + debugValue(tooltip, ""));
+            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
+            logger.trace("      excelFirstLine = " + debugValue(excelFirstLine, 1));
+            logger.trace("      excelLastLine = " + excelLastLine);
+        }
+
+        table.setData("name", name);
+        table.setData("x", x);
+        table.setData("y", y);
+        table.setData("width", width);
+        table.setData("height", height);
+        table.setData("background", background);
+        table.setData("foreground", foreground);
+        table.setData("tooltip", tooltip);
+        table.setData("excelSheet", excelSheet);
+        table.setData("excelFirstLine", excelFirstLine);
+        table.setData("excelLastLine", excelLastLine);
+        table.setData("keys", new String[]{"name", "x", "y", "width", "height", "background", "foreground", "tooltip", "excelSheet", "excelFirstLine", "excelLastLine"});
+        
+        
+        // x, y, width, height
+        Point p = table.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        if ( x == null      || x < 0 )       x = 0;
+        if ( y == null      || y < 0 )       y = 0;
+        if ( width == null  || width <= 0  ) width = p.x;
+        if ( height == null || height <= 0 ) height = p.y;
+		table.setBounds(x, y, width, height);
+		
+		// foreground, background
+		FormPlugin.setColor(table, foreground, SWT.FOREGROUND);
+		FormPlugin.setColor(table, background, SWT.BACKGROUND);
+        
+        // tooltip
+		if ( !FormPlugin.isEmpty(tooltip) )
+			table.setToolTipText(tooltip);
+        
+        table.setData("columns array", getJSONArray(jsonObject, "columns"));	// we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
+        table.setData("lines array", getJSONArray(jsonObject, "columns"));	// we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
+
+        return table;
+    }
+    /*
+         
+         
+        // we iterate over the "columns" entries
+        Iterator<JSONObject> columnsIterator = (getJSONArray(jsonObject, "columns")).iterator();
+        while (columnsIterator.hasNext()) {
+            JSONObject column = columnsIterator.next();
+
+            String columnName = getString(column, "name", "(no name)");
+            FormPosition.setColumnName(columnName);
+            String columnClass = getString(column, "class");
+            String columnTooltip = getString(column, "tooltype", "");
+            int columnWidth = getInt(column, "width", 0);
+            String excelColumn = getString(column, "excelColumn", "");
+            String excelCellType = getString(column, "excelCellType", "");
+            String excelDefault = getString(column, "excelDefault", "");
+            background = getString(column, "background", "");
+            foreground = getString(column, "foreground", "");
+
+            if (logger.isDebugEnabled())
+                logger.debug("   Creating column \"" + columnName + "\" of class \"" + columnClass + "\"");
+            if (logger.isTraceEnabled()) {
+                logger.trace("      background = " + debugValue(background, ""));
+                logger.trace("      foreground = " + debugValue(foreground, ""));
+                logger.trace("      width = " + debugValue(columnWidth, 0));
+                logger.trace("      tooltip = " + debugValue(columnTooltip, ""));
+                logger.trace("      excelColumn = " + debugValue(excelColumn, ""));
+                logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
+                logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
+            }
+
+            TableColumn tableColumn = new TableColumn(table, SWT.NONE);
+            tableColumn.setText(columnName);
+            tableColumn.setAlignment(SWT.CENTER);
+            tableColumn.setWidth(columnWidth);
+            tableColumn.setResizable(columnWidth != 0);
+            tableColumn.setData("class", columnClass);
+            tableColumn.setData("excelColumn", excelColumn);
+            tableColumn.setData("excelCellType", excelCellType.toLowerCase());
+            tableColumn.setData("excelDefault", excelDefault.toLowerCase());
+            tableColumn.setData("tooltip", tooltip);
+            
+            if ( columnWidth == 0 )
+                columnWidth = (10 + columnName.length() * 8);
+                
+            if ( !FormPlugin.isEmpty((String)background) ) {
+                String[] colorArray = background.split(",");
+                tableColumn.setData("background", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            }
+
+            if ( !FormPlugin.isEmpty((String)foreground) ) {
+                String[] colorArray = foreground.split(",");
+                tableColumn.setData("foreground", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            }
+            
+            tableColumn.addListener(SWT.Selection, sortListener);
+            
+            String alignment;
+
+            switch (columnClass.toLowerCase()) {
+                case "check":
+                    if (JSONContainsKey(column, "values")) {
+                        String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
+                        String defaultValue = getString(column, "default", "");
+                        boolean forceDefault = getBoolean(column, "forceDefault", false);
+                        String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
+                        alignment = getString(column, "alignment", "left");
+
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("      values = " + values);
+                            logger.trace("      default = " + debugValue(defaultValue, ""));
+                            logger.trace("      forceDefault = " + debugValue(forceDefault, false));
+                            logger.trace("      whenEmpty = " + debugValue(whenEmpty, globalWhenEmpty));
+                            logger.trace("      alignment = "+debugValue(alignment, "left"));
+                        }
+
+                        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
+                            whenEmpty = whenEmpty.toLowerCase();
+                            if (!inArray(validWhenEmpty, whenEmpty))
+                                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                        }
+
+                        tableColumn.setData("values", values);
+                        tableColumn.setData("default", defaultValue);
+                        tableColumn.setData("forceDefault", forceDefault);
+                        tableColumn.setData("whenEmpty", whenEmpty);
+                        
+                        switch ( alignment.toLowerCase() ) {
+                            case "":
+                            case "left" :
+                                tableColumn.setData("alignment", SWT.LEFT);
+                                break;
+                            case "right" :
+                                tableColumn.setData("alignment", SWT.RIGHT);
+                                break;
+                            case "center":
+                                tableColumn.setData("alignment", SWT.CENTER);
+                                break;
+                            default:
+                                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
+                        }
+                    } else {
+                        tableColumn.setData("forceDefault", false);
+                    }
+                    break;
+                case "combo":
+                    if (column.containsKey("values")) {
+                        String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
+                        String defaultValue = getString(column, "default", "");
+                        Boolean editable = getBoolean(column, "editable", true);
+                        String whenEmpty = getString(jsonObject, "whenEmpty", "");
+
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("      values = " + values);
+                            logger.trace("      default = " + debugValue(defaultValue, ""));
+                            logger.trace("      editable = " + debugValue(editable, true));
+                            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
+                        }
+
+                        if ( !FormPlugin.isEmpty((String)whenEmpty)) {
+                            whenEmpty = whenEmpty.toLowerCase();
+                            if (!inArray(validWhenEmpty, whenEmpty))
+                                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                        }
+
+                        tableColumn.setData("values", values);
+                        tableColumn.setData("default", defaultValue);
+                        tableColumn.setData("editable", editable);
+                        tableColumn.setData("whenEmpty", whenEmpty);
+                    } else {
+                        throw new RuntimeException(FormPosition.getPosition(null) + "\n\nMissing mandatory attribute \"values\".");
+                    }
+                    break;
+                case "label":
+                    alignment = getString(column, "alignment", "left");
+                    
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("      alignment = "+debugValue(alignment, "left"));
+                    }
+                    
+                    switch ( alignment.toLowerCase() ) {
+                        case "right" :
+                            tableColumn.setData("alignment", SWT.RIGHT);
+                            break;
+                        case "left" :
+                            tableColumn.setData("alignment", SWT.LEFT);
+                            break;
+                        case "center":
+                            tableColumn.setData("alignment", SWT.CENTER);
+                            break;
+                        default:
+                            throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
+                    }
+                    break;
+                case "text":
+                    String regexp = getString(column, "regexp", "");
+                    String defaultText = getString(column, "default", "");
+                    String whenEmpty = getString(column, "whenEmpty", "");
+                    boolean forceDefault = getBoolean(column, "forceDefault", false);
+                    alignment = getString(column, "alignment", "");
+
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("      regexp = " + debugValue(regexp, ""));
+                        logger.trace("      default = " + debugValue(defaultText, ""));
+                        logger.trace("      forceDefault = " + debugValue(forceDefault, false));
+                        logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
+                        logger.trace("      alignment = "+debugValue(alignment, ""));
+                    }
+
+                    if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
+                        whenEmpty = whenEmpty.toLowerCase();
+                        if (!inArray(validWhenEmpty, whenEmpty))
+                            throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
+                    }
+
+                    tableColumn.setData("regexp", regexp);
+                    tableColumn.setData("default", defaultText);
+                    tableColumn.setData("forceDefault", forceDefault);
+                    tableColumn.setData("whenEmpty", whenEmpty);
+                    
+                    switch ( alignment.toLowerCase() ) {
+                        case "":
+                        case "left" :
+                            tableColumn.setData("alignment", SWT.LEFT);
+                            break;
+                        case "right" :
+                            tableColumn.setData("alignment", SWT.RIGHT);
+                            break;
+                        case "center":
+                            tableColumn.setData("alignment", SWT.CENTER);
+                            break;
+                        default:
+                            throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
+                    }
+                    break;
+                default:
+                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + getString(column, "class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+            }
+        }
+        FormPosition.resetColumnName();
+
+        table.setSortColumn(table.getColumn(0));
+        table.setSortDirection(SWT.UP);
+
+        // we iterate over the "lines" entries
+        JSONArray lines = getJSONArray(jsonObject, "lines");
+        if (lines != null) {
+            Iterator<JSONObject> linesIterator = lines.iterator();
+            while (linesIterator.hasNext()) {
+                JSONObject line = linesIterator.next();
+
+                if ((boolean) getJSON(line, "generate", false) == false) {
+                    // static line
+                    if (logger.isTraceEnabled())
+                        logger.trace("Creating static line");
+                    addTableItem(table, selectedObject, getJSONArray(line, "cells"));
+                } else {
+                    // dynamic lines : we create one line per entry in
+                    // getChildren()
+                    if (logger.isTraceEnabled())
+                        logger.trace("Generating dynamic lines");
+                    if (selectedObject instanceof IArchimateDiagramModel) {
+                        addTableItems(table, ((IArchimateDiagramModel) selectedObject).getChildren(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                    } else {
+                        if (selectedObject instanceof IDiagramModelContainer) {
+                            addTableItems(table, ((IDiagramModelContainer) selectedObject).getChildren(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                        } else if (selectedObject instanceof IFolder) {
+                            addTableItems(table, ((IFolder) selectedObject).getElements(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                        } else if (selectedObject instanceof IArchimateModel) {
+                            for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
+                                addTableItems(table, folder.getElements(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
+                            }
+                        } else {
+                            throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nCannot generate lines for selected component as it is not a container (" + selectedObject.getClass().getSimpleName() + ").");
+                        }
+                    }
+                }
+            }
+        }
+        return table;
+    }
+    */
     
     
     /*********************************************************************************************************************************/
