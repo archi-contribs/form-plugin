@@ -60,7 +60,7 @@ public class LabelComposite extends Composite implements CompositeInterface {
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
-	      // tooltip
+	      // alignement
         alignmentEditor = new AlignmentEditor(this, "Alignment:");
         alignmentEditor.setPosition(tooltipEditor.getControl());
         alignmentEditor.setProperty("alignment");
