@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.archicontribs.form.FormDialog;
+import org.archicontribs.form.FormJsonParser;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
 import org.archicontribs.form.FormVariable;
@@ -60,6 +61,8 @@ public class FormMenu extends ExtensionContributionFactory {
     private static String controlName = null;
     private static String controlClass = null;
     private static String columnName = null;
+    
+    private static FormJsonParser formJsonParser = new FormJsonParser();
 
 	@Override
 	public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
@@ -97,10 +100,10 @@ public class FormMenu extends ExtensionContributionFactory {
 
     		try {
     			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-    			int version;
+    			Integer version;
     			try {
-    			    version = FormDialog.getInt(json, "version");
-    	            if ( version != 2 ) {
+    			    version = formJsonParser.getInt(json, "version");
+    	            if ( version == null || version != 2 ) {
 	                    logger.error("Ignored : not the right version (should be 2).");
 	                    continue loopOnConfigFiles;
 	                }
@@ -112,9 +115,9 @@ public class FormMenu extends ExtensionContributionFactory {
                     continue loopOnConfigFiles;
     			}
     
-    			JSONObject form = FormDialog.getJSONObject(json, FormPlugin.PLUGIN_ID);
+    			JSONObject form = formJsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
     				
-				formName = FormDialog.getString(form,"name");
+				formName = formJsonParser.getString(form,"name");
 				if ( formName.isEmpty() ) {
 				    logger.error(getPosition("name")+" - cannot be empty");
 				    continue loopOnConfigFiles;
@@ -124,7 +127,7 @@ public class FormMenu extends ExtensionContributionFactory {
                 
                 HashSet<EObject>selected = new HashSet<EObject>();
                 
-                JSONObject filter = FormDialog.getJSONObject(form, "filter", null);
+                JSONObject filter = formJsonParser.getJSONObject(form, "filter");
 				if ( (filter != null) && logger.isDebugEnabled() ) logger.debug("Applying filter to selected components");
 
 				//we loop over the selected components
@@ -134,7 +137,10 @@ public class FormMenu extends ExtensionContributionFactory {
 					if ( ++menuEntries <= menuEntriesLimit ) {
 						EObject selectedObject = getSelectedObject(selection[selectionRank]);
 
-	                    String refers = FormDialog.getString(form,"refers", "selected");
+	                    String refers = formJsonParser.getString(form,"refers");
+	                    if ( FormPlugin.isEmpty((String)refers) )
+	                    	refers = FormDialog.validRefers[0];
+	                    
 	                    switch ( refers.toLowerCase() ) {
 	                        case "selected" :
 	                            if ( logger.isTraceEnabled() ) logger.trace("Refers to selected object "+FormPlugin.getDebugName(selectedObject));
