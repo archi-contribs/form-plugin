@@ -133,6 +133,7 @@ public class TextComposite extends Composite implements CompositeInterface {
             case "variable":      variableEditor.setText((String)value); break;
             case "defaulttext":   defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
+            case "editable":      editableEditor.setChecked((Boolean)value); break;
     		case "x":			  sizeEditor.setX((Integer)value); break;
     		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
