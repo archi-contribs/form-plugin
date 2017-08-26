@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Level;
+import org.archicontribs.form.composites.CheckComposite;
+import org.archicontribs.form.composites.ComboComposite;
 import org.archicontribs.form.composites.CompositeInterface;
 import org.archicontribs.form.composites.FormComposite;
 import org.archicontribs.form.composites.LabelComposite;
@@ -71,8 +73,8 @@ public class FormGraphicalEditor extends Dialog {
     private TabComposite      tabComposite      = null;
     private LabelComposite    labelComposite    = null;
     private TextComposite     textComposite     = null;
-    private Composite         comboComposite    = null;
-    private Composite         checkComposite    = null;
+    private ComboComposite    comboComposite    = null;
+    private CheckComposite    checkComposite    = null;
     private Composite         tableComposite    = null;
     private Composite         columnComposite   = null;
     private Composite         lineComposite     = null;
@@ -175,7 +177,7 @@ public class FormGraphicalEditor extends Dialog {
      */
     private TreeItem createPropertiesDialog(JSONObject json) {
     	propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE);
-    	propertiesDialog.setSize(1000, 600);
+    	propertiesDialog.setSize(750, 500);
     	propertiesDialog.setLayout(new FormLayout());
         
         Button btnCancel = new Button(propertiesDialog, SWT.NONE);
@@ -217,7 +219,7 @@ public class FormGraphicalEditor extends Dialog {
         fd = new FormData();
         fd.top = new FormAttachment(0, 0);
         fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
-        fd.left = new FormAttachment(0, 300);
+        fd.left = new FormAttachment(0, 200);
         sash.setLayoutData(fd);
         sash.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent event) {
@@ -318,13 +320,11 @@ public class FormGraphicalEditor extends Dialog {
         tabComposite = new TabComposite(scrolledcomposite, SWT.BORDER);
         labelComposite = new LabelComposite(scrolledcomposite, SWT.BORDER);
         textComposite = new TextComposite(scrolledcomposite, SWT.BORDER);
-        comboComposite = new Composite(scrolledcomposite, SWT.BORDER);
-        checkComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        comboComposite = new ComboComposite(scrolledcomposite, SWT.BORDER);
+        checkComposite = new CheckComposite(scrolledcomposite, SWT.BORDER);
         tableComposite = new Composite(scrolledcomposite, SWT.BORDER);
         columnComposite = new Composite(scrolledcomposite, SWT.BORDER);
         lineComposite = new Composite(scrolledcomposite, SWT.BORDER);
-        
-        formTreeItem.setData("composite", formComposite);
         
         return formTreeItem;
     }
@@ -334,23 +334,21 @@ public class FormGraphicalEditor extends Dialog {
      */
     private Listener treeSelectionListener = new Listener() {
         public void handleEvent(Event event) {
-            // hide the current composite and show up the composite linked to the selected treeItem
-        	/*
-            formComposite.setVisible(false);
-            tabComposite.setVisible(false);
-            labelComposite.setVisible(false);
-            textComposite.setVisible(false);
-            comboComposite.setVisible(false);
-            checkComposite.setVisible(false);
-            tableComposite.setVisible(false);
-            columnComposite.setVisible(false);
-            lineComposite.setVisible(false);
-            */
         	scrolledcomposite.setContent(null);
             
             if ( tree.getSelectionCount() != 0 ) {
             	TreeItem treeItem = tree.getSelection()[0];
-            	CompositeInterface composite = (CompositeInterface)treeItem.getData("composite");
+            	CompositeInterface composite;
+            	switch ( (String)treeItem.getData("class") ) {
+            		case "form":	composite = formComposite; break;
+            		case "tab":		composite = tabComposite; break;
+            		case "label":	composite = labelComposite; break;
+            		case "text":	composite = textComposite; break;
+            		case "combo":	composite = comboComposite; break;
+            		case "check":	composite = checkComposite; break;
+            		default:
+            			throw new RuntimeException ("Do not know how to manage "+(String)treeItem.getData("class")+" objects.");
+            	}
             	scrolledcomposite.setContent((Composite)composite);
             	scrolledcomposite.setExpandHorizontal(true);
             	scrolledcomposite.setExpandVertical(true);
@@ -400,7 +398,6 @@ public class FormGraphicalEditor extends Dialog {
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(CHECK_ICON);
 	    	            treeItem.setText((String)check.getData("name"));
-	    	            treeItem.setData("composite", checkComposite);
 	    	            treeItem.setData("class", "check");
 	    	            treeItem.setData("control", check); 
 	                    break;
@@ -410,7 +407,6 @@ public class FormGraphicalEditor extends Dialog {
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(COMBO_ICON);
 	    	            treeItem.setText((String)combo.getData("name"));
-	    	            treeItem.setData("composite", comboComposite);
 	    	            treeItem.setData("class", "combo");
 	    	            treeItem.setData("control", combo); 
 	                    break;
@@ -420,7 +416,6 @@ public class FormGraphicalEditor extends Dialog {
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(LABEL_ICON);
 	    	            treeItem.setText((String)label.getData("name"));
-	    	            treeItem.setData("composite", labelComposite);
 	    	            treeItem.setData("class", "label");
 	    	            treeItem.setData("control", label); 
 	                    break;
@@ -434,7 +429,6 @@ public class FormGraphicalEditor extends Dialog {
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(TEXT_ICON);
 	    	            treeItem.setText((String)text.getData("name"));
-	    	            treeItem.setData("composite", textComposite);
 	    	            treeItem.setData("class", "text");
 	    	            treeItem.setData("control", text); 
 	                    break;
