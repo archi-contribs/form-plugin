@@ -102,10 +102,10 @@ public class LabelComposite extends Composite implements CompositeInterface {
 	
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
-    		case "x":    		  sizeEditor.setX((int)value); break;
-    		case "y":    		  sizeEditor.setY((int)value); break;
-    		case "width":    	  sizeEditor.setWidth((int)value); break;
-    		case "height":    	  sizeEditor.setHeight((int)value); break;
+    		case "x":    		  sizeEditor.setX((Integer)value); break;
+    		case "y":    		  sizeEditor.setY((Integer)value); break;
+    		case "width":    	  sizeEditor.setWidth((Integer)value); break;
+    		case "height":    	  sizeEditor.setHeight((Integer)value); break;
     	    case "alignment":     alignmentEditor.setText((String)value); break;
     		case "name":    	  nameEditor.setText((String)value); break;
     		case "foreground":	  colorEditor.setForeground((String)value); break;
