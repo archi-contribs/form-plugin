@@ -9,14 +9,15 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 
 public class FormComposite extends Composite implements CompositeInterface {
-	private StringEditor            nameEditor;         // name
-	private FormSizeEditor          formSizeEditor;     // width, height, spacing, buttonWidth, buttonHeight						//TODO : rename spacing to margin
-	private ColorEditor             colorEditor;        // foreground, background
-    private ComboEditor             refersEditor; 		// refers
-    private StringEditor            buttonOkEditor; 	// buttonOk
-    private StringEditor            buttonCancelEditor; // buttonCancel
-    private StringEditor            buttonExportEditor; // buttonExport
-    private ComboEditor             whenEmptyEditor;	// whenEmpty
+	private StringEditor            nameEditor;         		// name
+	private FormSizeEditor          formSizeEditor;    			// width, height, spacing, buttonWidth, buttonHeight						//TODO : rename spacing to margin
+	private ColorEditor             colorEditor;        		// foreground, background
+    private ComboEditor             refersEditor; 				// refers
+    private StringEditor            variableSeparatorEditor;	// variableSeparator
+    private StringEditor            buttonOkEditor; 			// buttonOk
+    private StringEditor            buttonCancelEditor; 		// buttonCancel
+    private StringEditor            buttonExportEditor; 		// buttonExport
+    private ComboEditor             whenEmptyEditor;			// whenEmpty
 
 	public FormComposite(Composite parent, int style) {
 		super(parent, style);
@@ -49,32 +50,40 @@ public class FormComposite extends Composite implements CompositeInterface {
                 "   - View: the view in which the selected components are,\n"+
                 "   - Model: the whole model.\n"+
                 "\n"+
-                "Default: "+FormDialog.defaultRefers+"."
+                "Default: "+FormDialog.validRefers[0]+"."
                 );
+		
+	    // variableSeparator
+		variableSeparatorEditor = new StringEditor(this, "Variable separator:");
+		variableSeparatorEditor.setPosition(refersEditor.getControl());
+		variableSeparatorEditor.setProperty("variableSeparator");
+		variableSeparatorEditor.setTextLimit(1);
+		variableSeparatorEditor.setWidth(25);
+		variableSeparatorEditor.setTooltipText("Character used to separate the different fields of a variable\n\nDefault: "+FormDialog.defaultVariableSeparator+".");
 		
 	    // buttonOk
 		buttonOkEditor = new StringEditor(this, "OK button text:");
-		buttonOkEditor.setPosition(refersEditor.getControl());
+		buttonOkEditor.setPosition(variableSeparatorEditor.getControl());
 		buttonOkEditor.setProperty("buttonOk");
-		buttonOkEditor.setControlKey("buttonOkControl");
+		buttonOkEditor.setControlKey("ok button");
 		buttonOkEditor.mustSetControlText(true);
-		buttonOkEditor.setTooltipText("Text of the OK button\n\nDefault: OK.");
+		buttonOkEditor.setTooltipText("Text of the OK button\n\nDefault: "+FormDialog.defaultButtonOkText+".");
         
         // buttonCancel
 		buttonCancelEditor = new StringEditor(this, "Cancel button text:");
 		buttonCancelEditor.setPosition(buttonOkEditor.getControl());
 		buttonCancelEditor.setProperty("buttonCancel");
-		buttonCancelEditor.setControlKey("buttonCancelControl");
+		buttonCancelEditor.setControlKey("cancel button");
 		buttonCancelEditor.mustSetControlText(true);
-		buttonCancelEditor.setTooltipText("Text of the Cancel button\n\nDefault: Cancel.");
+		buttonCancelEditor.setTooltipText("Text of the Cancel button\n\nDefault: "+FormDialog.defaultButtonCancelText+".");
         
         // buttonExport
 		buttonExportEditor = new StringEditor(this, "Export button text:");
 		buttonExportEditor.setPosition(buttonCancelEditor.getControl());
 		buttonExportEditor.setProperty("buttonExport");
-		buttonExportEditor.setControlKey("buttonExportControl");
+		buttonExportEditor.setControlKey("export button");
 		buttonExportEditor.mustSetControlText(true);
-		buttonExportEditor.setTooltipText("Text of the Export to Excel button\n\nDefault: Export to Excel.");
+		buttonExportEditor.setTooltipText("Text of the Export to Excel button\n\nDefault: "+FormDialog.defaultButtonExportText+".");
 		
         // whenEmpty
         whenEmptyEditor = new ComboEditor(this, "When empty :");
@@ -87,26 +96,28 @@ public class FormComposite extends Composite implements CompositeInterface {
                 "   - create: empty the property's value if it does already exist, or create a new one with an empty value,\n"+
                 "   - delete: delete the property if it does already exist.\n"+
                 "\n"+
-                "Default: "+FormDialog.defaultWhenEmpty+"."
+                "Default: "+FormDialog.validWhenEmpty[0]+"."
                 );
 	}
     
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
-    		case "name":		nameEditor.setText((String)value); break;
-    		case "foreground":	colorEditor.setBackround((String)value); break;
-    		case "background":	colorEditor.setBackround((String)value); break;
-    		case "refers":		refersEditor.setText((String)value); break;
-    		case "buttonok":	buttonOkEditor.setText((String)value); break;
-    		case "buttoncancel":buttonCancelEditor.setText((String)value); break;
-    		case "buttonexport":buttonExportEditor.setText((String)value); break;
-    		case "whenempty":   whenEmptyEditor.setText((String)value); break;
-    		case "width":		formSizeEditor.setWidth((int)value); break;
-    		case "height":		formSizeEditor.setHeight((int)value); break;
-    		case "spacing":		formSizeEditor.setSpacing((int)value); break;
-    		case "buttonwidth":	formSizeEditor.setButtonWidth((int)value); break;
-    		case "buttonheight":formSizeEditor.setButtonHeight((int)value); break;
-    		default:			throw new RuntimeException("does not know key "+key);
+    		case "name":		      nameEditor.setText((String)value); break;
+    		case "foreground":	      colorEditor.setBackround((String)value); break;
+    		case "background":	      colorEditor.setBackround((String)value); break;
+    		case "refers":		      refersEditor.setText((String)value); break;
+    		case "variableseparator": variableSeparatorEditor.setText((String)value); break;
+    		case "buttonok":	      buttonOkEditor.setText((String)value); break;
+    		case "buttoncancel":      buttonCancelEditor.setText((String)value); break;
+    		case "buttonexport":      buttonExportEditor.setText((String)value); break;
+    		case "whenempty":         whenEmptyEditor.setText((String)value); break;
+    		case "width":		      if ( value != null && (int)value > 0 ) formSizeEditor.setWidth((int)value); break;
+    		case "height":		      if ( value != null && (int)value > 0 ) formSizeEditor.setHeight((int)value); break;
+    		case "spacing":		      formSizeEditor.setSpacing((int)value); break;
+    		case "buttonwidth":	      formSizeEditor.setButtonWidth((value==null || (int)value<0) ? FormDialog.defaultButtonWidth : (int)value); break;
+    		case "buttonheight":      formSizeEditor.setButtonHeight((value==null || (int)value<0) ? FormDialog.defaultButtonHeight : (int)value); break;
+    		default:
+    			throw new RuntimeException("does not know key "+key);
     	}
     }
 }
