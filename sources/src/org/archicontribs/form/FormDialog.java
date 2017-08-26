@@ -1,12 +1,6 @@
 package org.archicontribs.form;
 
-import java.awt.Desktop;
 import java.awt.Toolkit;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,22 +8,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.log4j.Level;
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.apache.poi.ss.util.CellReference;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.gef.commands.CompoundCommand;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.StyleRange;
@@ -43,8 +25,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -54,7 +34,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ProgressBar;
@@ -66,19 +45,13 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
-
 import com.archimatetool.editor.model.commands.NonNotifyingCompoundCommand;
-import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateElement;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.IDiagramModel;
 import com.archimatetool.model.IDiagramModelArchimateConnection;
 import com.archimatetool.model.IDiagramModelArchimateObject;
-import com.archimatetool.model.IDiagramModelConnection;
-import com.archimatetool.model.IDiagramModelContainer;
-import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.IFolder;
 import com.archimatetool.model.INameable;
 import com.florianingerl.util.regex.Pattern;
@@ -94,72 +67,34 @@ public class FormDialog extends Dialog {
     // TODO: add a "continue on error" option
     private static final FormLogger logger            = new FormLogger(FormDialog.class);
 
-    protected static Display        display           = Display.getDefault();
-    public static final FontData    SYSTEM_FONT       = display.getSystemFont().getFontData()[0];
-    public static final Font        TITLE_FONT        = new Font(display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight() + 2, SWT.BOLD);
-    public static final Font        BOLD_FONT         = new Font(display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight(), SWT.BOLD);
+    protected static    Display  display           = Display.getDefault();
+    public static final FontData SYSTEM_FONT       = display.getSystemFont().getFontData()[0];
+    public static final Font     TITLE_FONT        = new Font(display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight() + 2, SWT.BOLD);
+    public static final Font     BOLD_FONT         = new Font(display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight(), SWT.BOLD);
 
-    public static final Color       LIGHT_GREEN_COLOR = new Color(display, 204, 255, 229);
-    public static final Color       LIGHT_RED_COLOR   = new Color(display, 255, 230, 230);
-    public static final Color       RED_COLOR         = new Color(display, 240, 0, 0);
-    public static final Color       GREEN_COLOR       = new Color(display, 0, 180, 0);
-    public static final Color       WHITE_COLOR       = new Color(display, 255, 255, 255);
-    public static final Color       GREY_COLOR        = new Color(display, 100, 100, 100);
-    public static final Color       BLACK_COLOR       = new Color(display, 0, 0, 0);
-    public static final Color       LIGHT_BLUE        = new Color(display, 240, 248, 255);
+    public static final Color    LIGHT_GREEN_COLOR = new Color(display, 204, 255, 229);
+    public static final Color    LIGHT_RED_COLOR   = new Color(display, 255, 230, 230);
+    public static final Color    RED_COLOR         = new Color(display, 240, 0, 0);
+    public static final Color    GREEN_COLOR       = new Color(display, 0, 180, 0);
+    public static final Color    WHITE_COLOR       = new Color(display, 255, 255, 255);
+    public static final Color    GREY_COLOR        = new Color(display, 100, 100, 100);
+    public static final Color    BLACK_COLOR       = new Color(display, 0, 0, 0);
+    public static final Color    LIGHT_BLUE        = new Color(display, 240, 248, 255);
 
-    private static final Color      badValueColor     = new Color(display, 255, 0, 0);
-    private static final Color      goodValueColor    = new Color(display, 0, 100, 0);
+    private static final Color   badValueColor     = new Color(display, 255, 0, 0);
+    private static final Color   goodValueColor    = new Color(display, 0, 100, 0);
+    
+    private final FormVarList    formVarList       = new FormVarList();
 
-    private final FormVarList       formVarList       = new FormVarList();
+    private EObject              selectedObject    = null;
+    private Shell                formDialog        = null;
 
-    private EObject                 selectedObject    = null;
-    private Shell                   dialog            = null;
-    private TabFolder               tabFolder         = null;
-
-    private HashSet<String>         excelSheets       = new HashSet<String>();
-
-    public FormDialog(String configFilename, JSONObject json, EObject selectedObject) {
-        super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        this.selectedObject = selectedObject;
-
-        if (logger.isDebugEnabled())
-            logger.debug("Creating new FormDialog for " + selectedObject.getClass().getSimpleName() + " \"" + ((INameable) selectedObject).getName() + "\".");
-
-        try {
-            createContents(json);
-        } catch (IOException e) {
-            popup(Level.ERROR, "I/O Error while reading configuration file \"" + configFilename + "\"", e);
-            if (dialog != null)
-                dialog.dispose();
-            return;
-        } catch (ParseException e) {
-            popup(Level.ERROR, "Parsing error while reading configuration file \"" + configFilename + "\"", e);
-            if (dialog != null)
-                dialog.dispose();
-            return;
-        } catch (ClassCastException e) {
-            popup(Level.ERROR, "Wrong key type in the configuration file \"" + configFilename + "\"", e);
-            if (dialog != null)
-                dialog.dispose();
-            return;
-        } catch (RuntimeException e) {
-            popup(Level.ERROR, "Please check your configuration file \"" + configFilename + "\"", e);
-            if (dialog != null)
-                dialog.dispose();
-            return;
-        }
-
-        dialog.open();
-        dialog.layout();
-    }
-
+    private HashSet<String>      excelSheets       = new HashSet<String>();
+    
     public static final int      defaultDialogWidth       = 850;
     public static final int      defaultDialogHeight      = 600;
     public static final int      defaultDialogSpacing     = 4;
     public static final String   defaultDialogName        = "Form plugin";
-    public static final String   defaultDialogBackground  = "";
-    public static final String   defaultDialogForeground  = "";
     public static final String   defaultTabBackground     = "";
     public static final String   defaultTabForeground     = "";
     public static final int      defaultButtonWidth       = 90;
@@ -169,179 +104,99 @@ public class FormDialog extends Dialog {
     public static final String   defaultButtonExportText  = "Export to Excel";
     public static final String   defaultTabName           = "tab";
     public static final String   defaultVariableSeparator = ":";
-    public static final String[] validRefers              = new String[] {"Selected", "Folder", "View", "Selected"};
-    public static final String   defaultRefers            = "Selected";
-    public static final String[] validWhenEmpty           = new String[] { "Ignore", "Create", "Delete" };
-    public static final String   defaultWhenEmpty         = "Ignore";
+    public static final String[] validAlignment           = new String[] {"left", "center", "right"};						// default value is first one
+    public static final String[] validRefers              = new String[] {"selected", "container", "model"};				// default value is first one
+    public static final String[] validWhenEmpty           = new String[] {"ignore", "create", "delete" };					// default value is first one
+    public static final String[] validExcelCellType       = new String[] {"string", "numeric", "boolean", "formula" };		// default value is first one
+    public static final String[] validExcelDefault        = new String[] {"blank", "zero", "delete" };						// default value is first one
     
+	private static final FormJsonParser jsonParser = new FormJsonParser();
+
     private String globalVariableSeparator = ":";
-    private String globalWhenEmpty   = null;
+    
+    public FormDialog(String configFilename, JSONObject json, EObject selectedObject) {
+        super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        this.selectedObject = selectedObject;
 
-    /**
-     * Parses the configuration file and create the corresponding graphical
-     * controls
-     */
-    private void createContents(JSONObject form) throws IOException, ParseException, RuntimeException {
-        globalVariableSeparator = getString(form, "variableSeparator", defaultVariableSeparator);
-        String name = getString(form, "name", defaultDialogName);
-        String formName = FormVariable.expand(name, selectedObject);
-        FormPosition.setFormName(formName);
-        int dialogWidth = getInt(form, "width", defaultDialogWidth);
-        int dialogHeight = getInt(form, "height", defaultDialogHeight);
-        int dialogSpacing = getInt(form, "spacing", defaultDialogSpacing);
-        String dialogForeground = getString(form, "foreground", defaultDialogForeground);
-        String dialogBackground = getString(form, "background", defaultDialogBackground);
-        int buttonWidth = getInt(form, "buttonWidth", defaultButtonWidth);
-        int buttonHeight = getInt(form, "buttonHeight", defaultButtonHeight);
-        String refers = getString(form, "refers", defaultRefers);
-        String buttonOkText = FormVariable.expand(getString(form, "buttonOk", defaultButtonOkText), selectedObject);
-        String buttonCancelText = FormVariable.expand(getString(form, "buttonCancel", defaultButtonCancelText), selectedObject);
-        String buttonExportText = FormVariable.expand(getString(form, "buttonExport", defaultButtonExportText), selectedObject);
-        globalWhenEmpty = getString(form, "whenEmpty", defaultWhenEmpty);
+        if (logger.isDebugEnabled())
+            logger.debug("Creating new FormDialog for " + selectedObject.getClass().getSimpleName() + " \"" + ((INameable) selectedObject).getName() + "\".");
 
-        if (logger.isTraceEnabled()) {
-            logger.trace("   name = " + debugValue(formName, defaultDialogName));
-            logger.trace("   variableSeparator = " + debugValue(globalVariableSeparator, defaultVariableSeparator));
-            logger.trace("   width = " + debugValue(dialogWidth, defaultDialogWidth));
-            logger.trace("   height = " + debugValue(dialogHeight, defaultDialogHeight));
-            logger.trace("   spacing = " + debugValue(dialogSpacing, defaultDialogSpacing));
-            logger.trace("   background = " + debugValue(dialogBackground, defaultDialogBackground));
-            logger.trace("   foreground = " + debugValue(dialogForeground, defaultDialogForeground));
-            logger.trace("   buttonWidth = " + debugValue(buttonWidth, defaultButtonWidth));
-            logger.trace("   buttonHeight = " + debugValue(buttonHeight, defaultButtonHeight));
-            logger.trace("   refers = " + debugValue(refers, defaultRefers));       // used in FormMenu class but deserves a debug line
-            logger.trace("   buttonOk = " + debugValue(buttonOkText, defaultButtonOkText));
-            logger.trace("   buttonCancel = " + debugValue(buttonCancelText, defaultButtonCancelText));
-            logger.trace("   buttonExport = " + debugValue(globalWhenEmpty, defaultWhenEmpty));
-        }
-        
-        dialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        dialog.setText(FormVariable.expand(formName, selectedObject));
-        dialog.setLayout(null);
-        
-        if (globalWhenEmpty != null) {
-            globalWhenEmpty = globalWhenEmpty.toLowerCase();
-            if (!inArray(validWhenEmpty, globalWhenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + globalWhenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
-        }
-        
-        int tabFolderWidth = dialogWidth - dialogSpacing * 2;
-        int tabFolderHeight = dialogHeight - dialogSpacing * 3 - buttonHeight;
-
-        dialog.setBounds((Toolkit.getDefaultToolkit().getScreenSize().width - dialogWidth) / 4,
-                (Toolkit.getDefaultToolkit().getScreenSize().height - dialogHeight) / 4, dialogWidth, dialogHeight);
-        // we resize the dialog because we want the width and height to be the
-        // client's area width and height
-        Rectangle area = dialog.getClientArea();
-        dialog.setSize(dialogWidth * 2 - area.width, dialogHeight * 2 - area.height);
-
-        if ( !FormPlugin.isEmpty(dialogBackground) ) {
-            String[] colorArray = dialogBackground.split(",");
-            dialog.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        tabFolder = new TabFolder(dialog, SWT.BORDER);
-        tabFolder.setBounds(dialogSpacing, dialogSpacing, tabFolderWidth, tabFolderHeight);
-
-        Button cancelButton = new Button(dialog, SWT.NONE);
-        cancelButton.setBounds(tabFolderWidth + dialogSpacing - buttonWidth, tabFolderHeight + dialogSpacing * 2,
-                buttonWidth, buttonHeight);
-        cancelButton.setText(buttonCancelText);
-        cancelButton.setEnabled(true);
-        cancelButton.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent e) {
-                this.widgetDefaultSelected(e);
-            }
-
-            public void widgetDefaultSelected(SelectionEvent e) {
-                cancel();
-            }
-        });
-
-        Button okButton = new Button(dialog, SWT.NONE);
-        okButton.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 2 - dialogSpacing,
-                tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-        okButton.setText(buttonOkText);
-        okButton.setEnabled(true);
-        okButton.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent e) {
-                this.widgetDefaultSelected(e);
-            }
-
-            public void widgetDefaultSelected(SelectionEvent e) {
-                ok();
-            }
-        });
-
-        createTabs(form, tabFolder);
-
-        // If there is at least one Excel sheet specified, then we show up the
-        // "export to Excel" button
-        if (!excelSheets.isEmpty()) {
-            Button exportToExcelButton = new Button(dialog, SWT.NONE);
-            exportToExcelButton.setBounds(tabFolderWidth + dialogSpacing - buttonWidth * 3 - dialogSpacing * 2,
-                    tabFolderHeight + dialogSpacing * 2, buttonWidth, buttonHeight);
-            exportToExcelButton.setText(buttonExportText);
-            exportToExcelButton.setEnabled(true);
-            exportToExcelButton.addSelectionListener(new SelectionListener() {
-                public void widgetSelected(SelectionEvent e) {
-                    this.widgetDefaultSelected(e);
-                }
-
-                public void widgetDefaultSelected(SelectionEvent e) {
-                    exportToExcel();
-                }
-            });
-        }
-    }
-
-    /**
-     * Creates the dialog tabItems<br>
-     * <br>
-     * called by the createContents() method
-     */
-    private void createTabs(JSONObject form, TabFolder tabFolder) throws RuntimeException {
-        // we iterate over the "tabs" array attributes
-        JSONArray tabs = getJSONArray(form, "tabs");
-
-        @SuppressWarnings("unchecked")
-        Iterator<JSONObject> tabsIterator = tabs.iterator();
-        while (tabsIterator.hasNext()) {
-            // we create one TabItem per array item
-            JSONObject tab = tabsIterator.next();
-
-            String tabName = getString(tab, "name", defaultTabName);
-
-            FormPosition.setTabName(tabName);
-
-            String tabText = FormVariable.expand(tabName, selectedObject);
-
-            if (logger.isDebugEnabled())
-                logger.debug("Creating tab " + debugValue(tabText, defaultTabName));
-
-            String tabBackground = getString(tab, "background", defaultTabBackground);
-            String tabForeground = getString(tab, "foreground", defaultTabForeground);
-
-            if (logger.isTraceEnabled()) {
-                logger.trace("   background = " + debugValue(tabBackground, defaultTabBackground));
-                logger.trace("   foreground = " + debugValue(tabForeground, defaultTabForeground));
-            }
-
-            TabItem tabItem = new TabItem(tabFolder, SWT.MULTI);
-            tabItem.setText(tabText);
+        try {
+            formDialog = jsonParser.createShell(json, getParent());
             
-            Composite composite = new Composite(tabFolder, SWT.NONE);
-            tabItem.setControl(composite);
-
-            if ( !FormPlugin.isEmpty(tabBackground) ) {
-                String[] colorArray = tabBackground.split(",");
-                composite.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+            // we replace the name of the dialog in case there are some variables in it
+            if ( formDialog.getData("name") != null )
+            	formDialog.setText(FormVariable.expand((String)formDialog.getData("name"), selectedObject));
+            
+            // we set the listener on the buttons
+            Button cancelButton = (Button)formDialog.getData("cancel button");
+            cancelButton.addSelectionListener(new SelectionListener() {
+                @Override public void widgetSelected(SelectionEvent e) { cancel(); }
+                @Override public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+            });
+            
+            Button okButton = (Button)formDialog.getData("ok button");
+            okButton.addSelectionListener(new SelectionListener() {
+                public void widgetSelected(SelectionEvent e) { ok(); }
+                public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+            });
+            
+            Button exportButton = (Button)formDialog.getData("export button");
+            exportButton.addSelectionListener(new SelectionListener() {
+                public void widgetSelected(SelectionEvent e) { exportToExcel(); }
+                public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+            });
+            
+            TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+            
+            // we create one TabItem per tab array item
+            JSONArray tabs = (JSONArray)formDialog.getData("tabs array");
+            if ( tabs != null ) {
+            	@SuppressWarnings("unchecked")
+				Iterator<JSONObject> tabsIterator = tabs.iterator();
+                while (tabsIterator.hasNext()) {
+                    JSONObject jsonTab = tabsIterator.next();
+                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder);
+                    
+                    // we replace the name of the dialog in case there are some variables in it
+                    if ( tabItem.getData("name") != null )
+                    	tabItem.setText(FormVariable.expand((String)tabItem.getData("name"), selectedObject));
+                    
+                    JSONArray controls = (JSONArray)tabItem.getData("controls array");
+                    if ( controls != null ) {
+                        Composite tabItemComposite = (Composite)tabItem.getControl();
+                        @SuppressWarnings("unchecked")
+						Iterator<JSONObject> controlsIterator = controls.iterator();
+                        while (controlsIterator.hasNext()) {
+                            JSONObject jsonControl = controlsIterator.next();
+                            createControl(jsonControl, tabItemComposite);
+                        }
+                        tabItemComposite.layout();
+                    }
+                }
             }
+            
 
-            createControls(tab, composite);
-            composite.layout();
+            // If there is at least one Excel sheet specified, then we show up the "export to Excel" button
+            if (excelSheets.isEmpty()) {
+                exportButton.setVisible(false);
+            }
+        } catch (ClassCastException e) {
+            popup(Level.ERROR, "Wrong key type in the configuration file \"" + configFilename + "\"", e);
+            if (formDialog != null)
+                formDialog.dispose();
+            return;
+        } catch (RuntimeException e) {
+            popup(Level.ERROR, "Please check your configuration file \"" + configFilename + "\"", e);
+            if (formDialog != null)
+                formDialog.dispose();
+            return;
         }
+
+        formDialog.open();
+        formDialog.layout();
     }
+
 
     /**
      * Creates the dialog controls. The following controls are currently managed:<br>
@@ -358,685 +213,135 @@ public class FormDialog extends Dialog {
      * @param composite
      *            The composite where the control will be created
      */
-    private void createControls(JSONObject tab, Composite composite) throws RuntimeException {
-        // we iterate over the "controls" entries
-        @SuppressWarnings("unchecked")
-        Iterator<JSONObject> objectsIterator = getJSONArray(tab, "controls").iterator();
-        while (objectsIterator.hasNext()) {
-            JSONObject jsonObject = objectsIterator.next();
-            
-            String value;
-            String tooltip;
+    private void createControl(JSONObject jsonObject, Composite parent) throws RuntimeException {
+            String variableValue;
             EObject referedEObject;
             String unscoppedVariable;
+            FormJsonParser jsonParser = new FormJsonParser();
 
-            switch (getString(jsonObject, "class").toLowerCase()) {
-                case "check":
-                    createCheck(jsonObject, composite);
-                    break;
-                    
-                case "combo":
-                    CCombo combo = createCombo(jsonObject, composite);
-                    
-                    value = FormVariable.expand(getString(jsonObject, "variable"), selectedObject);
-                    if (value.isEmpty() || (boolean)combo.getData("forceDefault"))
-                    	value = FormVariable.expand((String)combo.getData("defaultText"), selectedObject);
-                    if ( !FormPlugin.isEmpty(value) ) combo.setText(value);
-                    
-                    tooltip = (String)combo.getData("tooltip");
-                    if ( !FormPlugin.isEmpty(tooltip) ) {
-                        combo.setToolTipText(FormVariable.expand(tooltip, selectedObject));
-                    }
-                    
-                    // We reference the variable and the control to the eObject that the variable refers to
-                    referedEObject = FormVariable.getReferedEObject((String)combo.getData("variable"), selectedObject);
-                    unscoppedVariable = FormVariable.getUnscoppedVariable((String)combo.getData("variable"), selectedObject);
-                    combo.setData("variable", unscoppedVariable);
-                    combo.setData("eObject", referedEObject);
-                    formVarList.set(referedEObject, unscoppedVariable, combo);
-
-                    if ( !FormPlugin.isEmpty((String)combo.getData("excelSheet")) )
-                        excelSheets.add((String)combo.getData("excelSheet"));
-                    
-                    combo.addModifyListener(textModifyListener);
-                    break;
-                    
-                case "label":
-                    Label label = createLabel(jsonObject, composite);
-                    
-                    value = FormVariable.expand((String)label.getData("text"), selectedObject);
-                    if ( !FormPlugin.isEmpty(value) )
-                    	label.setText(value);
-                    
-                    tooltip = (String)label.getData("tooltip");
-                    if ( !FormPlugin.isEmpty(tooltip) )
-                    		label.setToolTipText(tooltip);
-                    
-                    if ( !FormPlugin.isEmpty((String)label.getData("excelSheet")) )
-                        excelSheets.add((String)label.getData("excelSheet"));
-                    
-                    // We reference the variable and the control to the eObject that the variable refers to
-                    formVarList.set(FormVariable.getReferedEObject(value, selectedObject), FormVariable.getUnscoppedVariable(value, selectedObject), label);
-                    break;
-                    
-                case "table":
-                    createTable(jsonObject, composite);
-                    break;
-                    
-                case "text":
-                    StyledText text = createText(jsonObject, composite);
-                    
-                    value = FormVariable.expand(getString(jsonObject, "variable"), selectedObject);
-                    if (FormPlugin.isEmpty(value) || (boolean)text.getData("forceDefault") )
-                        value = FormVariable.expand((String)text.getData("defaultText"), selectedObject);
-                    if ( !FormPlugin.isEmpty(value) ) text.setText(value);
-                    
-                    tooltip = (String)text.getData("tooltip");
-                    if ( !FormPlugin.isEmpty(tooltip) ) {
-                        text.setToolTipText(FormVariable.expand(tooltip, selectedObject));
-                    } else {
-                        if ( !FormPlugin.isEmpty((String)text.getData("regexp")) ) {
+            String clazz = jsonParser.getString(jsonObject, "class");
+            if ( clazz != null ) {
+	            switch ( clazz.toLowerCase() ) {
+	                case "check":
+	                    Button check = jsonParser.createCheck(jsonObject, parent);
+	                    
+	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
+	                    String[] values = (String[])check.getData("values");
+	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
+	                    if ( FormPlugin.isEmpty(variableValue) || (check.getData("forceDefault")!=null && (Boolean)check.getData("forceDefault")) )
+	                    	variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "default"), selectedObject);
+	                    
+	                    if ( values == null || values.length == 0 ) 										// should be "true" or "false"
+	                    	check.setSelection(FormPlugin.areEqualIgnoreCase(variableValue, "true"));
+	                    else																				// should be values[0] or values[1]
+	                    	check.setSelection(FormPlugin.areEqualIgnoreCase(variableValue, values[0]));
+	                    
+	                    // we replace the tooltip by its expanded value in case it contains a variable
+	                    check.setToolTipText(FormVariable.expand((String)check.getData("tooltip"), selectedObject));
+	                    
+	                    // We reference the variable and the control to the eObject that the variable refers to
+	                    referedEObject = FormVariable.getReferedEObject((String)check.getData("variable"), selectedObject);
+	                    unscoppedVariable = FormVariable.getUnscoppedVariable((String)check.getData("variable"), selectedObject);
+	                    check.setData("variable", unscoppedVariable);
+	                    check.setData("eObject", referedEObject);
+	                    formVarList.set(referedEObject, unscoppedVariable, check);
+	
+	                    // if an excelSheet property has been set, then we register it to show-up the export to excel button
+	                    if ( !FormPlugin.isEmpty((String)check.getData("excelSheet")) )
+	                        excelSheets.add((String)check.getData("excelSheet"));
+	                    
+	                    check.addSelectionListener(checkButtonSelectionListener);
+	                    break;
+	                    
+	                case "combo":
+	                    CCombo combo = jsonParser.createCombo(jsonObject, parent);
+	                    
+	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
+	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
+	                    if ( FormPlugin.isEmpty(variableValue) || (combo.getData("forceDefault")!=null && (boolean)combo.getData("forceDefault")) )
+	                    	variableValue = FormVariable.expand((String)combo.getData("defaultText"), selectedObject);
+	                    combo.setText(variableValue);
+	                    
+	                    // we replace the tooltip by its expanded value in case it contains a variable
+	                    combo.setToolTipText(FormVariable.expand((String)combo.getData("tooltip"), selectedObject));
+	                    
+	                    // We reference the variable and the control to the eObject that the variable refers to
+	                    referedEObject = FormVariable.getReferedEObject((String)combo.getData("variable"), selectedObject);
+	                    unscoppedVariable = FormVariable.getUnscoppedVariable((String)combo.getData("variable"), selectedObject);
+	                    combo.setData("variable", unscoppedVariable);
+	                    combo.setData("eObject", referedEObject);
+	                    formVarList.set(referedEObject, unscoppedVariable, combo);
+	
+	                    // if an excelSheet property has been set, then we register it to show-up the export to excel button
+	                    if ( !FormPlugin.isEmpty((String)combo.getData("excelSheet")) )
+	                        excelSheets.add((String)combo.getData("excelSheet"));
+	                    
+	                    combo.addModifyListener(textModifyListener);
+	                    break;
+	                    
+	                case "label":
+	                    Label label = jsonParser.createLabel(jsonObject, parent);
+	                    
+	                    // we replace the combo's text by the expanded variable 
+	                    variableValue = FormVariable.expand((String)label.getData("text"), selectedObject);
+	                    label.setText(variableValue);
+	                    
+	                    // we replace the tooltip by its expanded value in case it contains a variable
+	                    label.setToolTipText(FormVariable.expand((String)label.getData("tooltip"), selectedObject));
+	                    
+	                    // if an excelSheet property has been set, then we register it to show-up the export to excel button
+	                    if ( !FormPlugin.isEmpty((String)label.getData("excelSheet")) )
+	                        excelSheets.add((String)label.getData("excelSheet"));
+	                    
+	                    // We reference the variable and the control to the eObject that the variable refers to
+	                    formVarList.set(FormVariable.getReferedEObject(variableValue, selectedObject), FormVariable.getUnscoppedVariable(variableValue, selectedObject), label);
+	                    break;
+	                    
+	                case "table":
+	                	//TODO : jsonParser.createTable(jsonObject, parent);
+	                    break;
+	                    
+	                case "text":
+	                    StyledText text = jsonParser.createText(jsonObject, parent);
+	                    
+	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
+	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
+	                    if ( FormPlugin.isEmpty(variableValue) || (text.getData("forceDefault")!=null && (boolean)text.getData("forceDefault")) )
+	                        variableValue = FormVariable.expand((String)text.getData("defaultText"), selectedObject);
+	                    text.setText(variableValue);
+	                    
+	                    // we replace the tooltip by its expanded value in case it contains a variable
+	                    text.setToolTipText(FormVariable.expand((String)text.getData("tooltip"), selectedObject));
+	                    	
+	                    // if the tooltip is empty but a regexp is defined,then we add a tooltip with a little help message about the regexp 
+                        if ( FormPlugin.isEmpty(text.getToolTipText()) && !FormPlugin.isEmpty((String)text.getData("regexp")) ) {
                             text.setData("pattern", Pattern.compile((String)text.getData("regexp")));
                             text.setToolTipText("Your text should match the following regexp :\n" + (String)text.getData("regexp"));
                         }
-                    }
-
-                    text.addModifyListener(textModifyListener);
-                    
-                    // We reference the variable and the control to the eObject that the variable refers to
-                    referedEObject = FormVariable.getReferedEObject((String)text.getData("variable"), selectedObject);
-                    unscoppedVariable = FormVariable.getUnscoppedVariable((String)text.getData("variable"), selectedObject);
-                    text.setData("variable", unscoppedVariable);
-                    text.setData("eObject", referedEObject);
-                    formVarList.set(referedEObject, unscoppedVariable, text);
-                    
-                    if ( !FormPlugin.isEmpty((String)text.getData("excelSheet")) )
-                        excelSheets.add((String)text.getData("excelSheet"));
-                    break;
-                    
-                default:
-                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonObject.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+	
+	                    // We reference the variable and the control to the eObject that the variable refers to
+	                    referedEObject = FormVariable.getReferedEObject((String)text.getData("variable"), selectedObject);
+	                    unscoppedVariable = FormVariable.getUnscoppedVariable((String)text.getData("variable"), selectedObject);
+	                    text.setData("variable", unscoppedVariable);
+	                    text.setData("eObject", referedEObject);
+	                    formVarList.set(referedEObject, unscoppedVariable, text);
+	                    
+	                    // if an excelSheet property has been set, then we register it to show-up the export to excel button
+	                    if ( !FormPlugin.isEmpty((String)text.getData("excelSheet")) )
+	                        excelSheets.add((String)text.getData("excelSheet"));
+	                    
+	                    text.addModifyListener(textModifyListener);
+	                    break;
+	                    
+	                default:
+	                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonObject.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+	            }
             }
             FormPosition.resetControlName();
             FormPosition.resetControlClass();
-        }
     }
 
-    /**
-     * Create a Label control<br>
-     * <br>
-     * called by the createObjects() method
-     * 
-     * @param jsonObject
-     *            the JSON object to parse
-     * @param composite
-     *            the composite where the control will be created
-     */
-    public static Label createLabel(JSONObject jsonObject, Composite composite) {
-        String controlName = getString(jsonObject, "name", "");
-        
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating label control " + controlName);
-        
-        FormPosition.setControlName(controlName); FormPosition.setControlClass("label");
 
-        int x = getInt(jsonObject, "x", 0);
-        int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", 0);
-        int height = getInt(jsonObject, "height", 0);
-        String controlText = getString(jsonObject, "text", "");
-        String background = getString(jsonObject, "background", "");
-        String foreground = getString(jsonObject, "foreground", "");
-        String tooltip = getString(jsonObject, "tooltip", "");
-        String fontName = getString(jsonObject, "fontName", "");
-        int fontSize = getInt(jsonObject, "fontSize", 0);
-        boolean fontBold = getBoolean(jsonObject, "fontBold", false);
-        boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
-        String alignment = getString(jsonObject, "alignment", "");
-        String excelSheet = getString(jsonObject, "excelSheet", "");
-        String excelCell = getString(jsonObject, "excelCell", "");
-        String excelCellType = getString(jsonObject, "excelCellType", "");
-        String excelDefault = getString(jsonObject, "excelDefault", "");
-
-        if (logger.isTraceEnabled()) {
-            logger.trace("      name = " + controlName);
-            logger.trace("      text = " + controlText);
-            logger.trace("      x = " + debugValue(x, 0));
-            logger.trace("      y = " + debugValue(y, 0));
-            logger.trace("      width = " + debugValue(width, 0));
-            logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      background = " + debugValue(background, ""));
-            logger.trace("      foreground = " + debugValue(foreground, ""));
-            logger.trace("      tooltip = " + debugValue(tooltip, ""));
-            logger.trace("      fontName = " + debugValue(fontName, ""));
-            logger.trace("      fontSize = " + debugValue(fontSize, 0));
-            logger.trace("      fontBold = " + debugValue(fontBold, false));
-            logger.trace("      fontItalic = " + debugValue(fontItalic, false));
-            logger.trace("      alignment = "+debugValue(alignment, ""));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
-            logger.trace("      excelCell = " + debugValue(excelCell, ""));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
-        }
-        
-        Label label = new Label(composite, SWT.WRAP);
-        
-        label.setData("name", controlName);
-        label.setData("text", controlText);
-        label.setData("x", x);
-        label.setData("y", y);
-        label.setData("width", width);
-        label.setData("height", height);
-        label.setData("background", background);
-        label.setData("foreground", foreground);
-        label.setData("tooltip", tooltip);
-        label.setData("fontName", fontName);
-        label.setData("fontSize", fontSize);
-        label.setData("fontBold", fontBold);
-        label.setData("fontItalic", fontItalic);
-        label.setData("alignment", alignment);
-        label.setData("excelSheet", excelSheet);
-        label.setData("excelCell", excelCell);
-        label.setData("excelCellType", excelCellType);
-        label.setData("excelDefault", excelDefault);
-        label.setData("keys", new String[]{"name", "text", "x", "y", "width", "height", "background", "foreground", "tooltip", "fontName", "fontSize", "fontBold", "fontItalic", "alignment", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
-
-		if ( width == 0 || height == 0 ) {
-			Point p = label.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-			width = (width == 0) ? p.x : width;
-			height = (height == 0) ? p.y : height;
-		}
-		label.setBounds(x, y, width, height);
-
-        if ( !FormPlugin.isEmpty(background) ) {
-            String[] colorArray = background.split(",");
-            label.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        } else {
-            label.setBackground(composite.getBackground());
-        }
-
-        if ( !FormPlugin.isEmpty(foreground) ) {
-            String[] colorArray = foreground.split(",");
-            label.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty(fontName) ) {
-            int style = SWT.NORMAL;
-            if (fontBold)
-                style |= SWT.BOLD;
-            if (fontItalic)
-                style |= SWT.ITALIC;
-            label.setFont(new Font(label.getDisplay(), fontName, fontSize, style));
-        } else {
-            if ( fontSize!=0 || fontBold || fontItalic) {
-                int style = SWT.NORMAL;
-                if (fontBold)
-                    style |= SWT.BOLD;
-                if (fontItalic)
-                    style |= SWT.ITALIC;
-                label.setFont(FontDescriptor.createFrom(label.getFont()).setHeight(fontSize).setStyle(style).createFont(label.getDisplay()));
-            }
-        }
-        
-        switch ( alignment.toLowerCase() ) {
-            case "":
-            case "left" :
-                label.setAlignment(SWT.LEFT);
-                break;
-            case "right" :
-                label.setAlignment(SWT.RIGHT);
-                break;
-            case "center":
-                label.setAlignment(SWT.CENTER);
-                break;
-            default:
-                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
-        }
-
-        if ( !FormPlugin.isEmpty(excelCellType) && !FormPlugin.areEqual(excelCellType, "string") && !FormPlugin.areEqual(excelCellType, "numeric") && !FormPlugin.areEqual(excelCellType, "boolean") && !FormPlugin.areEqual(excelCellType, "formula") )
-            throw new RuntimeException(FormPosition.getPosition("excelCellType") + "\n\nInvalid excelCellType value, must be \"string\", \"numeric\", \"boolean\" or \"formula\"."); 
-        
-        if ( !FormPlugin.isEmpty(excelCellType) && !FormPlugin.areEqual(excelDefault, "blank") && !FormPlugin.areEqual(excelDefault, "zero") && !FormPlugin.areEqual(excelDefault, "delete") )
-            throw new RuntimeException(FormPosition.getPosition("excelDefault") + "\n\nInvalid excelDefault value, must be \"blank\", \"zero\" or \"delete\"."); 
-
-        return label;
-    }
-
-    /**
-     * Create a text control<br>
-     * <br>
-     * called by the createObjects() method
-     * 
-     * @param jsonObject
-     *            the JSON object to parse
-     * @param composite
-     *            the composite where the control will be created
-     */
-    public static StyledText createText(JSONObject jsonObject, Composite composite) throws RuntimeException {
-        String controlName = getString(jsonObject, "name", "");
-        
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating text control " + controlName);
-        
-        FormPosition.setControlName(controlName); FormPosition.setControlClass("text");
-        
-        String variableName = getString(jsonObject, "variable");
-        String defaultText = getString(jsonObject, "default", "");
-        boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
-        int x = getInt(jsonObject, "x", 0);
-        int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", 0);
-        int height = getInt(jsonObject, "height", 0);
-        String background = getString(jsonObject, "background", "");
-        String foreground = getString(jsonObject, "foreground", "");
-        String regex = getString(jsonObject, "regexp", "");
-        String tooltip = getString(jsonObject, "tooltip", "");
-        String fontName = getString(jsonObject, "fontName", "");
-        int fontSize = getInt(jsonObject, "fontSize", 0);
-        boolean fontBold = getBoolean(jsonObject, "fontBold", false);
-        boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
-        String alignment = getString(jsonObject, "alignment", "");
-        boolean editable = getBoolean(jsonObject, "editable", true);
-        String whenEmpty = getString(jsonObject, "whenEmpty", "");
-        String excelSheet = getString(jsonObject, "excelSheet", "");
-        String excelCell = getString(jsonObject, "excelCell", "");
-        String excelCellType = getString(jsonObject, "excelCellType", "");
-        String excelDefault = getString(jsonObject, "excelDefault", "");
-
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating Text control \"" + variableName + "\"");
-        if (logger.isTraceEnabled()) {
-            logger.trace("      name = " + controlName);
-            logger.trace("      variable = " + variableName);
-            logger.trace("      default = " + debugValue(defaultText, ""));
-            logger.trace("      forceDefault = " + debugValue(forceDefault, false));
-            logger.trace("      x = " + debugValue(x, 0));
-            logger.trace("      y = " + debugValue(y, 0));
-            logger.trace("      width = " + debugValue(width, 0));
-            logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      background = " + debugValue(background, ""));
-            logger.trace("      foreground = " + debugValue(foreground, ""));
-            logger.trace("      regexp = " + debugValue(regex, ""));
-            logger.trace("      tooltip = " + debugValue(tooltip, ""));
-            logger.trace("      fontName = " + debugValue(fontName, ""));
-            logger.trace("      fontSize = " + debugValue(fontSize, 0));
-            logger.trace("      fontBold = " + debugValue(fontBold, false));
-            logger.trace("      fontItalic = " + debugValue(fontItalic, false));
-            logger.trace("      alignment = "+debugValue(alignment, ""));
-            logger.trace("      editable = " + debugValue(editable, true));
-            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
-            logger.trace("      excelCell = " + debugValue(excelCell, ""));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
-        }
-        
-        StyledText text = new StyledText(composite, SWT.WRAP | SWT.BORDER);		                   // we create the control at the very beginning because we need its default size which is dependent on its content
-        
-        text.setData("name", controlName);
-        text.setData("variable", variableName);
-        text.setData("defaultText", defaultText);
-        text.setData("forceDefault", defaultText);
-        text.setData("x", x);
-        text.setData("y", y);
-        text.setData("width", width);
-        text.setData("height", height);
-        text.setData("background", background);
-        text.setData("foreground", foreground);
-        text.setData("regexp", regex);
-        text.setData("tooltip", tooltip);
-        text.setData("fontName", fontName);
-        text.setData("fontSize", fontSize);
-        text.setData("fontBold", fontBold);
-        text.setData("fontItalic", fontItalic);
-        text.setData("alignment", alignment);
-        text.setData("editable", editable);
-        text.setData("whenEmpty", whenEmpty);
-        text.setData("excelSheet", excelSheet);
-        text.setData("excelCell", excelCell);
-        text.setData("excelCellType", excelCellType.toLowerCase());
-        text.setData("excelDefault", excelDefault.toLowerCase());
-        text.setData("keys", new String[]{"name", "variable", "defaultText", "forceDefault", "x", "y", "width", "height", "background", "foreground", "tooltip", "regexp", "fontName", "fontSize", "fontBold", "fontItalic", "alignment", "editable", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
-        
-        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
-            whenEmpty = whenEmpty.toLowerCase();
-            if (!inArray(validWhenEmpty, whenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
-        }
-
-        text.setLocation(x, y);
-        text.setSize(width, height);
-        text.setEditable(editable);
-
-        if ( !FormPlugin.isEmpty((String)background) ) {
-            String[] colorArray = background.split(",");
-            text.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty((String)foreground) ) {
-            String[] colorArray = foreground.split(",");
-            text.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty((String)fontName) ) {
-            int style = SWT.NORMAL;
-            if (fontBold)
-                style |= SWT.BOLD;
-            if (fontItalic)
-                style |= SWT.ITALIC;
-            text.setFont(new Font(text.getDisplay(), fontName, fontSize, style));
-        } else {
-            if (fontSize!=0 || fontBold || fontItalic) {
-                int style = SWT.NORMAL;
-                if (fontBold)
-                    style |= SWT.BOLD;
-                if (fontItalic)
-                    style |= SWT.ITALIC;
-                text.setFont(FontDescriptor.createFrom(text.getFont()).setHeight(fontSize).setStyle(style).createFont(text.getDisplay()));
-            }
-        }
-        
-        switch ( alignment.toLowerCase() ) {
-            case "":
-            case "left" :
-                text.setAlignment(SWT.LEFT);
-                break;
-            case "right" :
-                text.setAlignment(SWT.RIGHT);
-                break;
-            case "center":
-                text.setAlignment(SWT.CENTER);
-                break;
-            default:
-                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
-        }
-
-        return text;
-    }
-
-    /**
-     * Create a Combo control<br>
-     * <br>
-     * called by the createObjects() method
-     * 
-     * @param jsonObject
-     *            the JSON object to parse
-     * @param composite
-     *            the composite where the control will be created
-     */
-    public static CCombo createCombo(JSONObject jsonObject, Composite composite) throws RuntimeException {
-    	String controlName = getString(jsonObject, "name", "");
-        
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating combo control " + controlName);
-
-        FormPosition.setControlName(controlName); FormPosition.setControlClass("combo");
-
-        String variableName = getString(jsonObject, "variable");
-        String defaultText = getString(jsonObject, "default", "");
-        boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
-
-        @SuppressWarnings("unchecked")
-        String[] values = (String[]) (getJSONArray(jsonObject, "values")).toArray(new String[0]);
-        
-        int x = getInt(jsonObject, "x", 0);
-        int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", 0);
-        int height = getInt(jsonObject, "height", 0);
-        String background = getString(jsonObject, "background", "");
-        String foreground = getString(jsonObject, "foreground", "");
-        String tooltip = getString(jsonObject, "tooltip", "");
-        String fontName = getString(jsonObject, "fontName", "");
-        int fontSize = getInt(jsonObject, "fontSize", 0);
-        boolean fontBold = getBoolean(jsonObject, "fontBold", false);
-        boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
-        boolean editable = getBoolean(jsonObject, "editable", true);
-        String whenEmpty = getString(jsonObject, "whenEmpty", "");
-        String excelSheet = getString(jsonObject, "excelSheet", "");
-        String excelCell = getString(jsonObject, "excelCell", "");
-        String excelCellType = getString(jsonObject, "excelCellType", "");
-        String excelDefault = getString(jsonObject, "excelDefault", "");
-
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating combo \"" + variableName + "\"");
-        if (logger.isTraceEnabled()) {
-            logger.trace("      name = " + debugValue(controlName, variableName));
-            logger.trace("      variable = " + variableName);
-            logger.trace("      values = " + values);
-            logger.trace("      default = " + debugValue(defaultText, ""));
-            logger.trace("      forceDefault = " + debugValue(forceDefault, false));
-            logger.trace("      x = " + x);
-            logger.trace("      y = " + y);
-            logger.trace("      width = " + debugValue(width, 0));
-            logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      background = " + debugValue(background, ""));
-            logger.trace("      foreground = " + debugValue(foreground, ""));
-            logger.trace("      tooltip = " + debugValue(tooltip, ""));
-            logger.trace("      fontName = " + debugValue(fontName, ""));
-            logger.trace("      fontSize = " + debugValue(fontSize, 0));
-            logger.trace("      fontBold = " + debugValue(fontBold, false));
-            logger.trace("      fontItalic = " + debugValue(fontItalic, false));
-            logger.trace("      editable = " + debugValue(editable, true));
-            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
-            logger.trace("      excelCell = " + debugValue(excelCell, ""));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
-        }
-        
-        CCombo combo = new CCombo(composite, SWT.NONE);						// we create the control at the very beginning because we need its default size which is dependent on its content
-
-        combo.setData("name", controlName);
-        combo.setData("variable", variableName);
-        combo.setData("values", values);
-        combo.setData("default", defaultText);
-        combo.setData("forceDefault", forceDefault);
-        combo.setData("x", x);
-        combo.setData("y", y);
-        combo.setData("width", width);
-        combo.setData("height", height);
-        combo.setData("background", background);
-        combo.setData("foreground", foreground);
-        combo.setData("tooltip", tooltip);
-        combo.setData("fontName", fontName);
-        combo.setData("fontSize", fontSize);
-        combo.setData("fontBold", fontBold);
-        combo.setData("fontItalic", fontItalic);
-        combo.setData("editable", editable);
-        combo.setData("whenEmpty", whenEmpty);
-        combo.setData("excelSheet", excelSheet);
-        combo.setData("excelCell", excelCell);
-        combo.setData("excelCellType", excelCellType.toLowerCase());
-        combo.setData("excelDefault", excelDefault.toLowerCase());
-        combo.setData("keys", new String[]{"name", "variable", "values", "defaultText", "forceDefault",  "x", "y", "width", "height", "background", "foreground", "tooltip", "fontName", "fontSize", "fontBold", "fontItalic", "editable", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
-        
-        combo.setItems(values);
-
-        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
-            whenEmpty = whenEmpty.toLowerCase();
-            if (!inArray(validWhenEmpty, whenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
-        }
-
-        combo.setLocation(x, y);
-        combo.setSize(width, height);
-        combo.setEditable(editable);
-
-        if ( !FormPlugin.isEmpty((String)background) ) {
-            String[] colorArray = background.split(",");
-            combo.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty((String)foreground) ) {
-            String[] colorArray = foreground.split(",");
-            combo.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty((String)fontName) ) {
-            int style = SWT.NORMAL;
-            if (fontBold)
-                style |= SWT.BOLD;
-            if (fontItalic)
-                style |= SWT.ITALIC;
-            combo.setFont(new Font(combo.getDisplay(), fontName, fontSize, style));
-        } else {
-            if (fontSize !=0 || fontBold || fontItalic) {
-                int style = SWT.NORMAL;
-                if (fontBold)
-                    style |= SWT.BOLD;
-                if (fontItalic)
-                    style |= SWT.ITALIC;
-                combo.setFont(FontDescriptor.createFrom(combo.getFont()).setHeight(fontSize).setStyle(style).createFont(combo.getDisplay()));
-            }
-        }
-        
-        return combo;
-    }
-
-    /**
-     * Create a check button control<br>
-     * <br>
-     * called by the createObjects() method
-     * 
-     * @param jsonObject
-     *            the JSON object to parse
-     * @param composite
-     *            the composite where the control will be created
-     */
-    private Button createCheck(JSONObject jsonObject, Composite composite) throws RuntimeException {
-    	String controlName = getString(jsonObject, "name", "");
-        
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating check control " + controlName);
-
-        FormPosition.setControlName(controlName); FormPosition.setControlClass("check");
-        
-        @SuppressWarnings("unchecked")
-        String[] values = (String[]) (getJSONArray(jsonObject, "values", "")).toArray(new String[0]);
-
-        String variableName = getString(jsonObject, "variable");
-        String value = FormVariable.expand(variableName, selectedObject);
-        String defaultText = getString(jsonObject, "default", "");
-        boolean forceDefault = getBoolean(jsonObject, "forceDefault", false);
-        int x = getInt(jsonObject, "x", 0);
-        int y = getInt(jsonObject, "y", 0);
-        int width = getInt(jsonObject, "width", 0);
-        int height = getInt(jsonObject, "height", 0);
-        String background = getString(jsonObject, "background", "");
-        String foreground = getString(jsonObject, "foreground", "");
-        String tooltip = getString(jsonObject, "tooltip", "");
-        String alignment = getString(jsonObject, "alignment", "");
-        String whenEmpty = getString(jsonObject, "whenEmpty", "");
-        String excelSheet = getString(jsonObject, "excelSheet", "");
-        String excelCell = getString(jsonObject, "excelCell", "");
-        String excelCellType = getString(jsonObject, "excelCellType", "");
-        String excelDefault = getString(jsonObject, "excelDefault", "");
-
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating check \"" + variableName + "\"");
-        if (logger.isTraceEnabled()) {
-            logger.trace("      name = " + debugValue(controlName, variableName));
-            logger.trace("      variable = " + variableName);
-            logger.trace("      values = " + values);
-            logger.trace("      default = " + debugValue(defaultText, ""));
-            logger.trace("      forceDefault = " + debugValue(forceDefault, false));
-            logger.trace("      x = " + debugValue(x, 0));
-            logger.trace("      y = " + debugValue(y, 0));
-            logger.trace("      width = " + debugValue(width, 0));
-            logger.trace("      height = " + debugValue(height, 0));
-            logger.trace("      name = " + debugValue(controlName, variableName));
-            logger.trace("      background = " + debugValue(background, ""));
-            logger.trace("      foreground = " + debugValue(foreground, ""));
-            logger.trace("      alignment = "+debugValue(alignment, ""));
-            logger.trace("      tooltip = " + debugValue(tooltip, ""));
-            logger.trace("      whenEmpty = " + debugValue(whenEmpty, ""));
-            logger.trace("      excelSheet = " + debugValue(excelSheet, ""));
-            logger.trace("      excelCell = " + debugValue(excelCell, ""));
-            logger.trace("      excelCellType = " + debugValue(excelCellType, ""));
-            logger.trace("      excelDefault = " + debugValue(excelDefault, ""));
-        }
-        
-        Button check = new Button(composite, SWT.CHECK);
-        
-        check.setData("name", controlName);
-        check.setData("variable", variableName);
-        check.setData("values", values);
-        check.setData("default", defaultText);
-        check.setData("forceDefault", forceDefault);
-        check.setData("x", x);
-        check.setData("y", y);
-        check.setData("width", width);
-        check.setData("height", height);
-        check.setData("background", background);
-        check.setData("foreground", foreground);
-        check.setData("alignment", alignment);
-        check.setData("tooltip", tooltip);
-        check.setData("whenEmpty", whenEmpty);
-        check.setData("excelSheet", excelSheet);
-        check.setData("excelCell", excelCell);
-        check.setData("excelCellType", excelCellType.toLowerCase());
-        check.setData("excelDefault", excelDefault.toLowerCase());
-        check.setData("keys", new String[]{"name", "variable", "values", "defaultText", "forceDefault",  "x", "y", "width", "height", "background", "foreground", "alignment", "tooltip", "whenEmpty", "excelSheet", "excelCell", "excelCellType", "excelDefault"});
-        
-        if ( values.length == 0 ) {
-            check.setData("values", null);
-            check.setSelection(Boolean.valueOf((value.isEmpty() || forceDefault)?defaultText:value));
-        } else {
-            check.setData("values", values);
-            check.setSelection(values[0].equals((value.isEmpty() || forceDefault)?defaultText:value));
-        }
-        check.pack();
-
-        if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
-            whenEmpty = whenEmpty.toLowerCase();
-            if (!inArray(validWhenEmpty, whenEmpty))
-                throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
-        }
-
-        check.setLocation(x, y);
-        check.setSize(width, height);
-
-        if ( !FormPlugin.isEmpty((String)background) ) {
-            String[] colorArray = background.split(",");
-            check.setBackground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty((String)foreground) ) {
-            String[] colorArray = foreground.split(",");
-            check.setForeground(new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-        
-        switch ( alignment.toLowerCase() ) {
-            case "right":
-                check.setAlignment(SWT.RIGHT);
-                break;
-            case "":
-            case "left":
-                check.setAlignment(SWT.LEFT);
-                break;
-            case "center":
-                check.setAlignment(SWT.CENTER);
-                break;
-            default:
-                throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
-        }
-
-        // We reference the variable and the control to the eObject that the variable refers to
-        EObject referedEObject = FormVariable.getReferedEObject(variableName, selectedObject);
-        String unscoppedVariable = FormVariable.getUnscoppedVariable(variableName, selectedObject);
-        check.setData("eObject", referedEObject);
-        formVarList.set(referedEObject, unscoppedVariable, check);
-
-        if ( !FormPlugin.isEmpty((String)excelSheet) )
-            excelSheets.add(excelSheet);
-
-        if ( !FormPlugin.isEmpty((String)tooltip) ) {
-            check.setToolTipText(FormVariable.expand(tooltip, selectedObject));
-        }
-
-        check.addSelectionListener(checkButtonSelectionListener);
-        return check;
-    }
 
     /**
      * Create a Table control<br>
@@ -1048,6 +353,7 @@ public class FormDialog extends Dialog {
      * @param composite
      *            the composite where the control will be created
      */
+    /*
     @SuppressWarnings("unchecked")
     private Table createTable(JSONObject jsonObject, Composite composite) throws RuntimeException {
     	String controlName = getString(jsonObject, "name", "");
@@ -1118,7 +424,7 @@ public class FormDialog extends Dialog {
         }
 
         if ( !FormPlugin.isEmpty((String)excelSheet) )
-            excelSheets.add(excelSheet);
+         )   excelSheets.add(excelSheet);
 
         // we iterate over the "columns" entries
         Iterator<JSONObject> columnsIterator = (getJSONArray(jsonObject, "columns")).iterator();
@@ -1358,6 +664,7 @@ public class FormDialog extends Dialog {
         }
         return table;
     }
+    */
 
     /**
      * Create TableItems in the Table control<br>
@@ -1374,6 +681,7 @@ public class FormDialog extends Dialog {
      * @param filter
      *            the JSONObject representing a filter if any
      */
+    /*
     @SuppressWarnings("unchecked")
     private void addTableItems(Table table, EList<?> list, JSONArray values, JSONObject filter) throws RuntimeException {
         if ((list == null) || list.isEmpty())
@@ -1438,6 +746,7 @@ public class FormDialog extends Dialog {
                         	}
                         }
     }
+    */
 
     /**
      * Adds a line (TableItem) in the Table<br>
@@ -1448,6 +757,7 @@ public class FormDialog extends Dialog {
      *            the array of JSONObjects that contain the values to insert
      *            (one per column)
      */
+    /*
     private void addTableItem(Table table, EObject eObject, JSONArray jsonArray) throws RuntimeException {
         TableItem tableItem = new TableItem(table, SWT.NONE);
         EObject referedEObject;
@@ -1621,6 +931,7 @@ public class FormDialog extends Dialog {
         }
         tableItem.setData("editors", editors);
     }
+    */
 
     /**
      * Shows up an on screen popup displaying the message and wait for the user
@@ -2027,7 +1338,7 @@ public class FormDialog extends Dialog {
     private void cancel() {
         if (logger.isDebugEnabled())
             logger.debug("Cancel button selected by user.");
-        dialog.dispose();
+        formDialog.dispose();
     }
 
     private void ok() {
@@ -2035,7 +1346,7 @@ public class FormDialog extends Dialog {
             logger.debug("Ok button selected by user.");
         CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
         try {
-            for (Control control : dialog.getChildren()) {
+            for (Control control : formDialog.getChildren()) {
                 save(control);
             }
         } catch (RuntimeException e) {
@@ -2067,7 +1378,7 @@ public class FormDialog extends Dialog {
         CommandStack stack = (CommandStack) model.getAdapter(CommandStack.class);
         stack.execute(compoundCommand);
 
-        dialog.dispose();
+        formDialog.dispose();
     }
 
     private void save(Control control) throws RuntimeException {
@@ -2160,10 +1471,11 @@ public class FormDialog extends Dialog {
 
     @SuppressWarnings("deprecation")
     private void exportToExcel() {
+    /*
         if (logger.isDebugEnabled())
             logger.debug("Export button selected by user.");
         
-        FileDialog fsd = new FileDialog(dialog, SWT.SINGLE);
+        FileDialog fsd = new FileDialog(formDialog, SWT.SINGLE);
         fsd.setFilterExtensions(new String[] { "*.xls*" });
         fsd.setText("Select Excel File...");
         String excelFile = fsd.open();
@@ -2482,6 +1794,7 @@ public class FormDialog extends Dialog {
                 }
             }
         }
+        */
     }
 
     private class TableItemComparator implements Comparator<TableItem> {
@@ -2522,264 +1835,7 @@ public class FormDialog extends Dialog {
         }
     }
 
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @return the value if found
-     * @throws RuntimeException
-     *             if the key is not found
-     */
-    public static Object getJSON(JSONObject obj, String key) throws RuntimeException {
-        Object result = getJSON(obj, key, null);
-        if (result == null)
-            throw new RuntimeException("key \"" + key + "\" not found.");
-        return result;
-    }
 
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @return the value if found, or the defaultValue provided if not found,
-     *         ClassCastException if the object found is not a JSONObject
-     */
-    public static JSONObject getJSONObject(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key);
-
-        if (result instanceof JSONObject)
-            return (JSONObject) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @return the value if found, ClassCastException if the object found is not
-     *         a JSONArray
-     */
-    public static JSONArray getJSONArray(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key);
-
-        if (result instanceof JSONArray)
-            return (JSONArray) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @return the value if found, ClassCastException if the object found is not
-     *         a String
-     */
-    public static String getString(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key);
-
-        if (result instanceof String)
-            return (String) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @return the value if found, ClassCastException if the object found is not
-     *         an Integer
-     */
-    public static int getInt(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key);
-
-        if (result instanceof Long)
-            return (int) (long) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @param defaultValue
-     * @return the value if found, ClassCastException if the object found is not
-     *         a boolean
-     */
-    public static Boolean getBoolean(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key);
-
-        if (result instanceof Boolean)
-            return (Boolean) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
-    }
-
-    /**
-     * Checks if the key exists in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     */
-    public static boolean JSONContainsKey(JSONObject obj, String key) {
-        @SuppressWarnings("unchecked")
-        Iterator<String> iter = obj.keySet().iterator();
-        while (iter.hasNext()) {
-            String key1 = iter.next();
-            if (key1.equalsIgnoreCase(key))
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @param defaultValue
-     * @return the value if found, or the defaultValue provided if not found
-     */
-    public static Object getJSON(JSONObject obj, String key, Object defaultValue) {
-        @SuppressWarnings("unchecked")
-        Iterator<String> iter = obj.keySet().iterator();
-        while (iter.hasNext()) {
-            String key1 = iter.next();
-            if (key1.equalsIgnoreCase(key)) {
-                return obj.get(key1);
-            }
-        }
-        return defaultValue;
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @param defaultValue
-     * @return the value if found, or the defaultValue provided if not found,
-     *         ClassCastException if the object found is not a JSONObject
-     */
-    public static JSONObject getJSONObject(JSONObject obj, String key, Object defaultValue)
-            throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key, defaultValue);
-
-        if (result == null || result instanceof JSONObject)
-            return (JSONObject) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @param defaultValue
-     * @return the value if found, or the defaultValue provided if not found,
-     *         ClassCastException if the object found is not a JSONArray
-     */
-    public static JSONArray getJSONArray(JSONObject obj, String key, Object defaultValue) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key, defaultValue);
-
-        if (result == null || result instanceof JSONArray)
-            return (JSONArray) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @param defaultValue
-     * @return the value if found, or the defaultValue provided if not found,
-     *         ClassCastException if the object found is not a String
-     */
-    public static String getString(JSONObject obj, String key, Object defaultValue) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key, defaultValue);
-
-        if (result == null || result instanceof String)
-            return (String) result;
-
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @param defaultValue
-     * @return the value if found, or the defaultValue provided if not found,
-     *         ClassCastException if the object found is not an Integer
-     */
-    public static int getInt(JSONObject obj, String key, int defaultValue) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key, Long.valueOf(defaultValue));
-
-        if (result instanceof Long)
-            return (int) (long) result;
-
-        throw new ClassCastException("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
-    }
-
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj
-     *            the JSONObject
-     * @param key
-     *            the key (case insensitive)
-     * @param defaultValue
-     * @return the value if found, or the defaultValue provided if not found,
-     *         ClassCastException if the object found is not a Boolean
-     */
-    public static Boolean getBoolean(JSONObject obj, String key, Boolean defaultValue)
-            throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key, defaultValue);
-
-        if (result == null || result instanceof Boolean)
-            return (Boolean) result;
-
-        throw new ClassCastException(
-                "Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
-    }
 
     /**
      * Checks whether the eObject fits in the filter rules
@@ -2789,7 +1845,9 @@ public class FormDialog extends Dialog {
             return true;
         }
 
-        String type = ((String) getJSON(filterObject, "genre", "AND")).toUpperCase();
+        String type = ((String)jsonParser.getJSON(filterObject, "genre")).toUpperCase();
+        if ( FormPlugin.isEmpty(type) )
+        	type = "AND";
 
         if (!type.equals("AND") && !type.equals("OR"))
             throw new RuntimeException("Invalid filter genre. Supported genres are \"AND\" and \"OR\".");
@@ -2797,11 +1855,11 @@ public class FormDialog extends Dialog {
         boolean result;
 
         @SuppressWarnings("unchecked")
-        Iterator<JSONObject> filterIterator = ((JSONArray) getJSON(filterObject, "tests")).iterator();
+        Iterator<JSONObject> filterIterator = ((JSONArray)jsonParser.getJSON(filterObject, "tests")).iterator();
         while (filterIterator.hasNext()) {
             JSONObject filter = filterIterator.next();
-            String attribute = (String) getJSON(filter, "attribute");
-            String operation = (String) getJSON(filter, "operation");
+            String attribute = (String)jsonParser.getJSON(filter, "attribute");
+            String operation = (String)jsonParser.getJSON(filter, "operation");
             String value;
             String[] values;
 
@@ -2809,7 +1867,7 @@ public class FormDialog extends Dialog {
 
             switch (operation.toLowerCase()) {
                 case "equals":
-                    value = (String) getJSON(filter, "value");
+                    value = (String)jsonParser.getJSON(filter, "value");
 
                     result = attributeValue.equals(value);
                     if (logger.isTraceEnabled())
@@ -2817,7 +1875,7 @@ public class FormDialog extends Dialog {
                     break;
 
                 case "in":
-                    value = (String) getJSON(filter, "value");
+                    value = (String)jsonParser.getJSON(filter, "value");
                     values = value.split(",");
                     result = false;
                     for (String str : values) {
@@ -2837,7 +1895,7 @@ public class FormDialog extends Dialog {
                     break;
 
                 case "iequals":
-                    value = (String) getJSON(filter, "value");
+                    value = (String)jsonParser.getJSON(filter, "value");
 
                     result = attributeValue.equalsIgnoreCase(value);
                     if (logger.isTraceEnabled())
@@ -2845,7 +1903,7 @@ public class FormDialog extends Dialog {
                     break;
 
                 case "iin":
-                    value = (String) getJSON(filter, "value");
+                    value = (String)jsonParser.getJSON(filter, "value");
                     values = value.split(",");
                     result = false;
                     for (String str : values) {
@@ -2859,7 +1917,7 @@ public class FormDialog extends Dialog {
                     break;
 
                 case "matches":
-                    value = (String) getJSON(filter, "value");
+                    value = (String)jsonParser.getJSON(filter, "value");
 
                     result = (attributeValue != null) && attributeValue.matches(value);
                     if (logger.isTraceEnabled())
@@ -2883,32 +1941,7 @@ public class FormDialog extends Dialog {
         return type.equals("AND");
     }
 
-    public static String debugValue(String value, String defaultValue) {
-        StringBuilder result = new StringBuilder();
-        result.append("\"" + value + "\"");
-        if (FormPlugin.areEqual(value, defaultValue))
-            result.append(" (default)");
-        return result.toString();
-    }
 
-    public static String debugValue(int value, int defaultValue) {
-        StringBuilder result = new StringBuilder();
-        result.append(value);
-        if (value == defaultValue)
-            result.append(" (default)");
-        return result.toString();
-    }
-
-    public static String debugValue(Boolean value, Boolean defaultValue) {
-        StringBuilder result = new StringBuilder();
-        if (value == null)
-            result.append("null");
-        else
-            result.append(value ? "true" : "false");
-        if (value == defaultValue)
-            result.append(" (default)");
-        return result.toString();
-    }
 
     public static boolean inArray(String[] stringArray, String string) {
         for (String s : stringArray) {
