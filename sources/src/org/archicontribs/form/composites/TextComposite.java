@@ -15,10 +15,12 @@ public class TextComposite extends Composite implements CompositeInterface {
     private StringEditor            variableEditor;	     // variable
     private StringEditor            defaultTextEditor;   // defaultText
     private CheckEditor             forceDefaultEditor;  // forceDefault
+    private CheckEditor             editableEditor;  	 // editable
 	private SizeEditor              sizeEditor;          // x, y, width, height
 	private ColorEditor             colorEditor;         // foreground, background
 	private FontEditor				fontEditor;			 // font, fontBold, fontItalic
 	private StringEditor		    tooltipEditor;       // tooltip
+	private StringEditor		    regexpEditor;        // regexp
 	private AlignmentEditor         alignmentEditor;     // alignment
 	private StringEditor            excelSheetEditor;    // excelSheet
 	private StringEditor            excelCellEditor;     // excelCell
@@ -54,10 +56,15 @@ public class TextComposite extends Composite implements CompositeInterface {
         forceDefaultEditor = new CheckEditor(this, "Force default:");
         forceDefaultEditor.setPosition(defaultTextEditor.getControl());
         forceDefaultEditor.setProperty("forceDefault");
-						
+        
+        // editable
+        editableEditor = new CheckEditor(this, "Editable:");
+        editableEditor.setPosition(forceDefaultEditor.getControl());
+        editableEditor.setProperty("editable");
+        
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(forceDefaultEditor.getControl());
+		sizeEditor.setPosition(editableEditor.getControl());
 		        
 		// Background
 		colorEditor = new ColorEditor(this, "Color:");
@@ -73,9 +80,14 @@ public class TextComposite extends Composite implements CompositeInterface {
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
+		// regexp
+		regexpEditor = new StringEditor(this, "Regexp:", 5);
+		regexpEditor.setPosition(tooltipEditor.getControl());
+		regexpEditor.setProperty("regexp");
+		
         // alignment
         alignmentEditor = new AlignmentEditor(this, "Alignment:");
-        alignmentEditor.setPosition(tooltipEditor.getControl());
+        alignmentEditor.setPosition(regexpEditor.getControl());
         alignmentEditor.setItems(new String[] {"", "left", "center", "right"});
         alignmentEditor.setTooltipText("Choose the alignment.\n\nDefault: left.");
         alignmentEditor.setProperty("alignment");
@@ -116,11 +128,11 @@ public class TextComposite extends Composite implements CompositeInterface {
 	}
 	
     public void set(String key, Object value) throws RuntimeException {
-    	switch ( key ) {
+    	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
             case "variable":      variableEditor.setText((String)value); break;
-            case "defaultText":   defaultTextEditor.setText((String)value); break;
-            case "forceDefault":  forceDefaultEditor.setChecked((Boolean)value); break;
+            case "defaulttext":   defaultTextEditor.setText((String)value); break;
+            case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
     		case "x":			  sizeEditor.setX((Integer)value); break;
     		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
@@ -132,6 +144,8 @@ public class TextComposite extends Composite implements CompositeInterface {
     		case "fontsize":	  fontEditor.setFontSize((Integer)value); break;
     		case "fontbold":	  fontEditor.setBold((Boolean)value); break;
     		case "fontitalic":	  fontEditor.setItalic((Boolean)value); break;
+    		case "tooltip":    	  tooltipEditor.setText((String)value); break;
+    		case "regexp":    	  regexpEditor.setText((String)value); break;
     		case "excelheet":     excelCellEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
