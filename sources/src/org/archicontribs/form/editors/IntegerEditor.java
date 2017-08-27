@@ -109,9 +109,9 @@ public class IntegerEditor {
 		return txtInteger;
 	}
     
-    public void setInteger(int value) {
+    public void setInteger(Integer value) {
 		txtInteger.removeModifyListener(stringModifyListener);
-		txtInteger.setText(String.valueOf(value));
+		txtInteger.setText(value==null ? "" : String.valueOf(value));
 		txtInteger.addModifyListener(stringModifyListener);
     }
     
