@@ -40,6 +40,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
@@ -595,7 +597,7 @@ public class FormPlugin extends AbstractUIPlugin {
 	/**
 	 * Sets the control's alignment if defined
 	 */
-	public static void setAlignment(Control control, String alignment) {
+	public static void setAlignment(Widget widget, String alignment) {
 		if ( !FormPlugin.isEmpty(alignment) ) {
 			int alignmentValue;
 			switch ( alignment.toLowerCase() ) {
@@ -606,12 +608,13 @@ public class FormPlugin extends AbstractUIPlugin {
 	            	error(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value \""+alignment+"\", must be \"right\", \"left\" or \"center\".");
 	            	return;
 			}
-			switch ( control.getClass().getSimpleName() ) {
-				case "Label":		((Label)control).setAlignment(alignmentValue); break;
-				case "StyledText":	((StyledText)control).setAlignment(alignmentValue); break;
-				case "Button":		((Button)control).setAlignment(alignmentValue); break;
+			switch ( widget.getClass().getSimpleName() ) {
+				case "Label":		((Label)widget).setAlignment(alignmentValue); break;
+				case "StyledText":	((StyledText)widget).setAlignment(alignmentValue); break;
+				case "Button":		((Button)widget).setAlignment(alignmentValue); break;
+				case "TableColumn":	((TableColumn)widget).setAlignment(alignmentValue); break;
 				default:
-	            	throw new RuntimeException("Cannot set alignment to a "+control.getClass().getSimpleName());
+	            	throw new RuntimeException("Cannot set alignment to a "+widget.getClass().getSimpleName());
 			}
         }
 	}
