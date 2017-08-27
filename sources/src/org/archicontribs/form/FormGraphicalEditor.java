@@ -43,8 +43,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
@@ -96,13 +98,13 @@ public class FormGraphicalEditor extends Dialog {
     
     private static final FormJsonParser jsonParser = new FormJsonParser();
     
-    public FormGraphicalEditor(String configFilename, JSONObject json) {
+    public FormGraphicalEditor(String configFilename, JSONObject jsonForm) {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
         try {
-            formDialog = jsonParser.createShell(json, getParent());
+            formDialog = jsonParser.createShell(jsonForm, getParent());
             
-            TreeItem formTreeItem = createPropertiesDialog(json);
+            TreeItem formTreeItem = createPropertiesDialog(jsonForm);
             formTreeItem.setImage(FORM_ICON);
             formTreeItem.setText(formDialog.getText());
             formTreeItem.setData("class", "form");
@@ -118,7 +120,7 @@ public class FormGraphicalEditor extends Dialog {
             TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
             
             // we create one TabItem per tab array item
-            JSONArray tabs = (JSONArray)formDialog.getData("tabs array");
+            JSONArray tabs = jsonParser.getJSONArray(jsonForm, "tabs");
             if ( tabs != null ) {
             	@SuppressWarnings("unchecked")
 				Iterator<JSONObject> tabsIterator = tabs.iterator();
@@ -132,7 +134,7 @@ public class FormGraphicalEditor extends Dialog {
                     tabTreeItem.setData("class", "tab");
                     tabTreeItem.setData("control", tabItem.getControl());
                     
-                    JSONArray controls = (JSONArray)tabItem.getData("controls array");
+                    JSONArray controls = jsonParser.getJSONArray(jsonTab, "controls");
                     if ( controls != null ) {
                         Composite tabItemComposite = (Composite)tabItem.getControl();
                         @SuppressWarnings("unchecked")
@@ -389,62 +391,89 @@ public class FormGraphicalEditor extends Dialog {
      * @param composite
      *            The composite where the control will be created
      */
-    private void createControl(JSONObject jsonObject, Composite parent, TreeItem parentTreeItem) throws RuntimeException {
+    private void createControl(JSONObject jsonControl, Composite parent, TreeItem parentTreeItem) throws RuntimeException {
             FormJsonParser jsonParser = new FormJsonParser();
             TreeItem treeItem;
 
-            String clazz = jsonParser.getString(jsonObject, "class");
+            String clazz = jsonParser.getString(jsonControl, "class");
             if ( clazz != null ) {
+            	treeItem = new TreeItem(parentTreeItem, SWT.NONE);
+            	Widget widget;
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
-	                    Button check = jsonParser.createCheck(jsonObject, parent);
-	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
-	    	            treeItem.setImage(CHECK_ICON);
-	    	            treeItem.setText(check.getData("name")==null ? "" : (String)check.getData("name"));
-	    	            treeItem.setData("class", "check");
-	    	            treeItem.setData("control", check); 
-	                    break;
-	                    
-	                case "combo":
-	                    CCombo combo = jsonParser.createCombo(jsonObject, parent);
-	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
-	    	            treeItem.setImage(COMBO_ICON);
-	    	            treeItem.setText(combo.getData("name")==null ? "" : (String)combo.getData("name"));
-	    	            treeItem.setData("class", "combo");
-	    	            treeItem.setData("control", combo); 
-	                    break;
-	                    
+	                	widget = jsonParser.createCheck(jsonControl, parent);
+	                	treeItem.setImage(CHECK_ICON);
+	                	break;
+		            case "combo":
+	                	widget = jsonParser.createCombo(jsonControl, parent);
+	                	treeItem.setImage(COMBO_ICON);
+	                	break;
 	                case "label":
-	                    Label label = jsonParser.createLabel(jsonObject, parent);
-	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
-	    	            treeItem.setImage(LABEL_ICON);
-	    	            treeItem.setText(label.getData("name")==null ? "" : (String)label.getData("name"));
-	    	            treeItem.setData("class", "label");
-	    	            treeItem.setData("control", label); 
-	                    break;
-	                    
+	                	widget = jsonParser.createLabel(jsonControl, parent);
+	                	treeItem.setImage(LABEL_ICON);
+	                	break;
 	                case "table":
-	                	Table table = jsonParser.createTable(jsonObject, parent);
-	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
-	    	            treeItem.setImage(TABLE_ICON);
-	    	            treeItem.setText(table.getData("name")==null ? "" : (String)table.getData("name"));
-	    	            treeItem.setData("class", "table");
-	    	            treeItem.setData("control", table);
-	    	            
-	    	            //TODO : columns and lines
-	                    break;
-	                    
+	                	widget = jsonParser.createTable(jsonControl, parent);
+	                	treeItem.setImage(TABLE_ICON);
+	                	break;
 	                case "text":
-	                    StyledText text = jsonParser.createText(jsonObject, parent);
-	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
-	    	            treeItem.setImage(TEXT_ICON);
-	    	            treeItem.setText(text.getData("name")==null ? "" : (String)text.getData("name"));
-	    	            treeItem.setData("class", "text");
-	    	            treeItem.setData("control", text); 
-	                    break;
-	                    
+	                	widget = jsonParser.createText(jsonControl, parent);
+	                	treeItem.setImage(TEXT_ICON);
+	                	break;
 	                default:
-	                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonObject.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+	            }
+	            
+	            treeItem.setText(widget.getData("name")==null ? "" : (String)widget.getData("name"));
+	            treeItem.setData("class", clazz);
+	            treeItem.setData("control", widget); 
+	            
+	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
+    	            TreeItem columnsTreeItem = new TreeItem(treeItem, SWT.NONE);
+    	            columnsTreeItem.setImage(COLUMN_ICON);
+    	            columnsTreeItem.setText("columns");
+    	            columnsTreeItem.setData("class", "columns");
+
+                    JSONArray columns = jsonParser.getJSONArray(jsonControl, "columns");
+                    if ( columns != null ) {
+                        @SuppressWarnings("unchecked")
+						Iterator<JSONObject> columnsIterator = columns.iterator();
+                        while (columnsIterator.hasNext()) {
+                            JSONObject jsonColumn = columnsIterator.next();
+                            
+                            clazz = jsonParser.getString(jsonColumn, "class");
+                            if ( clazz != null ) {
+                            	treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
+                            	TableColumn tableColumn;
+                	            switch ( clazz.toLowerCase() ) {
+	            	                case "check":
+	            	                	tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonColumn, (Table)widget);
+	            	                	treeItem.setImage(CHECK_ICON);
+	            	                	break;
+	            		            case "combo":
+	            	                	tableColumn = (TableColumn)jsonParser.createComboColumn(jsonColumn, (Table)widget);
+	            	                	treeItem.setImage(COMBO_ICON);
+	            	                	break;
+	            	                case "label":
+	            	                	tableColumn = (TableColumn)jsonParser.createLabelColumn(jsonColumn, (Table)widget);
+	            	                	treeItem.setImage(LABEL_ICON);
+	            	                	break;
+	            	                case "text":
+	            	                	tableColumn = (TableColumn)jsonParser.createTextColumn(jsonColumn, (Table)widget);
+	            	                	treeItem.setImage(TEXT_ICON);
+	            	                	break;
+	            	                default:
+	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
+                	            }
+            	                	
+	    	    	            treeItem.setText(tableColumn.getData("name")==null ? "" : (String)tableColumn.getData("name"));
+	    	    	            treeItem.setData("class", clazz);
+	    	    	            treeItem.setData("control", tableColumn);
+                            }
+                        }
+                    }
+    	            
+    	            //TODO : lines
 	            }
             }
             FormPosition.resetControlName();
@@ -463,9 +492,10 @@ public class FormGraphicalEditor extends Dialog {
      * @param composite
      *            the composite where the control will be created
      */
+	/*
     @SuppressWarnings("unchecked")
     private void createTable(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-    	/*
+
         String tableName = jsonParser.getString(jsonObject, "name", "");
         
         if (logger.isDebugEnabled())
@@ -677,8 +707,8 @@ public class FormGraphicalEditor extends Dialog {
                 }
             }
         }
-        */
     }
+            */
 
     private void cancel() {
         if (logger.isDebugEnabled())
