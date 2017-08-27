@@ -804,7 +804,7 @@ public class FormJsonParser {
         table.setData("excelSheet", excelSheet);
         table.setData("excelFirstLine", excelFirstLine);
         table.setData("excelLastLine", excelLastLine);
-        table.setData("keys", new String[]{"name", "x", "y", "width", "height", "background", "foreground", "tooltip", "excelSheet", "excelFirstLine", "excelLastLine"});
+        table.setData("editable keys", new String[]{"name", "x", "y", "width", "height", "background", "foreground", "tooltip", "excelSheet", "excelFirstLine", "excelLastLine"});
         
         
         // x, y, width, height
