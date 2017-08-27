@@ -11,6 +11,7 @@ import org.archicontribs.form.composites.CompositeInterface;
 import org.archicontribs.form.composites.FormComposite;
 import org.archicontribs.form.composites.LabelComposite;
 import org.archicontribs.form.composites.TabComposite;
+import org.archicontribs.form.composites.TableComposite;
 import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -41,6 +42,7 @@ import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.json.simple.JSONArray;
@@ -75,7 +77,7 @@ public class FormGraphicalEditor extends Dialog {
     private TextComposite     textComposite     = null;
     private ComboComposite    comboComposite    = null;
     private CheckComposite    checkComposite    = null;
-    private Composite         tableComposite    = null;
+    private TableComposite    tableComposite    = null;
     private Composite         columnComposite   = null;
     private Composite         lineComposite     = null;
     
@@ -322,7 +324,7 @@ public class FormGraphicalEditor extends Dialog {
         textComposite = new TextComposite(scrolledcomposite, SWT.BORDER);
         comboComposite = new ComboComposite(scrolledcomposite, SWT.BORDER);
         checkComposite = new CheckComposite(scrolledcomposite, SWT.BORDER);
-        tableComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        tableComposite = new TableComposite(scrolledcomposite, SWT.BORDER);
         columnComposite = new Composite(scrolledcomposite, SWT.BORDER);
         lineComposite = new Composite(scrolledcomposite, SWT.BORDER);
         
@@ -346,6 +348,7 @@ public class FormGraphicalEditor extends Dialog {
             		case "text":	composite = textComposite; break;
             		case "combo":	composite = comboComposite; break;
             		case "check":	composite = checkComposite; break;
+            		case "table":	composite = tableComposite; break;
             		default:
             			throw new RuntimeException ("Do not know how to manage "+(String)treeItem.getData("class")+" objects.");
             	}
@@ -397,7 +400,7 @@ public class FormGraphicalEditor extends Dialog {
 	                    Button check = jsonParser.createCheck(jsonObject, parent);
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(CHECK_ICON);
-	    	            treeItem.setText((String)check.getData("name"));
+	    	            treeItem.setText(check.getData("name")==null ? "" : (String)check.getData("name"));
 	    	            treeItem.setData("class", "check");
 	    	            treeItem.setData("control", check); 
 	                    break;
@@ -406,7 +409,7 @@ public class FormGraphicalEditor extends Dialog {
 	                    CCombo combo = jsonParser.createCombo(jsonObject, parent);
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(COMBO_ICON);
-	    	            treeItem.setText((String)combo.getData("name"));
+	    	            treeItem.setText(combo.getData("name")==null ? "" : (String)combo.getData("name"));
 	    	            treeItem.setData("class", "combo");
 	    	            treeItem.setData("control", combo); 
 	                    break;
@@ -415,20 +418,27 @@ public class FormGraphicalEditor extends Dialog {
 	                    Label label = jsonParser.createLabel(jsonObject, parent);
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(LABEL_ICON);
-	    	            treeItem.setText((String)label.getData("name"));
+	    	            treeItem.setText(label.getData("name")==null ? "" : (String)label.getData("name"));
 	    	            treeItem.setData("class", "label");
 	    	            treeItem.setData("control", label); 
 	                    break;
 	                    
 	                case "table":
-	                	//TODO : jsonParser.createTable(jsonObject, parent);
+	                	Table table = jsonParser.createTable(jsonObject, parent);
+	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
+	    	            treeItem.setImage(TABLE_ICON);
+	    	            treeItem.setText(table.getData("name")==null ? "" : (String)table.getData("name"));
+	    	            treeItem.setData("class", "table");
+	    	            treeItem.setData("control", table);
+	    	            
+	    	            //TODO : columns and lines
 	                    break;
 	                    
 	                case "text":
 	                    StyledText text = jsonParser.createText(jsonObject, parent);
 	    	            treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 	    	            treeItem.setImage(TEXT_ICON);
-	    	            treeItem.setText((String)text.getData("name"));
+	    	            treeItem.setText(text.getData("name")==null ? "" : (String)text.getData("name"));
 	    	            treeItem.setData("class", "text");
 	    	            treeItem.setData("control", text); 
 	                    break;
