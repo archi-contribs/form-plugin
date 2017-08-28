@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 public class ColorEditor {
@@ -103,7 +104,15 @@ public class ColorEditor {
 						else
 							((Control)widget).setForeground(color);
 
-	    				widget.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
+	    				widget.setData("Foreground", rgb.red+","+rgb.green+","+rgb.blue);
+	    				
+	    				// we update all the embeded controls that do not have a font specified
+	    				TreeItem treeItem = (TreeItem)widget.getData("treeItem");
+	    				if ( treeItem != null ) {
+	    					for( TreeItem childTreeItem: treeItem.getItems() ) {
+	    						setColor(childTreeItem, color, SWT.FOREGROUND);
+	    					}
+	    				}
 					}
 				} else {
 					lblSample.setBackground(color);
@@ -115,11 +124,35 @@ public class ColorEditor {
 							((Control)widget).setBackground(color);
 
 	    				widget.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
+	    				
+	    				// we update all the embeded controls that do not have a font specified
+	    				TreeItem treeItem = (TreeItem)widget.getData("treeItem");
+	    				if ( treeItem != null ) {
+	    					for( TreeItem childTreeItem: treeItem.getItems() ) {
+	    						setColor(childTreeItem, color, SWT.FOREGROUND);
+	    					}
+	    				}
 					}
 				}
     		}
     	}
     };
+    
+    private void setColor(TreeItem treeItem, Color color, int colorType) {
+    	if ( treeItem != null ) {
+    		Control control = (Control)treeItem.getData("control");
+    		if ( control != null ) {
+    			if ( colorType == SWT.FOREGROUND )
+    				control.setForeground(color);
+    			else
+    				control.setBackground(color);
+    		}
+    		
+			for( TreeItem childTreeItem: treeItem.getItems() ) {
+				setColor(childTreeItem, color, colorType);
+			}
+    	}
+    }
     
     private SelectionAdapter colorReset = new SelectionAdapter() {
         @Override
