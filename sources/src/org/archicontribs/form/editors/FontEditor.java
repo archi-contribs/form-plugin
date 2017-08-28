@@ -255,13 +255,13 @@ public class FontEditor {
     	setFont(false);
     }
     
-    public void setBold(boolean isBold) {
-    	btnBold.setSelection(isBold);
+    public void setBold(Boolean isBold) {
+    	btnBold.setSelection(isBold==null ? false : isBold);
     	setFont(false);
     }
     
-    public void setItalic(boolean isItalic) {
-    	btnItalic.setSelection(isItalic);
+    public void setItalic(Boolean isItalic) {
+    	btnItalic.setSelection(isItalic==null ? false : isItalic);
     	setFont(false);
     }
     
