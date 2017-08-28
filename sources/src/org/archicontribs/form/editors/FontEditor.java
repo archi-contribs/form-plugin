@@ -223,7 +223,6 @@ public class FontEditor {
 				setFont(childTreeItem, font);
 			}
     	}
-    	
     }
     
 	public void setPosition(int position) {
