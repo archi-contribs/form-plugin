@@ -131,7 +131,7 @@ public class ComboComposite extends Composite implements CompositeInterface {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
             case "variable":      variableEditor.setText((String)value); break;
-            case "defaulttext":   defaultTextEditor.setText((String)value); break;
+            case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
             case "editable":      editableEditor.setChecked((Boolean)value); break;
             case "values":        valuesEditor.setText(Arrays.toString((String [])value)); break;
