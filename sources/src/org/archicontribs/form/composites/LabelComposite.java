@@ -68,26 +68,26 @@ public class LabelComposite extends Composite implements CompositeInterface {
         // excelSheet
         excelSheetEditor = new StringEditor(this, "Excel sheet:");
         excelSheetEditor.setPosition(alignmentEditor.getControl());
-        excelSheetEditor.setProperty("excelsheet");
+        excelSheetEditor.setProperty("excelSheet");
         excelSheetEditor.setTooltipText("Name of the Excel sheet where the text should be exported to.\n\nIf this field is left blank, then the variable will not be exported to Excel, even if the others Excel related field are set.");
         
         // excelCell
         excelCellEditor = new StringEditor(this, "Excel cell:");
         excelCellEditor.setPosition(excelSheetEditor.getControl());
-        excelCellEditor.setProperty("excelcell");
+        excelCellEditor.setProperty("excelCell");
         excelCellEditor.setTooltipText("Adress of the Excel cell where the text should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
         
         // excelCellType
         excelCellTypeEditor = new ComboEditor(this, "Excel type:");
         excelCellTypeEditor.setPosition(excelCellEditor.getControl());
-        excelCellTypeEditor.setProperty("exceltype");
+        excelCellTypeEditor.setProperty("excelType");
         excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
         excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
         
         // excelDefault
         excelDefaultEditor = new ComboEditor(this, "Excel default:");
         excelDefaultEditor.setPosition(excelCellTypeEditor.getControl());
-        excelDefaultEditor.setProperty("exceldefault");
+        excelDefaultEditor.setProperty("excelDefault");
         excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
         excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
                 "   - blank : a blank cell will be created (ie a cell with no content)\n"+
