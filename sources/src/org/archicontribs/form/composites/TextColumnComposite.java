@@ -19,7 +19,7 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 	private StringEditor		    regexpEditor;        // regexp
 	private ComboEditor             whenEmptyEditor;  	 // whenEmpty
 	private AlignmentEditor         alignmentEditor;     // alignment
-	private StringEditor            excelColumnEditor;   // excelCell
+	private StringEditor            excelColumnEditor;   // excelColumn
 	private ComboEditor             excelCellTypeEditor; // excelCellType
 	private ComboEditor             excelDefaultEditor;  // excelDefault
 
@@ -86,10 +86,10 @@ public class TextColumnComposite extends Composite implements CompositeInterface
         alignmentEditor.setTooltipText("Choose the alignment.\n\nDefault: left.");
         alignmentEditor.setProperty("alignment");
         
-        // excelCell
-        excelColumnEditor = new StringEditor(this, "Excel cell:");
+        // excelColumn
+        excelColumnEditor = new StringEditor(this, "Excel column:");
         excelColumnEditor.setPosition(alignmentEditor.getControl());
-        excelColumnEditor.setProperty("excelCell");
+        excelColumnEditor.setProperty("excelColumn");
         excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
         
         // excelCellType
