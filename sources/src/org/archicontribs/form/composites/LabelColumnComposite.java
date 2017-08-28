@@ -46,7 +46,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		tooltipEditor.mustSetControlTolltip(true);
         
         // excelCell
-        excelColumnEditor = new StringEditor(this, "Excel cell:");
+        excelColumnEditor = new StringEditor(this, "Excel column:");
         excelColumnEditor.setPosition(tooltipEditor.getControl());
         excelColumnEditor.setProperty("excelColumn");
         excelColumnEditor.setTooltipText("Adress of the Excel cell where the text should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
