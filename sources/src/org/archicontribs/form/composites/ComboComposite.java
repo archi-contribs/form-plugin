@@ -147,7 +147,7 @@ public class ComboComposite extends Composite implements CompositeInterface {
     		case "fontitalic":	  fontEditor.setItalic((Boolean)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "whenempty":     whenEmptyEditor.setText((String)value); break;
-    		case "excelsheet":    excelCellEditor.setText((String)value); break;
+    		case "excelsheet":    excelSheetEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
     		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
