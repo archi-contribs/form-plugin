@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FontDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class FontEditor {
 	private Label      lblFont;
@@ -197,9 +198,33 @@ public class FontEditor {
 				control.setData("fontSize", getFontSize());
 				control.setData("fontBold", getBold());
 				control.setData("fontItalic", getItalic());
+				
+				// we update all the embeded controls that do not have a font specified
+				TreeItem treeItem = (TreeItem)control.getData("treeItem");
+				if ( treeItem != null ) {
+					for( TreeItem childTreeItem: treeItem.getItems() ) {
+						setFont(childTreeItem, font);
+					}
+				}
 			}
+			
+
 		}
 	}
+    
+    private void setFont(TreeItem treeItem, Font font) {
+    	if ( treeItem != null ) {
+    		Control control = (Control)treeItem.getData("control");
+    		if ( control != null ) {
+    			control.setFont(font);
+    		}
+    		
+			for( TreeItem childTreeItem: treeItem.getItems() ) {
+				setFont(childTreeItem, font);
+			}
+    	}
+    	
+    }
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
