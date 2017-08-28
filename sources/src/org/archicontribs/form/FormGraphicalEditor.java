@@ -1,22 +1,23 @@
 package org.archicontribs.form;
 
-import java.awt.Toolkit;
-import java.io.IOException;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.log4j.Level;
+import org.archicontribs.form.composites.CheckColumnComposite;
 import org.archicontribs.form.composites.CheckComposite;
+import org.archicontribs.form.composites.ComboColumnComposite;
 import org.archicontribs.form.composites.ComboComposite;
 import org.archicontribs.form.composites.CompositeInterface;
 import org.archicontribs.form.composites.FormComposite;
+import org.archicontribs.form.composites.LabelColumnComposite;
 import org.archicontribs.form.composites.LabelComposite;
 import org.archicontribs.form.composites.TabComposite;
 import org.archicontribs.form.composites.TableComposite;
+import org.archicontribs.form.composites.TextColumnComposite;
 import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -24,13 +25,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -49,7 +48,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.ParseException;
 
 /**
  * Create a Dialog with graphical controls as described in the configuration
@@ -59,41 +57,43 @@ import org.json.simple.parser.ParseException;
  *
  */
 public class FormGraphicalEditor extends Dialog {
-    private static final FormLogger logger     = new FormLogger(FormGraphicalEditor.class);
+    private static final FormLogger logger     	      = new FormLogger(FormGraphicalEditor.class);
     
-    public final static Display display        = Display.getDefault();
-    public final static Image binImage         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/bin.png"));
-    public final static Color blackColor       = new Color(display, 0, 0, 0);
-    public final static Color whiteColor       = new Color(display, 255, 255, 255);
+    public final static Display display        	      = Display.getDefault();
+    public final static Image binImage         	      = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/bin.png"));
+    public final static Color blackColor       	      = new Color(display, 0, 0, 0);
+    public final static Color whiteColor       	      = new Color(display, 255, 255, 255);
     
-    public final static int   editorLeftposition   = 150;
-    public final static int   editorBorderMargin   = 10;
-    public final static int   editorVerticalMargin = 10;
+    public final static int   editorLeftposition      = 150;
+    public final static int   editorBorderMargin      = 10;
+    public final static int   editorVerticalMargin    = 10;
 
-    private Shell             propertiesDialog  = null;
-    private Tree              tree              = null;
-    private ScrolledComposite scrolledcomposite = null;
-    private FormComposite     formComposite     = null;
-    private TabComposite      tabComposite      = null;
-    private LabelComposite    labelComposite    = null;
-    private TextComposite     textComposite     = null;
-    private ComboComposite    comboComposite    = null;
-    private CheckComposite    checkComposite    = null;
-    private TableComposite    tableComposite    = null;
-    private Composite         columnComposite   = null;
-    private Composite         lineComposite     = null;
+    private Shell             	 propertiesDialog  	  = null;
+    private Tree              	 tree              	  = null;
+    private ScrolledComposite 	 scrolledcomposite 	  = null;
+    private FormComposite     	 formComposite     	  = null;
+    private TabComposite      	 tabComposite      	  = null;
+    private LabelComposite    	 labelComposite    	  = null;
+    private TextComposite     	 textComposite     	  = null;
+    private ComboComposite    	 comboComposite    	  = null;
+    private CheckComposite    	 checkComposite   	  = null;
+    private TableComposite    	 tableComposite    	  = null;
+    private LabelColumnComposite labelColumnComposite = null;
+    private TextColumnComposite  textColumnComposite  = null;
+    private ComboColumnComposite comboColumnComposite = null;
+    private CheckColumnComposite checkColumnComposite = null;
     
-    private Shell             formDialog        = null;
+    private Shell             formDialog        	  = null;
     
-	public static final Image FORM_ICON         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
-	public static final Image TAB_ICON          = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
-	public static final Image LABEL_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/label.png"));
-	public static final Image TEXT_ICON         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/text.png"));
-	public static final Image CHECK_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/check.png"));
-	public static final Image COMBO_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/combo.png"));
-	public static final Image TABLE_ICON        = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/table.png"));
-	public static final Image COLUMN_ICON       = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/column.png"));
-	public static final Image LINE_ICON         = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/line.png"));
+	public static final Image FORM_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
+	public static final Image TAB_ICON          	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
+	public static final Image LABEL_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/label.png"));
+	public static final Image TEXT_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/text.png"));
+	public static final Image CHECK_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/check.png"));
+	public static final Image COMBO_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/combo.png"));
+	public static final Image TABLE_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/table.png"));
+	public static final Image COLUMN_ICON       	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/column.png"));
+	public static final Image LINE_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/line.png"));
     
     
     private static final FormJsonParser jsonParser = new FormJsonParser();
@@ -320,15 +320,17 @@ public class FormGraphicalEditor extends Dialog {
         
         
         // we create the composites
-        formComposite = new FormComposite(scrolledcomposite, SWT.BORDER);
-        tabComposite = new TabComposite(scrolledcomposite, SWT.BORDER);
-        labelComposite = new LabelComposite(scrolledcomposite, SWT.BORDER);
-        textComposite = new TextComposite(scrolledcomposite, SWT.BORDER);
-        comboComposite = new ComboComposite(scrolledcomposite, SWT.BORDER);
-        checkComposite = new CheckComposite(scrolledcomposite, SWT.BORDER);
-        tableComposite = new TableComposite(scrolledcomposite, SWT.BORDER);
-        columnComposite = new Composite(scrolledcomposite, SWT.BORDER);
-        lineComposite = new Composite(scrolledcomposite, SWT.BORDER);
+        formComposite 		 = new FormComposite(scrolledcomposite, SWT.BORDER);
+        tabComposite 		 = new TabComposite(scrolledcomposite, SWT.BORDER);
+        labelComposite 		 = new LabelComposite(scrolledcomposite, SWT.BORDER);
+        textComposite 		 = new TextComposite(scrolledcomposite, SWT.BORDER);
+        comboComposite 		 = new ComboComposite(scrolledcomposite, SWT.BORDER);
+        checkComposite 		 = new CheckComposite(scrolledcomposite, SWT.BORDER);
+        tableComposite 		 = new TableComposite(scrolledcomposite, SWT.BORDER);
+        labelColumnComposite = new LabelColumnComposite(scrolledcomposite, SWT.BORDER);
+        textColumnComposite  = new TextColumnComposite(scrolledcomposite, SWT.BORDER);
+        comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.BORDER);
+        checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.BORDER);
         
         return formTreeItem;
     }
@@ -344,13 +346,19 @@ public class FormGraphicalEditor extends Dialog {
             	TreeItem treeItem = tree.getSelection()[0];
             	CompositeInterface composite;
             	switch ( (String)treeItem.getData("class") ) {
-            		case "form":	composite = formComposite; break;
-            		case "tab":		composite = tabComposite; break;
-            		case "label":	composite = labelComposite; break;
-            		case "text":	composite = textComposite; break;
-            		case "combo":	composite = comboComposite; break;
-            		case "check":	composite = checkComposite; break;
-            		case "table":	composite = tableComposite; break;
+            		case "form":		composite = formComposite; break;
+            		case "tab":			composite = tabComposite; break;
+            		case "label":		composite = labelComposite; break;
+            		case "text":		composite = textComposite; break;
+            		case "combo":		composite = comboComposite; break;
+            		case "check":		composite = checkComposite; break;
+            		case "table":		composite = tableComposite; break;
+            		case "labelColumn":	composite = labelColumnComposite; break;
+            		case "textColumn":	composite = textColumnComposite; break;
+            		case "comboColumn":	composite = comboColumnComposite; break;
+            		case "checkColumn":	composite = checkColumnComposite; break;
+            		case "columns": return;
+            		case "lines":   return;
             		default:
             			throw new RuntimeException ("Do not know how to manage "+(String)treeItem.getData("class")+" objects.");
             	}
@@ -360,16 +368,19 @@ public class FormGraphicalEditor extends Dialog {
             	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
             	
             	if ( composite != null ) {
-            		Control control = (Control)treeItem.getData("control");
+            		Widget widget = (Widget)treeItem.getData("control");
             		
             		composite.setVisible(true);
                     composite.setData("shell", propertiesDialog);
                     composite.setData("treeItem", treeItem);
                     composite.setData("class", treeItem.getData("class"));
-                    composite.setData("control", control);
+                    composite.setData("control", widget);
                     
-                    for ( String key: (String [])control.getData("editable keys") ) {
-                    	composite.set(key, control.getData(key));
+                    @SuppressWarnings("unchecked")
+					Set<String> keys = (Set<String>)widget.getData("editable keys");
+                    if ( keys != null ) {
+                    	for ( String key: keys)
+                    	composite.set(key, widget.getData(key));
                     }
             	}
             }
@@ -426,7 +437,9 @@ public class FormGraphicalEditor extends Dialog {
 	            
 	            treeItem.setText(widget.getData("name")==null ? "" : (String)widget.getData("name"));
 	            treeItem.setData("class", clazz);
-	            treeItem.setData("control", widget); 
+	            treeItem.setData("control", widget);
+	            
+	            widget.setData("treeItem", treeItem);
 	            
 	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
     	            TreeItem columnsTreeItem = new TreeItem(treeItem, SWT.NONE);
@@ -467,8 +480,10 @@ public class FormGraphicalEditor extends Dialog {
                 	            }
             	                	
 	    	    	            treeItem.setText(tableColumn.getData("name")==null ? "" : (String)tableColumn.getData("name"));
-	    	    	            treeItem.setData("class", clazz);
+	    	    	            treeItem.setData("class", clazz+"Column");
 	    	    	            treeItem.setData("control", tableColumn);
+	    	    	            
+	    	    	            tableColumn.setData("treeItem", treeItem);
                             }
                         }
                     }
