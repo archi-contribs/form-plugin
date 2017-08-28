@@ -61,6 +61,8 @@ public class FormJsonParser {
         
         // we create the shell
         Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        
+        //TODO: use helper functions
     	
         String  name              = getName(jsonObject, shell); FormPosition.setFormName(name);
         Integer width             = getInt(jsonObject, "width");
@@ -91,21 +93,19 @@ public class FormJsonParser {
         }
         
         // we register the values from the configuration file that are needed by the graphical editor
-        shell.setData("width",             width);
-        shell.setData("height",            height);
-        shell.setData("spacing",           spacing);
-        shell.setData("buttonWidth",       buttonWidth);
-        shell.setData("buttonHeight",      buttonHeight);
-        shell.setData("refers",            refers );
-        shell.setData("variableSeparator", variableSeparator);
-        shell.setData("whenEmpty",         whenEmpty);
-        shell.setData("buttonOk",          buttonOkText);
-        shell.setData("buttonCancel",      buttonCancelText);
-        shell.setData("buttonExport",      buttonExportText);
-        shell.setData("whenEmpty",         whenEmpty);
-        // list of the keys that needs to be edited in the graphical editor
-        // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
-        shell.setData("editable keys", new String[] {"name", "width", "height", "spacing", "buttonWidth", "buttonHeight", "refers", "variableSeparator", "whenEmpty", "foreground", "background", "buttonOk", "buttonCancel", "buttonExport", "whenEmpty"});
+        shell.setData("name",              name);				addKey(shell, "name");
+        shell.setData("width",             width);				addKey(shell, "width");
+        shell.setData("height",            height);				addKey(shell, "height");
+        shell.setData("spacing",           spacing);			addKey(shell, "spacing");
+        shell.setData("buttonWidth",       buttonWidth);		addKey(shell, "buttonWidth");
+        shell.setData("buttonHeight",      buttonHeight);		addKey(shell, "buttonHeight");
+        shell.setData("refers",            refers );			addKey(shell, "refers");
+        shell.setData("variableSeparator", variableSeparator);	addKey(shell, "variableSeparator");
+        shell.setData("whenEmpty",         whenEmpty);			addKey(shell, "whenEmpty");
+        shell.setData("buttonOk",          buttonOkText);		addKey(shell, "buttonOk");
+        shell.setData("buttonCancel",      buttonCancelText);	addKey(shell, "buttonCancel");
+        shell.setData("buttonExport",      buttonExportText);	addKey(shell, "buttonExport");
+        shell.setData("whenEmpty",         whenEmpty);			addKey(shell, "whenEmpty");
         
         // width, height, spacing
         if ( width == null || width < 0 )
@@ -212,10 +212,6 @@ public class FormJsonParser {
         FormPosition.setControlClass("tab");
                 
         getForegroundAndBackground(jsonObject, composite);
-    	
-        // list of the keys that needs to be edited in the graphical editor
-        // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
-        composite.setData("editable keys", new String[] {"name", "foreground", "background"});
 
     	// name
         if ( name != null )
@@ -1017,10 +1013,12 @@ public class FormJsonParser {
     	widget.setData("default",      defaultText);	addKey(widget, "default");
     	widget.setData("forceDefault", forceDefault);	addKey(widget, "forceDefault");
     	widget.setData("whenEmpty",    whenEmpty);      addKey(widget, "whenEmpty");
-    	if ( widget instanceof StyledText )
+    	if ( widget instanceof StyledText ) {
     		widget.setData("regexp",    whenEmpty);      addKey(widget, "regexp");
-    	if ( widget instanceof StyledText || widget instanceof CCombo )
+    	}
+    	if ( widget instanceof StyledText || widget instanceof CCombo ) {
     		widget.setData("editable",  whenEmpty);      addKey(widget, "editable");
+    	}
 			
 		if ( logger.isTraceEnabled() ) {
 			logger.trace("      variable = "	  + variable);
