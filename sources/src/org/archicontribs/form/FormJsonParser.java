@@ -268,12 +268,8 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("label");
         
-        //getXY(jsonObject, tableColumn);
         getWidth(jsonObject, tableColumn);
-        //getForegroundAndBackground(jsonObject, tableColumn);
-        //getText(jsonObject, tableColumn);
         getTooltip(jsonObject, tableColumn);
-        //getFont(jsonObject, tableColumn);
         getAlignment(jsonObject, tableColumn);
         getExcelCellOrColumn(jsonObject, tableColumn);
 
@@ -327,12 +323,9 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("text");
 
-        //getXY(jsonObject, tableColumn);
         getWidth(jsonObject, tableColumn);
         getVariable(jsonObject, tableColumn);
-        //getForegroundAndBackground(jsonObject, tableColumn);
         getTooltip(jsonObject, tableColumn);
-        //getFont(jsonObject, tableColumn);
         getAlignment(jsonObject, tableColumn);
         getExcelCellOrColumn(jsonObject, tableColumn);
 
@@ -389,9 +382,7 @@ public class FormJsonParser {
         getVariable(jsonObject, tableColumn);
         getValues(jsonObject, tableColumn);
         getWidth(jsonObject, tableColumn);
-        //getForegroundAndBackground(jsonObject, tableColumn);
         getTooltip(jsonObject, tableColumn);
-        //getFont(jsonObject, tableColumn);
         getExcelCellOrColumn(jsonObject, tableColumn);
         
         return tableColumn;
@@ -447,7 +438,6 @@ public class FormJsonParser {
  	   	getValues(jsonObject, tableColumn);
  	   	getVariable(jsonObject, tableColumn);
    		getWidth(jsonObject, tableColumn);
-   		//getForegroundAndBackground(jsonObject, tableColumn);
    		getAlignment(jsonObject, tableColumn);
  	   	getTooltip(jsonObject, tableColumn);
  	   	getExcelCellOrColumn(jsonObject, tableColumn);
@@ -1122,7 +1112,7 @@ public class FormJsonParser {
         }
         
         if ( name != null && FormPlugin.areEqual(widget.getClass().getSimpleName(), "TableColumn") )
-        	((TableColumn)widget).setText("name");
+        	((TableColumn)widget).setText(name);
 
         return name;
     }
