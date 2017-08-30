@@ -44,6 +44,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
@@ -94,6 +95,12 @@ public class FormGraphicalEditor extends Dialog {
 	public static final Image TABLE_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/table.png"));
 	public static final Image COLUMN_ICON       	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/column.png"));
 	public static final Image LINE_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/line.png"));
+	
+	public static final Image BIN_ICON                = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/bin.png"));
+	public static final Image BAS_ICON                = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/flèche_bas.png"));
+	public static final Image HAUT_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/flèche_haut.png"));
+	public static final Image PLUS_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/plus.png"));
+	    
     
     
     private static final FormJsonParser jsonParser = new FormJsonParser();
@@ -235,6 +242,7 @@ public class FormGraphicalEditor extends Dialog {
         tree = new Tree(propertiesDialog, SWT.BORDER);
         tree.setHeaderVisible(false);
         tree.setLinesVisible(false);
+        
         fd = new FormData();
         fd.top = new FormAttachment(0, editorBorderMargin);
         fd.left = new FormAttachment(0, editorBorderMargin);
@@ -331,6 +339,71 @@ public class FormGraphicalEditor extends Dialog {
         textColumnComposite  = new TextColumnComposite(scrolledcomposite, SWT.BORDER);
         comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.BORDER);
         checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.BORDER);
+        
+        Button up = new Button(propertiesDialog, SWT.PUSH);
+        up.setImage(HAUT_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin);
+        fd.left = new FormAttachment(tree, editorBorderMargin, SWT.LEFT);
+        up.setLayoutData(fd);
+        
+        Button down = new Button(propertiesDialog, SWT.PUSH);
+        down.setImage(BAS_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin);
+        fd.left = new FormAttachment(up, editorBorderMargin);
+        down.setLayoutData(fd);
+        
+        Button delete = new Button(propertiesDialog, SWT.PUSH);
+        delete.setImage(BIN_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin);
+        fd.left = new FormAttachment(down, editorBorderMargin);
+        delete.setLayoutData(fd);
+        
+        Button add = new Button(propertiesDialog, SWT.PUSH);
+        add.setImage(PLUS_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin);
+        fd.left = new FormAttachment(delete, editorBorderMargin);
+        add.setLayoutData(fd);
+        
+        Button tab = new Button(propertiesDialog, SWT.RADIO);
+        tab.setImage(TAB_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.left = new FormAttachment(tree, editorBorderMargin, SWT.LEFT);
+        tab.setLayoutData(fd);
+        
+        Button label = new Button(propertiesDialog, SWT.RADIO);
+        label.setImage(LABEL_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.left = new FormAttachment(tab, editorBorderMargin);
+        label.setLayoutData(fd);
+        
+        Button text = new Button(propertiesDialog, SWT.RADIO);
+        text.setImage(TEXT_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.left = new FormAttachment(label, editorBorderMargin);
+        text.setLayoutData(fd);
+        
+        Button check = new Button(propertiesDialog, SWT.RADIO);
+        check.setImage(CHECK_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.left = new FormAttachment(text, editorBorderMargin);
+        check.setLayoutData(fd);
+        check.setEnabled(false);
+        
+        Button combo = new Button(propertiesDialog, SWT.RADIO);
+        combo.setImage(COMBO_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.left = new FormAttachment(check, editorBorderMargin);
+        combo.setLayoutData(fd);
+        
         
         return formTreeItem;
     }
