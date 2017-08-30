@@ -311,7 +311,7 @@ public class FormDialog extends Dialog {
 	                            if ( clazz != null ) {
 	                	            switch ( clazz.toLowerCase() ) {
 	                	            	case "check":
-	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheck(jsonObject, parent);
+	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonObject, table);
 	                	            		
 	                	            		tableColumn.addListener(SWT.Selection, sortListener);
 	                	            		break;
