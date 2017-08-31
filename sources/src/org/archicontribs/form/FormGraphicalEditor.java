@@ -251,6 +251,7 @@ public class FormGraphicalEditor extends Dialog {
         tree.setLayoutData(fd);
         tree.addListener(SWT.Selection, treeSelectionListener);
         
+        /*
         Menu treeMenu = new Menu(tree);
         tree.setMenu(treeMenu);
         treeMenu.addMenuListener(new MenuAdapter() {
@@ -315,6 +316,7 @@ public class FormGraphicalEditor extends Dialog {
                 }
             }
         });
+        */
         
         TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
         
