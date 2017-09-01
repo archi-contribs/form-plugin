@@ -34,7 +34,6 @@ public class LabelComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Label: ");
 		
 		// text
 		textEditor = new StringEditor(this, "Text:", 5);

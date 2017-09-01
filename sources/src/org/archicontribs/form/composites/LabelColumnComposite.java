@@ -27,7 +27,6 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Label: ");
 		
 		// text
 		textEditor = new StringEditor(this, "Text:", 5);

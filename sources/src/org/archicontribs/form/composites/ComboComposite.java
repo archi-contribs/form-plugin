@@ -41,7 +41,6 @@ public class ComboComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Name: ");
 		
 		// variable
 		variableEditor = new StringEditor(this, "Variable:");

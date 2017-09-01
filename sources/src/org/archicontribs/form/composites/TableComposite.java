@@ -28,7 +28,6 @@ public class TableComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Name: ");
 		
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);

@@ -36,7 +36,6 @@ public class ComboColumnComposite extends Composite implements CompositeInterfac
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Name: ");
 		
 		// variable
 		variableEditor = new StringEditor(this, "Variable:");
