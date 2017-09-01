@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
@@ -160,7 +161,7 @@ public class FormGraphicalEditor extends Dialog {
             tree.setSelection(formTreeItem);
             tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties
            
-            // If there is at least one Excel sheet specified, then we show up the "export to Excel" button
+            // TODO: If there is at least one Excel sheet specified, then we show up the "export to Excel" button
             //if (excelSheets.isEmpty()) {
             //    exportButton.setVisible(false);
             //}
@@ -251,71 +252,6 @@ public class FormGraphicalEditor extends Dialog {
         tree.setLayoutData(fd);
         tree.addListener(SWT.Selection, treeSelectionListener);
         
-        Menu treeMenu = new Menu(tree);
-        tree.setMenu(treeMenu);
-        treeMenu.addMenuListener(new MenuAdapter() {
-            public void menuShown(MenuEvent e) {
-                MenuItem[] items = treeMenu.getItems();
-                for (int i = 0; i < items.length; i++)
-                    items[i].dispose();
-                
-                TreeItem selectedItem = tree.getSelection()[0];
-                MenuItem newItem;
-                switch ( (String)selectedItem.getData("class") ) {
-                	case "form":
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add tab");
-                        break;
-                        
-                	case "tab":
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Insert tab before ...");
-                		newItem = new MenuItem(treeMenu, SWT.SEPARATOR);
-            			newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add tab after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add label after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add text after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add combo after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add check after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("Add table after");
-                        break;
-                        
-                	case "label":
-                	case "text":
-                	case "combo":
-                	case "check":
-                	case "table":
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert label before");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert text before");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert combo before");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert check before");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert table before");
-                        newItem = new MenuItem(treeMenu, SWT.SEPARATOR);
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add label after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add text after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add combo after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add check after");
-                        newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add table after");
-                        break;
-
-                	case "columns":
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add column");
-                		break;
-                		
-                	case "column":
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert column before");
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add column after");
-                		break;
-                		
-                	case "lines":
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add line");
-                		break;
-                		
-                	case "line":
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("insert line before");
-                		newItem = new MenuItem(treeMenu, SWT.NONE); newItem.setText("add line after");
-                		break;
-                }
-            }
-        });
-        
         TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
         
         scrolledcomposite = new ScrolledComposite(propertiesDialog, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -328,81 +264,119 @@ public class FormGraphicalEditor extends Dialog {
         
         
         // we create the composites
-        formComposite 		 = new FormComposite(scrolledcomposite, SWT.BORDER);
-        tabComposite 		 = new TabComposite(scrolledcomposite, SWT.BORDER);
-        labelComposite 		 = new LabelComposite(scrolledcomposite, SWT.BORDER);
-        textComposite 		 = new TextComposite(scrolledcomposite, SWT.BORDER);
-        comboComposite 		 = new ComboComposite(scrolledcomposite, SWT.BORDER);
-        checkComposite 		 = new CheckComposite(scrolledcomposite, SWT.BORDER);
-        tableComposite 		 = new TableComposite(scrolledcomposite, SWT.BORDER);
-        labelColumnComposite = new LabelColumnComposite(scrolledcomposite, SWT.BORDER);
-        textColumnComposite  = new TextColumnComposite(scrolledcomposite, SWT.BORDER);
-        comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.BORDER);
-        checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.BORDER);
+        formComposite 		 = new FormComposite(scrolledcomposite, SWT.NONE);
+        tabComposite 		 = new TabComposite(scrolledcomposite, SWT.NONE);
+        labelComposite 		 = new LabelComposite(scrolledcomposite, SWT.NONE);
+        textComposite 		 = new TextComposite(scrolledcomposite, SWT.NONE);
+        comboComposite 		 = new ComboComposite(scrolledcomposite, SWT.NONE);
+        checkComposite 		 = new CheckComposite(scrolledcomposite, SWT.NONE);
+        tableComposite 		 = new TableComposite(scrolledcomposite, SWT.NONE);
+        labelColumnComposite = new LabelColumnComposite(scrolledcomposite, SWT.NONE);
+        textColumnComposite  = new TextColumnComposite(scrolledcomposite, SWT.NONE);
+        comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.NONE);
+        checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.NONE);
         
         Button up = new Button(propertiesDialog, SWT.PUSH);
         up.setImage(HAUT_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin);
-        fd.left = new FormAttachment(tree, editorBorderMargin, SWT.LEFT);
+        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
+        fd.left = new FormAttachment(tree, 0, SWT.LEFT);
+        fd.right = new FormAttachment(up, 16, SWT.LEFT);
+        fd.bottom = new FormAttachment(up, 16, SWT.TOP);
         up.setLayoutData(fd);
         
         Button down = new Button(propertiesDialog, SWT.PUSH);
         down.setImage(BAS_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin);
-        fd.left = new FormAttachment(up, editorBorderMargin);
+        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
+        fd.left = new FormAttachment(up, editorBorderMargin/2);
+        fd.right = new FormAttachment(down, 16, SWT.LEFT);
+        fd.bottom = new FormAttachment(down, 16, SWT.TOP);
         down.setLayoutData(fd);
         
         Button delete = new Button(propertiesDialog, SWT.PUSH);
         delete.setImage(BIN_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin);
-        fd.left = new FormAttachment(down, editorBorderMargin);
+        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
+        fd.left = new FormAttachment(down, editorBorderMargin/2);
+        fd.right = new FormAttachment(delete, 16, SWT.LEFT);
+        fd.bottom = new FormAttachment(delete, 16, SWT.TOP);
         delete.setLayoutData(fd);
         
         Button add = new Button(propertiesDialog, SWT.PUSH);
         add.setImage(PLUS_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin);
-        fd.left = new FormAttachment(delete, editorBorderMargin);
+        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
+        fd.left = new FormAttachment(delete, editorBorderMargin/2);
+        fd.right = new FormAttachment(add, 16, SWT.LEFT);
+        fd.bottom = new FormAttachment(add, 16, SWT.TOP);
         add.setLayoutData(fd);
         
         Button tab = new Button(propertiesDialog, SWT.RADIO);
-        tab.setImage(TAB_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(up, editorBorderMargin);
-        fd.left = new FormAttachment(tree, editorBorderMargin, SWT.LEFT);
+        fd.top = new FormAttachment(tree, editorBorderMargin/2);
+        fd.left = new FormAttachment(add, editorBorderMargin);
         tab.setLayoutData(fd);
         
-        Button label = new Button(propertiesDialog, SWT.RADIO);
-        label.setImage(LABEL_ICON);
+        Label tabIcon = new Label(propertiesDialog, SWT.NONE);
+        tabIcon.setImage(TAB_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.top = new FormAttachment(tab, 0);
+        fd.left = new FormAttachment(tab, 0, SWT.CENTER);
+        tabIcon.setLayoutData(fd);
+        
+        Button label = new Button(propertiesDialog, SWT.RADIO);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin/2);
         fd.left = new FormAttachment(tab, editorBorderMargin);
         label.setLayoutData(fd);
         
-        Button text = new Button(propertiesDialog, SWT.RADIO);
-        text.setImage(TEXT_ICON);
+        Label labelIcon = new Label(propertiesDialog, SWT.NONE);
+        labelIcon.setImage(LABEL_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.top = new FormAttachment(label, 0);
+        fd.left = new FormAttachment(label, 0, SWT.CENTER);
+        labelIcon.setLayoutData(fd);
+        
+        Button text = new Button(propertiesDialog, SWT.RADIO);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin/2);
         fd.left = new FormAttachment(label, editorBorderMargin);
         text.setLayoutData(fd);
         
-        Button check = new Button(propertiesDialog, SWT.RADIO);
-        check.setImage(CHECK_ICON);
+        Label textIcon = new Label(propertiesDialog, SWT.NONE);
+        textIcon.setImage(TEXT_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.top = new FormAttachment(text, 0);
+        fd.left = new FormAttachment(text, 0, SWT.CENTER);
+        textIcon.setLayoutData(fd);
+        
+        Button check = new Button(propertiesDialog, SWT.RADIO);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin/2);
         fd.left = new FormAttachment(text, editorBorderMargin);
         check.setLayoutData(fd);
         check.setEnabled(false);
         
-        Button combo = new Button(propertiesDialog, SWT.RADIO);
-        combo.setImage(COMBO_ICON);
+        Label checkIcon = new Label(propertiesDialog, SWT.NONE);
+        checkIcon.setImage(CHECK_ICON);
         fd = new FormData();
-        fd.top = new FormAttachment(up, editorBorderMargin);
+        fd.top = new FormAttachment(check, 0);
+        fd.left = new FormAttachment(check, 0, SWT.CENTER);
+        checkIcon.setLayoutData(fd);
+        
+        Button combo = new Button(propertiesDialog, SWT.RADIO);
+        fd = new FormData();
+        fd.top = new FormAttachment(tree, editorBorderMargin/2);
         fd.left = new FormAttachment(check, editorBorderMargin);
         combo.setLayoutData(fd);
+        
+        Label comboIcon = new Label(propertiesDialog, SWT.NONE);
+        comboIcon.setImage(COMBO_ICON);
+        fd = new FormData();
+        fd.top = new FormAttachment(combo, 0);
+        fd.left = new FormAttachment(combo, 0, SWT.CENTER);
+        comboIcon.setLayoutData(fd);
         
         
         return formTreeItem;
@@ -426,12 +400,13 @@ public class FormGraphicalEditor extends Dialog {
             		case "combo":		composite = comboComposite; break;
             		case "check":		composite = checkComposite; break;
             		case "table":		composite = tableComposite; break;
+            		case "columns":     return;
             		case "labelColumn":	composite = labelColumnComposite; break;
             		case "textColumn":	composite = textColumnComposite; break;
             		case "comboColumn":	composite = comboColumnComposite; break;
             		case "checkColumn":	composite = checkColumnComposite; break;
-            		case "columns": return;
-            		case "lines":   return;
+            		case "lines":       return;
+            		case "line":        return;
             		default:
             			throw new RuntimeException ("Do not know how to manage "+(String)treeItem.getData("class")+" objects.");
             	}
@@ -515,7 +490,8 @@ public class FormGraphicalEditor extends Dialog {
 	            widget.setData("treeItem", treeItem);
 	            
 	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
-    	            TreeItem columnsTreeItem = new TreeItem(treeItem, SWT.NONE);
+	            	TreeItem tableTreeItem = treeItem;
+    	            TreeItem columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
     	            columnsTreeItem.setImage(COLUMN_ICON);
     	            columnsTreeItem.setText("columns");
     	            columnsTreeItem.setData("class", "columns");
@@ -561,7 +537,26 @@ public class FormGraphicalEditor extends Dialog {
                         }
                     }
     	            
-    	            //TODO : lines
+    	            TreeItem linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
+    	            linesTreeItem.setImage(LINE_ICON);
+    	            linesTreeItem.setText("lines");
+    	            linesTreeItem.setData("class", "lines");
+    	            
+    	            
+    	            JSONArray lines = jsonParser.getJSONArray(jsonControl, "lines");
+                    if ( lines != null ) {
+                        @SuppressWarnings("unchecked")
+						Iterator<JSONObject> linesIterator = lines.iterator();
+                        while (linesIterator.hasNext()) {
+                            JSONObject jsonLine = linesIterator.next();
+                            
+                            treeItem = new TreeItem(linesTreeItem, SWT.NONE);
+                            TableItem tableItem = (TableItem)jsonParser.createTableItem(jsonLine, (Table)widget);
+            	            treeItem.setData("class", "line");
+            	            treeItem.setImage(LINE_ICON);
+            	            treeItem.setText(tableItem.getData("name")==null ? "" : (String)tableItem.getData("name"));
+                        }
+                    }
 	            }
             }
             FormPosition.resetControlName();
