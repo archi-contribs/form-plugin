@@ -22,7 +22,6 @@ public class StringEditor {
 	private Composite  parent;
 	private String     property = null;
 	private boolean    mustSetTreeItemText = false;
-	private String     treeItemTextPrefix = "";
 	private boolean    mustSetControlText = false;
 	private boolean    mustSetControlTolltip = false;
 	private String     controlKey = "control";
@@ -71,13 +70,6 @@ public class StringEditor {
 	
 	public void mustSetTreeItemText(boolean set) {
 		mustSetTreeItemText = set;
-	}
-	
-	public void treeItemTextPrefix(String prefix) {
-		if ( prefix == null )
-			prefix = "";
-		
-		treeItemTextPrefix = prefix;
 	}
 	
 	public void setControlKey(String controlKey) {
@@ -149,7 +141,7 @@ public class StringEditor {
         		widget.setData(property, getText());
         	
 	    	if ( treeItem != null && mustSetTreeItemText ) {
-		        treeItem.setText(treeItemTextPrefix+getText());
+		        treeItem.setText(getText());
         	}
         }
     };
