@@ -661,12 +661,12 @@ public class FormJsonParser {
     }
     
     /**
-     * Create a table item<br>
+     * Create a table line<br>
      * <br>
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableItem createTableItem(JSONObject jsonObject, Table parent) throws RuntimeException {
+    public TableItem createLine(JSONObject jsonObject, Table parent) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating table item");
     	
         TableItem tableItem = new TableItem(parent, SWT.NONE);
@@ -674,9 +674,6 @@ public class FormJsonParser {
         String name = getName(jsonObject, tableItem);
         FormPosition.setControlName(name);
         FormPosition.setControlClass("lines");
-        
-        tableItem.setData("class", "lines");
-        addKey(tableItem, "class");
         
         getCells(jsonObject, tableItem);
         //TODO: getFilter()
@@ -738,6 +735,7 @@ public class FormJsonParser {
     		}
     	}
     	
+    	tableItem.setData("cells", cells);
     	addKey(tableItem, "cells");
     }
     
