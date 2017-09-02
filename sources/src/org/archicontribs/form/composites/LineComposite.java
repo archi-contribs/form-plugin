@@ -1,6 +1,8 @@
 package org.archicontribs.form.composites;
 
-import org.archicontribs.form.editors.CheckEditor;
+import java.util.List;
+import java.util.Map;
+
 import org.archicontribs.form.editors.FilterEditor;
 import org.archicontribs.form.editors.StringEditor;
 import org.eclipse.swt.layout.FormLayout;
@@ -38,7 +40,8 @@ public class LineComposite extends Composite implements CompositeInterface {
 		filterEditor.setPosition(cellsEditor.getControl());
 	}
 	
-    public void set(String key, Object value) throws RuntimeException {
+    @SuppressWarnings("unchecked")
+	public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
             case "cells":         if ( value instanceof String[] ) {
@@ -51,6 +54,8 @@ public class LineComposite extends Composite implements CompositeInterface {
             					  } else
             						  cellsEditor.setText((String)value); break;
             case "generate":      filterEditor.setGenerate((Boolean)value); break;
+            case "tests":         filterEditor.setTests((List<Map<String, String>>)value); break;
+            case "genre":         filterEditor.setGenre((String)value); break;
     		default:			  throw new RuntimeException("does not know key "+key);
     	}
     }
