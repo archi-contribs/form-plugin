@@ -12,14 +12,13 @@ import org.archicontribs.form.composites.CompositeInterface;
 import org.archicontribs.form.composites.FormComposite;
 import org.archicontribs.form.composites.LabelColumnComposite;
 import org.archicontribs.form.composites.LabelComposite;
+import org.archicontribs.form.composites.LineComposite;
 import org.archicontribs.form.composites.TabComposite;
 import org.archicontribs.form.composites.TableComposite;
 import org.archicontribs.form.composites.TextColumnComposite;
 import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.MenuAdapter;
-import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -35,8 +34,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
@@ -45,7 +42,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
@@ -84,6 +80,7 @@ public class FormGraphicalEditor extends Dialog {
     private TextColumnComposite  textColumnComposite  = null;
     private ComboColumnComposite comboColumnComposite = null;
     private CheckColumnComposite checkColumnComposite = null;
+    private LineComposite        lineComposite        = null;
     
     private Shell             formDialog        	  = null;
     
@@ -275,6 +272,7 @@ public class FormGraphicalEditor extends Dialog {
         textColumnComposite  = new TextColumnComposite(scrolledcomposite, SWT.NONE);
         comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.NONE);
         checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.NONE);
+        lineComposite        = new LineComposite(scrolledcomposite, SWT.NONE);
         
         Button up = new Button(propertiesDialog, SWT.PUSH);
         up.setImage(HAUT_ICON);
@@ -400,13 +398,13 @@ public class FormGraphicalEditor extends Dialog {
             		case "combo":		composite = comboComposite; break;
             		case "check":		composite = checkComposite; break;
             		case "table":		composite = tableComposite; break;
-            		case "columns":     return;
+            		case "columns":     return;				// TODO: create composite to show how many columns are defined
             		case "labelColumn":	composite = labelColumnComposite; break;
             		case "textColumn":	composite = textColumnComposite; break;
             		case "comboColumn":	composite = comboColumnComposite; break;
             		case "checkColumn":	composite = checkColumnComposite; break;
-            		case "lines":       return;
-            		case "line":        return;
+            		case "lines":       return;				// TODO: create composite to show how many lines are defined
+            		case "line":        composite = lineComposite; break;
             		default:
             			throw new RuntimeException ("Do not know how to manage "+(String)treeItem.getData("class")+" objects.");
             	}
@@ -533,6 +531,7 @@ public class FormGraphicalEditor extends Dialog {
 	    	    	            treeItem.setData("control", tableColumn);
 	    	    	            
 	    	    	            tableColumn.setData("treeItem", treeItem);
+	    	    	            tableColumn.setData("class", clazz+"Column");
                             }
                         }
                     }
@@ -551,8 +550,9 @@ public class FormGraphicalEditor extends Dialog {
                             JSONObject jsonLine = linesIterator.next();
                             
                             treeItem = new TreeItem(linesTreeItem, SWT.NONE);
-                            TableItem tableItem = (TableItem)jsonParser.createTableItem(jsonLine, (Table)widget);
+                            TableItem tableItem = (TableItem)jsonParser.createLine(jsonLine, (Table)widget);
             	            treeItem.setData("class", "line");
+    	    	            treeItem.setData("control", tableItem);
             	            treeItem.setImage(LINE_ICON);
             	            treeItem.setText(tableItem.getData("name")==null ? "" : (String)tableItem.getData("name"));
                         }
