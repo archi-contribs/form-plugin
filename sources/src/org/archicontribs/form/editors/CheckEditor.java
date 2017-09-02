@@ -53,7 +53,7 @@ public class CheckEditor {
 	private SelectionListener checkSelectionListener = new SelectionListener() {
 	    @Override
         public void widgetSelected(SelectionEvent e) {
-	    	Widget widget = (Control)parent.getData("control");
+	    	Widget widget = (Widget)parent.getData("control");
         	
         	if ( widget != null && property != null ) {
         		widget.setData(property, getChecked());
