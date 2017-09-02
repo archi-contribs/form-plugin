@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -1284,5 +1285,25 @@ public class FormJsonParser {
             widget.setData("editable keys", keys);
         }
         keys.add(key);
+    }
+    
+    /***********************************************************************************************************/
+    @SuppressWarnings("unchecked")
+	public JSONObject generateJSON(TreeItem formTreeItem, Shell form) {
+    	JSONObject resultJson = new JSONObject();
+    	JSONObject formJson = new JSONObject();
+    	
+    	resultJson.put("version", 2);
+    	resultJson.put("org.archicontribs.form", formJson);
+    	
+    	for ( String key: (Set<String>)form.getData("editable keys") ) {
+    		if ( form.getData(key) != null ) {
+    			formJson.put(key, form.getData(key));
+    		}
+    	}
+    	
+    	//TODO: iterate over the sub tree items, getthe data from the widgets (getData("control")
+    	
+    	return resultJson;
     }
 }
