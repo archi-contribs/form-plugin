@@ -1,7 +1,11 @@
 package org.archicontribs.form;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.swt.SWT;
@@ -676,66 +680,108 @@ public class FormJsonParser {
         FormPosition.setControlClass("lines");
         
         getCells(jsonObject, tableItem);
-        //TODO: getFilter()
+        getGenerate(jsonObject, tableItem);
+        getFilter(jsonObject, tableItem);
         return tableItem;
+    }
+    
+    private void getFilter(JSONObject jsonObject, TableItem tableItem) {
+    	JSONObject filter = getJSONObject(jsonObject, "filter");
+    	
+    	String genre = getString(filter, "genre");
+    	tableItem.setData("genre", genre);
+    	addKey(tableItem, "genre");
+    	
+    	JSONArray testsJson = getJSONArray(filter, "tests");
+    	if ( testsJson != null ) {
+    		List<Map<String, String>> tests = new ArrayList<Map<String, String>>();
+    		
+            @SuppressWarnings("unchecked")
+			Iterator<JSONObject> testIterator = testsJson.iterator();
+            while (testIterator.hasNext()) {
+            	JSONObject test = testIterator.next();
+            	
+            	Map<String, String> t = new HashMap<String, String>();
+            	
+            	t.put("attribute", getString(test, "attribute"));
+            	t.put("operation", getString(test, "operation"));
+            	t.put("value",     getString(test, "value"));
+            	
+            	tests.add(t);
+            }
+        	tableItem.setData("tests", tests);
+    	}
+    	
+    	addKey(tableItem, "tests");
+    }
+    
+    private void getGenerate(JSONObject jsonObject, TableItem tableItem) {
+    	Boolean generate = getBoolean(jsonObject, "generate");
+    	
+    	tableItem.setData("generate", generate);
+    	addKey(tableItem, "generate");
     }
     
     private void getCells(JSONObject jsonObject, TableItem tableItem) {
     	Table table = tableItem.getParent();
     	JSONArray jsonCells = getJSONArray(jsonObject, "cells");
-    	String[] cells = new String[table.getColumnCount()];
-    	TableEditor[] editors = new TableEditor[table.getColumnCount()];
     	
-    	// we get the cells variables, completing if some are missing and ignoring if too many are present
-    	for ( int columnNumber = 0; columnNumber < table.getColumnCount(); ++columnNumber ) {
-    		if ( columnNumber < jsonCells.size() )
-    			cells[columnNumber] = (String)jsonCells.get(columnNumber);
-    		else
-    			cells[columnNumber] = "";
-    		
-    		// for each cell, we create the corresponding table editor
-    		TableEditor editor= new TableEditor(table);
-            editors[columnNumber] = editor;
-            
-    		switch ( (String)table.getColumn(columnNumber).getData("class") ) {
-                case "labelColumn":
-                    logger.trace("      adding label cell with value \"" + cells[columnNumber] + "\"");
-                    Label label = new Label(table, SWT.WRAP | SWT.NONE);
-                    label.setText(cells[columnNumber]);
-                    editor.setEditor(label, tableItem, columnNumber);
-                    editor.grabHorizontal = true;
-                    break;
-                    
-                case "textColumn":
-                    StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
-                    logger.trace("      adding text cell with value \"" + cells[columnNumber] + "\"");
-                    text.setText(cells[columnNumber]);
-                    editor.setEditor(text, tableItem, columnNumber);
-                    editor.grabHorizontal = true;
-                    break;
-                    
-                case "comboColumn":
-                    CCombo combo = new CCombo(table, SWT.NONE);
-                    logger.trace("      adding combo cell with value \"" + cells[columnNumber] + "\"");
-                    combo.setText(cells[columnNumber]);
-                    combo.setItems((String[])table.getColumn(columnNumber).getData("values"));
-                    editor.setEditor(combo, tableItem, columnNumber);
-                    editor.grabHorizontal = true;
-                    break;
-                    
-                case "checkColumn":
-                    Button check = new Button(table, SWT.CHECK);
-                    logger.trace("      adding check cell");
-                    editor.minimumWidth = check.getSize().x;
-                    editor.horizontalAlignment = SWT.CENTER;
-                    break;
-                    
-                default:
-                    throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)table.getColumn(columnNumber).getData("class")) + "\"");
-    		}
+    	if ( jsonCells != null ) {
+	    	String[] cells = new String[table.getColumnCount()];
+	    	TableEditor[] editors = new TableEditor[table.getColumnCount()];
+	    	
+	    	// we get the cells variables, completing if some are missing and ignoring if too many are present
+	    	for ( int columnNumber = 0; columnNumber < table.getColumnCount(); ++columnNumber ) {
+	    		if ( columnNumber < jsonCells.size() )
+	    			cells[columnNumber] = (String)jsonCells.get(columnNumber);
+	    		else
+	    			cells[columnNumber] = "";
+	    		
+	    		// for each cell, we create the corresponding table editor
+	    		TableEditor editor= new TableEditor(table);
+	            editors[columnNumber] = editor;
+	            
+	    		switch ( (String)table.getColumn(columnNumber).getData("class") ) {
+	                case "labelColumn":
+	                    logger.trace("      adding label cell with value \"" + cells[columnNumber] + "\"");
+	                    Label label = new Label(table, SWT.WRAP | SWT.NONE);
+	                    label.setText(cells[columnNumber]);
+	                    editor.setEditor(label, tableItem, columnNumber);
+	                    editor.grabHorizontal = true;
+	                    break;
+	                    
+	                case "textColumn":
+	                    StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
+	                    logger.trace("      adding text cell with value \"" + cells[columnNumber] + "\"");
+	                    text.setText(cells[columnNumber]);
+	                    editor.setEditor(text, tableItem, columnNumber);
+	                    editor.grabHorizontal = true;
+	                    break;
+	                    
+	                case "comboColumn":
+	                    CCombo combo = new CCombo(table, SWT.NONE);
+	                    logger.trace("      adding combo cell with value \"" + cells[columnNumber] + "\"");
+	                    combo.setText(cells[columnNumber]);
+	                    combo.setItems((String[])table.getColumn(columnNumber).getData("values"));
+	                    editor.setEditor(combo, tableItem, columnNumber);
+	                    editor.grabHorizontal = true;
+	                    break;
+	                    
+	                case "checkColumn":
+	                    Button check = new Button(table, SWT.CHECK);
+	                    logger.trace("      adding check cell");
+	                    editor.minimumWidth = check.getSize().x;
+	                    editor.horizontalAlignment = SWT.CENTER;
+	                    break;
+	                    
+	                default:
+	                    throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)table.getColumn(columnNumber).getData("class")) + "\"");
+	    		}
+	    	}
+	    	
+	    	tableItem.setData("cells", cells);
     	}
     	
-    	tableItem.setData("cells", cells);
     	addKey(tableItem, "cells");
     }
     
@@ -794,6 +840,9 @@ public class FormJsonParser {
      * @throws RuntimeException if the key is not found and the <i>ignoreErrors</i> flag has not been set)
      */
     public Object getJSON(JSONObject obj, String key) {
+    	if ( obj == null )
+    		return null;
+    	
         @SuppressWarnings("unchecked")
 		Iterator<String> iter = obj.keySet().iterator();
         while (iter.hasNext()) {
