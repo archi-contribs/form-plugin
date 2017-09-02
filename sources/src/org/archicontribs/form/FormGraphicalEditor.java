@@ -551,6 +551,7 @@ public class FormGraphicalEditor extends Dialog {
                             
                             treeItem = new TreeItem(linesTreeItem, SWT.NONE);
                             TableItem tableItem = (TableItem)jsonParser.createLine(jsonLine, (Table)widget);
+                            
             	            treeItem.setData("class", "line");
     	    	            treeItem.setData("control", tableItem);
             	            treeItem.setImage(LINE_ICON);
