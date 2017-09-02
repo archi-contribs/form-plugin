@@ -805,7 +805,7 @@ public class FormGraphicalEditor extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("Save button selected by user.");
 
-        //TODO: save the json content 
+        JSONObject json = jsonParser.generateJSON(tree.getItems()[0], formDialog);
 
         close();
     }
