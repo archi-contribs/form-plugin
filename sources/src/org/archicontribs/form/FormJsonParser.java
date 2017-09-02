@@ -265,9 +265,6 @@ public class FormJsonParser {
         String  name = getName(jsonObject, tableColumn);
         FormPosition.setTabName(name);
         FormPosition.setControlClass("label");
-
-        tableColumn.setData("class", "labelColumn");
-        addKey(tableColumn, "class");
         
         getWidth(jsonObject, tableColumn);
         getTooltip(jsonObject, tableColumn);
@@ -320,9 +317,6 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("text");
 
-        tableColumn.setData("class", "textColumn");
-        addKey(tableColumn, "class");
-
         getWidth(jsonObject, tableColumn);
         getVariable(jsonObject, tableColumn);
         getTooltip(jsonObject, tableColumn);
@@ -374,9 +368,6 @@ public class FormJsonParser {
         String  name = getName(jsonObject, tableColumn);
         FormPosition.setTabName(name);
         FormPosition.setControlClass("combo");
-
-        tableColumn.setData("class", "comboColumn");
-        addKey(tableColumn, "class");
         
         getVariable(jsonObject, tableColumn);
         getValues(jsonObject, tableColumn);
@@ -429,9 +420,6 @@ public class FormJsonParser {
         String  name = getName(jsonObject, tableColumn);
         FormPosition.setTabName(name);
         FormPosition.setControlClass("check");
-
-        tableColumn.setData("class", "checkColumn");
-        addKey(tableColumn, "class");
         
  	   	getValues(jsonObject, tableColumn);
  	   	getVariable(jsonObject, tableColumn);
