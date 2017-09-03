@@ -25,7 +25,7 @@ public class StringEditor {
 	private boolean    mustSetControlText = false;
 	private boolean    mustSetControlTolltip = false;
 	
-	private Widget     widget = (Widget)parent.getData("control");
+	private Widget     referencedWidget = null;
 	
 	public StringEditor(Composite parent, String labelText) {
 		this(parent, labelText, 1);
@@ -84,21 +84,27 @@ public class StringEditor {
 	}
 	
 	public void setProperty(String property) {
+		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+		
 		this.property = property;
 		
-    	if ( widget != null && property != null) {
-    	    setText((String)widget.getData(property));
+    	if ( treeItem != null && property != null) {
+    	    setText((String)treeItem.getData(property));
     	}
 	}
 	
 	public void setWidget(Widget widget) {
-		this.widget = widget;
+		referencedWidget = widget;
 	}
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
         	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+        	Widget widget = referencedWidget;
+        	
+        	if ( widget == null )
+        		widget = (Widget)parent.getData("control");
         	
         	if ( widget != null ) {
 	    		switch ( widget.getClass().getSimpleName() ) {
@@ -135,11 +141,11 @@ public class StringEditor {
 	    		}
         	}
         	
-        	if ( widget != null && property != null )
-        		widget.setData(property, getText());
-        	
-	    	if ( treeItem != null && mustSetTreeItemText ) {
-		        treeItem.setText(getText());
+        	if ( treeItem != null ) {
+        		if ( property != null )
+        			treeItem.setData(property, getText());
+        		if ( mustSetTreeItemText )
+        			treeItem.setText(getText());
         	}
         }
     };

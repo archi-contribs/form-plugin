@@ -76,8 +76,9 @@ public class ColorEditor {
     private SelectionAdapter colorChooser = new SelectionAdapter() {
         @Override
     	public void widgetSelected(SelectionEvent event) {
-        	Widget     widget = (Widget)parent.getData("control");
-        	Color color;
+        	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+        	Widget    widget   = (Widget)parent.getData("control");
+        	Color     color;
         	
     		ColorDialog dlg = new ColorDialog((Shell)parent.getData("shell"));
     		if ( event.getSource() == btnSelectForeground ) {
@@ -103,16 +104,14 @@ public class ColorEditor {
 							((Shell)widget).setForeground(color);
 						else
 							((Control)widget).setForeground(color);
-
+					}
+					
+					if ( treeItem != null ) {
 	    				widget.setData("Foreground", rgb.red+","+rgb.green+","+rgb.blue);
 	    				
 	    				// we update all the embeded controls that do not have a font specified
-	    				TreeItem treeItem = (TreeItem)widget.getData("treeItem");
-	    				if ( treeItem != null ) {
-	    					for( TreeItem childTreeItem: treeItem.getItems() ) {
-	    						setColor(childTreeItem, color, SWT.FOREGROUND);
-	    					}
-	    				}
+	    				for( TreeItem childTreeItem: treeItem.getItems() )
+	    					setColor(childTreeItem, color, SWT.FOREGROUND);
 					}
 				} else {
 					lblSample.setBackground(color);
@@ -122,16 +121,13 @@ public class ColorEditor {
 							((Shell)widget).setBackground(color);
 						else
 							((Control)widget).setBackground(color);
-
-	    				widget.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
+					}
+					if ( treeItem != null ) {
+						treeItem.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
 	    				
 	    				// we update all the embeded controls that do not have a font specified
-	    				TreeItem treeItem = (TreeItem)widget.getData("treeItem");
-	    				if ( treeItem != null ) {
-	    					for( TreeItem childTreeItem: treeItem.getItems() ) {
-	    						setColor(childTreeItem, color, SWT.FOREGROUND);
-	    					}
-	    				}
+	    				for( TreeItem childTreeItem: treeItem.getItems() )
+	    					setColor(childTreeItem, color, SWT.FOREGROUND);
 					}
 				}
     		}

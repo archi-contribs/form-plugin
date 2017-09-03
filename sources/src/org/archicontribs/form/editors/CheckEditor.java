@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class CheckEditor {
 	private Label      lblCheck;
@@ -53,10 +53,10 @@ public class CheckEditor {
 	private SelectionListener checkSelectionListener = new SelectionListener() {
 	    @Override
         public void widgetSelected(SelectionEvent e) {
-	    	Widget widget = (Widget)parent.getData("control");
+	    	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
         	
-        	if ( widget != null && property != null ) {
-        		widget.setData(property, getChecked());
+        	if ( treeItem != null && property != null ) {
+        		treeItem.setData(property, getChecked());
         	}
         }
 

@@ -20,7 +20,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class FilterEditor {
 	private Label        lblGenerate;
@@ -172,11 +172,11 @@ public class FilterEditor {
 	private SelectionListener generateSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
-	    	Widget widget = (Widget)parent.getData("control");
-	    	boolean generate = getGenerate();
+	    	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	    	boolean   generate = getGenerate();
 	    	
-	    	if ( widget != null ) {
-	    		widget.setData("generate", generate);
+	    	if ( treeItem != null ) {
+	    		treeItem.setData("generate", generate);
 	    	}
 	    	
 	    	lblFilter.setVisible(generate);
