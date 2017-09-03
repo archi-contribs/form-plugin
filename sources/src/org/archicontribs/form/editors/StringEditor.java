@@ -27,12 +27,8 @@ public class StringEditor {
 	private boolean    mustSetControlTolltip = false;
 	
 	private Widget     referencedWidget = null;
-	
+
 	public StringEditor(Composite parent, String labelText) {
-		this(parent, labelText, 1);
-	}
-	
-	public StringEditor(Composite parent, String labelText, int nbLines) {
 		this.parent = parent;
 		
 		lblString = new Label(parent, SWT.NONE);
@@ -43,16 +39,11 @@ public class StringEditor {
         lblString.setLayoutData(fd);
         lblString.setText(labelText);
         
-        if ( nbLines <= 1 )
-        	txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
-        else
-        	txtString = new StyledText(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
         fd = new FormData();
         fd.top = new FormAttachment(lblString, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
-        if ( nbLines > 1)
-            fd.bottom = new FormAttachment(txtString, (txtString.getLineHeight()+2)*(nbLines+1), SWT.TOP);     // we add the inter-lines height plus the scrollbar height
         txtString.setLayoutData(fd);
         txtString.setLeftMargin(2);
         txtString.addModifyListener(stringModifyListener);
