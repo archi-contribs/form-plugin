@@ -64,16 +64,16 @@ public class FormJsonParser {
      * @throws ClassCastException when a property does not belong to the right class in the jsonObject (i.e. a String is found while an Integer was expected)
      * @throws RuntimeException when a property has got an unexpected value (i.e. a negative value where a positive one was expected)
      */
-    public void createForm(JSONObject jsonObject, Shell form, TreeItem formTreeItem) throws RuntimeException, ClassCastException {
+    public void createForm(JSONObject jsonObject, Shell form, TreeItem treeItem) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating form");
         
-        if ( formTreeItem != null )
-        	formTreeItem.setData("control", form);
+        if ( treeItem != null )
+        	treeItem.setData("control", form);
         
         //TODO:
         //TODO: use helper functions
     	//TODO:
-        String  name              = getName(jsonObject, form, formTreeItem); FormPosition.setFormName(name);
+        String  name              = getName(jsonObject, form, treeItem); FormPosition.setFormName(name);
         
         Integer width             = getInt(jsonObject, "width");
         Integer height            = getInt(jsonObject, "height");
@@ -84,7 +84,7 @@ public class FormJsonParser {
         String  variableSeparator = getString(jsonObject, "variableSeparator");
         String  whenEmpty         = getString(jsonObject, "whenEmpty");
         
-        getForegroundAndBackground(jsonObject, form, formTreeItem);
+        getForegroundAndBackground(jsonObject, form, treeItem);
         
         String  buttonOkText          = getString(jsonObject, "buttonOk");
         String  buttonCancelText      = getString(jsonObject, "buttonCancel");
@@ -105,19 +105,19 @@ public class FormJsonParser {
         }
         
         // we register the values from the configuration file that are needed by the graphical editor
-        if ( formTreeItem != null ) {
-        	setData(formTreeItem, "width",             width);
-        	setData(formTreeItem, "height",            height);
-        	setData(formTreeItem, "spacing",           spacing);
-        	setData(formTreeItem, "buttonWidth",       buttonWidth);
-        	setData(formTreeItem, "buttonHeight",      buttonHeight);
-        	setData(formTreeItem, "refers",            refers );
-        	setData(formTreeItem, "variableSeparator", variableSeparator);
-        	setData(formTreeItem, "whenEmpty",         whenEmpty);
-        	setData(formTreeItem, "buttonOk",          buttonOkText);
-        	setData(formTreeItem, "buttonCancel",      buttonCancelText);
-        	setData(formTreeItem, "buttonExport",      buttonExportText);
-        	setData(formTreeItem, "whenEmpty",         whenEmpty);
+        if ( treeItem != null ) {
+        	setData(treeItem, "width",             width);
+        	setData(treeItem, "height",            height);
+        	setData(treeItem, "spacing",           spacing);
+        	setData(treeItem, "buttonWidth",       buttonWidth);
+        	setData(treeItem, "buttonHeight",      buttonHeight);
+        	setData(treeItem, "refers",            refers );
+        	setData(treeItem, "variableSeparator", variableSeparator);
+        	setData(treeItem, "whenEmpty",         whenEmpty);
+        	setData(treeItem, "buttonOk",          buttonOkText);
+        	setData(treeItem, "buttonCancel",      buttonCancelText);
+        	setData(treeItem, "buttonExport",      buttonExportText);
+        	setData(treeItem, "whenEmpty",         whenEmpty);
         }
         
         // width, height, spacing
@@ -198,6 +198,9 @@ public class FormJsonParser {
         tabFolder.setBackground(form.getBackground());
         
         form.setData("tab folder", tabFolder);					        // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "form");
     }
     
     /**
@@ -227,7 +230,9 @@ public class FormJsonParser {
     	// name
         if ( name != null )
         	tabItem.setText(name);						// may be replaced by FormVariable.expand(name, selectedObject) in calling method
-
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "tab");
 
         return tabItem;
     }
@@ -255,6 +260,9 @@ public class FormJsonParser {
         getFont(jsonObject, label, treeItem);
         getAlignment(jsonObject, label, treeItem);
         getExcelCellOrColumn(jsonObject, label, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "label");
 
         return label;
     }
@@ -279,6 +287,9 @@ public class FormJsonParser {
         getTooltip(jsonObject, tableColumn, treeItem);
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "labelColumn");
 
         return tableColumn;
     }
@@ -306,6 +317,9 @@ public class FormJsonParser {
         getFont(jsonObject, text, treeItem);
         getAlignment(jsonObject, text, treeItem);
         getExcelCellOrColumn(jsonObject, text, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "text");
 
         return text;
     }
@@ -331,6 +345,9 @@ public class FormJsonParser {
         getTooltip(jsonObject, tableColumn, treeItem);
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "textColumn");
 
         return tableColumn;
     }
@@ -358,6 +375,9 @@ public class FormJsonParser {
         getTooltip(jsonObject, combo, treeItem);
         getFont(jsonObject, combo, treeItem);
         getExcelCellOrColumn(jsonObject, combo, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "combo");
 
         return combo;
     }
@@ -383,6 +403,9 @@ public class FormJsonParser {
         getWidth(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "comboColumn");
         
         return tableColumn;
     }
@@ -411,6 +434,9 @@ public class FormJsonParser {
  	   	getTooltip(jsonObject, check, treeItem);
  	   	getExcelCellOrColumn(jsonObject, check, treeItem);
  	   	
+        if ( treeItem != null )
+        	treeItem.setData("class", "check");
+ 	   	
  	   	return check;
     }
     
@@ -436,6 +462,9 @@ public class FormJsonParser {
    		getAlignment(jsonObject, tableColumn, treeItem);
  	   	getTooltip(jsonObject, tableColumn, treeItem);
  	   	getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
+ 	   	
+        if ( treeItem != null )
+        	treeItem.setData("class", "checkColumn");
  	   	
  	   	return tableColumn;
     }
@@ -665,6 +694,9 @@ public class FormJsonParser {
         getForegroundAndBackground(jsonObject, table, treeItem);
         getTooltip(jsonObject, table, treeItem);
         getExcelLines(jsonObject, table, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "table");
 
         return table;
     }
@@ -687,8 +719,14 @@ public class FormJsonParser {
         getCells(jsonObject, tableItem, treeItem);
         getGenerate(jsonObject, tableItem, treeItem);
         getFilter(jsonObject, tableItem, treeItem);
+        
+        if ( treeItem != null )
+        	treeItem.setData("class", "line");
+        
         return tableItem;
     }
+    
+    /***************************************************************/
     
     private void getFilter(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
     	JSONObject filter = getJSONObject(jsonObject, "filter");
