@@ -628,7 +628,7 @@ public class FormPlugin extends AbstractUIPlugin {
 		for ( String elem: array) {
 			if ( sb.length() != 0 )
 				sb.append(separator);
-			sb.append(quote + elem + elem);
+			sb.append(quote + elem + quote);
 		}
 		
 		return sb.toString();
