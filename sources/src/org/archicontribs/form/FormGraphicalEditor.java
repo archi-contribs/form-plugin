@@ -62,7 +62,7 @@ public class FormGraphicalEditor extends Dialog {
     public final static Color blackColor       	      = new Color(display, 0, 0, 0);
     public final static Color whiteColor       	      = new Color(display, 255, 255, 255);
     
-    public final static int   editorLeftposition      = 150;
+    public final static int   editorLeftposition      = 100;
     public final static int   editorBorderMargin      = 10;
     public final static int   editorVerticalMargin    = 10;
 
@@ -215,10 +215,10 @@ public class FormGraphicalEditor extends Dialog {
             }
         });
         
-        Sash sash = new Sash(propertiesDialog, SWT.VERTICAL);
+        Sash sash = new Sash(propertiesDialog, SWT.VERTICAL | SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(0, 0);
-        fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
+        fd.top = new FormAttachment(40, -15);
+        fd.bottom = new FormAttachment(40, 15);
         fd.left = new FormAttachment(0, 200);
         sash.setLayoutData(fd);
         sash.addSelectionListener(new SelectionAdapter() {
@@ -227,6 +227,26 @@ public class FormGraphicalEditor extends Dialog {
               sash.getParent().layout();
             }
           });
+        
+        Button up = new Button(propertiesDialog, SWT.PUSH);
+        up.setImage(HAUT_ICON);
+        up.setSize(16,16);
+        up.pack();
+        fd = new FormData();
+        fd.left = new FormAttachment(sash, 0, SWT.CENTER);
+        fd.top = new FormAttachment(sash, -17, SWT.TOP);
+        fd.bottom = new FormAttachment(sash, -1, SWT.TOP);
+        up.setLayoutData(fd);
+        
+        Button down = new Button(propertiesDialog, SWT.PUSH);
+        down.setImage(BAS_ICON);
+        down.setSize(16,16);
+        down.pack();
+        fd = new FormData();
+        fd.left = new FormAttachment(sash, 0, SWT.CENTER);
+        fd.top = new FormAttachment(sash, 1, SWT.BOTTOM);
+        fd.bottom = new FormAttachment(sash, 17, SWT.BOTTOM);
+        down.setLayoutData(fd);
         
         tree = new Tree(propertiesDialog, SWT.BORDER);
         tree.setHeaderVisible(false);
@@ -265,29 +285,13 @@ public class FormGraphicalEditor extends Dialog {
         checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.NONE);
         lineComposite        = new LineComposite(scrolledcomposite, SWT.NONE);
         
-        Button up = new Button(propertiesDialog, SWT.PUSH);
-        up.setImage(HAUT_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
-        fd.left = new FormAttachment(tree, 0, SWT.LEFT);
-        fd.right = new FormAttachment(up, 16, SWT.LEFT);
-        fd.bottom = new FormAttachment(up, 16, SWT.TOP);
-        up.setLayoutData(fd);
-        
-        Button down = new Button(propertiesDialog, SWT.PUSH);
-        down.setImage(BAS_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
-        fd.left = new FormAttachment(up, editorBorderMargin/2);
-        fd.right = new FormAttachment(down, 16, SWT.LEFT);
-        fd.bottom = new FormAttachment(down, 16, SWT.TOP);
-        down.setLayoutData(fd);
+
         
         Button delete = new Button(propertiesDialog, SWT.PUSH);
         delete.setImage(BIN_ICON);
         fd = new FormData();
         fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
-        fd.left = new FormAttachment(down, editorBorderMargin/2);
+        fd.left = new FormAttachment(0, editorBorderMargin);
         fd.right = new FormAttachment(delete, 16, SWT.LEFT);
         fd.bottom = new FormAttachment(delete, 16, SWT.TOP);
         delete.setLayoutData(fd);
