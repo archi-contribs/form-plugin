@@ -1367,6 +1367,7 @@ public class FormJsonParser {
     	// required by the graphical editor
         if ( treeItem != null ) {
         	setData(treeItem, "name", name);
+        	treeItem.setText(name);
         }
     	
         // we set the column text to its name
