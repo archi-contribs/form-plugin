@@ -1,7 +1,5 @@
 package org.archicontribs.form.composites;
 
-import java.util.Arrays;
-
 import org.archicontribs.form.editors.AlignmentEditor;
 import org.archicontribs.form.editors.CheckEditor;
 import org.archicontribs.form.editors.ColorEditor;
@@ -141,7 +139,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
             case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
             case "editable":      editableEditor.setChecked((Boolean)value); break;
-            case "values":        valuesEditor.setText(Arrays.toString((String [])value)); break;
+            case "values":        valuesEditor.setText((String[])value);
     		case "x":			  sizeEditor.setX((Integer)value); break;
     		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;

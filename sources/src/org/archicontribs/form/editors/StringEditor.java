@@ -1,6 +1,7 @@
 package org.archicontribs.form.editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -27,6 +28,8 @@ public class StringEditor {
 	private boolean    mustSetControlTolltip = false;
 	
 	private Widget     referencedWidget = null;
+	
+	private boolean    isArray = false;
 
 	public StringEditor(Composite parent, String labelText) {
 		this.parent = parent;
@@ -134,8 +137,12 @@ public class StringEditor {
         	}
         	
         	if ( treeItem != null ) {
-        		if ( property != null )
-        			treeItem.setData(property, getText());
+        		if ( property != null ) {
+        			if ( isArray )
+        				treeItem.setData(property, getText().split("\n"));
+        			else
+        				treeItem.setData(property, getText());
+        		}
         		if ( mustSetTreeItemText )
         			treeItem.setText(getText());
         	}
@@ -165,8 +172,18 @@ public class StringEditor {
 	}
     
     public void setText(String string) {
+    	isArray = false;
+    	
 		txtString.removeModifyListener(stringModifyListener);
 		txtString.setText(string==null ? "" : string);
+		txtString.addModifyListener(stringModifyListener);
+    }
+    
+    public void setText(String[] array) {
+    	isArray = true;
+    	
+		txtString.removeModifyListener(stringModifyListener);
+		txtString.setText(array==null ? "" : FormPlugin.concat(array,  "", "\n"));
 		txtString.addModifyListener(stringModifyListener);
     }
     
