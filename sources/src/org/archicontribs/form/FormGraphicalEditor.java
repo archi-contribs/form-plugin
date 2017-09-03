@@ -416,10 +416,10 @@ public class FormGraphicalEditor extends Dialog {
                     composite.setData("control", widget);
                     
                     @SuppressWarnings("unchecked")
-					Set<String> keys = (Set<String>)widget.getData("editable keys");
+					Set<String> keys = (Set<String>)treeItem.getData("editable keys");
                     if ( keys != null ) {
                     	for ( String key: keys)
-                    	composite.set(key, widget.getData(key));
+                    		composite.set(key, treeItem.getData(key));
                     }
             	}
             }
