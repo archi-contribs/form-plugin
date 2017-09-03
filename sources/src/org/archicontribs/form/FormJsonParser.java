@@ -64,18 +64,16 @@ public class FormJsonParser {
      * @throws ClassCastException when a property does not belong to the right class in the jsonObject (i.e. a String is found while an Integer was expected)
      * @throws RuntimeException when a property has got an unexpected value (i.e. a negative value where a positive one was expected)
      */
-    public Shell createShell(JSONObject jsonObject, Shell parent, TreeItem formTreeItem) throws RuntimeException, ClassCastException {
+    public void createForm(JSONObject jsonObject, Shell form, TreeItem formTreeItem) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating form");
         
-        // we create the shell
-        Shell shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         if ( formTreeItem != null )
-        	formTreeItem.setData("control", shell);
+        	formTreeItem.setData("control", form);
         
         //TODO:
         //TODO: use helper functions
     	//TODO:
-        String  name              = getName(jsonObject, shell, formTreeItem); FormPosition.setFormName(name);
+        String  name              = getName(jsonObject, form, formTreeItem); FormPosition.setFormName(name);
         
         Integer width             = getInt(jsonObject, "width");
         Integer height            = getInt(jsonObject, "height");
@@ -86,7 +84,7 @@ public class FormJsonParser {
         String  variableSeparator = getString(jsonObject, "variableSeparator");
         String  whenEmpty         = getString(jsonObject, "whenEmpty");
         
-        getForegroundAndBackground(jsonObject, shell, formTreeItem);
+        getForegroundAndBackground(jsonObject, form, formTreeItem);
         
         String  buttonOkText          = getString(jsonObject, "buttonOk");
         String  buttonCancelText      = getString(jsonObject, "buttonCancel");
@@ -140,15 +138,15 @@ public class FormJsonParser {
         	buttonHeight = FormDialog.defaultButtonHeight;
 
         // resizing the shell
-        shell.setBounds((display.getPrimaryMonitor().getBounds().width-width)/2, (display.getPrimaryMonitor().getBounds().height-height)/2, width, height);
-        shell.setLayout(new FormLayout());
+        form.setBounds((display.getPrimaryMonitor().getBounds().width-width)/2, (display.getPrimaryMonitor().getBounds().height-height)/2, width, height);
+        form.setLayout(new FormLayout());
         
         // name
         if ( name != null )
-			shell.setText(name);			// may be replaced by FormVariable.expand(name, selectedObject) in calling method
+			form.setText(name);			// may be replaced by FormVariable.expand(name, selectedObject) in calling method
         
         // creating the buttons
-        Button cancelButton = new Button(shell, SWT.NONE);
+        Button cancelButton = new Button(form, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
         fd.left = new FormAttachment(100, -(buttonWidth+spacing));
@@ -159,9 +157,9 @@ public class FormJsonParser {
         	cancelButton.setText(buttonCancelText);
         else
         	cancelButton.setText(FormDialog.defaultButtonCancelText);
-        shell.setData("cancel button", cancelButton);			         // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
+        form.setData("cancel button", cancelButton);			         // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         
-        Button okButton = new Button(shell, SWT.NONE);
+        Button okButton = new Button(form, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
         fd.left = new FormAttachment(cancelButton, -(buttonWidth+spacing), SWT.LEFT);
@@ -172,9 +170,9 @@ public class FormJsonParser {
         	okButton.setText(buttonOkText);
         else
         	okButton.setText(FormDialog.defaultButtonOkText);
-        shell.setData("ok button", okButton);							 // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
+        form.setData("ok button", okButton);							 // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         
-        Button exportToExcelButton = new Button(shell, SWT.NONE);
+        Button exportToExcelButton = new Button(form, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
         fd.left = new FormAttachment(okButton, -(buttonWidth+spacing), SWT.LEFT);
@@ -185,23 +183,21 @@ public class FormJsonParser {
         	exportToExcelButton.setText(buttonExportText);
         else
         	exportToExcelButton.setText(FormDialog.defaultButtonExportText);
-        shell.setData("export button", exportToExcelButton);			 // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
+        form.setData("export button", exportToExcelButton);			 // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         
         
         // we create the tab folder
-        TabFolder tabFolder = new TabFolder(shell, SWT.BORDER);
+        TabFolder tabFolder = new TabFolder(form, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(0, spacing);
         fd.left = new FormAttachment(0, spacing);
         fd.right = new FormAttachment(100, -spacing);
         fd.bottom = new FormAttachment(okButton, -spacing);
         tabFolder.setLayoutData(fd);
-        tabFolder.setForeground(shell.getForeground());
-        tabFolder.setBackground(shell.getBackground());
+        tabFolder.setForeground(form.getForeground());
+        tabFolder.setBackground(form.getBackground());
         
-        shell.setData("tab folder", tabFolder);					        // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
-
-        return shell;
+        form.setData("tab folder", tabFolder);					        // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
     }
     
     /**
@@ -1367,7 +1363,8 @@ public class FormJsonParser {
     	// required by the graphical editor
         if ( treeItem != null ) {
         	setData(treeItem, "name", name);
-        	treeItem.setText(name);
+        	if ( name != null ) 
+        		treeItem.setText(name);
         }
     	
         // we set the column text to its name
@@ -1466,6 +1463,14 @@ public class FormJsonParser {
     					for ( String value: (String[])treeItem.getData(key) )
     						values.add(value);
     					json.put("values", values);
+    					break;
+    				case "cells":
+    					if ( treeItem.getData(key) != null ) {
+    						JSONArray cells = new JSONArray();
+    						for ( String cell:(String[])treeItem.getData(key))
+    							cells.add(cell);
+    						json.put("cells", cells);
+    					}
     					break;
     				default:
     					json.put(key, treeItem.getData(key));

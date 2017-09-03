@@ -107,14 +107,13 @@ public class FormGraphicalEditor extends Dialog {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
         try {
+        	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        	
             TreeItem formTreeItem = createPropertiesDialog(jsonForm);
             formTreeItem.setImage(FORM_ICON);
-            formTreeItem.setText(formDialog.getText());
             formTreeItem.setData("class", "form");
             
-            formDialog = jsonParser.createShell(jsonForm, getParent(), formTreeItem);
-
-
+            jsonParser.createForm(jsonForm, formDialog, formTreeItem);
             
             formComposite.setData("ok button", formDialog.getData("ok button"));
             formComposite.setData("cancel button", formDialog.getData("cancel button"));

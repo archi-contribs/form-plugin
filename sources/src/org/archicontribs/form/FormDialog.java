@@ -122,7 +122,8 @@ public class FormDialog extends Dialog {
             logger.debug("Creating new FormDialog for " + selectedObject.getClass().getSimpleName() + " \"" + ((INameable) selectedObject).getName() + "\".");
 
         try {
-            formDialog = jsonParser.createShell(json, getParent(), null);
+        	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        	jsonParser.createForm(json, formDialog, null);
             
             // we replace the name of the dialog in case there are some variables in it
             if ( formDialog.getData("name") != null )
