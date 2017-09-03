@@ -3,6 +3,7 @@ package org.archicontribs.form.editors;
 import org.archicontribs.form.FormGraphicalEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -147,6 +148,8 @@ public class StringEditor {
         		if ( mustSetTreeItemText )
         			treeItem.setText(getText());
         	}
+        	
+        	((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
         }
     };
     
