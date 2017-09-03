@@ -1492,31 +1492,36 @@ public class FormJsonParser {
     @SuppressWarnings("unchecked")
 	private JSONObject generateJson(TreeItem treeItem) {
     	JSONObject json = new JSONObject();
+    	JSONObject filter = null;
     	
     	for ( String key: (Set<String>)treeItem.getData("editable keys") ) {
     		if ( treeItem.getData(key) != null ) {
     			switch ( key ) {
-    				case "values":
-    					JSONArray values = new JSONArray();
-    					for ( String value: (String[])treeItem.getData(key) )
-    						values.add(value);
-    					json.put("values", values);
-    					break;
     				case "cells":
-    					if ( treeItem.getData(key) != null ) {
-    						JSONArray cells = new JSONArray();
-    						for ( String cell:(String[])treeItem.getData(key))
-    							cells.add(cell);
-    						json.put("cells", cells);
-    					}
+    				case "values":
+						JSONArray array = new JSONArray();
+						for ( String item: (String[])treeItem.getData(key))
+							array.add(item);
+						json.put(key, array);
     					break;
+    					
+    				case "tests":
+    				case "genre":
+    					if ( filter == null ) filter = new JSONObject();
+    					filter.put(key, treeItem.getData(key));
+    					break;
+    					
     				default:
     					json.put(key, treeItem.getData(key));
     			}
-    				
     		}
     	}
     	
+    	if ( filter != null ) {
+    		json.put("filter", filter);
+    		filter = null;
+    	}
+
     	switch ( (String)treeItem.getData("class") ) {
     		case "form":
     			JSONArray tabs = new JSONArray();
