@@ -3,6 +3,7 @@ package org.archicontribs.form.composites;
 import java.util.List;
 import java.util.Map;
 
+import org.archicontribs.form.FormPlugin;
 import org.archicontribs.form.editors.FilterEditor;
 import org.archicontribs.form.editors.StringEditor;
 import org.eclipse.swt.layout.FormLayout;
@@ -44,15 +45,11 @@ public class LineComposite extends Composite implements CompositeInterface {
 	public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
-            case "cells":         if ( value instanceof String[] ) {
-            						 StringBuilder str = new StringBuilder();
-            						 for ( String v: (String[])value ) {
-            							 if ( str.length() != 0 ) str.append("\n");
-            							 str.append(v);
-            						 }
-            						 cellsEditor.setText(str.toString());
-            					  } else
-            						  cellsEditor.setText((String)value); break;
+            case "cells":         if ( value instanceof String[] )
+            						 cellsEditor.setText(FormPlugin.concat((String[])value, "", "\n"));
+            					  else
+            						  cellsEditor.setText((String)value);
+            					  break;
             case "generate":      filterEditor.setGenerate((Boolean)value); break;
             case "tests":         filterEditor.setTests((List<Map<String, String>>)value); break;
             case "genre":         filterEditor.setGenre((String)value); break;
