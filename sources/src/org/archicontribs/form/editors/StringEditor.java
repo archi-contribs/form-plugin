@@ -24,7 +24,8 @@ public class StringEditor {
 	private boolean    mustSetTreeItemText = false;
 	private boolean    mustSetControlText = false;
 	private boolean    mustSetControlTolltip = false;
-	private String     controlKey = "control";
+	
+	private Widget     widget = (Widget)parent.getData("control");
 	
 	public StringEditor(Composite parent, String labelText) {
 		this(parent, labelText, 1);
@@ -72,10 +73,6 @@ public class StringEditor {
 		mustSetTreeItemText = set;
 	}
 	
-	public void setControlKey(String controlKey) {
-	    this.controlKey = controlKey;
-	}
-	
 	public void setTextLimit(int limit) {
 		txtString.setTextLimit(limit);
 	}
@@ -87,8 +84,6 @@ public class StringEditor {
 	}
 	
 	public void setProperty(String property) {
-		Widget widget = (Widget)parent.getData(controlKey);
-		
 		this.property = property;
 		
     	if ( widget != null && property != null) {
@@ -96,10 +91,13 @@ public class StringEditor {
     	}
 	}
 	
+	public void setWidget(Widget widget) {
+		this.widget = widget;
+	}
+	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Widget     widget = (Widget)parent.getData(controlKey);
         	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
         	
         	if ( widget != null ) {

@@ -114,16 +114,9 @@ public class FormGraphicalEditor extends Dialog {
             formTreeItem.setData("class", "form");
             
             jsonParser.createForm(jsonForm, formDialog, formTreeItem);
-            
-            formComposite.setData("ok button", formDialog.getData("ok button"));
-            formComposite.setData("cancel button", formDialog.getData("cancel button"));
-            formComposite.setData("export button", formDialog.getData("export button"));
-            formComposite.setData("tab folder", formDialog.getData("tab folder"));
-            formComposite.setData("tabs array", formDialog.getData("tabs array"));
-            
-            TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
-            
+
             // we create one TabItem per tab array item
+            TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
             JSONArray tabs = jsonParser.getJSONArray(jsonForm, "tabs");
             if ( tabs != null ) {
             	@SuppressWarnings("unchecked")
