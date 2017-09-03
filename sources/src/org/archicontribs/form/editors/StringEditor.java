@@ -15,6 +15,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
@@ -129,7 +131,12 @@ public class StringEditor {
 	    				break;
 	    				
 	    			case "Table":
-	    				if ( mustSetControlTolltip ) ((Shell)widget).setToolTipText(getText());
+	    				if ( mustSetControlTolltip ) ((Table)widget).setToolTipText(getText());
+	    				break;
+	    				
+	    			case "TableColumn":
+	    				if ( mustSetControlText ) ((TableColumn)widget).setText(getText());
+	    				if ( mustSetControlTolltip ) ((TableColumn)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			default : throw new RuntimeException("Do not know "+widget.getClass().getSimpleName()+" controls");
