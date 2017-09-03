@@ -1063,7 +1063,7 @@ public class FormJsonParser {
     
     public boolean inArray(String[] stringArray, String string) {
     	if ( string == null )
-    		return false;
+    		return true;
     	
         for (String s : stringArray) {
             if (FormPlugin.areEqual(s, string))
@@ -1192,7 +1192,7 @@ public class FormJsonParser {
 		
         // check whenEmpty value
         if ( !inArray(FormDialog.validWhenEmpty, whenEmpty))
-        	FormPlugin.error(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \""+whenEmpty+"\" (valid values are "+FormDialog.validWhenEmpty+").");
+        	FormPlugin.error(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \""+whenEmpty+"\" (valid values are "+FormPlugin.concat(FormDialog.validWhenEmpty, "\"", ",")+").");
 
         // required by the graphical editor
     	if ( treeItem != null ) {
@@ -1250,11 +1250,11 @@ public class FormJsonParser {
         
         // checking excelCellType value
         if ( !inArray(FormDialog.validExcelCellType, excelCellType))
-       		FormPlugin.error(FormPosition.getPosition("excelCellType") + "\n\nInvalid excelCellType value \""+excelCellType+"\" (valid values are "+FormDialog.validExcelCellType+").");
+       		FormPlugin.error(FormPosition.getPosition("excelCellType") + "\n\nInvalid excelCellType value \""+excelCellType+"\" (valid values are "+FormPlugin.concat(FormDialog.validExcelCellType, "\"", ",")+").");
         
         // checking excelDefault value
         if ( !inArray(FormDialog.validExcelDefault, excelDefault))
-        	FormPlugin.error(FormPosition.getPosition("excelDefault") + "\n\nInvalid excelDefault value \""+excelDefault+"\" (valid values are "+FormDialog.validExcelDefault+").");
+        	FormPlugin.error(FormPosition.getPosition("excelDefault") + "\n\nInvalid excelDefault value \""+excelDefault+"\" (valid values are "+FormPlugin.concat(FormDialog.validExcelDefault, "\"", ",")+").");
         
         // required by the graphical editor
         if ( treeItem != null ) {
@@ -1323,6 +1323,11 @@ public class FormJsonParser {
 		// required by the graphical editor
 		if ( treeItem != null ) {
 			setData(treeItem, "values", values);
+		}
+		
+		// required by the form
+		if ( widget != null && widget instanceof TableColumn ) {
+			widget.setData("values", values);
 		}
 		
 		// we set the combo items
