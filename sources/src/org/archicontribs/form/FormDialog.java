@@ -122,7 +122,7 @@ public class FormDialog extends Dialog {
             logger.debug("Creating new FormDialog for " + selectedObject.getClass().getSimpleName() + " \"" + ((INameable) selectedObject).getName() + "\".");
 
         try {
-            formDialog = jsonParser.createShell(json, getParent());
+            formDialog = jsonParser.createShell(json, getParent(), null);
             
             // we replace the name of the dialog in case there are some variables in it
             if ( formDialog.getData("name") != null )
@@ -156,7 +156,7 @@ public class FormDialog extends Dialog {
 				Iterator<JSONObject> tabsIterator = tabs.iterator();
                 while (tabsIterator.hasNext()) {
                     JSONObject jsonTab = tabsIterator.next();
-                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder);
+                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, null);
                     
                     // we replace the name of the dialog in case there are some variables in it
                     if ( tabItem.getData("name") != null )
@@ -223,7 +223,7 @@ public class FormDialog extends Dialog {
             if ( clazz != null ) {
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
-	                    Button check = (Button)jsonParser.createCheck(jsonObject, parent);
+	                    Button check = (Button)jsonParser.createCheck(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
 	                    String[] values = (String[])check.getData("values");
@@ -254,7 +254,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "combo":
-	                    CCombo combo = (CCombo)jsonParser.createCombo(jsonObject, parent);
+	                    CCombo combo = (CCombo)jsonParser.createCombo(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
 	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
@@ -280,7 +280,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "label":
-	                    Label label = (Label)jsonParser.createLabel(jsonObject, parent);
+	                    Label label = (Label)jsonParser.createLabel(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable 
 	                    variableValue = FormVariable.expand((String)label.getData("text"), selectedObject);
@@ -298,7 +298,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "table":
-	                	Table table = jsonParser.createTable(jsonObject, parent);
+	                	Table table = jsonParser.createTable(jsonObject, parent, null);
 	                	
 	                	JSONArray columns = jsonParser.getJSONArray(jsonObject, "columns");
 	                    if ( columns != null ) {
@@ -311,7 +311,7 @@ public class FormDialog extends Dialog {
 	                            if ( clazz != null ) {
 	                	            switch ( clazz.toLowerCase() ) {
 	                	            	case "check":
-	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonObject, table);
+	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonObject, table, null);
 	                	            		
 	                	            		tableColumn.addListener(SWT.Selection, sortListener);
 	                	            		break;
@@ -324,7 +324,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "text":
-	                    StyledText text = (StyledText)jsonParser.createText(jsonObject, parent);
+	                    StyledText text = (StyledText)jsonParser.createText(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
 	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
@@ -1170,7 +1170,7 @@ public class FormDialog extends Dialog {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    //@SuppressWarnings("deprecation")
     private void exportToExcel() {
     /*
         if (logger.isDebugEnabled())

@@ -107,13 +107,13 @@ public class FormGraphicalEditor extends Dialog {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 
         try {
-            formDialog = jsonParser.createShell(jsonForm, getParent());
-            
             TreeItem formTreeItem = createPropertiesDialog(jsonForm);
             formTreeItem.setImage(FORM_ICON);
             formTreeItem.setText(formDialog.getText());
             formTreeItem.setData("class", "form");
-            formTreeItem.setData("control", formDialog);
+            
+            formDialog = jsonParser.createShell(jsonForm, getParent(), formTreeItem);
+
 
             
             formComposite.setData("ok button", formDialog.getData("ok button"));
@@ -131,13 +131,14 @@ public class FormGraphicalEditor extends Dialog {
 				Iterator<JSONObject> tabsIterator = tabs.iterator();
                 while (tabsIterator.hasNext()) {
                     JSONObject jsonTab = tabsIterator.next();
-                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder);
-                    
+
                     TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
                     tabTreeItem.setImage(TAB_ICON);
-                    tabTreeItem.setText(tabItem.getText());
                     tabTreeItem.setData("class", "tab");
+                    
+                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
                     tabTreeItem.setData("control", tabItem.getControl());
+                    
                     
                     JSONArray controls = jsonParser.getJSONArray(jsonTab, "controls");
                     if ( controls != null ) {
@@ -458,23 +459,23 @@ public class FormGraphicalEditor extends Dialog {
             	Widget widget;
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
-	                	widget = jsonParser.createCheck(jsonControl, parent);
+	                	widget = jsonParser.createCheck(jsonControl, parent, treeItem);
 	                	treeItem.setImage(CHECK_ICON);
 	                	break;
 		            case "combo":
-	                	widget = jsonParser.createCombo(jsonControl, parent);
+	                	widget = jsonParser.createCombo(jsonControl, parent, treeItem);
 	                	treeItem.setImage(COMBO_ICON);
 	                	break;
 	                case "label":
-	                	widget = jsonParser.createLabel(jsonControl, parent);
+	                	widget = jsonParser.createLabel(jsonControl, parent, treeItem);
 	                	treeItem.setImage(LABEL_ICON);
 	                	break;
 	                case "table":
-	                	widget = jsonParser.createTable(jsonControl, parent);
+	                	widget = jsonParser.createTable(jsonControl, parent, treeItem);
 	                	treeItem.setImage(TABLE_ICON);
 	                	break;
 	                case "text":
-	                	widget = jsonParser.createText(jsonControl, parent);
+	                	widget = jsonParser.createText(jsonControl, parent, treeItem);
 	                	treeItem.setImage(TEXT_ICON);
 	                	break;
 	                default:
@@ -507,19 +508,19 @@ public class FormGraphicalEditor extends Dialog {
                             	TableColumn tableColumn;
                 	            switch ( clazz.toLowerCase() ) {
 	            	                case "check":
-	            	                	tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonColumn, (Table)widget);
+	            	                	tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonColumn, (Table)widget, treeItem);
 	            	                	treeItem.setImage(CHECK_ICON);
 	            	                	break;
 	            		            case "combo":
-	            	                	tableColumn = (TableColumn)jsonParser.createComboColumn(jsonColumn, (Table)widget);
+	            	                	tableColumn = (TableColumn)jsonParser.createComboColumn(jsonColumn, (Table)widget, treeItem);
 	            	                	treeItem.setImage(COMBO_ICON);
 	            	                	break;
 	            	                case "label":
-	            	                	tableColumn = (TableColumn)jsonParser.createLabelColumn(jsonColumn, (Table)widget);
+	            	                	tableColumn = (TableColumn)jsonParser.createLabelColumn(jsonColumn, (Table)widget, treeItem);
 	            	                	treeItem.setImage(LABEL_ICON);
 	            	                	break;
 	            	                case "text":
-	            	                	tableColumn = (TableColumn)jsonParser.createTextColumn(jsonColumn, (Table)widget);
+	            	                	tableColumn = (TableColumn)jsonParser.createTextColumn(jsonColumn, (Table)widget, treeItem);
 	            	                	treeItem.setImage(TEXT_ICON);
 	            	                	break;
 	            	                default:
@@ -550,7 +551,7 @@ public class FormGraphicalEditor extends Dialog {
                             JSONObject jsonLine = linesIterator.next();
                             
                             treeItem = new TreeItem(linesTreeItem, SWT.NONE);
-                            TableItem tableItem = (TableItem)jsonParser.createLine(jsonLine, (Table)widget);
+                            TableItem tableItem = (TableItem)jsonParser.createLine(jsonLine, (Table)widget, treeItem);
                             
             	            treeItem.setData("class", "line");
     	    	            treeItem.setData("control", tableItem);
@@ -805,8 +806,10 @@ public class FormGraphicalEditor extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("Save button selected by user.");
 
-        JSONObject json = jsonParser.generateJSON(tree.getItems()[0], formDialog);
+        JSONObject json = jsonParser.generateJson(tree);
 
+        System.out.println(json.toJSONString());
+        
         close();
     }
     
