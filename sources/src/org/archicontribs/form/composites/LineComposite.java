@@ -44,7 +44,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 	public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
-            case "cells":         cellsEditor.setText((String[])value);
+            case "cells":         cellsEditor.setText((String[])value);break;
             case "generate":      filterEditor.setGenerate((Boolean)value); break;
             case "tests":         filterEditor.setTests((List<Map<String, String>>)value); break;
             case "genre":         filterEditor.setGenre((String)value); break;
