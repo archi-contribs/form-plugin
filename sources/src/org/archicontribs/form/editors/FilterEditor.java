@@ -49,7 +49,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         lblGenerate.setLayoutData(fd);
-        lblGenerate.setText("Generate lines from content:");
+        lblGenerate.setText("Generate lines:");
         
         btnGenerate = new Button(parent, SWT.CHECK);
         fd = new FormData();
