@@ -38,7 +38,7 @@ public class TableComposite extends Composite implements CompositeInterface {
 		colorEditor.setPosition(sizeEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(colorEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);

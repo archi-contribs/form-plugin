@@ -82,7 +82,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
 		fontEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);

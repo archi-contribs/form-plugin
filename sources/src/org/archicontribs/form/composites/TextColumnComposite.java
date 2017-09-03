@@ -62,13 +62,13 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		sizeEditor.setPosition(editableEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
 		// regexp
-		regexpEditor = new StringEditor(this, "Regexp:", 5);
+		regexpEditor = new StringEditor(this, "Regexp:");
 		regexpEditor.setPosition(tooltipEditor.getControl());
 		regexpEditor.setProperty("regexp");
 		

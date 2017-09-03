@@ -75,13 +75,13 @@ public class TextComposite extends Composite implements CompositeInterface {
 		fontEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
 		// regexp
-		regexpEditor = new StringEditor(this, "Regexp:", 5);
+		regexpEditor = new StringEditor(this, "Regexp:");
 		regexpEditor.setPosition(tooltipEditor.getControl());
 		regexpEditor.setProperty("regexp");
 		

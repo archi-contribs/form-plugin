@@ -29,7 +29,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		nameEditor.mustSetTreeItemText(true);
 		
 		// text
-		textEditor = new StringEditor(this, "Text:", 5);
+		textEditor = new StringEditor(this, "Text:");
 		textEditor.setPosition(nameEditor.getControl());
 		textEditor.setProperty("text");
 		textEditor.mustSetControlText(true);
@@ -39,7 +39,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		sizeEditor.setPosition(textEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);

@@ -29,7 +29,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 		nameEditor.mustSetTreeItemText(true);
 		
 		// variable
-		cellsEditor = new StringEditor(this, "Cells:", 5);
+		cellsEditor = new StringEditor(this, "Cells:");
 		cellsEditor.setPosition(nameEditor.getControl());
 		cellsEditor.setProperty("cells");
 		cellsEditor.setTooltipText("Please enter the variables corresponding to the table columns, one line per variable.\n"+
