@@ -184,6 +184,8 @@ public class StringEditor {
 		txtString.removeModifyListener(stringModifyListener);
 		txtString.setText(string==null ? "" : string);
 		txtString.addModifyListener(stringModifyListener);
+		
+		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
     public void setText(String[] array) {
@@ -192,6 +194,8 @@ public class StringEditor {
 		txtString.removeModifyListener(stringModifyListener);
 		txtString.setText(array==null ? "" : FormPlugin.concat(array,  "", "\n"));
 		txtString.addModifyListener(stringModifyListener);
+		
+		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
     public String getText() {
