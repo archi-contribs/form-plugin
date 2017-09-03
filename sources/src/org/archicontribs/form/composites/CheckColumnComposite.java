@@ -21,7 +21,7 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
 	private StringEditor		    tooltipEditor;       // tooltip
 	private AlignmentEditor         alignmentEditor;     // alignment
 	private ComboEditor             whenEmptyEditor;  	 // whenEmpty
-	private StringEditor            excelColumnEditor;     // excelColumn
+	private StringEditor            excelColumnEditor;   // excelColumn
 	private ComboEditor             excelCellTypeEditor; // excelCellType
 	private ComboEditor             excelDefaultEditor;  // excelDefault
 
