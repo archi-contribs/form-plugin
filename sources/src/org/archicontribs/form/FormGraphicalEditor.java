@@ -111,7 +111,6 @@ public class FormGraphicalEditor extends Dialog {
         	
             TreeItem formTreeItem = createPropertiesDialog(jsonForm);
             formTreeItem.setImage(FORM_ICON);
-            formTreeItem.setData("class", "form");
             
             jsonParser.createForm(jsonForm, formDialog, formTreeItem);
 
@@ -126,7 +125,6 @@ public class FormGraphicalEditor extends Dialog {
 
                     TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
                     tabTreeItem.setImage(TAB_ICON);
-                    tabTreeItem.setData("class", "tab");
                     
                     TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
                     tabTreeItem.setData("control", tabItem.getControl());
@@ -402,9 +400,6 @@ public class FormGraphicalEditor extends Dialog {
             			throw new RuntimeException ("Do not know how to manage "+(String)treeItem.getData("class")+" objects.");
             	}
             	scrolledcomposite.setContent((Composite)composite);
-            	scrolledcomposite.setExpandHorizontal(true);
-            	scrolledcomposite.setExpandVertical(true);
-            	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
             	
             	if ( composite != null ) {
             		Widget widget = (Widget)treeItem.getData("control");
@@ -422,6 +417,11 @@ public class FormGraphicalEditor extends Dialog {
                     		composite.set(key, treeItem.getData(key));
                     }
             	}
+
+            	// we adapt the widgets to their content and recalculate the composite size (for the scroll bars)
+            	scrolledcomposite.setExpandHorizontal(true);
+            	scrolledcomposite.setExpandVertical(true);
+            	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
             }
         }
     };
@@ -474,8 +474,6 @@ public class FormGraphicalEditor extends Dialog {
 	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
 	            }
 	            
-	            treeItem.setText(widget.getData("name")==null ? "" : (String)widget.getData("name"));
-	            treeItem.setData("class", clazz);
 	            treeItem.setData("control", widget);
 	            
 	            widget.setData("treeItem", treeItem);
@@ -518,13 +516,11 @@ public class FormGraphicalEditor extends Dialog {
 	            	                default:
 	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
                 	            }
-            	                	
-	    	    	            treeItem.setText(tableColumn.getData("name")==null ? "" : (String)tableColumn.getData("name"));
-	    	    	            treeItem.setData("class", clazz+"Column");
+            	                
 	    	    	            treeItem.setData("control", tableColumn);
 	    	    	            
 	    	    	            tableColumn.setData("treeItem", treeItem);
-	    	    	            tableColumn.setData("class", clazz+"Column");
+	    	    	            tableColumn.setData("class", treeItem.getData("class"));
                             }
                         }
                     }
@@ -545,7 +541,6 @@ public class FormGraphicalEditor extends Dialog {
                             treeItem = new TreeItem(linesTreeItem, SWT.NONE);
                             TableItem tableItem = (TableItem)jsonParser.createLine(jsonLine, (Table)widget, treeItem);
                             
-            	            treeItem.setData("class", "line");
     	    	            treeItem.setData("control", tableItem);
             	            treeItem.setImage(LINE_ICON);
             	            treeItem.setText(tableItem.getData("name")==null ? "" : (String)tableItem.getData("name"));
