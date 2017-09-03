@@ -47,7 +47,7 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "Default text:");
         defaultTextEditor.setPosition(variableEditor.getControl());
-        defaultTextEditor.setProperty("defaultText");
+        defaultTextEditor.setProperty("default");
         
         // defaultText
         forceDefaultEditor = new CheckEditor(this, "Force default:");
