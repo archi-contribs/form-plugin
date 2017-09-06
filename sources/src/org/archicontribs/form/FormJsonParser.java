@@ -1482,7 +1482,7 @@ public class FormJsonParser {
 	public JSONObject generateJson(Tree tree) {
     	JSONObject json = new JSONObject();
     	
-    	json.put("version", 2);
+    	json.put("version", 3);
     	json.put("org.archicontribs.form", generateJson(tree.getItem(0)));
     	
     	return json;
