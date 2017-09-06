@@ -82,7 +82,9 @@ public class FormGraphicalEditor extends Dialog {
     private CheckColumnComposite checkColumnComposite = null;
     private LineComposite        lineComposite        = null;
     
-    private Shell             formDialog        	  = null;
+    private Shell                formDialog        	  = null;
+    private Button               btnUp                = null;
+    private Button               btnDown              = null;
     
 	public static final Image FORM_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
 	public static final Image TAB_ICON          	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
@@ -102,6 +104,8 @@ public class FormGraphicalEditor extends Dialog {
     
     
     private static final FormJsonParser jsonParser = new FormJsonParser();
+    
+    
     
     public FormGraphicalEditor(String configFilename, JSONObject jsonForm) {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -127,7 +131,7 @@ public class FormGraphicalEditor extends Dialog {
                     tabTreeItem.setImage(TAB_ICON);
                     
                     TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
-                    tabTreeItem.setData("control", tabItem.getControl());
+                    tabTreeItem.setData("widget", tabItem.getControl());
                     
                     
                     JSONArray controls = jsonParser.getJSONArray(jsonTab, "controls");
@@ -228,25 +232,91 @@ public class FormGraphicalEditor extends Dialog {
             }
           });
         
-        Button up = new Button(propertiesDialog, SWT.PUSH);
-        up.setImage(HAUT_ICON);
-        up.setSize(16,16);
-        up.pack();
+        btnUp = new Button(propertiesDialog, SWT.PUSH);
+        btnUp.setImage(HAUT_ICON);
+        btnUp.setSize(16,16);
+        btnUp.pack();
         fd = new FormData();
         fd.left = new FormAttachment(sash, 0, SWT.CENTER);
         fd.top = new FormAttachment(sash, -17, SWT.TOP);
         fd.bottom = new FormAttachment(sash, -1, SWT.TOP);
-        up.setLayoutData(fd);
+        btnUp.setLayoutData(fd);
+        btnUp.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+            	tree.setRedraw(false);
+
+            	TreeItem selectedTreeItem = tree.getSelection()[0];
+                TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+                int index = parentTreeItem.indexOf(selectedTreeItem);
+           		TreeItem newTreeItem = moveTreeItem(parentTreeItem, selectedTreeItem, index-1);
+
+           		tree.setSelection(newTreeItem);
+                tree.showSelection();
+                tree.setRedraw(true);
+                
+                Widget widget = (Widget)newTreeItem.getData("widget");
+                switch ( widget.getClass().getSimpleName() ) {
+                	case "Composite":
+                		// moving a tabItem
+                		TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+                		for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
+                			if ( tabFolder.getItem(i).getControl() == widget ) {
+                        		TabItem oldTabItem = tabFolder.getItem(i);
+                				TabItem newTabItem = new TabItem(tabFolder, SWT.NONE, i-1);
+                        		newTabItem.setText(oldTabItem.getText());
+                        		newTabItem.setData("widget", oldTabItem.getControl());
+                        		newTabItem.setControl(oldTabItem.getControl());
+                        		oldTabItem.dispose();
+                        		break;
+                			}
+                		}
+                		break;
+                }
+            }
+        });
         
-        Button down = new Button(propertiesDialog, SWT.PUSH);
-        down.setImage(BAS_ICON);
-        down.setSize(16,16);
-        down.pack();
+        btnDown = new Button(propertiesDialog, SWT.PUSH);
+        btnDown.setImage(BAS_ICON);
+        btnDown.setSize(16,16);
+        btnDown.pack();
         fd = new FormData();
         fd.left = new FormAttachment(sash, 0, SWT.CENTER);
         fd.top = new FormAttachment(sash, 1, SWT.BOTTOM);
         fd.bottom = new FormAttachment(sash, 17, SWT.BOTTOM);
-        down.setLayoutData(fd);
+        btnDown.setLayoutData(fd);
+        btnDown.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent event) {
+            	tree.setRedraw(false);
+
+            	TreeItem selectedTreeItem = tree.getSelection()[0];
+                TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+                int index = parentTreeItem.indexOf(selectedTreeItem);
+           		TreeItem newTreeItem = moveTreeItem(parentTreeItem, selectedTreeItem, index+2);
+           		
+                tree.setSelection(newTreeItem);
+                tree.showSelection();
+                tree.setRedraw(true);
+                
+                Widget widget = (Widget)newTreeItem.getData("widget");
+                switch ( (String)newTreeItem.getData("class") ) {
+                	case "tab":
+                		// moving a tabItem
+                		TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+                		for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
+                			if ( tabFolder.getItem(i).getControl() == widget ) {
+                        		TabItem oldTabItem = tabFolder.getItem(i);
+                				TabItem newTabItem = new TabItem(tabFolder, SWT.NONE, i+2);
+                        		newTabItem.setText(oldTabItem.getText());
+                        		newTabItem.setData("widget", oldTabItem.getControl());
+                        		newTabItem.setControl(oldTabItem.getControl());
+                        		oldTabItem.dispose();
+                        		break;
+                			}
+                		}
+                		break;
+                }
+            }
+        });
         
         tree = new Tree(propertiesDialog, SWT.BORDER);
         tree.setHeaderVisible(false);
@@ -383,11 +453,24 @@ public class FormGraphicalEditor extends Dialog {
         	scrolledcomposite.setContent(null);
             
             if ( tree.getSelectionCount() != 0 ) {
-            	TreeItem treeItem = tree.getSelection()[0];
+            	TreeItem selectedTreeItem = tree.getSelection()[0];
+            	TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+            	
+            	btnUp.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=0 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
+	            btnDown.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=parentTreeItem.getItemCount()-1 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
+            	
             	CompositeInterface composite;
-            	switch ( (String)treeItem.getData("class") ) {
+            	switch ( (String)selectedTreeItem.getData("class") ) {
             		case "form":		composite = formComposite; break;
-            		case "tab":			composite = tabComposite; break;
+            		case "tab":			composite = tabComposite;
+            							Widget widget = (Widget)selectedTreeItem.getData("widget");
+            							TabFolder tabFolder = ((TabFolder)formDialog.getData("tab folder"));
+            							for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
+            								if ( tabFolder.getItem(i).getControl() == widget ) {
+            									tabFolder.setSelection(i);;	
+            								}
+            							}
+            							break;
             		case "label":		composite = labelComposite; break;
             		case "text":		composite = textComposite; break;
             		case "combo":		composite = comboComposite; break;
@@ -401,24 +484,24 @@ public class FormGraphicalEditor extends Dialog {
             		case "lines":       return;				// TODO: create composite to show how many lines are defined
             		case "line":        composite = lineComposite; break;
             		default:
-            			throw new RuntimeException ("Do not know how to manage "+(String)treeItem.getData("class")+" objects.");
+            			throw new RuntimeException ("Do not know how to manage "+(String)selectedTreeItem.getData("class")+" objects.");
             	}
             	scrolledcomposite.setContent((Composite)composite);
             	
             	if ( composite != null ) {
-            		Widget widget = (Widget)treeItem.getData("control");
+            		Widget widget = (Widget)selectedTreeItem.getData("widget");
             		
             		composite.setVisible(true);
                     composite.setData("shell", propertiesDialog);
-                    composite.setData("treeItem", treeItem);
-                    composite.setData("class", treeItem.getData("class"));
-                    composite.setData("control", widget);
+                    composite.setData("treeItem", selectedTreeItem);
+                    composite.setData("class", selectedTreeItem.getData("class"));
+                    composite.setData("widget", widget);
                     
                     @SuppressWarnings("unchecked")
-					Set<String> keys = (Set<String>)treeItem.getData("editable keys");
+					Set<String> keys = (Set<String>)selectedTreeItem.getData("editable keys");
                     if ( keys != null ) {
                     	for ( String key: keys)
-                    		composite.set(key, treeItem.getData(key));
+                    		composite.set(key, selectedTreeItem.getData(key));
                     }
             	}
 
@@ -478,7 +561,7 @@ public class FormGraphicalEditor extends Dialog {
 	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
 	            }
 	            
-	            treeItem.setData("control", widget);
+	            treeItem.setData("widget", widget);
 	            
 	            widget.setData("treeItem", treeItem);
 	            
@@ -521,7 +604,7 @@ public class FormGraphicalEditor extends Dialog {
 	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
                 	            }
             	                
-	    	    	            treeItem.setData("control", tableColumn);
+	    	    	            treeItem.setData("widget", tableColumn);
 	    	    	            
 	    	    	            tableColumn.setData("treeItem", treeItem);
 	    	    	            tableColumn.setData("class", treeItem.getData("class"));
@@ -545,7 +628,7 @@ public class FormGraphicalEditor extends Dialog {
                             treeItem = new TreeItem(linesTreeItem, SWT.NONE);
                             TableItem tableItem = (TableItem)jsonParser.createLine(jsonLine, (Table)widget, treeItem);
                             
-    	    	            treeItem.setData("control", tableItem);
+    	    	            treeItem.setData("widget", tableItem);
             	            treeItem.setImage(LINE_ICON);
             	            treeItem.setText(tableItem.getData("name")==null ? "" : (String)tableItem.getData("name"));
                         }
@@ -814,5 +897,31 @@ public class FormGraphicalEditor extends Dialog {
             propertiesDialog.dispose();
             propertiesDialog = null;
         }
+    }
+    
+    public TreeItem moveTreeItem(TreeItem parentTreeItem, TreeItem sourceTreeItem, int index) {
+    	// we create a new treeItem at position index
+		TreeItem newTreeItem = new TreeItem(parentTreeItem, SWT.NONE, index);
+		newTreeItem.setImage(sourceTreeItem.getImage());
+		newTreeItem.setText(sourceTreeItem.getText());
+		
+		newTreeItem.setData("class", sourceTreeItem.getData("class"));
+		newTreeItem.setData("widget", sourceTreeItem.getData("widget"));
+		newTreeItem.setData("editable keys", sourceTreeItem.getData("editable keys"));
+
+   		
+        @SuppressWarnings("unchecked")
+		Set<String> keys = (Set<String>)sourceTreeItem.getData("editable keys");
+        if ( keys != null ) {
+        	for ( String key: keys)
+        		newTreeItem.setData(key, sourceTreeItem.getData(key));
+        }
+        for (int i=0; sourceTreeItem.getItemCount() > 0; ++i)
+        	moveTreeItem(newTreeItem, sourceTreeItem.getItem(0), i);
+        
+        // now that the new TreeItem is created, we can dispose the old one
+		newTreeItem.setExpanded(sourceTreeItem.getExpanded());
+        sourceTreeItem.dispose();
+        return newTreeItem;
     }
 }
