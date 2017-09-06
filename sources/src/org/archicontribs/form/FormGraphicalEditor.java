@@ -21,6 +21,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -248,6 +249,7 @@ public class FormGraphicalEditor extends Dialog {
             	TreeItem selectedTreeItem = tree.getSelection()[0];
                 TreeItem parentTreeItem = selectedTreeItem.getParentItem();
                 int index = parentTreeItem.indexOf(selectedTreeItem);
+                
            		TreeItem newTreeItem = moveTreeItem(parentTreeItem, selectedTreeItem, index-1);
 
            		tree.setSelection(newTreeItem);
@@ -264,13 +266,36 @@ public class FormGraphicalEditor extends Dialog {
                         		CTabItem oldCTabItem = tabFolder.getItem(i);
                 				CTabItem newCTabItem = new CTabItem(tabFolder, SWT.NONE, i-1);
                         		newCTabItem.setText(oldCTabItem.getText());
-                        		newCTabItem.setData("widget", oldCTabItem.getControl());
                         		newCTabItem.setControl(oldCTabItem.getControl());
+                        		newTreeItem.setData("widget", newCTabItem.getControl());
                         		oldCTabItem.dispose();
                         		break;
                 			}
                 		}
                 		break;
+                		
+            		case "TableColumn":
+                		// moving a table column
+                		TableColumn oldTableColumn = (TableColumn)widget;
+                		Table table = oldTableColumn.getParent();
+                		index = table.indexOf(oldTableColumn);
+                		
+                		TableColumn newTablecolumn = new TableColumn(table, SWT.NONE, index-1);
+                		newTablecolumn.setText(oldTableColumn.getText());
+                		newTablecolumn.setWidth(oldTableColumn.getWidth());
+                		for ( TableItem tableItem: table.getItems() ) {
+                			TableEditor[] editors = (TableEditor[])tableItem.getData("editors");
+                			// we switch the editors
+                			TableEditor editor1 = editors[index];
+                			TableEditor editor2 = editors[index-1];
+                			editors[index-1] = editor1;
+                			editors[index] = editor2;
+                			editor1.setEditor(editor1.getEditor(), tableItem, index-1);
+                			editor2.setEditor(editor2.getEditor(), tableItem, index);
+                		}
+                		newTreeItem.setData("widget", newTablecolumn);
+                        oldTableColumn.dispose();
+                        break;
                 }
             }
         });
@@ -298,8 +323,8 @@ public class FormGraphicalEditor extends Dialog {
                 tree.setRedraw(true);
                 
                 Widget widget = (Widget)newTreeItem.getData("widget");
-                switch ( (String)newTreeItem.getData("class") ) {
-                	case "tab":
+                switch ( widget.getClass().getSimpleName() ) {
+                	case "Composite":
                 		// moving a tabItem
                 		CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
                 		for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
@@ -307,13 +332,36 @@ public class FormGraphicalEditor extends Dialog {
                         		CTabItem oldCTabItem = tabFolder.getItem(i);
                 				CTabItem newCTabItem = new CTabItem(tabFolder, SWT.NONE, i+2);
                         		newCTabItem.setText(oldCTabItem.getText());
-                        		newCTabItem.setData("widget", oldCTabItem.getControl());
                         		newCTabItem.setControl(oldCTabItem.getControl());
+                        		newTreeItem.setData("widget", newCTabItem.getControl());
                         		oldCTabItem.dispose();
                         		break;
                 			}
                 		}
                 		break;
+                		
+                	case "TableColumn":
+                		// moving a table column
+                		TableColumn oldTableColumn = (TableColumn)widget;
+                		Table table = oldTableColumn.getParent();
+                		index = table.indexOf(oldTableColumn);
+                		
+                		TableColumn newTablecolumn = new TableColumn(table, SWT.NONE, index+2);
+                		newTablecolumn.setText(oldTableColumn.getText());
+                		newTablecolumn.setWidth(oldTableColumn.getWidth());
+                		for ( TableItem tableItem: table.getItems() ) {
+                			TableEditor[] editors = (TableEditor[])tableItem.getData("editors");
+                			// we switch the editors
+                			TableEditor editor1 = editors[index];
+                			TableEditor editor2 = editors[index+1];
+                			editors[index+1] = editor1;
+                			editors[index] = editor2;
+                			editor1.setEditor(editor1.getEditor(), tableItem, index+1);
+                			editor2.setEditor(editor2.getEditor(), tableItem, index);
+                		}
+                		newTreeItem.setData("widget", newTablecolumn);
+                        oldTableColumn.dispose();
+                        break;
                 }
             }
         });
@@ -458,19 +506,24 @@ public class FormGraphicalEditor extends Dialog {
             	
             	btnUp.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=0 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
 	            btnDown.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=parentTreeItem.getItemCount()-1 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
+	            
+				TreeItem tabTreeItem = selectedTreeItem;
+				while ( tabTreeItem != null && !tabTreeItem.getData("class").equals("tab") )
+					tabTreeItem = tabTreeItem.getParentItem();
+				if ( tabTreeItem != null ) {
+					CTabFolder tabFolder = ((CTabFolder)formDialog.getData("tab folder"));
+					Widget tabWidget = (Widget)tabTreeItem.getData("widget");
+					for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
+						if ( tabFolder.getItem(i).getControl() == tabWidget ) {
+							tabFolder.setSelection(i);;	
+						}
+					}
+				}
             	
             	CompositeInterface composite;
             	switch ( (String)selectedTreeItem.getData("class") ) {
             		case "form":		composite = formComposite; break;
-            		case "tab":			composite = tabComposite;
-            							Widget widget = (Widget)selectedTreeItem.getData("widget");
-            							CTabFolder tabFolder = ((CTabFolder)formDialog.getData("tab folder"));
-            							for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
-            								if ( tabFolder.getItem(i).getControl() == widget ) {
-            									tabFolder.setSelection(i);;	
-            								}
-            							}
-            							break;
+            		case "tab":			composite = tabComposite; break;
             		case "label":		composite = labelComposite; break;
             		case "text":		composite = textComposite; break;
             		case "combo":		composite = comboComposite; break;
