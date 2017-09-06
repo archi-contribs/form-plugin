@@ -18,6 +18,8 @@ import org.archicontribs.form.composites.TableComposite;
 import org.archicontribs.form.composites.TextColumnComposite;
 import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -36,8 +38,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -118,8 +118,8 @@ public class FormGraphicalEditor extends Dialog {
             
             jsonParser.createForm(jsonForm, formDialog, formTreeItem);
 
-            // we create one TabItem per tab array item
-            TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+            // we create one CTabItem per tab array item
+            CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
             JSONArray tabs = jsonParser.getJSONArray(jsonForm, "tabs");
             if ( tabs != null ) {
             	@SuppressWarnings("unchecked")
@@ -130,7 +130,7 @@ public class FormGraphicalEditor extends Dialog {
                     TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
                     tabTreeItem.setImage(TAB_ICON);
                     
-                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
+                    CTabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
                     tabTreeItem.setData("widget", tabItem.getControl());
                     
                     
@@ -258,15 +258,15 @@ public class FormGraphicalEditor extends Dialog {
                 switch ( widget.getClass().getSimpleName() ) {
                 	case "Composite":
                 		// moving a tabItem
-                		TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+                		CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
                 		for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
                 			if ( tabFolder.getItem(i).getControl() == widget ) {
-                        		TabItem oldTabItem = tabFolder.getItem(i);
-                				TabItem newTabItem = new TabItem(tabFolder, SWT.NONE, i-1);
-                        		newTabItem.setText(oldTabItem.getText());
-                        		newTabItem.setData("widget", oldTabItem.getControl());
-                        		newTabItem.setControl(oldTabItem.getControl());
-                        		oldTabItem.dispose();
+                        		CTabItem oldCTabItem = tabFolder.getItem(i);
+                				CTabItem newCTabItem = new CTabItem(tabFolder, SWT.NONE, i-1);
+                        		newCTabItem.setText(oldCTabItem.getText());
+                        		newCTabItem.setData("widget", oldCTabItem.getControl());
+                        		newCTabItem.setControl(oldCTabItem.getControl());
+                        		oldCTabItem.dispose();
                         		break;
                 			}
                 		}
@@ -301,15 +301,15 @@ public class FormGraphicalEditor extends Dialog {
                 switch ( (String)newTreeItem.getData("class") ) {
                 	case "tab":
                 		// moving a tabItem
-                		TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+                		CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
                 		for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
                 			if ( tabFolder.getItem(i).getControl() == widget ) {
-                        		TabItem oldTabItem = tabFolder.getItem(i);
-                				TabItem newTabItem = new TabItem(tabFolder, SWT.NONE, i+2);
-                        		newTabItem.setText(oldTabItem.getText());
-                        		newTabItem.setData("widget", oldTabItem.getControl());
-                        		newTabItem.setControl(oldTabItem.getControl());
-                        		oldTabItem.dispose();
+                        		CTabItem oldCTabItem = tabFolder.getItem(i);
+                				CTabItem newCTabItem = new CTabItem(tabFolder, SWT.NONE, i+2);
+                        		newCTabItem.setText(oldCTabItem.getText());
+                        		newCTabItem.setData("widget", oldCTabItem.getControl());
+                        		newCTabItem.setControl(oldCTabItem.getControl());
+                        		oldCTabItem.dispose();
                         		break;
                 			}
                 		}
@@ -464,7 +464,7 @@ public class FormGraphicalEditor extends Dialog {
             		case "form":		composite = formComposite; break;
             		case "tab":			composite = tabComposite;
             							Widget widget = (Widget)selectedTreeItem.getData("widget");
-            							TabFolder tabFolder = ((TabFolder)formDialog.getData("tab folder"));
+            							CTabFolder tabFolder = ((CTabFolder)formDialog.getData("tab folder"));
             							for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
             								if ( tabFolder.getItem(i).getControl() == widget ) {
             									tabFolder.setSelection(i);;	

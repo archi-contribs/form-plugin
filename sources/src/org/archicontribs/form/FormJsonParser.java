@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.graphics.Point;
@@ -22,8 +24,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -187,7 +187,9 @@ public class FormJsonParser {
         
         
         // we create the tab folder
-        TabFolder tabFolder = new TabFolder(form, SWT.BORDER);
+        CTabFolder tabFolder = new CTabFolder(form, SWT.BORDER);
+        tabFolder.setSimple(false);
+        tabFolder.setBorderVisible(true);
         fd = new FormData();
         fd.top = new FormAttachment(0, spacing);
         fd.left = new FormAttachment(0, spacing);
@@ -214,11 +216,15 @@ public class FormJsonParser {
      * @throws ClassCastException when a property does not belong to the right class in the jsonObject (i.e. a String is found while an Integer was expected)
      * @throws RuntimeException when a property has got an unexpected value (i.e. a negative value where a positive one was expected)
      */
-    public TabItem createTab(JSONObject jsonObject, TabFolder parent, TreeItem treeItem) throws RuntimeException, ClassCastException {
+    public CTabItem createTab(JSONObject jsonObject, CTabFolder parent, TreeItem treeItem) throws RuntimeException, ClassCastException {
         // we create the tab item
-        TabItem tabItem = new TabItem(parent, SWT.MULTI);
+        CTabItem tabItem = new CTabItem(parent, SWT.MULTI);
         Composite composite = new Composite(parent, SWT.NONE);
         tabItem.setControl(composite);
+        
+        // if it is the first tab to be created, then we select it
+        if ( parent.getItemCount() == 1 )
+        	parent.setSelection(tabItem);
         
         String  name = getName(jsonObject, composite, treeItem);
     	logger.debug("Creating tab : " + name);

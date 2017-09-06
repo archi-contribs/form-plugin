@@ -14,6 +14,8 @@ import org.eclipse.gef.commands.CompoundCommand;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
@@ -38,8 +40,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -148,7 +148,7 @@ public class FormDialog extends Dialog {
                 public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
             });
             
-            TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+            CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
             
             // we create one TabItem per tab array item
             JSONArray tabs = jsonParser.getJSONArray(json, "tabs");
@@ -157,7 +157,7 @@ public class FormDialog extends Dialog {
 				Iterator<JSONObject> tabsIterator = tabs.iterator();
                 while (tabsIterator.hasNext()) {
                     JSONObject jsonTab = tabsIterator.next();
-                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, null);
+                    CTabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, null);
                     
                     // we replace the name of the dialog in case there are some variables in it
                     if ( tabItem.getData("name") != null )
@@ -1096,7 +1096,7 @@ public class FormDialog extends Dialog {
                 break;
 
             case "TabFolder":
-                for (Control child : ((TabFolder) control).getChildren()) {
+                for (Control child : ((CTabFolder) control).getChildren()) {
                     save(child);
                 }
                 break;
