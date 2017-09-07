@@ -29,8 +29,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -92,6 +90,8 @@ public class FormGraphicalEditor extends Dialog {
     private Shell                formDialog        	  = null;
     private Button               btnUp                = null;
     private Button               btnDown              = null;
+    
+    private enum                 Position {Before, After, End};
     
 	public static final Image FORM_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
 	public static final Image TAB_ICON          	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
@@ -388,20 +388,222 @@ public class FormGraphicalEditor extends Dialog {
         tree.setMenu(treeMenu);
         treeMenu.addMenuListener(new MenuAdapter() {
             public void menuShown(MenuEvent e) {
+                TreeItem selectedTreeItem = tree.getSelection()[0];
+                TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+                
+                // we empty the previous menu
                 MenuItem[] items = treeMenu.getItems();
-                for (int i = 0; i < items.length; i++)
-                    items[i].dispose();
+                for (int i = 0; i < items.length; i++) {
+                	if ( items[i].getMenu() != null ) {
+                		MenuItem[] subItems = items[i].getMenu().getItems();
+                		for (int j = 0; j < subItems.length; j++)
+                			subItems[j].dispose();
+                	}
+                	items[i].dispose();
+                }
                 
-                TreeItem selectedItem = tree.getSelection()[0];
-                TreeItem parentItem = selectedItem.getParentItem();
                 MenuItem newItem;
-                
-                if ( parentItem == null ) {			// form
+            	if ( parentTreeItem == null ) {		// the selectedTreeItem is the form
                 	newItem = new MenuItem(treeMenu, SWT.NONE);
                 	newItem.setText("Add new tab");
                 	newItem.setImage(TAB_ICON);
+                	newItem.setData("position", Position.End);
                 	newItem.addSelectionListener(addTabListener);
-                }
+            	} else {
+            		if ( !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines") ) {
+	                	newItem = new MenuItem(treeMenu, SWT.NONE);
+	                	newItem.setText("Delete "+selectedTreeItem.getData("class"));
+	                	newItem.setImage(BIN_ICON);
+	                	newItem.addSelectionListener(deleteListener);
+            		}
+                	
+                	addSubMenu(selectedTreeItem, "Insert", "before", Position.Before);
+                	addSubMenu(selectedTreeItem, "Add", "position", Position.After);
+                } 
+            }
+            
+            private void addSubMenu(TreeItem selectedTreeItem, String prefix, String suffix, Position position) {
+            	MenuItem newItem;
+            	Menu subMenu;
+            	
+            	switch ( (String)selectedTreeItem.getData("class") ) {
+            		case "tab":
+                    	newItem = new MenuItem(treeMenu, SWT.NONE);
+                    	newItem.setText(prefix+" tab "+suffix);
+                    	newItem.setImage(TAB_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.addSelectionListener(addTabListener);
+                    	
+                    	if ( position == Position.Before ) {
+                        	newItem = new MenuItem(treeMenu, SWT.CASCADE);
+                        	newItem.setText("Add inside ...");
+                        	subMenu = new Menu(treeMenu);
+                        	newItem.setMenu(subMenu);
+                        	
+                        	newItem = new MenuItem(subMenu, SWT.NONE);
+                        	newItem.setText("label");
+                        	newItem.setImage(LABEL_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "label");
+                        	newItem.addSelectionListener(addWidgetListener);
+                        	
+                        	newItem = new MenuItem(subMenu, SWT.NONE);
+                        	newItem.setText("text");
+                        	newItem.setImage(TEXT_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "text");
+                        	newItem.addSelectionListener(addWidgetListener);
+                        	
+                        	newItem = new MenuItem(subMenu, SWT.NONE);
+                        	newItem.setText("combo");
+                        	newItem.setImage(COMBO_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "combo");
+                        	newItem.addSelectionListener(addWidgetListener);
+                        	
+                        	newItem = new MenuItem(subMenu, SWT.NONE);
+                        	newItem.setText("check box");
+                        	newItem.setImage(CHECK_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "choice");
+                        	newItem.addSelectionListener(addWidgetListener);
+                    	}
+                    	break;
+                    	
+            		case "label":
+            		case "text":
+            		case "combo":
+            		case "check":
+                    	newItem = new MenuItem(treeMenu, SWT.CASCADE);
+                    	newItem.setText(prefix+" "+suffix+" ...");
+                    	subMenu = new Menu(treeMenu);
+                    	newItem.setMenu(subMenu);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("label");
+                    	newItem.setImage(LABEL_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "label");
+                    	newItem.addSelectionListener(addWidgetListener);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("text");
+                    	newItem.setImage(TEXT_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "text");
+                    	newItem.addSelectionListener(addWidgetListener);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("combo");
+                    	newItem.setImage(COMBO_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "combo");
+                    	newItem.addSelectionListener(addWidgetListener);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("check box");
+                    	newItem.setImage(CHECK_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "choice");
+                    	newItem.addSelectionListener(addWidgetListener);
+            			break;
+            			
+            		case "labelColumn":
+            		case "textColumn":
+            		case "comboColumn":
+            		case "checkColumn":
+                    	newItem = new MenuItem(treeMenu, SWT.CASCADE);
+                    	newItem.setText(prefix+" "+suffix+" ...");
+                    	subMenu = new Menu(treeMenu);
+                    	newItem.setMenu(subMenu);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("label column");
+                    	newItem.setImage(LABEL_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "label");
+                    	newItem.addSelectionListener(addColumnListener);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("text column");
+                    	newItem.setImage(TEXT_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "text");
+                    	newItem.addSelectionListener(addColumnListener);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("combo column");
+                    	newItem.setImage(COMBO_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "combo");
+                    	newItem.addSelectionListener(addColumnListener);
+                    	
+                    	newItem = new MenuItem(subMenu, SWT.NONE);
+                    	newItem.setText("check box column");
+                    	newItem.setImage(CHECK_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.setData("widget", "choice");
+                    	newItem.addSelectionListener(addColumnListener);
+            			break;
+            			
+            		case "table":
+                    	newItem = new MenuItem(treeMenu, SWT.NONE);
+                    	newItem.setText(prefix+" table "+suffix);
+                    	newItem.setImage(TABLE_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.addSelectionListener(addTableListener);
+                    	break;
+                    	
+            		case "columns":
+                    	if ( position == Position.Before ) {
+                        	newItem = new MenuItem(treeMenu, SWT.NONE);
+                        	newItem.setText("Add label column");
+                        	newItem.setImage(LABEL_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "label");
+                        	newItem.addSelectionListener(addColumnListener);
+                        	
+                        	newItem = new MenuItem(treeMenu, SWT.NONE);
+                        	newItem.setText("Add text column");
+                        	newItem.setImage(TEXT_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "text");
+                        	newItem.addSelectionListener(addColumnListener);
+                        	
+                        	newItem = new MenuItem(treeMenu, SWT.NONE);
+                        	newItem.setText("Add combo column");
+                        	newItem.setImage(COMBO_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "combo");
+                        	newItem.addSelectionListener(addColumnListener);
+                        	
+                        	newItem = new MenuItem(treeMenu, SWT.NONE);
+                        	newItem.setText("Add check box column");
+                        	newItem.setImage(CHECK_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.setData("widget", "choice");
+                        	newItem.addSelectionListener(addColumnListener);
+                    	}
+                    	break;
+                    	
+            		case "lines":
+                    	if ( position == Position.Before ) {
+                        	newItem = new MenuItem(treeMenu, SWT.NONE);
+                        	newItem.setText("Add line");
+                        	newItem.setImage(LINE_ICON);
+                        	newItem.setData("position", position);
+                        	newItem.addSelectionListener(addLineListener);
+                    	}
+            			break;
+
+            		case "line":
+                    	newItem = new MenuItem(treeMenu, SWT.NONE);
+                    	newItem.setText(prefix+" line "+suffix);
+                    	newItem.setImage(LINE_ICON);
+                    	newItem.setData("position", position);
+                    	newItem.addSelectionListener(addLineListener);
+                    	break;
+            	}
             }
         });
         
@@ -432,118 +634,6 @@ public class FormGraphicalEditor extends Dialog {
         comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.NONE);
         checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.NONE);
         lineComposite        = new LineComposite(scrolledcomposite, SWT.NONE);
-        
-
-        
-        Button delete = new Button(propertiesDialog, SWT.PUSH);
-        delete.setImage(BIN_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
-        fd.left = new FormAttachment(0, editorBorderMargin);
-        fd.right = new FormAttachment(delete, 16, SWT.LEFT);
-        fd.bottom = new FormAttachment(delete, 16, SWT.TOP);
-        delete.setLayoutData(fd);
-        
-        Button add = new Button(propertiesDialog, SWT.PUSH);
-        add.setImage(PLUS_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, (int)(editorBorderMargin*1.5));
-        fd.left = new FormAttachment(delete, editorBorderMargin/2);
-        fd.right = new FormAttachment(add, 16, SWT.LEFT);
-        fd.bottom = new FormAttachment(add, 16, SWT.TOP);
-        add.setLayoutData(fd);
-        add.addSelectionListener(new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent e) {
-                super.widgetSelected(e);
-                Menu menu = new Menu(propertiesDialog, SWT.POP_UP);
-
-                MenuItem item1 = new MenuItem(menu, SWT.PUSH);
-                item1.setText("Hare");
-                MenuItem item2 = new MenuItem(menu, SWT.PUSH);
-                item2.setText("Fox");
-                MenuItem item3 = new MenuItem(menu, SWT.PUSH);
-                item3.setText("Pony");
-
-
-
-                Point loc = add.getLocation();
-                Rectangle rect = add.getBounds();
-
-                Point mLoc = new Point(loc.x-1, loc.y+rect.height);
-
-                menu.setLocation(propertiesDialog.getDisplay().map(add.getParent(), null, mLoc));
-
-                menu.setVisible(true);
-            }
-        });
-        
-        Button tab = new Button(propertiesDialog, SWT.RADIO);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin/2);
-        fd.left = new FormAttachment(add, editorBorderMargin);
-        tab.setLayoutData(fd);
-        
-        Label tabIcon = new Label(propertiesDialog, SWT.NONE);
-        tabIcon.setImage(TAB_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(tab, 0);
-        fd.left = new FormAttachment(tab, 0, SWT.CENTER);
-        tabIcon.setLayoutData(fd);
-        
-        Button label = new Button(propertiesDialog, SWT.RADIO);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin/2);
-        fd.left = new FormAttachment(tab, editorBorderMargin);
-        label.setLayoutData(fd);
-        
-        Label labelIcon = new Label(propertiesDialog, SWT.NONE);
-        labelIcon.setImage(LABEL_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(label, 0);
-        fd.left = new FormAttachment(label, 0, SWT.CENTER);
-        labelIcon.setLayoutData(fd);
-        
-        Button text = new Button(propertiesDialog, SWT.RADIO);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin/2);
-        fd.left = new FormAttachment(label, editorBorderMargin);
-        text.setLayoutData(fd);
-        
-        Label textIcon = new Label(propertiesDialog, SWT.NONE);
-        textIcon.setImage(TEXT_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(text, 0);
-        fd.left = new FormAttachment(text, 0, SWT.CENTER);
-        textIcon.setLayoutData(fd);
-        
-        Button check = new Button(propertiesDialog, SWT.RADIO);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin/2);
-        fd.left = new FormAttachment(text, editorBorderMargin);
-        check.setLayoutData(fd);
-        check.setEnabled(false);
-        
-        Label checkIcon = new Label(propertiesDialog, SWT.NONE);
-        checkIcon.setImage(CHECK_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(check, 0);
-        fd.left = new FormAttachment(check, 0, SWT.CENTER);
-        checkIcon.setLayoutData(fd);
-        
-        Button combo = new Button(propertiesDialog, SWT.RADIO);
-        fd = new FormData();
-        fd.top = new FormAttachment(tree, editorBorderMargin/2);
-        fd.left = new FormAttachment(check, editorBorderMargin);
-        combo.setLayoutData(fd);
-        
-        Label comboIcon = new Label(propertiesDialog, SWT.NONE);
-        comboIcon.setImage(COMBO_ICON);
-        fd = new FormData();
-        fd.top = new FormAttachment(combo, 0);
-        fd.left = new FormAttachment(combo, 0, SWT.CENTER);
-        comboIcon.setLayoutData(fd);
-        
         
         return formTreeItem;
     }
@@ -1036,21 +1126,24 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener addTabListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
+			Position position = (Position)((MenuItem)e.getSource()).getData("position");
 			TreeItem selectedTreeItem = tree.getSelection()[0];
 			TreeItem parentTreeItem = selectedTreeItem.getParentItem();
 			CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder"); 
-			TreeItem newTreeItem;
-			CTabItem newTabItem;
-			Composite composite;
-			int index;
+			int index = 0;
 			
 			if ( parentTreeItem == null ) {
 				parentTreeItem = selectedTreeItem;
-				index = 0;
-			} else
-				index = parentTreeItem.indexOf(selectedTreeItem)+1;
+				index = parentTreeItem.getItemCount();
+			} else {
+				switch ( position ) {
+					case Before: index = parentTreeItem.indexOf(selectedTreeItem);     break;
+					case After:  index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
+					case End:    index = parentTreeItem.getItemCount();                break;
+				}
+			}
 			
-			newTreeItem = new TreeItem(selectedTreeItem, SWT.NONE, index);
+			TreeItem newTreeItem = new TreeItem(parentTreeItem, SWT.NONE, index);
 			newTreeItem.setText("new tab");
 			newTreeItem.setImage(TAB_ICON);
         	newTreeItem.setData("class", "tab");
@@ -1058,19 +1151,85 @@ public class FormGraphicalEditor extends Dialog {
         	jsonParser.setData(newTreeItem, "foreground", null);
         	jsonParser.setData(newTreeItem, "background", null);
         	
-			newTabItem = new CTabItem(tabFolder, SWT.MULTI, index);
+        	CTabItem newTabItem = new CTabItem(tabFolder, SWT.MULTI, index);
 			newTabItem.setText("new tab");
-			composite = new Composite(tabFolder, SWT.NONE);
-			composite.setForeground(tabFolder.getForeground());
-			composite.setBackground(tabFolder.getBackground());
-			composite.setFont(tabFolder.getFont());
-			newTabItem.setControl(composite);
-			composite.setData("tabItem", newTabItem);
 			newTabItem.setData("treeItem", newTreeItem);
 			
+			Composite composite = new Composite(tabFolder, SWT.NONE);
+			composite.setForeground(formDialog.getForeground());
+			composite.setBackground(formDialog.getBackground());
+			composite.setFont(formDialog.getFont());
+			composite.setData("tabItem", newTabItem);
+
+			newTabItem.setControl(composite);
 			newTreeItem.setData("widget", composite);
+			
 			tree.setSelection(newTreeItem);
 			tree.notifyListeners(SWT.Selection, new Event());        // shows up the tab's properties
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+    };
+    
+    private SelectionListener addTableListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			//TODO: write the code
+		}
+		
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+    };
+    
+    private SelectionListener addWidgetListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			//TODO: write the code
+		}
+		
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+    };
+    
+    private SelectionListener addColumnListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			//TODO: write the code
+		}
+		
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+    };
+    
+    private SelectionListener addLineListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			//TODO: write the code
+		}
+		
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+    };
+    
+    private SelectionListener deleteListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			//TreeItem selectedTreeItem = tree.getSelection()[0];
+			//TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+			//CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
+			
+			//TODO: show a popup to ask confirmation if there are sub items
 		}
 
 		@Override
