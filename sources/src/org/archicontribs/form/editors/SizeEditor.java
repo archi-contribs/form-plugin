@@ -157,7 +157,7 @@ public class SizeEditor {
 	private ModifyListener sizeModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Widget    widget = (Widget)parent.getData("control");
+        	Widget    widget = (Widget)parent.getData("widget");
         	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
         	
         	int x=0, y=0, width=0, height=0;

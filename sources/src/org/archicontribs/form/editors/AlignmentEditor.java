@@ -34,7 +34,7 @@ public class AlignmentEditor extends ComboEditor {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
-			Widget    widget = (Control)parent.getData("control");
+			Widget    widget = (Control)parent.getData("widget");
 
 			if ( widget != null ) {
 				int alignment = 0;

@@ -4,6 +4,7 @@ import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
@@ -101,10 +102,14 @@ public class StringEditor {
         	Widget widget = referencedWidget;
         	
         	if ( widget == null )
-        		widget = (Widget)parent.getData("control");
+        		widget = (Widget)parent.getData("widget");
         	
         	if ( widget != null ) {
 	    		switch ( widget.getClass().getSimpleName() ) {
+	    			case "Composite":
+	    				if ( mustSetControlText ) ((CTabItem)widget.getData("tabItem")).setText(getText());
+	    				break;
+	    				
 	    			case "Label":
 	    				if ( mustSetControlText ) ((Label)widget).setText(getText());
 	    				if ( mustSetControlTolltip ) ((Label)widget).setToolTipText(getText());

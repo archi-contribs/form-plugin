@@ -77,7 +77,7 @@ public class ColorEditor {
         @Override
     	public void widgetSelected(SelectionEvent event) {
         	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
-        	Widget    widget   = (Widget)parent.getData("control");
+        	Widget    widget   = (Widget)parent.getData("widget");
         	Color     color;
         	
     		ColorDialog dlg = new ColorDialog((Shell)parent.getData("shell"));
@@ -136,7 +136,7 @@ public class ColorEditor {
     
     private void setColor(TreeItem treeItem, Color color, int colorType) {
     	if ( treeItem != null ) {
-    		Control control = (Control)treeItem.getData("control");
+    		Control control = (Control)treeItem.getData("widget");
     		if ( control != null ) {
     			if ( colorType == SWT.FOREGROUND )
     				control.setForeground(color);
@@ -153,7 +153,7 @@ public class ColorEditor {
     private SelectionAdapter colorReset = new SelectionAdapter() {
         @Override
     	public void widgetSelected(SelectionEvent event) {
-        	Widget     widget = (Widget)parent.getData("control");
+        	Widget     widget = (Widget)parent.getData("widget");
         	Color color;
         	
 			color = lblSample.getForeground();
@@ -219,7 +219,7 @@ public class ColorEditor {
     			color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
     		}
     	} else {
-            Widget widget = (Widget)parent.getData("control");
+            Widget widget = (Widget)parent.getData("widget");
             if ( widget != null ) {
                 if ( widget instanceof Shell )
                     color = ((Shell)widget).getParent().getBackground();
@@ -244,7 +244,7 @@ public class ColorEditor {
 				color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
 	    	}
     	} else {
-            Widget widget = (Widget)parent.getData("control");
+            Widget widget = (Widget)parent.getData("widget");
             if ( widget != null ) {
                 if ( widget instanceof Shell )
                     color = ((Shell)widget).getParent().getForeground();

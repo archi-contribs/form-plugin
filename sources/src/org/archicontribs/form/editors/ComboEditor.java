@@ -44,7 +44,7 @@ public class ComboEditor {
 	public void setProperty(String property) {
 		this.property = property;
 		
-		Control control = (Control)parent.getData("control");
+		Control control = (Control)parent.getData("widget");
 		if ( control != null && property != null) {
 	        setText((String)control.getData(property));
     	}

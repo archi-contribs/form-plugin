@@ -175,7 +175,7 @@ public class FormSizeEditor {
 	private ModifyListener sizeModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Shell     form = (Shell)parent.getData("control");
+        	Shell     form = (Shell)parent.getData("widget");
         	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
         	
         	int formWidth = getWidth();

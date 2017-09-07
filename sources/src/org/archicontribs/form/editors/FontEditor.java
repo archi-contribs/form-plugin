@@ -171,7 +171,7 @@ public class FontEditor {
     
     private void setFont(boolean updateControl) {
     	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
-    	Control   control  = (Control)parent.getData("control");
+    	Control   control  = (Control)parent.getData("widget");
     	Font      font;
     	
     	if ( FormPlugin.isEmpty(lblSample.getText()) && getFontSize()==0 && !getBold() && !getItalic() )
@@ -208,7 +208,7 @@ public class FontEditor {
     
     private void setFont(TreeItem treeItem, Font font) {
     	if ( treeItem != null ) {
-    		Control control = (Control)treeItem.getData("control");
+    		Control control = (Control)treeItem.getData("widget");
     		if ( control != null ) {
     			control.setFont(font);
     		}

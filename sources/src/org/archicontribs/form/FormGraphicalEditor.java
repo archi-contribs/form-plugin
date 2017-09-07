@@ -22,11 +22,15 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -37,6 +41,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -378,6 +384,30 @@ public class FormGraphicalEditor extends Dialog {
         tree.setLayoutData(fd);
         tree.addListener(SWT.Selection, treeSelectionListener);
         
+        Menu treeMenu = new Menu(tree);
+        tree.setMenu(treeMenu);
+        treeMenu.addMenuListener(new MenuAdapter() {
+            public void menuShown(MenuEvent e) {
+                MenuItem[] items = treeMenu.getItems();
+                for (int i = 0; i < items.length; i++)
+                    items[i].dispose();
+                
+                TreeItem selectedItem = tree.getSelection()[0];
+                TreeItem parentItem = selectedItem.getParentItem();
+                MenuItem newItem;
+                
+                if ( parentItem == null ) {			// form
+                	newItem = new MenuItem(treeMenu, SWT.NONE);
+                	newItem.setText("Add new tab");
+                	newItem.setImage(TAB_ICON);
+                	newItem.addSelectionListener(addTabListener);
+                }
+            }
+        });
+        
+        
+        
+        
         TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
         
         scrolledcomposite = new ScrolledComposite(propertiesDialog, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -422,6 +452,31 @@ public class FormGraphicalEditor extends Dialog {
         fd.right = new FormAttachment(add, 16, SWT.LEFT);
         fd.bottom = new FormAttachment(add, 16, SWT.TOP);
         add.setLayoutData(fd);
+        add.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                super.widgetSelected(e);
+                Menu menu = new Menu(propertiesDialog, SWT.POP_UP);
+
+                MenuItem item1 = new MenuItem(menu, SWT.PUSH);
+                item1.setText("Hare");
+                MenuItem item2 = new MenuItem(menu, SWT.PUSH);
+                item2.setText("Fox");
+                MenuItem item3 = new MenuItem(menu, SWT.PUSH);
+                item3.setText("Pony");
+
+
+
+                Point loc = add.getLocation();
+                Rectangle rect = add.getBounds();
+
+                Point mLoc = new Point(loc.x-1, loc.y+rect.height);
+
+                menu.setLocation(propertiesDialog.getDisplay().map(add.getParent(), null, mLoc));
+
+                menu.setVisible(true);
+            }
+        });
         
         Button tab = new Button(propertiesDialog, SWT.RADIO);
         fd = new FormData();
@@ -515,7 +570,7 @@ public class FormGraphicalEditor extends Dialog {
 					Widget tabWidget = (Widget)tabTreeItem.getData("widget");
 					for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
 						if ( tabFolder.getItem(i).getControl() == tabWidget ) {
-							tabFolder.setSelection(i);;	
+							tabFolder.setSelection(i);
 						}
 					}
 				}
@@ -977,4 +1032,51 @@ public class FormGraphicalEditor extends Dialog {
         sourceTreeItem.dispose();
         return newTreeItem;
     }
+    
+    private SelectionListener addTabListener = new SelectionListener() {
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			TreeItem selectedTreeItem = tree.getSelection()[0];
+			TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+			CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder"); 
+			TreeItem newTreeItem;
+			CTabItem newTabItem;
+			Composite composite;
+			int index;
+			
+			if ( parentTreeItem == null ) {
+				parentTreeItem = selectedTreeItem;
+				index = 0;
+			} else
+				index = parentTreeItem.indexOf(selectedTreeItem)+1;
+			
+			newTreeItem = new TreeItem(selectedTreeItem, SWT.NONE, index);
+			newTreeItem.setText("new tab");
+			newTreeItem.setImage(TAB_ICON);
+        	newTreeItem.setData("class", "tab");
+        	jsonParser.setData(newTreeItem, "name", "new tab");
+        	jsonParser.setData(newTreeItem, "foreground", null);
+        	jsonParser.setData(newTreeItem, "background", null);
+        	
+			newTabItem = new CTabItem(tabFolder, SWT.MULTI, index);
+			newTabItem.setText("new tab");
+			composite = new Composite(tabFolder, SWT.NONE);
+			composite.setForeground(tabFolder.getForeground());
+			composite.setBackground(tabFolder.getBackground());
+			composite.setFont(tabFolder.getFont());
+			newTabItem.setControl(composite);
+			composite.setData("tabItem", newTabItem);
+			newTabItem.setData("treeItem", newTreeItem);
+			
+			newTreeItem.setData("widget", composite);
+			tree.setSelection(newTreeItem);
+			tree.notifyListeners(SWT.Selection, new Event());        // shows up the tab's properties
+		}
+
+		@Override
+		public void widgetDefaultSelected(SelectionEvent e) {
+			widgetSelected(e);
+		}
+    };
+    
 }
