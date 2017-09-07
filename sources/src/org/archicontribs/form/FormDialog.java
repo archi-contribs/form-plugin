@@ -14,6 +14,8 @@ import org.eclipse.gef.commands.CompoundCommand;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
@@ -38,8 +40,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -122,7 +122,8 @@ public class FormDialog extends Dialog {
             logger.debug("Creating new FormDialog for " + selectedObject.getClass().getSimpleName() + " \"" + ((INameable) selectedObject).getName() + "\".");
 
         try {
-            formDialog = jsonParser.createShell(json, getParent());
+        	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        	jsonParser.createForm(json, formDialog, null);
             
             // we replace the name of the dialog in case there are some variables in it
             if ( formDialog.getData("name") != null )
@@ -147,7 +148,7 @@ public class FormDialog extends Dialog {
                 public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
             });
             
-            TabFolder tabFolder = (TabFolder)formDialog.getData("tab folder");
+            CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
             
             // we create one TabItem per tab array item
             JSONArray tabs = jsonParser.getJSONArray(json, "tabs");
@@ -156,7 +157,7 @@ public class FormDialog extends Dialog {
 				Iterator<JSONObject> tabsIterator = tabs.iterator();
                 while (tabsIterator.hasNext()) {
                     JSONObject jsonTab = tabsIterator.next();
-                    TabItem tabItem = jsonParser.createTab(jsonTab, tabFolder);
+                    CTabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, null);
                     
                     // we replace the name of the dialog in case there are some variables in it
                     if ( tabItem.getData("name") != null )
@@ -223,7 +224,7 @@ public class FormDialog extends Dialog {
             if ( clazz != null ) {
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
-	                    Button check = (Button)jsonParser.createCheck(jsonObject, parent);
+	                    Button check = (Button)jsonParser.createCheck(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
 	                    String[] values = (String[])check.getData("values");
@@ -254,7 +255,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "combo":
-	                    CCombo combo = (CCombo)jsonParser.createCombo(jsonObject, parent);
+	                    CCombo combo = (CCombo)jsonParser.createCombo(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
 	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
@@ -280,7 +281,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "label":
-	                    Label label = (Label)jsonParser.createLabel(jsonObject, parent);
+	                    Label label = (Label)jsonParser.createLabel(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable 
 	                    variableValue = FormVariable.expand((String)label.getData("text"), selectedObject);
@@ -298,7 +299,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "table":
-	                	Table table = jsonParser.createTable(jsonObject, parent);
+	                	Table table = jsonParser.createTable(jsonObject, parent, null);
 	                	
 	                	JSONArray columns = jsonParser.getJSONArray(jsonObject, "columns");
 	                    if ( columns != null ) {
@@ -311,7 +312,7 @@ public class FormDialog extends Dialog {
 	                            if ( clazz != null ) {
 	                	            switch ( clazz.toLowerCase() ) {
 	                	            	case "check":
-	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonObject, table);
+	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonObject, table, null);
 	                	            		
 	                	            		tableColumn.addListener(SWT.Selection, sortListener);
 	                	            		break;
@@ -324,7 +325,7 @@ public class FormDialog extends Dialog {
 	                    break;
 	                    
 	                case "text":
-	                    StyledText text = (StyledText)jsonParser.createText(jsonObject, parent);
+	                    StyledText text = (StyledText)jsonParser.createText(jsonObject, parent, null);
 	                    
 	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
 	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
@@ -1095,7 +1096,7 @@ public class FormDialog extends Dialog {
                 break;
 
             case "TabFolder":
-                for (Control child : ((TabFolder) control).getChildren()) {
+                for (Control child : ((CTabFolder) control).getChildren()) {
                     save(child);
                 }
                 break;
@@ -1170,7 +1171,7 @@ public class FormDialog extends Dialog {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    //@SuppressWarnings("deprecation")
     private void exportToExcel() {
     /*
         if (logger.isDebugEnabled())

@@ -1,7 +1,5 @@
 package org.archicontribs.form.composites;
 
-import java.util.Arrays;
-
 import org.archicontribs.form.editors.AlignmentEditor;
 import org.archicontribs.form.editors.CheckEditor;
 import org.archicontribs.form.editors.ColorEditor;
@@ -43,7 +41,6 @@ public class CheckComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Name: ");
 		
 		// variable
 		variableEditor = new StringEditor(this, "Variable:");
@@ -53,7 +50,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "Default text:");
         defaultTextEditor.setPosition(variableEditor.getControl());
-        defaultTextEditor.setProperty("defaultText");
+        defaultTextEditor.setProperty("default");
         
         // defaultText
         forceDefaultEditor = new CheckEditor(this, "Force default:");
@@ -83,7 +80,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
 		fontEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
@@ -142,7 +139,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
             case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
             case "editable":      editableEditor.setChecked((Boolean)value); break;
-            case "values":        valuesEditor.setText(Arrays.toString((String [])value)); break;
+            case "values":        valuesEditor.setText((String[])value); break;
     		case "x":			  sizeEditor.setX((Integer)value); break;
     		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
@@ -156,7 +153,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
     		case "fontitalic":	  fontEditor.setItalic((Boolean)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "whenempty":     whenEmptyEditor.setText((String)value); break;
-    		case "excelsheet":    excelCellEditor.setText((String)value); break;
+    		case "excelsheet":    excelSheetEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
     		case "exceldefault":  excelDefaultEditor.setText((String)value); break;

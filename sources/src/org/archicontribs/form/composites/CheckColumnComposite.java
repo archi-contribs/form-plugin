@@ -1,7 +1,5 @@
 package org.archicontribs.form.composites;
 
-import java.util.Arrays;
-
 import org.archicontribs.form.editors.AlignmentEditor;
 import org.archicontribs.form.editors.CheckEditor;
 import org.archicontribs.form.editors.ComboEditor;
@@ -21,7 +19,7 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
 	private StringEditor		    tooltipEditor;       // tooltip
 	private AlignmentEditor         alignmentEditor;     // alignment
 	private ComboEditor             whenEmptyEditor;  	 // whenEmpty
-	private StringEditor            excelColumnEditor;     // excelColumn
+	private StringEditor            excelColumnEditor;   // excelColumn
 	private ComboEditor             excelCellTypeEditor; // excelCellType
 	private ComboEditor             excelDefaultEditor;  // excelDefault
 
@@ -38,7 +36,6 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Name: ");
 		
 		// variable
 		variableEditor = new StringEditor(this, "Variable:");
@@ -48,7 +45,7 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "Default text:");
         defaultTextEditor.setPosition(variableEditor.getControl());
-        defaultTextEditor.setProperty("defaultText");
+        defaultTextEditor.setProperty("default");
         
         // defaultText
         forceDefaultEditor = new CheckEditor(this, "Force default:");
@@ -70,7 +67,7 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
 		sizeEditor.setPosition(editableEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
@@ -123,7 +120,7 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
             case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
             case "editable":      editableEditor.setChecked((Boolean)value); break;
-            case "values":        valuesEditor.setText(Arrays.toString((String [])value)); break;
+            case "values":        valuesEditor.setText((String[])value); break;
     		case "x":			  sizeEditor.setX((Integer)value); break;
     		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;

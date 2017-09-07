@@ -106,20 +106,20 @@ public class FontEditor {
         btnItalic.setText("Italic");
 	}
 	
-    VerifyListener numericVerifyListener = new VerifyListener() {
-        @Override
-    	public void verifyText(VerifyEvent e) {
-          String string = e.text;
-          char[] chars = new char[string.length()];
-          string.getChars(0, chars.length, chars, 0);
-          for (int i = 0; i < chars.length; i++) {
-            if (!('0' <= chars[i] && chars[i] <= '9')) {
-              e.doit = false;
-              return;
-            }
-          }
-        }
-    };
+	VerifyListener numericVerifyListener = new VerifyListener() {
+		@Override
+		public void verifyText(VerifyEvent e) {
+			String string = e.text;
+			char[] chars = new char[string.length()];
+			string.getChars(0, chars.length, chars, 0);
+			for (int i = 0; i < chars.length; i++) {
+				if (!('0' <= chars[i] && chars[i] <= '9')) {
+					e.doit = false;
+					return;
+				}
+			}
+		}
+	};
 	
     private SelectionAdapter fontChooser = new SelectionAdapter() {
         @Override
@@ -170,7 +170,9 @@ public class FontEditor {
     };
     
     private void setFont(boolean updateControl) {
-    	Font font;
+    	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+    	Control   control  = (Control)parent.getData("control");
+    	Font      font;
     	
     	if ( FormPlugin.isEmpty(lblSample.getText()) && getFontSize()==0 && !getBold() && !getItalic() )
     		font = null;
@@ -188,27 +190,19 @@ public class FontEditor {
     	}
 		lblSample.setFont(font);
 		
-		if ( updateControl) {
-			Control    control = (Control)parent.getData("control");
+		if ( treeItem != null ) {
+			treeItem.setData("font", getFontName());
+			treeItem.setData("fontSize", getFontSize());
+			treeItem.setData("fontBold", getBold());
+			treeItem.setData("fontItalic", getItalic());
 			
-			if ( control != null ) {
-				control.setFont(font);
-
-				control.setData("font", getFontName());
-				control.setData("fontSize", getFontSize());
-				control.setData("fontBold", getBold());
-				control.setData("fontItalic", getItalic());
-				
-				// we update all the embeded controls that do not have a font specified
-				TreeItem treeItem = (TreeItem)control.getData("treeItem");
-				if ( treeItem != null ) {
-					for( TreeItem childTreeItem: treeItem.getItems() ) {
-						setFont(childTreeItem, font);
-					}
-				}
-			}
-			
-
+			// we update all the embedded controls that do not have a font specified
+			for( TreeItem childTreeItem: treeItem.getItems() )
+				setFont(childTreeItem, font);
+		}
+		
+		if ( updateControl && control != null ) {
+			control.setFont(font);
 		}
 	}
     

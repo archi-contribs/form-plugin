@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 public class SizeEditor {
@@ -157,27 +158,32 @@ public class SizeEditor {
         @Override
         public void modifyText(ModifyEvent e) {
         	Widget    widget = (Widget)parent.getData("control");
+        	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
         	
         	int x=0, y=0, width=0, height=0;
         	
         	if ( !isTableColumn ) {
 	        	x = getX();
 	        	y = getY();
+	        	width = getWidth();
 	        	height = getHeight();
+        		if ( treeItem != null ) {
+        			treeItem.setData("x", x);
+        			treeItem.setData("y", y);
+        			treeItem.setData("width", width);
+        			treeItem.setData("height", height);
+        		}
+        	} else {
+        		width = getWidth();
+        		if ( treeItem != null )
+        			treeItem.setData("width", width);
         	}
-        	width = getWidth();
 
         	
         	if ( widget != null ) {
-            	if ( isTableColumn ) {
-            		widget.setData("width", width);
+            	if ( isTableColumn )
             		((TableColumn)widget).setWidth(width);
-            	} else {
-            		widget.setData("x", x);
-            		widget.setData("y", y);
-            		widget.setData("width", width);
-            		widget.setData("height", height);
-            		
+            	else {
             		if ( width == 0 || height == 0 ) {
             			Point p = ((Control)widget).computeSize(SWT.DEFAULT, SWT.DEFAULT);
             			width = (width == 0) ? p.x : width;

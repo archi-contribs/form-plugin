@@ -7,6 +7,7 @@ import org.archicontribs.form.editors.FormSizeEditor;
 import org.archicontribs.form.editors.StringEditor;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Widget;
 
 public class FormComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;         		// name
@@ -65,7 +66,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		buttonOkEditor = new StringEditor(this, "OK button text:");
 		buttonOkEditor.setPosition(variableSeparatorEditor.getControl());
 		buttonOkEditor.setProperty("buttonOk");
-		buttonOkEditor.setControlKey("ok button");
+		buttonOkEditor.setWidget((Widget)getShell().getData("ok button"));
 		buttonOkEditor.mustSetControlText(true);
 		buttonOkEditor.setTooltipText("Text of the OK button\n\nDefault: "+FormDialog.defaultButtonOkText+".");
         
@@ -73,7 +74,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		buttonCancelEditor = new StringEditor(this, "Cancel button text:");
 		buttonCancelEditor.setPosition(buttonOkEditor.getControl());
 		buttonCancelEditor.setProperty("buttonCancel");
-		buttonCancelEditor.setControlKey("cancel button");
+		buttonCancelEditor.setWidget((Widget)getShell().getData("cancel button"));
 		buttonCancelEditor.mustSetControlText(true);
 		buttonCancelEditor.setTooltipText("Text of the Cancel button\n\nDefault: "+FormDialog.defaultButtonCancelText+".");
         
@@ -81,7 +82,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		buttonExportEditor = new StringEditor(this, "Export button text:");
 		buttonExportEditor.setPosition(buttonCancelEditor.getControl());
 		buttonExportEditor.setProperty("buttonExport");
-		buttonExportEditor.setControlKey("export button");
+		buttonExportEditor.setWidget((Widget)getShell().getData("export button"));
 		buttonExportEditor.mustSetControlText(true);
 		buttonExportEditor.setTooltipText("Text of the Export to Excel button\n\nDefault: "+FormDialog.defaultButtonExportText+".");
 		

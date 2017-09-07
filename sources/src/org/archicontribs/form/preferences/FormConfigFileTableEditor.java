@@ -441,7 +441,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
             if ( f.length() == 0 ) {
                 try {
                     FileWriter fw = new FileWriter(configFilename);
-                    fw.write("{\n    \"version\": 2,\n    \"org.archicontribs.form\": {}\n}");
+                    fw.write("{\n    \"version\": 3,\n    \"org.archicontribs.form\": {}\n}");
                     fw.close();
                 } catch (IOException e) {
                     FormDialog.popup(Level.ERROR, "Failed : cannot write header", e);
@@ -454,15 +454,15 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 Integer version;
                 try {
                     version = jsonParser.getInt(json, "version");
-                    if ( version != null && version != 2 ) {
-                        FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 2).");
+                    if ( version != null && version != 3 ) {
+                        FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 3).");
                         return;
                     }
                 } catch (ClassCastException e) {
-                    FormDialog.popup(Level.ERROR, "Failed : the version specified is not an integer (should be 2).");
+                    FormDialog.popup(Level.ERROR, "Failed : the version specified is not an integer (should be 3).");
                     return;
                 } catch (RuntimeException e) {
-                    FormDialog.popup(Level.ERROR, "Failed : the version is not specified (should be 2).");
+                    FormDialog.popup(Level.ERROR, "Failed : the version is not specified (should be 3).");
                     return;
                 }
                 

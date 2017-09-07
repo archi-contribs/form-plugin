@@ -18,6 +18,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TreeItem;
 
 public class FormSizeEditor {
 	private Label      lblWidth;
@@ -174,7 +175,8 @@ public class FormSizeEditor {
 	private ModifyListener sizeModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Shell form = (Shell)parent.getData("control");
+        	Shell     form = (Shell)parent.getData("control");
+        	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
         	
         	int formWidth = getWidth();
         	int formHeight = getHeight();
@@ -182,13 +184,15 @@ public class FormSizeEditor {
         	int buttonWidth = getButtonWidth();
         	int buttonHeight = getButtonHeight();
         	
+        	if ( treeItem != null ) {
+        		treeItem.setData("width", formWidth);
+        		treeItem.setData("height", formHeight);
+        		treeItem.setData("spacing", formSpacing);
+        		treeItem.setData("buttonWidth", buttonWidth);
+        		treeItem.setData("buttonHeight", buttonHeight);
+        	}
+        	
         	if ( form != null ) {
-        		form.setData("width", formWidth);
-        		form.setData("height", formHeight);
-        		form.setData("spacing", formSpacing);
-        		form.setData("buttonWidth", buttonWidth);
-        		form.setData("buttonHeight", buttonHeight);
-  	
 		    	form.setSize(formWidth, formHeight);
 				// we resize the form because we want the width and height to be the client's area width and height
 		    	//TODO : size of the tab would be better ???

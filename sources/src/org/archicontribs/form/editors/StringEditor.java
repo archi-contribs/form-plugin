@@ -1,8 +1,10 @@
 package org.archicontribs.form.editors;
 
 import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -13,6 +15,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
@@ -22,16 +26,14 @@ public class StringEditor {
 	private Composite  parent;
 	private String     property = null;
 	private boolean    mustSetTreeItemText = false;
-	private String     treeItemTextPrefix = "";
 	private boolean    mustSetControlText = false;
 	private boolean    mustSetControlTolltip = false;
-	private String     controlKey = "control";
 	
+	private Widget     referencedWidget = null;
+	
+	private boolean    isArray = false;
+
 	public StringEditor(Composite parent, String labelText) {
-		this(parent, labelText, 1);
-	}
-	
-	public StringEditor(Composite parent, String labelText, int nbLines) {
 		this.parent = parent;
 		
 		lblString = new Label(parent, SWT.NONE);
@@ -42,16 +44,11 @@ public class StringEditor {
         lblString.setLayoutData(fd);
         lblString.setText(labelText);
         
-        if ( nbLines <= 1 )
-        	txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
-        else
-        	txtString = new StyledText(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
         fd = new FormData();
         fd.top = new FormAttachment(lblString, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
-        if ( nbLines > 1)
-            fd.bottom = new FormAttachment(txtString, (txtString.getLineHeight()+2)*(nbLines+1), SWT.TOP);     // we add the inter-lines height plus the scrollbar height
         txtString.setLayoutData(fd);
         txtString.setLeftMargin(2);
         txtString.addModifyListener(stringModifyListener);
@@ -73,17 +70,6 @@ public class StringEditor {
 		mustSetTreeItemText = set;
 	}
 	
-	public void treeItemTextPrefix(String prefix) {
-		if ( prefix == null )
-			prefix = "";
-		
-		treeItemTextPrefix = prefix;
-	}
-	
-	public void setControlKey(String controlKey) {
-	    this.controlKey = controlKey;
-	}
-	
 	public void setTextLimit(int limit) {
 		txtString.setTextLimit(limit);
 	}
@@ -95,20 +81,27 @@ public class StringEditor {
 	}
 	
 	public void setProperty(String property) {
-		Widget widget = (Widget)parent.getData(controlKey);
+		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
 		
 		this.property = property;
 		
-    	if ( widget != null && property != null) {
-    	    setText((String)widget.getData(property));
+    	if ( treeItem != null && property != null) {
+    	    setText((String)treeItem.getData(property));
     	}
+	}
+	
+	public void setWidget(Widget widget) {
+		referencedWidget = widget;
 	}
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Widget     widget = (Widget)parent.getData(controlKey);
         	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+        	Widget widget = referencedWidget;
+        	
+        	if ( widget == null )
+        		widget = (Widget)parent.getData("control");
         	
         	if ( widget != null ) {
 	    		switch ( widget.getClass().getSimpleName() ) {
@@ -138,19 +131,30 @@ public class StringEditor {
 	    				break;
 	    				
 	    			case "Table":
-	    				if ( mustSetControlTolltip ) ((Shell)widget).setToolTipText(getText());
+	    				if ( mustSetControlTolltip ) ((Table)widget).setToolTipText(getText());
+	    				break;
+	    				
+	    			case "TableColumn":
+	    				if ( mustSetControlText ) ((TableColumn)widget).setText(getText());
+	    				if ( mustSetControlTolltip ) ((TableColumn)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			default : throw new RuntimeException("Do not know "+widget.getClass().getSimpleName()+" controls");
 	    		}
         	}
         	
-        	if ( widget != null && property != null )
-        		widget.setData(property, getText());
-        	
-	    	if ( treeItem != null && mustSetTreeItemText ) {
-		        treeItem.setText(treeItemTextPrefix+getText());
+        	if ( treeItem != null ) {
+        		if ( property != null ) {
+        			if ( isArray )
+        				treeItem.setData(property, getText().split("\n"));
+        			else
+        				treeItem.setData(property, getText());
+        		}
+        		if ( mustSetTreeItemText )
+        			treeItem.setText(getText());
         	}
+        	
+        	((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
         }
     };
     
@@ -175,9 +179,23 @@ public class StringEditor {
 	}
     
     public void setText(String string) {
+    	isArray = false;
+    	
 		txtString.removeModifyListener(stringModifyListener);
 		txtString.setText(string==null ? "" : string);
 		txtString.addModifyListener(stringModifyListener);
+		
+		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+    }
+    
+    public void setText(String[] array) {
+    	isArray = true;
+    	
+		txtString.removeModifyListener(stringModifyListener);
+		txtString.setText(array==null ? "" : FormPlugin.concat(array,  "", "\n"));
+		txtString.addModifyListener(stringModifyListener);
+		
+		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
     public String getText() {

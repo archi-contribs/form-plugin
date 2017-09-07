@@ -14,14 +14,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.swt.widgets.Widget;
 
 public class IntegerEditor {
 	private Label      lblInteger;
 	private StyledText txtInteger;
 	private Composite  parent;
 	private String     property = null;
-	private String     controlKey = "control";
 	
 	public IntegerEditor(Composite parent, String labelText) {
 		this.parent = parent;
@@ -64,10 +62,6 @@ public class IntegerEditor {
 		txtInteger.setToolTipText(tooltip);
 	}
 	
-	public void setControlKey(String controlKey) {
-	    this.controlKey = controlKey;
-	}
-	
 	public void setProperty(String property) {
 		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
 		
@@ -81,10 +75,10 @@ public class IntegerEditor {
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Widget     widget = (Widget)parent.getData(controlKey);
+        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
         	
-	    	if ( widget != null && property != null ) {
-		        widget.setData(property, getInteger());
+        	if ( treeItem != null && property != null ) {
+        		treeItem.setData(property, getInteger());
         	}
         }
     };

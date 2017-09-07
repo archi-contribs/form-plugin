@@ -28,7 +28,6 @@ public class TableComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Name: ");
 		
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
@@ -39,7 +38,7 @@ public class TableComposite extends Composite implements CompositeInterface {
 		colorEditor.setPosition(sizeEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(colorEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
@@ -51,12 +50,12 @@ public class TableComposite extends Composite implements CompositeInterface {
         excelSheetEditor.setTooltipText("Name of the Excel sheet where the text should be exported to.\n\nIf this field is left blank, then the variable will not be exported to Excel, even if the others Excel related field are set.");
         
 		// name
-        excelFirstLineEditor = new IntegerEditor(this, "Excel last line:");
+        excelFirstLineEditor = new IntegerEditor(this, "Excel first line:");
         excelFirstLineEditor.setPosition(excelSheetEditor.getControl());
         excelFirstLineEditor.setProperty("excelFirstLine");
 		
 		// name
-        excelLastLineEditor = new IntegerEditor(this, "Name:");
+        excelLastLineEditor = new IntegerEditor(this, "Excel last line:");
         excelLastLineEditor.setPosition(excelFirstLineEditor.getControl());
         excelLastLineEditor.setProperty("excelLastLine");
         

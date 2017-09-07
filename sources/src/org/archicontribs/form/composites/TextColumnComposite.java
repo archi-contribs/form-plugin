@@ -36,7 +36,6 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Name: ");
 		
 		// variable
 		variableEditor = new StringEditor(this, "Variable:");
@@ -46,7 +45,7 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "Default text:");
         defaultTextEditor.setPosition(variableEditor.getControl());
-        defaultTextEditor.setProperty("defaultText");
+        defaultTextEditor.setProperty("default");
         
         // defaultText
         forceDefaultEditor = new CheckEditor(this, "Force default:");
@@ -63,13 +62,13 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		sizeEditor.setPosition(editableEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
 		// regexp
-		regexpEditor = new StringEditor(this, "Regexp:", 5);
+		regexpEditor = new StringEditor(this, "Regexp:");
 		regexpEditor.setPosition(tooltipEditor.getControl());
 		regexpEditor.setProperty("regexp");
 		

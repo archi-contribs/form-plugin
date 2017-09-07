@@ -618,4 +618,19 @@ public class FormPlugin extends AbstractUIPlugin {
 			}
         }
 	}
+	
+	public static String concat(String[] array, String quote, String separator) {
+		StringBuilder sb = new StringBuilder();
+		
+		if ( quote == null )
+			quote = "";
+		
+		for ( String elem: array) {
+			if ( sb.length() != 0 )
+				sb.append(separator);
+			sb.append(quote + elem + quote);
+		}
+		
+		return sb.toString();
+	}
 }

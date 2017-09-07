@@ -34,10 +34,9 @@ public class LabelComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
-		nameEditor.treeItemTextPrefix("Label: ");
 		
 		// text
-		textEditor = new StringEditor(this, "Text:", 5);
+		textEditor = new StringEditor(this, "Text:");
 		textEditor.setPosition(nameEditor.getControl());
 		textEditor.setProperty("text");
 		textEditor.mustSetControlText(true);
@@ -55,7 +54,7 @@ public class LabelComposite extends Composite implements CompositeInterface {
 		fontEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:", 5);
+		tooltipEditor = new StringEditor(this, "Tooltip:");
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
@@ -116,7 +115,7 @@ public class LabelComposite extends Composite implements CompositeInterface {
     		case "fontsize":	  fontEditor.setFontSize((Integer)value); break;
     		case "fontbold":	  fontEditor.setBold((Boolean)value); break;
     		case "fontitalic":	  fontEditor.setItalic((Boolean)value); break;
-    		case "excelsheet":    excelCellEditor.setText((String)value); break;
+    		case "excelsheet":    excelSheetEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
     		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
