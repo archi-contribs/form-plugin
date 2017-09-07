@@ -68,7 +68,7 @@ public class FormJsonParser {
         if (logger.isDebugEnabled()) logger.debug("Creating form");
         
         if ( treeItem != null )
-        	treeItem.setData("control", form);
+        	treeItem.setData("widget", form);
         
         //TODO:
         //TODO: use helper functions
@@ -221,6 +221,7 @@ public class FormJsonParser {
         CTabItem tabItem = new CTabItem(parent, SWT.MULTI);
         Composite composite = new Composite(parent, SWT.NONE);
         tabItem.setControl(composite);
+        composite.setData("tabItem", tabItem);
         
         // if it is the first tab to be created, then we select it
         if ( parent.getItemCount() == 1 )
@@ -1461,7 +1462,7 @@ public class FormJsonParser {
 		FormPlugin.setFont(control, fontName, fontSize, fontBold, fontItalic);
     }
     
-    private void setData(TreeItem treeItem, String key, Object value) {
+    public void setData(TreeItem treeItem, String key, Object value) {
     	if ( treeItem == null || key == null)
     		return;
     	
@@ -1469,7 +1470,7 @@ public class FormJsonParser {
         treeItem.setData(key, value);
     }
     
-    private void addKey(TreeItem treeItem, String key) {
+    public void addKey(TreeItem treeItem, String key) {
     	if ( treeItem == null || key == null)
     		return;
     	
