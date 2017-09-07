@@ -21,6 +21,7 @@ public class TabComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
+		nameEditor.mustSetControlText(true);
         
 		// Background
 		colorEditor = new ColorEditor(this, "Color:");
