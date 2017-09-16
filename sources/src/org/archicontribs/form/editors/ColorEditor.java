@@ -107,7 +107,7 @@ public class ColorEditor {
 					}
 					
 					if ( treeItem != null ) {
-	    				widget.setData("Foreground", rgb.red+","+rgb.green+","+rgb.blue);
+	    				treeItem.setData("foreground", getForeground());
 	    				
 	    				// we update all the embeded controls that do not have a font specified
 	    				for( TreeItem childTreeItem: treeItem.getItems() )
@@ -121,9 +121,10 @@ public class ColorEditor {
 							((Shell)widget).setBackground(color);
 						else
 							((Control)widget).setBackground(color);
+						widget.setData("background", getBackground());
 					}
 					if ( treeItem != null ) {
-						treeItem.setData("Background", rgb.red+","+rgb.green+","+rgb.blue);
+						treeItem.setData("background", getBackground());
 	    				
 	    				// we update all the embeded controls that do not have a font specified
 	    				for( TreeItem childTreeItem: treeItem.getItems() )
@@ -138,10 +139,13 @@ public class ColorEditor {
     	if ( treeItem != null ) {
     		Control control = (Control)treeItem.getData("widget");
     		if ( control != null ) {
-    			if ( colorType == SWT.FOREGROUND )
+    			if ( colorType == SWT.FOREGROUND ) {
     				control.setForeground(color);
-    			else
+    				control.setData("foreground", getForeground());
+    			} else {
     				control.setBackground(color);
+    				control.setData("background", getBackground());
+    			}
     		}
     		
 			for( TreeItem childTreeItem: treeItem.getItems() ) {
