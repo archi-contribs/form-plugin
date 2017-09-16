@@ -262,7 +262,7 @@ public class ColorEditor {
     }
     
     public String getForeground() {
-    	Color color = lblSample.getBackground();
+    	Color color = lblSample.getForeground();
     	return color.getRed()+","+color.getGreen()+","+color.getBlue();
     }
 }
