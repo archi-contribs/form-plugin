@@ -1253,17 +1253,38 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener deleteListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			//TreeItem selectedTreeItem = tree.getSelection()[0];
-			//TreeItem parentTreeItem = selectedTreeItem.getParentItem();
-			//CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
+			TreeItem selectedTreeItem = tree.getSelection()[0];
+
 			
-			//TODO: show a popup to ask confirmation if there are sub items
-			logger.error("deleteListener: code not yet written");
+			if ( selectedTreeItem.getItemCount() != 0 ) {
+				if ( ! FormDialog.question("The item you are deleting contains other items.\n\nAre you sure you wish to delete them as well ?") )
+					return;
+				
+				while ( selectedTreeItem.getItemCount() != 0 ) {
+					deleteTreeItem(selectedTreeItem.getItem(selectedTreeItem.getItemCount()-1));
+				}
+			}
+			
+			deleteTreeItem(selectedTreeItem);
 		}
 
 		@Override
 		public void widgetDefaultSelected(SelectionEvent e) {
 			widgetSelected(e);
+		}
+		
+		public void deleteTreeItem(TreeItem selectedTreeItem) {
+			if ( selectedTreeItem.getItemCount() != 0 ) {
+				while ( selectedTreeItem.getItemCount() != 0 ) {
+					deleteTreeItem(selectedTreeItem.getItem(selectedTreeItem.getItemCount()-1));
+				}
+			}
+			
+			Widget widget = (Widget)selectedTreeItem.getData("widget");
+			if ( widget != null )
+				widget.dispose();
+			
+			selectedTreeItem.dispose();
 		}
     };
     
