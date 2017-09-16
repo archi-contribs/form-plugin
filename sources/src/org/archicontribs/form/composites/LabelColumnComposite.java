@@ -1,5 +1,6 @@
 package org.archicontribs.form.composites;
 
+import org.archicontribs.form.editors.AlignmentEditor;
 import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
@@ -11,6 +12,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
     private StringEditor            textEditor;			 // text
 	private SizeEditor              sizeEditor;          // width
 	private StringEditor            tooltipEditor;       // tooltip
+	private AlignmentEditor         alignmentEditor;    // alignment
     private StringEditor            excelColumnEditor;   // excelColumn
     private ComboEditor             excelCellTypeEditor; // excelCellType
     private ComboEditor             excelDefaultEditor;  // excelDefault
@@ -43,10 +45,15 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		tooltipEditor.setPosition(sizeEditor.getControl());
 		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
+		
+	      // alignement
+        alignmentEditor = new AlignmentEditor(this, "Alignment:");
+        alignmentEditor.setPosition(tooltipEditor.getControl());
+        alignmentEditor.setProperty("alignment");
         
         // excelCell
         excelColumnEditor = new StringEditor(this, "Excel column:");
-        excelColumnEditor.setPosition(tooltipEditor.getControl());
+        excelColumnEditor.setPosition(alignmentEditor.getControl());
         excelColumnEditor.setProperty("excelColumn");
         excelColumnEditor.setTooltipText("Adress of the Excel cell where the text should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
         
@@ -82,6 +89,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
     		case "name":    	  nameEditor.setText((String)value); break;
     		case "text":    	  textEditor.setText((String)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
+    	    case "alignment":     alignmentEditor.setText((String)value); break;
     		case "excelcolumn":	  excelColumnEditor.setText((String)value); break;
     		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
     		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
