@@ -758,8 +758,10 @@ public class FormJsonParser {
         getGenerate(jsonObject, tableItem, treeItem);
         getFilter(jsonObject, tableItem, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "line");
+        	tableItem.setData("treeitem", treeItem);
+        }
         
         return tableItem;
     }
