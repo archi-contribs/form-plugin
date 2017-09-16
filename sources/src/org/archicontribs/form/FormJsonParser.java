@@ -238,8 +238,11 @@ public class FormJsonParser {
         if ( name != null )
         	tabItem.setText(name);						// may be replaced by FormVariable.expand(name, selectedObject) in calling method
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "tab");
+            treeItem.setData("widget", composite);
+            composite.setData("treeItem", treeItem);
+        }
 
         return tabItem;
     }
@@ -268,8 +271,11 @@ public class FormJsonParser {
         getAlignment(jsonObject, label, treeItem);
         getExcelCellOrColumn(jsonObject, label, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "label");
+            treeItem.setData("widget", label);
+            label.setData("treeItem", treeItem);
+        }
 
         return label;
     }
@@ -295,9 +301,13 @@ public class FormJsonParser {
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "labelColumn");
-
+            treeItem.setData("widget", tableColumn);
+            tableColumn.setData("treeItem", treeItem);
+            tableColumn.setData("class", treeItem.getData("class"));
+        }
+        
         return tableColumn;
     }
 
@@ -325,8 +335,11 @@ public class FormJsonParser {
         getAlignment(jsonObject, text, treeItem);
         getExcelCellOrColumn(jsonObject, text, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "text");
+        	treeItem.setData("widget", text);
+        	text.setData("treeItem", treeItem);
+        }
 
         return text;
     }
@@ -353,8 +366,12 @@ public class FormJsonParser {
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "textColumn");
+            treeItem.setData("widget", tableColumn);
+            tableColumn.setData("treeItem", treeItem);
+            tableColumn.setData("class", treeItem.getData("class"));
+        }
 
         return tableColumn;
     }
@@ -383,8 +400,11 @@ public class FormJsonParser {
         getFont(jsonObject, combo, treeItem);
         getExcelCellOrColumn(jsonObject, combo, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "combo");
+            treeItem.setData("widget", combo);
+            combo.setData("treeItem", treeItem);
+        }
 
         return combo;
     }
@@ -411,8 +431,12 @@ public class FormJsonParser {
         getTooltip(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "comboColumn");
+            treeItem.setData("widget", tableColumn);
+            tableColumn.setData("treeItem", treeItem);
+            tableColumn.setData("class", treeItem.getData("class"));
+        }
         
         return tableColumn;
     }
@@ -441,9 +465,12 @@ public class FormJsonParser {
  	   	getTooltip(jsonObject, check, treeItem);
  	   	getExcelCellOrColumn(jsonObject, check, treeItem);
  	   	
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "check");
- 	   	
+            treeItem.setData("widget", check);
+            check.setData("treeItem", treeItem);
+        }
+            
  	   	return check;
     }
     
@@ -470,8 +497,12 @@ public class FormJsonParser {
  	   	getTooltip(jsonObject, tableColumn, treeItem);
  	   	getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
  	   	
-        if ( treeItem != null )
+        if ( treeItem != null ) {
         	treeItem.setData("class", "checkColumn");
+            treeItem.setData("widget", tableColumn);
+            tableColumn.setData("treeItem", treeItem);
+            tableColumn.setData("class", treeItem.getData("class"));
+        }
  	   	
  	   	return tableColumn;
     }
@@ -1262,10 +1293,12 @@ public class FormJsonParser {
 	        	((CCombo)widget).setEditable(editable);
 			
 			// we set a default text content for the graphical editor. Real form will replace this text with the variable content.
-			switch ( widget.getClass().getSimpleName() ) {
-				case "StyledText": ((StyledText)widget).setText(variable); break;
-				case "CCombo":     ((CCombo)widget).setText(variable); break;
-				case "Button":     ((Button)widget).setText(variable); break;
+			if ( variable != null ) {
+				switch ( widget.getClass().getSimpleName() ) {
+					case "StyledText": ((StyledText)widget).setText(variable); break;
+					case "CCombo":     ((CCombo)widget).setText(variable); break;
+					case "Button":     ((Button)widget).setText(variable); break;
+				}
 			}
 		}
     }
@@ -1371,8 +1404,8 @@ public class FormJsonParser {
 		}
 		
 		// we set the combo items
-		if ( widget != null && FormPlugin.areEqual(widget.getClass().getSimpleName(), "CCombo") ) {
-           		((CCombo)widget).setItems(values);
+		if ( widget != null && FormPlugin.areEqual(widget.getClass().getSimpleName(), "CCombo") && values != null) {
+       		((CCombo)widget).setItems(values);
 		}
     }
     

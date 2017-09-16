@@ -91,7 +91,7 @@ public class FormGraphicalEditor extends Dialog {
     private Button               btnUp                = null;
     private Button               btnDown              = null;
     
-    private enum                 Position {Before, After, End};
+    private enum                 Position {Before, After, Into, End};
     
 	public static final Image FORM_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
 	public static final Image TAB_ICON          	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
@@ -418,7 +418,7 @@ public class FormGraphicalEditor extends Dialog {
             		}
                 	
                 	addSubMenu(selectedTreeItem, "Insert", "before", Position.Before);
-                	addSubMenu(selectedTreeItem, "Add", "position", Position.After);
+                	addSubMenu(selectedTreeItem, "Add", "after", Position.After);
                 } 
             }
             
@@ -436,36 +436,36 @@ public class FormGraphicalEditor extends Dialog {
                     	
                     	if ( position == Position.Before ) {
                         	newItem = new MenuItem(treeMenu, SWT.CASCADE);
-                        	newItem.setText("Add inside ...");
+                        	newItem.setText("Add into ...");
                         	subMenu = new Menu(treeMenu);
                         	newItem.setMenu(subMenu);
                         	
                         	newItem = new MenuItem(subMenu, SWT.NONE);
                         	newItem.setText("label");
                         	newItem.setImage(LABEL_ICON);
-                        	newItem.setData("position", position);
-                        	newItem.setData("widget", "label");
+                        	newItem.setData("position", Position.Into);
+                        	newItem.setData("class", "label");
                         	newItem.addSelectionListener(addWidgetListener);
                         	
                         	newItem = new MenuItem(subMenu, SWT.NONE);
                         	newItem.setText("text");
                         	newItem.setImage(TEXT_ICON);
-                        	newItem.setData("position", position);
-                        	newItem.setData("widget", "text");
+                        	newItem.setData("position", Position.Into);
+                        	newItem.setData("class", "text");
                         	newItem.addSelectionListener(addWidgetListener);
                         	
                         	newItem = new MenuItem(subMenu, SWT.NONE);
                         	newItem.setText("combo");
                         	newItem.setImage(COMBO_ICON);
-                        	newItem.setData("position", position);
-                        	newItem.setData("widget", "combo");
+                        	newItem.setData("position", Position.Into);
+                        	newItem.setData("class", "combo");
                         	newItem.addSelectionListener(addWidgetListener);
                         	
                         	newItem = new MenuItem(subMenu, SWT.NONE);
                         	newItem.setText("check box");
                         	newItem.setImage(CHECK_ICON);
-                        	newItem.setData("position", position);
-                        	newItem.setData("widget", "choice");
+                        	newItem.setData("position", Position.Into);
+                        	newItem.setData("class", "check");
                         	newItem.addSelectionListener(addWidgetListener);
                     	}
                     	break;
@@ -483,28 +483,28 @@ public class FormGraphicalEditor extends Dialog {
                     	newItem.setText("label");
                     	newItem.setImage(LABEL_ICON);
                     	newItem.setData("position", position);
-                    	newItem.setData("widget", "label");
+                    	newItem.setData("class", "label");
                     	newItem.addSelectionListener(addWidgetListener);
                     	
                     	newItem = new MenuItem(subMenu, SWT.NONE);
                     	newItem.setText("text");
                     	newItem.setImage(TEXT_ICON);
                     	newItem.setData("position", position);
-                    	newItem.setData("widget", "text");
+                    	newItem.setData("class", "text");
                     	newItem.addSelectionListener(addWidgetListener);
                     	
                     	newItem = new MenuItem(subMenu, SWT.NONE);
                     	newItem.setText("combo");
                     	newItem.setImage(COMBO_ICON);
                     	newItem.setData("position", position);
-                    	newItem.setData("widget", "combo");
+                    	newItem.setData("class", "combo");
                     	newItem.addSelectionListener(addWidgetListener);
                     	
                     	newItem = new MenuItem(subMenu, SWT.NONE);
                     	newItem.setText("check box");
                     	newItem.setImage(CHECK_ICON);
                     	newItem.setData("position", position);
-                    	newItem.setData("widget", "choice");
+                    	newItem.setData("class", "check");
                     	newItem.addSelectionListener(addWidgetListener);
             			break;
             			
@@ -759,10 +759,6 @@ public class FormGraphicalEditor extends Dialog {
 	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
 	            }
 	            
-	            treeItem.setData("widget", widget);
-	            
-	            widget.setData("treeItem", treeItem);
-	            
 	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
 	            	TreeItem tableTreeItem = treeItem;
     	            TreeItem columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
@@ -801,11 +797,6 @@ public class FormGraphicalEditor extends Dialog {
 	            	                default:
 	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
                 	            }
-            	                
-	    	    	            treeItem.setData("widget", tableColumn);
-	    	    	            
-	    	    	            tableColumn.setData("treeItem", treeItem);
-	    	    	            tableColumn.setData("class", treeItem.getData("class"));
                             }
                         }
                     }
@@ -1140,6 +1131,7 @@ public class FormGraphicalEditor extends Dialog {
 					case Before: index = parentTreeItem.indexOf(selectedTreeItem);     break;
 					case After:  index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
 					case End:    index = parentTreeItem.getItemCount();                break;
+					case Into:   logger.error("Cannot insert a tab into another tab"); return;
 				}
 			}
 			
@@ -1177,7 +1169,7 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener addTableListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			//TODO: write the code
+			logger.error("addTableListener: code not yet written");
 		}
 		
 		@Override
@@ -1189,7 +1181,43 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener addWidgetListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			//TODO: write the code
+			Position position = (Position)((MenuItem)e.getSource()).getData("position");
+			String widgetClass = (String)((MenuItem)e.getSource()).getData("class"); 
+			TreeItem selectedTreeItem = tree.getSelection()[0];
+			TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+			TreeItem currentTreeItem = null;
+			int index = 0;
+
+			if ( parentTreeItem == null ) {
+				parentTreeItem = selectedTreeItem;
+				index = parentTreeItem.getItemCount();
+			} else {
+				switch ( position ) {
+					case Before: currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem);     break;
+					case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
+					case End:    currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();                break;
+					case Into: currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
+				}
+			}
+			
+			TreeItem newTreeItem = new TreeItem(currentTreeItem, SWT.NONE, index);
+			newTreeItem.setText("new "+widgetClass);
+        	newTreeItem.setData("class", widgetClass);
+        	jsonParser.setData(newTreeItem, "foreground", null);
+        	jsonParser.setData(newTreeItem, "background", null);
+        	
+        	Composite parentComposite = (Composite)currentTreeItem.getData("widget");
+			switch (widgetClass) {
+				case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem); newTreeItem.setImage(LABEL_ICON); break;
+				case "text":   jsonParser.createText (null, parentComposite, newTreeItem); newTreeItem.setImage(TEXT_ICON); break;
+				case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem); newTreeItem.setImage(COMBO_ICON); break;
+				case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem); newTreeItem.setImage(CHECK_ICON); break;
+			}
+			
+        	jsonParser.setData(newTreeItem, "name", "new "+widgetClass);
+			
+			tree.setSelection(newTreeItem);
+			tree.notifyListeners(SWT.Selection, new Event());        // shows up the control's properties
 		}
 		
 		@Override
@@ -1201,7 +1229,7 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener addColumnListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			//TODO: write the code
+			logger.error("addColumnListener: code not yet written");
 		}
 		
 		@Override
@@ -1213,7 +1241,7 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener addLineListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			//TODO: write the code
+			logger.error("addLineListener: code not yet written");
 		}
 		
 		@Override
@@ -1230,6 +1258,7 @@ public class FormGraphicalEditor extends Dialog {
 			//CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
 			
 			//TODO: show a popup to ask confirmation if there are sub items
+			logger.error("deleteListener: code not yet written");
 		}
 
 		@Override
