@@ -226,7 +226,7 @@ public class FormDialog extends Dialog {
 	                case "check":
 	                    Button check = (Button)jsonParser.createCheck(jsonObject, parent, null);
 	                    
-	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
+	                    // we replace the button's text by the expanded variable, or by the defaulText if empty 
 	                    String[] values = (String[])check.getData("values");
 	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
 	                    if ( FormPlugin.isEmpty(variableValue) || (check.getData("forceDefault")!=null && (Boolean)check.getData("forceDefault")) )
@@ -283,7 +283,7 @@ public class FormDialog extends Dialog {
 	                case "label":
 	                    Label label = (Label)jsonParser.createLabel(jsonObject, parent, null);
 	                    
-	                    // we replace the combo's text by the expanded variable 
+	                    // we replace the label's text by the expanded variable 
 	                    variableValue = FormVariable.expand((String)label.getData("text"), selectedObject);
 	                    label.setText(variableValue);
 	                    
@@ -312,10 +312,14 @@ public class FormDialog extends Dialog {
 	                            if ( clazz != null ) {
 	                	            switch ( clazz.toLowerCase() ) {
 	                	            	case "check":
-	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonObject, table, null);
+	                	            		TableColumn tableColumn = (TableColumn)jsonParser.createCheckColumn(jsonObject, table, null, null);
 	                	            		
 	                	            		tableColumn.addListener(SWT.Selection, sortListener);
 	                	            		break;
+	                	            	case "combo":
+	                	            	case "label":
+	                	            	case "text":
+	                	            		//TODO
 	                	            }
 	                            }
 	                        }
@@ -327,7 +331,7 @@ public class FormDialog extends Dialog {
 	                case "text":
 	                    StyledText text = (StyledText)jsonParser.createText(jsonObject, parent, null);
 	                    
-	                    // we replace the combo's text by the expanded variable, or by the defaulText if empty 
+	                    // we replace the text's text by the expanded variable, or by the defaulText if empty 
 	                    variableValue = FormVariable.expand(jsonParser.getString(jsonObject, "variable"), selectedObject);
 	                    if ( FormPlugin.isEmpty(variableValue) || (text.getData("forceDefault")!=null && (boolean)text.getData("forceDefault")) )
 	                        variableValue = FormVariable.expand((String)text.getData("defaultText"), selectedObject);

@@ -286,11 +286,15 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createLabelColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException, ClassCastException {
+    public TableColumn createLabelColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating label control");
         
         // we create the label
-        TableColumn tableColumn = new TableColumn(parent, SWT.NONE);
+        TableColumn tableColumn;
+        if ( index == null )
+        	tableColumn = new TableColumn(parent, SWT.NONE);
+        else
+        	tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -350,11 +354,15 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
+    public TableColumn createTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating text control");
         
         // we create the text
-        TableColumn tableColumn = new TableColumn(parent, SWT.NONE);
+        TableColumn tableColumn;
+        if ( index == null )
+        	tableColumn = new TableColumn(parent, SWT.NONE);
+        else
+        	tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -414,11 +422,15 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public TableColumn createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
+	public TableColumn createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating combo column");
         
         // we create the combo
-    	TableColumn tableColumn = new TableColumn(parent, SWT.NONE);
+        TableColumn tableColumn;
+        if ( index == null )
+        	tableColumn = new TableColumn(parent, SWT.NONE);
+        else
+        	tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -478,11 +490,15 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public TableColumn createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
+	public TableColumn createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating check column");
         
-        // we create the combo
-    	TableColumn tableColumn = new TableColumn(parent, SWT.NONE);
+        // we create the check button
+        TableColumn tableColumn;
+        if ( index == null )
+        	tableColumn = new TableColumn(parent, SWT.NONE);
+        else
+        	tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
