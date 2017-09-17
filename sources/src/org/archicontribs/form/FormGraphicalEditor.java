@@ -698,7 +698,7 @@ public class FormGraphicalEditor extends Dialog {
 	                	treeItem.setImage(TEXT_ICON);
 	                	break;
 	                default:
-	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
+	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
 	            }
 	            
 	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
@@ -737,7 +737,7 @@ public class FormGraphicalEditor extends Dialog {
 	            	                	treeItem.setImage(TEXT_ICON);
 	            	                	break;
 	            	                default:
-	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + jsonControl.get("class") + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
+	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
                 	            }
                             }
                         }
