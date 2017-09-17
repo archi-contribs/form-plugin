@@ -361,7 +361,6 @@ public class FormJsonParser {
         FormPosition.setControlClass("text");
 
         getWidth(jsonObject, tableColumn, treeItem);
-        getVariable(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem);
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
@@ -425,7 +424,6 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("combo");
         
-        getVariable(jsonObject, tableColumn, treeItem);
         getValues(jsonObject, tableColumn, treeItem);
         getWidth(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem);
@@ -491,7 +489,6 @@ public class FormJsonParser {
         FormPosition.setControlClass("check");
         
  	   	getValues(jsonObject, tableColumn, treeItem);
- 	   	getVariable(jsonObject, tableColumn, treeItem);
    		getWidth(jsonObject, tableColumn, treeItem);
    		getAlignment(jsonObject, tableColumn, treeItem);
  	   	getTooltip(jsonObject, tableColumn, treeItem);

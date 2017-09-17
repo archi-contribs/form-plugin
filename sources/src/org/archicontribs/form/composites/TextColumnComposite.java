@@ -10,7 +10,6 @@ import org.eclipse.swt.widgets.Composite;
 
 public class TextColumnComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
-    private StringEditor            variableEditor;	     // variable
     private StringEditor            defaultTextEditor;   // defaultText
     private CheckEditor             forceDefaultEditor;  // forceDefault
     private CheckEditor             editableEditor;  	 // editable
@@ -37,14 +36,9 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		
-		// variable
-		variableEditor = new StringEditor(this, "Variable:");
-		variableEditor.setPosition(nameEditor.getControl());
-		variableEditor.setProperty("variable");
-		
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "Default text:");
-        defaultTextEditor.setPosition(variableEditor.getControl());
+        defaultTextEditor.setPosition(nameEditor.getControl());
         defaultTextEditor.setProperty("default");
         
         // defaultText
@@ -117,7 +111,6 @@ public class TextColumnComposite extends Composite implements CompositeInterface
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
-            case "variable":      variableEditor.setText((String)value); break;
             case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
             case "editable":      editableEditor.setChecked((Boolean)value); break;
