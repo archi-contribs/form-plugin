@@ -345,7 +345,7 @@ public class FormJsonParser {
     }
     
     /**
-     * Create a text control<br>
+     * Create a text column<br>
      * <br>
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
@@ -475,7 +475,7 @@ public class FormJsonParser {
     }
     
     /**
-     * Create a check button control<br>
+     * Create a check button column<br>
      * <br>
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
@@ -877,9 +877,11 @@ public class FormJsonParser {
 	                    
 	                case "checkColumn":
 	                    Button check = new Button(table, SWT.CHECK);
-	                    logger.trace("      adding check cell");
+	                    check.pack();
+	                    logger.trace("      adding check cell with value \"" + cells[columnNumber] + "\"");
 	                    editor.minimumWidth = check.getSize().x;
 	                    editor.horizontalAlignment = SWT.CENTER;
+	                    editor.setEditor(check, tableItem, columnNumber);
 	                    break;
 	                    
 	                default:
