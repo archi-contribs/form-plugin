@@ -43,6 +43,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -1299,7 +1300,12 @@ public class FormGraphicalEditor extends Dialog {
 					}
 				}
 				
+				CTabItem tabItem = (CTabItem)widget.getData("tabItem");
+				
 				widget.dispose();
+
+				if ( tabItem != null ) 
+					tabItem.dispose();
 			}
 			
 			selectedTreeItem.dispose();
