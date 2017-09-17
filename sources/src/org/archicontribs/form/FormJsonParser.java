@@ -415,7 +415,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public Widget createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
+	public TableColumn createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating combo column");
         
         // we create the combo
@@ -480,7 +480,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public Widget createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
+	public TableColumn createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating check column");
         
         // we create the combo
