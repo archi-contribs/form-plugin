@@ -18,9 +18,11 @@ import org.archicontribs.form.composites.TableComposite;
 import org.archicontribs.form.composites.TextColumnComposite;
 import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
@@ -43,7 +45,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
@@ -437,10 +438,10 @@ public class FormGraphicalEditor extends Dialog {
             	Menu subMenu = new Menu(treeMenu);
             	newItem.setMenu(subMenu);
             	
-            	addItemsToMenu(subMenu, position);
+            	addItemsToMenu(subMenu, position, !prefix.endsWith("column"));
             }
             
-            private void addItemsToMenu(Menu subMenu, Position position) {
+            private void addItemsToMenu(Menu subMenu, Position position, boolean showTable) {
             	MenuItem newItem;
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
@@ -471,60 +472,13 @@ public class FormGraphicalEditor extends Dialog {
             	newItem.setData("class", "check");
             	newItem.addSelectionListener(addWidgetListener);
             	
-            	newItem = new MenuItem(subMenu, SWT.NONE);
-            	newItem.setText("table");
-            	newItem.setImage(TABLE_ICON);
-            	newItem.setData("position", position);
-            	newItem.addSelectionListener(addTableListener);
-            }
-            
-            private void addTableColumnsToSubMenu(String prefix, String suffix, Menu treeMenu) {
-            	MenuItem newItem = new MenuItem(treeMenu, SWT.CASCADE);
-            	newItem.setText(prefix + " " + suffix + "...");
-            	Position position;
-            	switch (suffix) {
-            		case "before": position = Position.Before; break;
-            		case "after":  position = Position.After; break;
-            		case "into":   position = Position.Into; break;
-            		default:       position = Position.After;
+            	if ( showTable ) {
+            		newItem = new MenuItem(subMenu, SWT.NONE);
+                	newItem.setText("table");
+                	newItem.setImage(TABLE_ICON);
+                	newItem.setData("position", position);
+                	newItem.addSelectionListener(addTableListener);
             	}
-            	
-            	Menu subMenu = new Menu(treeMenu);
-            	newItem.setMenu(subMenu);
-            	
-            	addTableColumnsToMenu(subMenu, position);
-            }
-            
-            private void addTableColumnsToMenu(Menu subMenu, Position position) {
-            	MenuItem newItem;
-            	
-            	newItem = new MenuItem(subMenu, SWT.NONE);
-            	newItem.setText("label column");
-            	newItem.setImage(LABEL_ICON);
-            	newItem.setData("position", position);
-            	newItem.setData("widget", "label");
-            	newItem.addSelectionListener(addColumnListener);
-            	
-            	newItem = new MenuItem(subMenu, SWT.NONE);
-            	newItem.setText("text column");
-            	newItem.setImage(TEXT_ICON);
-            	newItem.setData("position", position);
-            	newItem.setData("widget", "text");
-            	newItem.addSelectionListener(addColumnListener);
-            	
-            	newItem = new MenuItem(subMenu, SWT.NONE);
-            	newItem.setText("combo column");
-            	newItem.setImage(COMBO_ICON);
-            	newItem.setData("position", position);
-            	newItem.setData("widget", "combo");
-            	newItem.addSelectionListener(addColumnListener);
-            	
-            	newItem = new MenuItem(subMenu, SWT.NONE);
-            	newItem.setText("check box column");
-            	newItem.setImage(CHECK_ICON);
-            	newItem.setData("position", position);
-            	newItem.setData("widget", "choice");
-            	newItem.addSelectionListener(addColumnListener);
             }
             
             private void addSubMenu(TreeItem selectedTreeItem, String prefix, String suffix, Position position) {
@@ -559,12 +513,12 @@ public class FormGraphicalEditor extends Dialog {
             		case "textColumn":
             		case "comboColumn":
             		case "checkColumn":
-                    	addTableColumnsToSubMenu(prefix, suffix, treeMenu);
+                    	addItemsToSubMenu(prefix+" column", suffix, treeMenu);
             			break;
                     	
             		case "columns":
                     	if ( position == Position.Before ) {
-                    		addTableColumnsToSubMenu("Add", "into", treeMenu);
+                    		addItemsToSubMenu("Add column", "into", treeMenu);
                     	}
                     	break;
                     	
@@ -753,6 +707,7 @@ public class FormGraphicalEditor extends Dialog {
     	            columnsTreeItem.setImage(COLUMN_ICON);
     	            columnsTreeItem.setText("columns");
     	            columnsTreeItem.setData("class", "columns");
+    	            columnsTreeItem.setData("widget", widget);
 
                     JSONArray columns = jsonParser.getJSONArray(jsonControl, "columns");
                     if ( columns != null ) {
@@ -766,19 +721,19 @@ public class FormGraphicalEditor extends Dialog {
                             	treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
                 	            switch ( clazz.toLowerCase() ) {
 	            	                case "check":
-	            	                	jsonParser.createCheckColumn(jsonColumn, (Table)widget, treeItem);
+	            	                	jsonParser.createCheckColumn(jsonColumn, (Table)widget, treeItem, null);
 	            	                	treeItem.setImage(CHECK_ICON);
 	            	                	break;
 	            		            case "combo":
-	            	                	 jsonParser.createComboColumn(jsonColumn, (Table)widget, treeItem);
+	            	                	 jsonParser.createComboColumn(jsonColumn, (Table)widget, treeItem, null);
 	            	                	treeItem.setImage(COMBO_ICON);
 	            	                	break;
 	            	                case "label":
-	            	                	jsonParser.createLabelColumn(jsonColumn, (Table)widget, treeItem);
+	            	                	jsonParser.createLabelColumn(jsonColumn, (Table)widget, treeItem, null);
 	            	                	treeItem.setImage(LABEL_ICON);
 	            	                	break;
 	            	                case "text":
-	            	                	jsonParser.createTextColumn(jsonColumn, (Table)widget, treeItem);
+	            	                	jsonParser.createTextColumn(jsonColumn, (Table)widget, treeItem, null);
 	            	                	treeItem.setImage(TEXT_ICON);
 	            	                	break;
 	            	                default:
@@ -792,6 +747,7 @@ public class FormGraphicalEditor extends Dialog {
     	            linesTreeItem.setImage(LINE_ICON);
     	            linesTreeItem.setText("lines");
     	            linesTreeItem.setData("class", "lines");
+    	            linesTreeItem.setData("widget", widget);
     	            
     	            
     	            JSONArray lines = jsonParser.getJSONArray(jsonControl, "lines");
@@ -1183,40 +1139,111 @@ public class FormGraphicalEditor extends Dialog {
 					case Before: currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem);     break;
 					case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
 					case End:    currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();                break;
-					case Into: currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
+					case Into:   currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
 				}
 			}
 			
 			TreeItem newTreeItem = new TreeItem(currentTreeItem, SWT.NONE, index);
 			newTreeItem.setText("new "+widgetClass);
         	newTreeItem.setData("class", widgetClass);
-        	jsonParser.setData(newTreeItem, "foreground", null);
-        	jsonParser.setData(newTreeItem, "background", null);
         	
         	Composite parentComposite = (Composite)currentTreeItem.getData("widget");
-			switch (widgetClass) {
-				case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem); newTreeItem.setImage(LABEL_ICON); break;
-				case "text":   jsonParser.createText (null, parentComposite, newTreeItem); newTreeItem.setImage(TEXT_ICON); break;
-				case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem); newTreeItem.setImage(COMBO_ICON); break;
-				case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem); newTreeItem.setImage(CHECK_ICON); break;
+			if ( parentComposite instanceof Table ) {
+				Table table = (Table)parentComposite;
+				TableColumn column = null;
+				switch (widgetClass) {
+					case "label":  column = jsonParser.createLabelColumn(null, table, newTreeItem, index); newTreeItem.setImage(LABEL_ICON); break;
+					case "text":   column = jsonParser.createTextColumn (null, table, newTreeItem, index); newTreeItem.setImage(TEXT_ICON); break;
+					case "combo":  column = jsonParser.createComboColumn(null, table, newTreeItem, index); newTreeItem.setImage(COMBO_ICON); break;
+					case "check":  column = jsonParser.createCheckColumn(null, table, newTreeItem, index); newTreeItem.setImage(CHECK_ICON); break;
+				}
+				
+				column.setText("new "+widgetClass);
+				
+				for ( TableItem tableItem: table.getItems() ) {
+					TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
+					TableEditor[] newEditors = new TableEditor[table.getColumnCount()];
+					
+					String[] oldCells = (String[])tableItem.getData("cells");
+					String[] newCells = new String[table.getColumnCount()];
+					
+					int newCol = 0;
+					for (int oldCol=0; oldCol < table.getColumnCount(); ++oldCol) {
+						if ( oldCol == index ) {
+							TableEditor editor= new TableEditor(table);
+				            newEditors[index] = editor;
+				            
+				            switch ( widgetClass ) {
+				                case "label":
+				                	newCells[index] = "";
+				                    logger.trace("      adding label cell with value \"" + newCells[index] + "\"");
+				                    Label label = new Label(table, SWT.WRAP | SWT.NONE);
+				                    label.setText(newCells[index]);
+				                    editor.setEditor(label, tableItem, index);
+				                    editor.grabHorizontal = true;
+				                    break;
+				                    
+				                case "text":
+				                	newCells[index] = "${void}";
+				                    StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
+				                    logger.trace("      adding text cell with value \"" + newCells[index] + "\"");
+				                    text.setText(newCells[index]);
+				                    editor.setEditor(text, tableItem, index);
+				                    editor.grabHorizontal = true;
+				                    break;
+				                    
+				                case "combo":
+				                	newCells[index] = "${void}";
+				                    CCombo combo = new CCombo(table, SWT.NONE);
+				                    logger.trace("      adding combo cell with value \"" + newCells[index] + "\"");
+				                    combo.setText(newCells[index]);
+				                    combo.setItems((String[])table.getColumn(index).getData("values"));
+				                    editor.setEditor(combo, tableItem, index);
+				                    editor.grabHorizontal = true;
+				                    break;
+				                    
+				                case "check":
+				                	newCells[index] = "${void}";
+				                    Button check = new Button(table, SWT.CHECK);
+				                    check.pack();
+				                    logger.trace("      adding check cell with value \"" + newCells[index] + "\"");
+				                    editor.minimumWidth = check.getSize().x;
+				                    editor.horizontalAlignment = SWT.CENTER;
+				                    editor.setEditor(check, tableItem, index);
+				                    break;
+				                    
+				                default:
+				                    throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)table.getColumn(index).getData("class")) + "\"");
+				    		}
+							++newCol;
+						}
+						
+						if ( oldCol < table.getColumnCount()-1 ) {
+							newEditors[newCol] = oldEditors[oldCol];
+							newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
+							newCells[newCol] = oldCells[oldCol];
+						}
+						++newCol;
+					}
+					tableItem.setData("editors", newEditors);
+					tableItem.setData("cells", newCells);
+					TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeitem");
+					if ( lineTreeItem != null )
+						lineTreeItem.setData("cells", newCells);
+				}
+			} else {
+				switch (widgetClass) {
+					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem); newTreeItem.setImage(LABEL_ICON); break;
+					case "text":   jsonParser.createText (null, parentComposite, newTreeItem); newTreeItem.setImage(TEXT_ICON); break;
+					case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem); newTreeItem.setImage(COMBO_ICON); break;
+					case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem); newTreeItem.setImage(CHECK_ICON); break;
+				}
 			}
 			
         	jsonParser.setData(newTreeItem, "name", "new "+widgetClass);
 			
 			tree.setSelection(newTreeItem);
 			tree.notifyListeners(SWT.Selection, new Event());        // shows up the control's properties
-		}
-		
-		@Override
-		public void widgetDefaultSelected(SelectionEvent e) {
-			widgetSelected(e);
-		}
-    };
-    
-    private SelectionListener addColumnListener = new SelectionListener() {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-			logger.error("addColumnListener: code not yet written");
 		}
 		
 		@Override
