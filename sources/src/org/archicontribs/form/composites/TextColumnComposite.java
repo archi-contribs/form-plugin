@@ -35,6 +35,7 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		nameEditor.setPosition(0);
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
+		nameEditor.mustSetControlText(true);
 		
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "Default text:");
