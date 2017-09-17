@@ -7,6 +7,7 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
@@ -142,6 +143,24 @@ public class StringEditor {
 	    			case "TableColumn":
 	    				if ( mustSetControlText ) ((TableColumn)widget).setText(getText());
 	    				if ( mustSetControlTolltip ) ((TableColumn)widget).setToolTipText(getText());
+	    				break;
+	    				
+	    			case "TableItem":
+	    				if ( mustSetControlText ) {
+	    					TableEditor[] tableEditors = (TableEditor[])widget.getData("editors");
+	    					String[] cells = getText().split("\n");
+	    					if ( tableEditors != null ) {
+	    						int maxIndex = (tableEditors.length < cells.length) ? tableEditors.length : cells.length;
+	    						for ( int index=0; index < maxIndex; ++index ) {
+	    							switch ( tableEditors[index].getEditor().getClass().getSimpleName() ) {
+	    								case "Label": ((Label)tableEditors[index].getEditor()).setText(cells[index]); break;
+	    								case "StyledText": ((StyledText)tableEditors[index].getEditor()).setText(cells[index]); break;
+	    								case "CCombo": ((CCombo)tableEditors[index].getEditor()).setText(cells[index]); break;
+	    								//Button do not show up text
+	    							}
+	    						}
+	    					}
+	    				}
 	    				break;
 	    				
 	    			default : throw new RuntimeException("Do not know "+widget.getClass().getSimpleName()+" controls");
