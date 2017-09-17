@@ -31,6 +31,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 		cellsEditor = new StringEditor(this, "Cells:");
 		cellsEditor.setPosition(nameEditor.getControl());
 		cellsEditor.setProperty("cells");
+		cellsEditor.mustSetControlText(true);
 		cellsEditor.setTooltipText("Please enter the variables corresponding to the table columns, one line per variable.\n"+
 			"\n"+
 			"You must have as many lines than the columns.");
