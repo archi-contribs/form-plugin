@@ -625,10 +625,13 @@ public class FormPlugin extends AbstractUIPlugin {
 		if ( quote == null )
 			quote = "";
 		
+		boolean isFirst = true;
+		
 		for ( String elem: array) {
-			if ( sb.length() != 0 )
+			if ( !isFirst )
 				sb.append(separator);
 			sb.append(quote + elem + quote);
+			isFirst = false;
 		}
 		
 		return sb.toString();
