@@ -1573,6 +1573,14 @@ public class FormJsonParser {
     		}
     	}
     	
+    	String clazz = (String)treeItem.getData("class");
+    	if ( clazz != null ) {
+    		if ( clazz.endsWith("Column") )
+    			json.put("class", clazz.substring(0, clazz.length()-6));
+    		else if ( !clazz.equals("line") && !clazz.equals("column"))
+        		json.put("class", clazz);
+    	}
+    	
     	if ( filter != null ) {
     		json.put("filter", filter);
     		filter = null;
