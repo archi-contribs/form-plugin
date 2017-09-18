@@ -168,6 +168,7 @@ public class FilterEditor {
         btnAnd.setLayoutData(fd);
         btnAnd.setSelection(true);
         btnAnd.setText("AND");
+        btnAnd.addSelectionListener(genreSelectionListener);
         
         btnOr = new Button(parent, SWT.RADIO);
 		fd = new FormData();
@@ -175,6 +176,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(btnAnd, FormGraphicalEditor.editorBorderMargin*2);
         btnOr.setLayoutData(fd);
         btnOr.setText("OR");
+        btnOr.addSelectionListener(genreSelectionListener);
 	}
 	
 	private SelectionListener GenerateSelectionListener = new SelectionListener() {
@@ -363,6 +365,21 @@ public class FilterEditor {
 	    public void widgetDefaultSelected(SelectionEvent e) {
 	        widgetSelected(e);
 	    }
+	};
+	
+	private SelectionListener genreSelectionListener = new SelectionListener() {
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+            
+            if ( treeItem != null ) {
+                treeItem.setData("genre", getGenre());
+            }
+        }
+        
+        @Override
+        public void widgetDefaultSelected(SelectionEvent e) {
+        }
 	};
 	
 	private void redraw() {
