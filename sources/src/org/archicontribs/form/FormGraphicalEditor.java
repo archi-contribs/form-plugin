@@ -1321,15 +1321,13 @@ public class FormGraphicalEditor extends Dialog {
 		}
 		
 		public void deleteTreeItem(TreeItem selectedTreeItem) {
-			if ( selectedTreeItem.getItemCount() != 0 ) {
-				while ( selectedTreeItem.getItemCount() != 0 ) {
-					deleteTreeItem(selectedTreeItem.getItem(selectedTreeItem.getItemCount()-1));
-				}
+			while ( selectedTreeItem.getItemCount() != 0 ) {
+				deleteTreeItem(selectedTreeItem.getItem(selectedTreeItem.getItemCount()-1));
 			}
 			
 			Widget widget = (Widget)selectedTreeItem.getData("widget");
 			if ( widget != null ) {
-				if ( widget instanceof TableColumn ) {
+				if ( widget instanceof TableColumn && !widget.isDisposed() ) {
 					Table table = ((TableColumn)widget).getParent();
 					int columnIndex = table.indexOf(((TableColumn)widget));
 					
@@ -1360,12 +1358,13 @@ public class FormGraphicalEditor extends Dialog {
 					}
 				}
 				
-				CTabItem tabItem = (CTabItem)widget.getData("tabItem");
 				
-				widget.dispose();
-
-				if ( tabItem != null ) 
-					tabItem.dispose();
+				if ( widget != null && !widget.isDisposed() ) {
+				    CTabItem tabItem = (CTabItem)widget.getData("tabItem");
+				    widget.dispose();
+				    if ( tabItem != null ) 
+				        tabItem.dispose();
+				}
 			}
 			
 			selectedTreeItem.dispose();
