@@ -846,61 +846,74 @@ public class FormJsonParser {
     	Table table = tableItem.getParent();
     	JSONArray jsonCells = getJSONArray(jsonObject, "cells");
     	String[] cells = null;
+    	int nbJsonCells = 0;
     	
-    	if ( jsonCells != null ) {
-	    	cells = new String[table.getColumnCount()];
-	    	TableEditor[] editors = new TableEditor[table.getColumnCount()];
-	    	
-	    	// we get the cells variables, completing if some are missing and ignoring if too many are present
-	    	for ( int columnNumber = 0; columnNumber < table.getColumnCount(); ++columnNumber ) {
-	    		if ( columnNumber < jsonCells.size() )
-	    			cells[columnNumber] = (String)jsonCells.get(columnNumber);
-	    		else
-	    			cells[columnNumber] = "";
-	    		
-	    		// for each cell, we create the corresponding table editor
-	    		TableEditor editor= new TableEditor(table);
-	            editors[columnNumber] = editor;
-	            
-	    		switch ( (String)table.getColumn(columnNumber).getData("class") ) {
-	                case "labelColumn":
-	                    logger.trace("      adding label cell with value \"" + cells[columnNumber] + "\"");
-	                    Label label = new Label(table, SWT.WRAP | SWT.NONE);
-	                    label.setText(cells[columnNumber]);
-	                    editor.setEditor(label, tableItem, columnNumber);
-	                    editor.grabHorizontal = true;
-	                    break;
-	                    
-	                case "textColumn":
-	                    StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
-	                    logger.trace("      adding text cell with value \"" + cells[columnNumber] + "\"");
-	                    text.setText(cells[columnNumber]);
-	                    editor.setEditor(text, tableItem, columnNumber);
-	                    editor.grabHorizontal = true;
-	                    break;
-	                    
-	                case "comboColumn":
-	                    CCombo combo = new CCombo(table, SWT.NONE);
-	                    logger.trace("      adding combo cell with value \"" + cells[columnNumber] + "\"");
-	                    combo.setText(cells[columnNumber]);
-	                    combo.setItems((String[])table.getColumn(columnNumber).getData("values"));
-	                    editor.setEditor(combo, tableItem, columnNumber);
-	                    editor.grabHorizontal = true;
-	                    break;
-	                    
-	                case "checkColumn":
-	                    Button check = new Button(table, SWT.CHECK);
-	                    check.pack();
-	                    logger.trace("      adding check cell with value \"" + cells[columnNumber] + "\"");
-	                    editor.minimumWidth = check.getSize().x;
-	                    editor.horizontalAlignment = SWT.CENTER;
-	                    editor.setEditor(check, tableItem, columnNumber);
-	                    break;
-	                    
-	                default:
-	                    throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)table.getColumn(columnNumber).getData("class")) + "\"");
-	    		}
-	    	}
+    	if ( jsonCells != null )
+    	    nbJsonCells = jsonCells.size();
+
+    	cells = new String[table.getColumnCount()];
+    	TableEditor[] editors = new TableEditor[table.getColumnCount()];
+    	
+    	// we get the cells variables, completing if some are missing and ignoring if too many are present
+    	for ( int columnNumber = 0; columnNumber < table.getColumnCount(); ++columnNumber ) {
+    		// for each cell, we create the corresponding table editor
+    		TableEditor editor= new TableEditor(table);
+            editors[columnNumber] = editor;
+            
+    		switch ( (String)table.getColumn(columnNumber).getData("class") ) {
+                case "labelColumn":
+                    if ( columnNumber < nbJsonCells )
+                        cells[columnNumber] = (String)jsonCells.get(columnNumber);
+                    else
+                        cells[columnNumber] = "label";
+                    logger.trace("      adding label cell with value \"" + cells[columnNumber] + "\"");
+                    Label label = new Label(table, SWT.WRAP | SWT.NONE);
+                    label.setText(cells[columnNumber]);
+                    editor.setEditor(label, tableItem, columnNumber);
+                    editor.grabHorizontal = true;
+                    break;
+                    
+                case "textColumn":
+                    if ( columnNumber < nbJsonCells )
+                        cells[columnNumber] = (String)jsonCells.get(columnNumber);
+                    else
+                        cells[columnNumber] = "${void}";
+                    StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
+                    logger.trace("      adding text cell with value \"" + cells[columnNumber] + "\"");
+                    text.setText(cells[columnNumber]);
+                    editor.setEditor(text, tableItem, columnNumber);
+                    editor.grabHorizontal = true;
+                    break;
+                    
+                case "comboColumn":
+                    if ( columnNumber < nbJsonCells )
+                        cells[columnNumber] = (String)jsonCells.get(columnNumber);
+                    else
+                        cells[columnNumber] = "${void}";
+                    CCombo combo = new CCombo(table, SWT.NONE);
+                    logger.trace("      adding combo cell with value \"" + cells[columnNumber] + "\"");
+                    combo.setText(cells[columnNumber]);
+                    combo.setItems((String[])table.getColumn(columnNumber).getData("values"));
+                    editor.setEditor(combo, tableItem, columnNumber);
+                    editor.grabHorizontal = true;
+                    break;
+                    
+                case "checkColumn":
+                    if ( columnNumber < nbJsonCells )
+                        cells[columnNumber] = (String)jsonCells.get(columnNumber);
+                    else
+                        cells[columnNumber] = "${void}";
+                    Button check = new Button(table, SWT.CHECK);
+                    check.pack();
+                    logger.trace("      adding check cell with value \"" + cells[columnNumber] + "\"");
+                    editor.minimumWidth = check.getSize().x;
+                    editor.horizontalAlignment = SWT.CENTER;
+                    editor.setEditor(check, tableItem, columnNumber);
+                    break;
+                    
+                default:
+                    throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)table.getColumn(columnNumber).getData("class")) + "\"");
+    		}
 	    	tableItem.setData("editors", editors);
     	}
     	
