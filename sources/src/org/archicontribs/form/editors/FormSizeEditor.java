@@ -4,6 +4,7 @@ import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -17,7 +18,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FormSizeEditor {
@@ -201,7 +201,7 @@ public class FormSizeEditor {
 		        formHeight = formHeight * 2 - area.height;
 		        form.setSize(formWidth, formHeight);
 		        
-		        TabFolder tabFolder = (TabFolder)form.getData("tab folder");
+		        CTabFolder tabFolder = (CTabFolder)form.getData("tab folder");
 		        if ( tabFolder != null ) {
 		            
 		            area = form.getClientArea();
