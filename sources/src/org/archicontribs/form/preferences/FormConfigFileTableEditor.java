@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.log4j.Level;
@@ -348,13 +347,9 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		// We check if the configuration file already exists in the table
 		for (int line = 0; line < tblConfigFiles.getItemCount(); ++line) {
 		    if ( line != tblConfigFiles.getSelectionIndex() ) {
-		        try {
-                    if ( Files.isSameFile(Paths.get(txtFile.getText()), Paths.get(tblConfigFiles.getItem(line).getText(line))) ) {
-                        FormDialog.popup(Level.ERROR, "The file is already selected, please choose another one.");
-                        return;
-                    }
-                } catch (IOException e) {
-                    FormDialog.popup(Level.ERROR, "IOException", e);
+                if ( Paths.get(txtFile.getText()).equals(Paths.get(tblConfigFiles.getItem(line).getText())) ) {
+                    FormDialog.popup(Level.ERROR, "The file is already selected, please choose another one.");
+                    return;
                 }
 		    }
 		}
