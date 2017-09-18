@@ -57,7 +57,7 @@ public class FilterEditor {
         fd.top = new FormAttachment(lblGenerate, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         btnGenerate.setLayoutData(fd);
-        btnGenerate.addSelectionListener(GenerateSelectionListener);
+        btnGenerate.addSelectionListener(FilterSelectionListener);
 		
 		lblFilter = new Label(parent, SWT.NONE);
         fd = new FormData();
@@ -178,62 +178,17 @@ public class FilterEditor {
         btnOr.setText("OR");
         btnOr.addSelectionListener(genreSelectionListener);
 	}
-	
-	private SelectionListener GenerateSelectionListener = new SelectionListener() {
-        @Override
-        public void widgetSelected(SelectionEvent e) {
-            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
-            boolean   isGenerated = getGenerate();
-            boolean   showFilter = getFilter();
-            
-            lblFilter.setVisible(isGenerated);
-            btnFilter.setVisible(isGenerated);
-            
-            lblGenre.setVisible(isGenerated && showFilter);
-            btnAnd.setVisible(isGenerated && showFilter);
-            btnOr.setVisible(isGenerated && showFilter);
-            lblAttribute.setVisible(isGenerated && showFilter);
-            lblOperation.setVisible(isGenerated && showFilter);
-            lblValue.setVisible(isGenerated && showFilter);
-            for ( Text txt:   txtAttribute   ) txt.setVisible(isGenerated && showFilter);
-            for ( CCombo cmb: comboOperation ) cmb.setVisible(isGenerated && showFilter);
-            for ( Text txt:   txtValue       ) txt.setVisible(isGenerated && showFilter);
-            for ( Button add: btnAdd         ) add.setVisible(isGenerated && showFilter);
-            for ( Button del: btnDelete      ) if ( (isGenerated == false && showFilter == false) || del!=btnDelete.get(0) ) del.setVisible(isGenerated && showFilter);
-            
-            if ( treeItem != null ) {
-                treeItem.setData("generate", getGenerate());
-                treeItem.setData("tests", showFilter ? getTests() : null);
-            }
-        }
-        
-        @Override
-        public void widgetDefaultSelected(SelectionEvent e) {
-            widgetSelected(e);
-        }
-    };
 
 	private SelectionListener FilterSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
 	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
-	    	boolean   showFilter = getFilter();
-
-	    	lblGenre.setVisible(showFilter);
-	    	btnAnd.setVisible(showFilter);
-	    	btnOr.setVisible(showFilter);
-	    	lblAttribute.setVisible(showFilter);
-	    	lblOperation.setVisible(showFilter);
-	    	lblValue.setVisible(showFilter);
-	    	for ( Text txt:   txtAttribute   ) txt.setVisible(showFilter);
-	    	for ( CCombo cmb: comboOperation ) cmb.setVisible(showFilter);
-	    	for ( Text txt:   txtValue       ) txt.setVisible(showFilter);
-	    	for ( Button add: btnAdd         ) add.setVisible(showFilter);
-	    	for ( Button del: btnDelete      ) if ( showFilter == false || del!=btnDelete.get(0) ) del.setVisible(showFilter);
 	    	
 	    	if ( treeItem != null ) {
-	    	    treeItem.setData("tests", showFilter ? getTests() : null);
+	    	    treeItem.setData("tests", getFilter() ? getTests() : null);
 	    	}
+	    	
+	    	redraw();
 	    }
 	
 	    @Override
@@ -423,6 +378,24 @@ public class FilterEditor {
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
         lblGenre.setLayoutData(fd);
         
+        boolean   isGenerated = getGenerate();
+        boolean   showFilter = getFilter();
+        
+        lblFilter.setVisible(isGenerated);
+        btnFilter.setVisible(isGenerated);
+        
+        lblGenre.setVisible(isGenerated && showFilter);
+        btnAnd.setVisible(isGenerated && showFilter);
+        btnOr.setVisible(isGenerated && showFilter);
+        lblAttribute.setVisible(isGenerated && showFilter);
+        lblOperation.setVisible(isGenerated && showFilter);
+        lblValue.setVisible(isGenerated && showFilter);
+        for ( Text txt:   txtAttribute   ) txt.setVisible(isGenerated && showFilter);
+        for ( CCombo cmb: comboOperation ) cmb.setVisible(isGenerated && showFilter);
+        for ( Text txt:   txtValue       ) txt.setVisible(isGenerated && showFilter);
+        for ( Button add: btnAdd         ) add.setVisible(isGenerated && showFilter);
+        for ( Button del: btnDelete      ) if ( (isGenerated == false && showFilter == false) || del!=btnDelete.get(0) ) del.setVisible(isGenerated && showFilter);
+        
         parent.layout();
         ((ScrolledComposite)parent.getParent()).setMinSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
@@ -449,6 +422,7 @@ public class FilterEditor {
 	
     public void setGenerate(Boolean checked) {
     	btnGenerate.setSelection(checked!=null && checked);
+    	redraw();
     }
 	
     public boolean getGenerate() {
@@ -471,8 +445,6 @@ public class FilterEditor {
     public void setTests(List<Map<String, String>> tests) {
         if ( tests == null || tests.size() == 0 ) {
     	    btnFilter.setSelection(false);
-    	    btnFilter.notifyListeners(SWT.Selection, new Event());
-            btnGenerate.notifyListeners(SWT.Selection, new Event());
             
             // we remove all the widgets
             for ( int i = txtAttribute.size(); i > 0; --i ) {
@@ -481,33 +453,39 @@ public class FilterEditor {
             txtAttribute.get(0).setText("");
             comboOperation.get(0).setText("");
             txtValue.get(0).setText("");
+    	} else {
+        	int nbTests = tests.size();
+        	
+        	// we add widgets if we miss some
+        	for ( int i = txtAttribute.size(); i < nbTests; ++i ) {
+        		btnAdd.get(i-1).notifyListeners(SWT.Selection, new Event());
+        	}
+        	
+        	// we remove widgets if we've got too much of them
+        	for ( int i = txtAttribute.size(); i > nbTests; --i ) {
+        		btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
+        	}
+        	
+        	// we fill the widgets' text
+        	for ( int i = 0; i < nbTests; ++i ) {
+        		String value = tests.get(i).get("attribute");
+        	    txtAttribute.get(i).setText(value==null ? "" : value);
+        	    
+        	    value = tests.get(i).get("operation");
+        		comboOperation.get(i).setText(value==null ? "" : value);
+        		
+        		value = tests.get(i).get("value");
+        		txtValue.get(i).setText(value==null ? "" : value);
+        	}
+        	
+            btnFilter.setSelection(true);
             
-    	    return;
+            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+            
+            if ( treeItem != null )
+                treeItem.setData("tests", getTests());;
     	}
-    	
-    	int nbTests = tests.size();
-    	
-    	// we add widgets if we miss some
-    	for ( int i = txtAttribute.size(); i < nbTests; ++i ) {
-    		btnAdd.get(i-1).notifyListeners(SWT.Selection, new Event());
-    	}
-    	
-    	// we remove widgets if we've got too much of them
-    	for ( int i = txtAttribute.size(); i > nbTests; --i ) {
-    		btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
-    	}
-    	
-    	// we fill the widgets' text
-    	for ( int i = 0; i < nbTests; ++i ) {
-    		txtAttribute.get(i).setText(tests.get(i).get("attribute")==null ? "" : tests.get(i).get("attribute"));
-    		comboOperation.get(i).setText(tests.get(i).get("operation")==null ? "" : tests.get(i).get("operation"));
-    		txtValue.get(i).setText(tests.get(i).get("value")==null ? "" : tests.get(i).get("value"));
-    	}
-    	
-    	btnGenerate.setSelection(true);
-        btnFilter.setSelection(true);
-        btnFilter.notifyListeners(SWT.Selection, new Event());
-        btnGenerate.notifyListeners(SWT.Selection, new Event());
+        redraw();
     }
 	
     public List<Map<String, String>> getTests() {
