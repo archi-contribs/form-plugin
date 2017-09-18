@@ -1255,7 +1255,40 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener addLineListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			logger.error("addLineListener: code not yet written");
+	        Position position = (Position)((MenuItem)e.getSource()).getData("position");
+            TreeItem selectedTreeItem = tree.getSelection()[0];
+            TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+            TreeItem currentTreeItem = null;
+            int index = 0;
+
+            if ( parentTreeItem == null ) {
+                parentTreeItem = selectedTreeItem;
+                index = parentTreeItem.getItemCount();
+            } else {
+                switch ( position ) {
+                    case Before: currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem);     break;
+                    case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
+                    case End:    currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();                break;
+                    case Into:   currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
+                }
+            }
+            
+            TreeItem newTreeItem = new TreeItem(currentTreeItem, SWT.NONE, index);
+            newTreeItem.setText("new line");
+            newTreeItem.setData("class", "line");
+            newTreeItem.setImage(LINE_ICON);
+            
+            Composite parentComposite = (Composite)currentTreeItem.getData("widget");
+            if ( parentComposite instanceof Table ) {
+                Table table = (Table)parentComposite;
+            
+                jsonParser.createLine(null, table, newTreeItem);
+            }
+            
+            jsonParser.setData(newTreeItem, "name", "new line");
+            
+            tree.setSelection(newTreeItem);
+            tree.notifyListeners(SWT.Selection, new Event());        // shows up the control's properties
 		}
 		
 		@Override

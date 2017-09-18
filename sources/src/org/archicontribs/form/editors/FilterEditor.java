@@ -26,6 +26,7 @@ public class FilterEditor {
 	private Label        lblGenerate;
 	private Button       btnGenerate;
     private Label        lblFilter;
+    private Button       btnFilter;
 	private Label        lblGenre;
 	private Button       btnAnd;
 	private Button       btnOr;
@@ -56,7 +57,7 @@ public class FilterEditor {
         fd.top = new FormAttachment(lblGenerate, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         btnGenerate.setLayoutData(fd);
-        btnGenerate.addSelectionListener(generateSelectionListener);
+        btnGenerate.addSelectionListener(GenerateSelectionListener);
 		
 		lblFilter = new Label(parent, SWT.NONE);
         fd = new FormData();
@@ -66,10 +67,17 @@ public class FilterEditor {
         lblFilter.setLayoutData(fd);
         lblFilter.setText("Filter:");
         
+        btnFilter = new Button(parent, SWT.CHECK);
+        fd = new FormData();
+        fd.top = new FormAttachment(lblFilter, 0, SWT.TOP);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        btnFilter.setLayoutData(fd);
+        btnFilter.addSelectionListener(FilterSelectionListener);
+        
 		lblAttribute = new Label(parent, SWT.CENTER);
         fd = new FormData();
         fd.top = new FormAttachment(lblFilter, 0, SWT.CENTER);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(btnFilter, 0);
         fd.right = new FormAttachment(50);
         lblAttribute.setLayoutData(fd);
         lblAttribute.setText("Attribute");
@@ -77,7 +85,7 @@ public class FilterEditor {
         Text attr = new Text(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblAttribute, (int)(FormGraphicalEditor.editorVerticalMargin/2));
-        fd.left = new FormAttachment(lblAttribute, 0, SWT.LEFT);
+        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
         fd.right = new FormAttachment(lblAttribute, 0, SWT.RIGHT);
         attr.setLayoutData(fd);
         
@@ -168,29 +176,62 @@ public class FilterEditor {
         btnOr.setLayoutData(fd);
         btnOr.setText("OR");
 	}
+	
+	private SelectionListener GenerateSelectionListener = new SelectionListener() {
+        @Override
+        public void widgetSelected(SelectionEvent e) {
+            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+            boolean   isGenerated = getGenerate();
+            boolean   showFilter = getFilter();
+            
+            lblFilter.setVisible(isGenerated);
+            btnFilter.setVisible(isGenerated);
+            
+            lblGenre.setVisible(isGenerated && showFilter);
+            btnAnd.setVisible(isGenerated && showFilter);
+            btnOr.setVisible(isGenerated && showFilter);
+            lblAttribute.setVisible(isGenerated && showFilter);
+            lblOperation.setVisible(isGenerated && showFilter);
+            lblValue.setVisible(isGenerated && showFilter);
+            for ( Text txt:   txtAttribute   ) txt.setVisible(isGenerated && showFilter);
+            for ( CCombo cmb: comboOperation ) cmb.setVisible(isGenerated && showFilter);
+            for ( Text txt:   txtValue       ) txt.setVisible(isGenerated && showFilter);
+            for ( Button add: btnAdd         ) add.setVisible(isGenerated && showFilter);
+            for ( Button del: btnDelete      ) if ( (isGenerated == false && showFilter == false) || del!=btnDelete.get(0) ) del.setVisible(isGenerated && showFilter);
+            
+            if ( treeItem != null ) {
+                treeItem.setData("generate", getGenerate());
+                treeItem.setData("tests", showFilter ? getTests() : null);
+            }
+        }
+        
+        @Override
+        public void widgetDefaultSelected(SelectionEvent e) {
+            widgetSelected(e);
+        }
+    };
 
-	private SelectionListener generateSelectionListener = new SelectionListener() {
+	private SelectionListener FilterSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
-	    	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
-	    	boolean   generate = getGenerate();
+	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	    	boolean   showFilter = getFilter();
+
+	    	lblGenre.setVisible(showFilter);
+	    	btnAnd.setVisible(showFilter);
+	    	btnOr.setVisible(showFilter);
+	    	lblAttribute.setVisible(showFilter);
+	    	lblOperation.setVisible(showFilter);
+	    	lblValue.setVisible(showFilter);
+	    	for ( Text txt:   txtAttribute   ) txt.setVisible(showFilter);
+	    	for ( CCombo cmb: comboOperation ) cmb.setVisible(showFilter);
+	    	for ( Text txt:   txtValue       ) txt.setVisible(showFilter);
+	    	for ( Button add: btnAdd         ) add.setVisible(showFilter);
+	    	for ( Button del: btnDelete      ) if ( showFilter == false || del!=btnDelete.get(0) ) del.setVisible(showFilter);
 	    	
 	    	if ( treeItem != null ) {
-	    		treeItem.setData("generate", generate);
+	    	    treeItem.setData("tests", showFilter ? getTests() : null);
 	    	}
-	    	
-	    	lblFilter.setVisible(generate);
-	    	lblGenre.setVisible(generate);
-	    	btnAnd.setVisible(generate);
-	    	btnOr.setVisible(generate);
-	    	lblAttribute.setVisible(generate);
-	    	lblOperation.setVisible(generate);
-	    	lblValue.setVisible(generate);
-	    	for ( Text txt:   txtAttribute   ) txt.setVisible(generate);
-	    	for ( CCombo cmb: comboOperation ) cmb.setVisible(generate);
-	    	for ( Text txt:   txtValue       ) txt.setVisible(generate);
-	    	for ( Button add: btnAdd         ) add.setVisible(generate);
-	    	for ( Button del: btnDelete      ) if ( generate == false || del!=btnDelete.get(0) ) del.setVisible(generate);
 	    }
 	
 	    @Override
@@ -203,6 +244,8 @@ public class FilterEditor {
 	private SelectionListener addSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
+	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	        
 	    	// we get the index of the add button that has been selected
 	    	int index = -1;
 	    	
@@ -223,6 +266,7 @@ public class FilterEditor {
 	        
 	        CCombo cmb = new CCombo(parent, SWT.BORDER);
 	        cmb.setItems(new String[] {"exists", "equals", "iequals", "in", "iin", "matches"});
+	        cmb.addSelectionListener(operationSelectionListener);
 	        comboOperation.add(index+1, cmb);
 
 	        Text val = new Text(parent, SWT.BORDER);
@@ -237,6 +281,10 @@ public class FilterEditor {
 	        del.setImage(FormGraphicalEditor.BIN_ICON);
 	        del.addSelectionListener(delSelectionListener);
 	        btnDelete.add(index+1, del);
+	        
+            if ( treeItem != null ) {
+                treeItem.setData("tests", getTests());
+            }
 
 	        redraw();
 	    }
@@ -250,6 +298,8 @@ public class FilterEditor {
 	private SelectionListener operationSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
+	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	        
 	    	// we get the index of the add button that has been selected
 	    	int index = -1;
 	    	
@@ -265,6 +315,10 @@ public class FilterEditor {
 	    		index = comboOperation.size()-1;
 	    	
 	    	txtValue.get(index).setVisible(!FormPlugin.areEqualIgnoreCase(comboOperation.get(index).getText(), "exists"));
+	    	
+            if ( treeItem != null ) {
+                treeItem.setData("tests", getTests());
+            }
 	    }
 		
 	    @Override
@@ -276,9 +330,10 @@ public class FilterEditor {
 	private SelectionListener delSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
+            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+            
 	    	// we get the index of the add button that has been selected
 	    	int index = -1;
-	    	
 	    	for ( int i = 0; i < btnDelete.size(); ++i ) {
 	    		if ( btnDelete.get(i) == e.getSource() ) {
 	    			index = i;
@@ -296,6 +351,10 @@ public class FilterEditor {
 	        txtValue.remove(index).dispose();
 	        btnAdd.remove(index).dispose();
 	        btnDelete.remove(index).dispose();
+	        
+            if ( treeItem != null ) {
+                treeItem.setData("tests", getTests());
+            }
 	    	
 	        redraw();
 	    }
@@ -312,7 +371,7 @@ public class FilterEditor {
     	for ( int i = 0; i < btnAdd.size(); ++i ) {
             fd = new FormData();
             fd.top = new FormAttachment(i==0 ? lblAttribute : txtAttribute.get(i-1), (int)(FormGraphicalEditor.editorVerticalMargin/2));
-            fd.left = new FormAttachment(lblAttribute, 0, SWT.LEFT);
+            fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
             fd.right = new FormAttachment(lblAttribute, 0, SWT.RIGHT);
             txtAttribute.get(i).setLayoutData(fd);
             
@@ -379,6 +438,10 @@ public class FilterEditor {
     	return btnGenerate.getSelection();
     }
     
+    public boolean getFilter() {
+        return btnFilter.getSelection();
+    }
+    
     public void setGenre(String genre) {
    		btnAnd.setSelection(FormPlugin.areEqualIgnoreCase(genre, "and"));
    		btnOr.setSelection(!FormPlugin.areEqualIgnoreCase(genre, "and"));
@@ -389,11 +452,23 @@ public class FilterEditor {
     }
     
     public void setTests(List<Map<String, String>> tests) {
-    	int nbTests;
-    	if ( tests == null || tests.size() == 0 )
-    		nbTests = 1;
-    	else
-    		nbTests = tests.size();
+        if ( tests == null || tests.size() == 0 ) {
+    	    btnFilter.setSelection(false);
+    	    btnFilter.notifyListeners(SWT.Selection, new Event());
+            btnGenerate.notifyListeners(SWT.Selection, new Event());
+            
+            // we remove all the widgets
+            for ( int i = txtAttribute.size(); i > 0; --i ) {
+                btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
+            }
+            txtAttribute.get(0).setText("");
+            comboOperation.get(0).setText("");
+            txtValue.get(0).setText("");
+            
+    	    return;
+    	}
+    	
+    	int nbTests = tests.size();
     	
     	// we add widgets if we miss some
     	for ( int i = txtAttribute.size(); i < nbTests; ++i ) {
@@ -401,7 +476,7 @@ public class FilterEditor {
     	}
     	
     	// we remove widgets if we've got too much of them
-    	for ( int i = nbTests; i > txtAttribute.size(); --i ) {
+    	for ( int i = txtAttribute.size(); i > nbTests; --i ) {
     		btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
     	}
     	
@@ -411,6 +486,11 @@ public class FilterEditor {
     		comboOperation.get(i).setText(tests.get(i).get("operation")==null ? "" : tests.get(i).get("operation"));
     		txtValue.get(i).setText(tests.get(i).get("value")==null ? "" : tests.get(i).get("value"));
     	}
+    	
+    	btnGenerate.setSelection(true);
+        btnFilter.setSelection(true);
+        btnFilter.notifyListeners(SWT.Selection, new Event());
+        btnGenerate.notifyListeners(SWT.Selection, new Event());
     }
 	
     public List<Map<String, String>> getTests() {
