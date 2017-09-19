@@ -150,7 +150,8 @@ public class FormDialog extends Dialog {
     private Button               btnDown              = null;
     
     private enum                 Position {Before, After, Into, End};
-    private String configFilename = null;
+    private String               configFilename = null;
+    private boolean              editMode = false;
     
     private static final FormJsonParser jsonParser = new FormJsonParser();
     
@@ -166,7 +167,9 @@ public class FormDialog extends Dialog {
         	
             TreeItem formTreeItem = null;
             // If the dialog is ran against no EObject, then we switch to edit mode 
-            if ( selectedObject == null )
+            editMode = ( selectedObject == null );
+            
+            if ( editMode )
             	formTreeItem = createPropertiesDialog(jsonForm);
             
             jsonParser.createForm(jsonForm, formDialog, formTreeItem);
@@ -180,7 +183,9 @@ public class FormDialog extends Dialog {
                 while (tabsIterator.hasNext()) {
                     JSONObject jsonTab = tabsIterator.next();
 
-                    TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
+                    TreeItem tabTreeItem = null;
+                    if ( editMode )
+                    	tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
                     
                     CTabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
                     
@@ -198,10 +203,12 @@ public class FormDialog extends Dialog {
                 }
             }
             
-            formTreeItem.setExpanded(true);
+            if ( editMode ) {
+            	formTreeItem.setExpanded(true);
             
-            tree.setSelection(formTreeItem);
-            tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties
+            	tree.setSelection(formTreeItem);
+            	tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties
+            }
            
             // TODO: If there is at least one Excel sheet specified, then we show up the "export to Excel" button
             //if (excelSheets.isEmpty()) {
@@ -222,8 +229,10 @@ public class FormDialog extends Dialog {
         formDialog.open();
         formDialog.layout();
         
-        propertiesDialog.open();
-        propertiesDialog.layout();
+        if ( selectedObject == null ) {
+        	propertiesDialog.open();
+            propertiesDialog.layout();
+        }
     }
 
     /**
@@ -715,12 +724,14 @@ public class FormDialog extends Dialog {
      */
     private void createControl(JSONObject jsonControl, Composite parent, TreeItem parentTreeItem) throws RuntimeException {
             FormJsonParser jsonParser = new FormJsonParser();
-            TreeItem treeItem;
+            TreeItem treeItem = null;
 
             String clazz = jsonParser.getString(jsonControl, "class");
             if ( clazz != null ) {
-            	treeItem = new TreeItem(parentTreeItem, SWT.NONE);
             	Widget widget;
+            	if ( editMode )
+            		treeItem = new TreeItem(parentTreeItem, SWT.NONE);
+
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
 	                	widget = jsonParser.createCheck(jsonControl, parent, treeItem);
@@ -743,11 +754,15 @@ public class FormDialog extends Dialog {
 	            
 	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
 	            	TreeItem tableTreeItem = treeItem;
-    	            TreeItem columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-    	            columnsTreeItem.setImage(FormJsonParser.COLUMN_ICON);
-    	            columnsTreeItem.setText("columns");
-    	            columnsTreeItem.setData("class", "columns");
-    	            columnsTreeItem.setData("widget", widget);
+    	            TreeItem columnsTreeItem = null;
+    	            
+    	            if ( editMode ) {
+    	            	columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
+        	            columnsTreeItem.setImage(FormJsonParser.COLUMN_ICON);
+        	            columnsTreeItem.setText("columns");
+        	            columnsTreeItem.setData("class", "columns");
+        	            columnsTreeItem.setData("widget", widget);
+    	            }
 
                     JSONArray columns = jsonParser.getJSONArray(jsonControl, "columns");
                     if ( columns != null ) {
@@ -758,7 +773,9 @@ public class FormDialog extends Dialog {
                             
                             clazz = jsonParser.getString(jsonColumn, "class");
                             if ( clazz != null ) {
-                            	treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
+                            	if ( editMode )
+                            		treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
+
                 	            switch ( clazz.toLowerCase() ) {
 	            	                case "check":
 	            	                	jsonParser.createCheckColumn(jsonColumn, (Table)widget, treeItem, null);
@@ -779,11 +796,15 @@ public class FormDialog extends Dialog {
                         }
                     }
     	            
-    	            TreeItem linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-    	            linesTreeItem.setImage(FormJsonParser.LINE_ICON);
-    	            linesTreeItem.setText("lines");
-    	            linesTreeItem.setData("class", "lines");
-    	            linesTreeItem.setData("widget", widget);
+    	            TreeItem linesTreeItem = null;
+    	            
+    	            if ( editMode ) {
+    	            	linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
+        	            linesTreeItem.setImage(FormJsonParser.LINE_ICON);
+        	            linesTreeItem.setText("lines");
+        	            linesTreeItem.setData("class", "lines");
+        	            linesTreeItem.setData("widget", widget);
+    	            }
     	            
     	            
     	            JSONArray lines = jsonParser.getJSONArray(jsonControl, "lines");
@@ -793,10 +814,13 @@ public class FormDialog extends Dialog {
                         while (linesIterator.hasNext()) {
                             JSONObject jsonLine = linesIterator.next();
                             
-                            treeItem = new TreeItem(linesTreeItem, SWT.NONE);
+            	            if ( editMode )
+            	            	treeItem = new TreeItem(linesTreeItem, SWT.NONE);
+
                             jsonParser.createLine(jsonLine, (Table)widget, treeItem);
                             
-            	            treeItem.setText(treeItem.getData("name")==null ? "" : (String)treeItem.getData("name"));
+            	            if ( editMode )
+            	            	treeItem.setText(treeItem.getData("name")==null ? "" : (String)treeItem.getData("name"));
                         }
                     }
 	            }
@@ -847,6 +871,9 @@ public class FormDialog extends Dialog {
         close();
     }
     
+    /**
+     * Called when the user clicks on the close button
+     */
     private void close() {
         if ( formDialog != null ) {
             formDialog.dispose();
