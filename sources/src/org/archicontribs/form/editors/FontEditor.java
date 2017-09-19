@@ -191,7 +191,7 @@ public class FontEditor {
 		lblSample.setFont(font);
 		
 		if ( treeItem != null ) {
-			treeItem.setData("font", getFontName());
+			treeItem.setData("fontName", getFontName());
 			treeItem.setData("fontSize", getFontSize());
 			treeItem.setData("fontBold", getBold());
 			treeItem.setData("fontItalic", getItalic());
