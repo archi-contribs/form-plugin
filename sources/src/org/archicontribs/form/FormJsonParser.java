@@ -387,6 +387,7 @@ public class FormJsonParser {
 
         getXY(jsonObject, text, treeItem);
         getVariable(jsonObject, text, treeItem);
+        getRegexp(jsonObject, text, treeItem);
         getForegroundAndBackground(jsonObject, text, treeItem);
         getTooltip(jsonObject, text, treeItem);
         getFont(jsonObject, text, treeItem);
@@ -424,6 +425,8 @@ public class FormJsonParser {
         FormPosition.setControlClass("text");
 
         getWidth(jsonObject, tableColumn, treeItem);
+        getRegexp(jsonObject, tableColumn, treeItem);
+        getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem);
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
@@ -1146,7 +1149,7 @@ public class FormJsonParser {
         }
     }
     
-    private void getForegroundAndBackground(JSONObject jsonObject, Control control, TreeItem treeItem) {
+    private void getForegroundAndBackground(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String foreground = getString(jsonObject, "foreground");
     	String background = getString(jsonObject, "background");
     	
@@ -1162,9 +1165,9 @@ public class FormJsonParser {
     	}
 
     	// we set the control color
-    	if ( control != null ) {
-			FormPlugin.setColor(control, foreground, SWT.FOREGROUND);
-			FormPlugin.setColor(control, background, SWT.BACKGROUND);
+    	if ( widget != null && widget instanceof Control ) {
+			FormPlugin.setColor((Control)widget, foreground, SWT.FOREGROUND);
+			FormPlugin.setColor((Control)widget, background, SWT.BACKGROUND);
     	}
     }
     
@@ -1186,12 +1189,29 @@ public class FormJsonParser {
     	}
     }
     
+    private void getRegexp(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    	String regexp = getString(jsonObject, "regexp");
+    	
+    	if ( logger.isTraceEnabled() ) {
+    		logger.trace("      regexp = " + regexp);
+    	}
+    	
+    	// required by the graphical editor
+    	if ( treeItem != null ) {
+    		setData(treeItem, "regexp", regexp);
+    	}
+    	
+    	// required by the form
+    	if ( widget != null ) {
+    		widget.setData("regexp", regexp);
+    	}
+    }
+    
     private void getVariable(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String  variable      = getString(jsonObject, "variable");
     	String  defaultText   = getString(jsonObject, "default");
     	Boolean forceDefault  = getBoolean(jsonObject, "forceDefault");
     	String  whenEmpty     = getString(jsonObject, "whenEmpty");
-    	String  regex         = getString(jsonObject, "regexp");
         Boolean editable      = getBoolean(jsonObject, "editable");
         
 		if ( logger.isTraceEnabled() ) {
@@ -1199,9 +1219,7 @@ public class FormJsonParser {
 			logger.trace("      default = " 	  + defaultText);
 			logger.trace("      forceDefault = "  + forceDefault);
 			logger.trace("      whenEmpty = "     + whenEmpty);
-			if ( widget != null && widget instanceof StyledText )
-				logger.trace("      regexp = "    + regex);
-			if ( widget != null && widget instanceof StyledText || widget instanceof CCombo )
+			if ( widget != null && (widget instanceof StyledText || widget instanceof CCombo) )
 				logger.trace("      editable = "  + editable);
 		}
 		
@@ -1215,10 +1233,8 @@ public class FormJsonParser {
     		setData(treeItem, "default",      defaultText);
     		setData(treeItem, "forceDefault", forceDefault);
     		setData(treeItem, "whenEmpty",    whenEmpty);
-	    	if ( widget != null && widget instanceof StyledText )
-	    		setData(treeItem, "regexp",    whenEmpty);
-	    	if ( widget != null && widget instanceof StyledText || widget instanceof CCombo )
-	    		setData(treeItem, "editable",  whenEmpty);
+	    	if ( widget != null && (widget instanceof StyledText || widget instanceof CCombo) )
+	    		setData(treeItem, "editable",  editable);
     	}
 
     	// required by the form
@@ -1227,8 +1243,6 @@ public class FormJsonParser {
 			widget.setData("default", defaultText);
 			widget.setData("forceDefault", forceDefault);
 			widget.setData("whenEmpty",    whenEmpty);
-			if ( widget instanceof StyledText )
-				widget.setData("regexp",    whenEmpty);
 			
 	        // editable
 	        if ( widget instanceof StyledText && editable != null )
@@ -1497,13 +1511,7 @@ public class FormJsonParser {
     				default:
     					Object value = treeItem.getData(key);
     					if ( value != null ) {
-    						if ( value instanceof Integer ) {
-    							if ( (int)value != 0 ) json.put(key, value);
-    						} else if ( value instanceof String ) {
-    							if ( !((String)value).isEmpty() ) json.put(key, value);
-    						} else {
-    							throw new RuntimeException("Do not know how to save "+value.getClass().getSimpleName());
-    						}
+    						json.put(key, value);
     					}
     						
     			}

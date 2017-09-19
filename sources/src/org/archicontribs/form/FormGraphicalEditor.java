@@ -790,7 +790,6 @@ public class FormGraphicalEditor extends Dialog {
         try (FileWriter file = new FileWriter(configFilename)) {
             file.write(jsonString);
             file.flush();
-
         } catch (IOException e) {
             FormDialog.popup(Level.ERROR, "Failed to write configuration into file \"" + configFilename + "\"", e);
             return;
