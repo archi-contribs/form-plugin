@@ -1,7 +1,13 @@
 package org.archicontribs.form;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.apache.log4j.Level;
 import org.archicontribs.form.composites.CheckColumnComposite;
@@ -98,7 +104,7 @@ public class FormGraphicalEditor extends Dialog {
 	public static final Image HAUT_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/flèche_haut.png"));
 	public static final Image PLUS_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/plus.png"));
 	    
-    
+    private String configFilename = null;
     
     private static final FormJsonParser jsonParser = new FormJsonParser();
     
@@ -106,6 +112,8 @@ public class FormGraphicalEditor extends Dialog {
     
     public FormGraphicalEditor(String configFilename, JSONObject jsonForm) {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        
+        this.configFilename = configFilename;
 
         try {
         	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -760,8 +768,26 @@ public class FormGraphicalEditor extends Dialog {
             logger.debug("Save button selected by user.");
 
         JSONObject json = jsonParser.generateJson(tree);
+        String jsonString = json.toJSONString();
+        
+        ScriptEngineManager manager = new ScriptEngineManager();
+        ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
+        scriptEngine.put("jsonString", jsonString);
+        try {
+            scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 3)");
+            jsonString = (String) scriptEngine.get("result");
+        } catch (ScriptException e1) {
+            // if we cannot indent the json string, th'as not a big deal
+        }
 
-        System.out.println(json.toJSONString());
+        try (FileWriter file = new FileWriter(configFilename)) {
+            file.write(jsonString);
+            file.flush();
+
+        } catch (IOException e) {
+            FormDialog.popup(Level.ERROR, "Failed to write configuration into file \"" + configFilename + "\"", e);
+            return;
+        }
         
         close();
     }
