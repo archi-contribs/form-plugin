@@ -18,11 +18,9 @@ import org.archicontribs.form.composites.TableComposite;
 import org.archicontribs.form.composites.TextColumnComposite;
 import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
@@ -69,7 +67,7 @@ public class FormGraphicalEditor extends Dialog {
     public final static Color blackColor       	      = new Color(display, 0, 0, 0);
     public final static Color whiteColor       	      = new Color(display, 255, 255, 255);
     
-    public final static int   editorLeftposition      = 100;
+    public final static int   editorLeftposition      = 110;
     public final static int   editorBorderMargin      = 10;
     public final static int   editorVerticalMargin    = 10;
 
@@ -95,16 +93,6 @@ public class FormGraphicalEditor extends Dialog {
     
     private enum                 Position {Before, After, Into, End};
     
-	public static final Image FORM_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
-	public static final Image TAB_ICON          	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
-	public static final Image LABEL_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/label.png"));
-	public static final Image TEXT_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/text.png"));
-	public static final Image CHECK_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/check.png"));
-	public static final Image COMBO_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/combo.png"));
-	public static final Image TABLE_ICON        	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/table.png"));
-	public static final Image COLUMN_ICON       	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/column.png"));
-	public static final Image LINE_ICON         	  = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/line.png"));
-	
 	public static final Image BIN_ICON                = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/bin.png"));
 	public static final Image BAS_ICON                = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/flèche_bas.png"));
 	public static final Image HAUT_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/flèche_haut.png"));
@@ -123,7 +111,6 @@ public class FormGraphicalEditor extends Dialog {
         	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         	
             TreeItem formTreeItem = createPropertiesDialog(jsonForm);
-            formTreeItem.setImage(FORM_ICON);
             
             jsonParser.createForm(jsonForm, formDialog, formTreeItem);
 
@@ -137,11 +124,8 @@ public class FormGraphicalEditor extends Dialog {
                     JSONObject jsonTab = tabsIterator.next();
 
                     TreeItem tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
-                    tabTreeItem.setImage(TAB_ICON);
                     
                     CTabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
-                    tabTreeItem.setData("widget", tabItem.getControl());
-                    
                     
                     JSONArray controls = jsonParser.getJSONArray(jsonTab, "controls");
                     if ( controls != null ) {
@@ -408,7 +392,7 @@ public class FormGraphicalEditor extends Dialog {
             	if ( parentTreeItem == null ) {		// the selectedTreeItem is the form
                 	newItem = new MenuItem(treeMenu, SWT.NONE);
                 	newItem.setText("Add new tab");
-                	newItem.setImage(TAB_ICON);
+                	newItem.setImage(FormJsonParser.TAB_ICON);
                 	newItem.setData("position", Position.End);
                 	newItem.addSelectionListener(addTabListener);
             	} else {
@@ -431,6 +415,8 @@ public class FormGraphicalEditor extends Dialog {
             	switch (suffix) {
             		case "before": position = Position.Before; break;
             		case "after":  position = Position.After; break;
+                    case "column":
+                    case "line":
             		case "into":   position = Position.Into; break;
             		default:       position = Position.After;
             	}
@@ -438,7 +424,9 @@ public class FormGraphicalEditor extends Dialog {
             	Menu subMenu = new Menu(treeMenu);
             	newItem.setMenu(subMenu);
             	
-            	addItemsToMenu(subMenu, position, !prefix.endsWith("column"));
+            	Boolean showTable = !( suffix.equals("column") || suffix.equals("line") || prefix.endsWith("column") || prefix.endsWith("line") );
+            	
+            	addItemsToMenu(subMenu, position, showTable);
             }
             
             private void addItemsToMenu(Menu subMenu, Position position, boolean showTable) {
@@ -446,28 +434,28 @@ public class FormGraphicalEditor extends Dialog {
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("label");
-            	newItem.setImage(LABEL_ICON);
+            	newItem.setImage(FormJsonParser.LABEL_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "label");
             	newItem.addSelectionListener(addWidgetListener);
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("text");
-            	newItem.setImage(TEXT_ICON);
+            	newItem.setImage(FormJsonParser.TEXT_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "text");
             	newItem.addSelectionListener(addWidgetListener);
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("combo");
-            	newItem.setImage(COMBO_ICON);
+            	newItem.setImage(FormJsonParser.COMBO_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "combo");
             	newItem.addSelectionListener(addWidgetListener);
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("check box");
-            	newItem.setImage(CHECK_ICON);
+            	newItem.setImage(FormJsonParser.CHECK_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "check");
             	newItem.addSelectionListener(addWidgetListener);
@@ -475,7 +463,7 @@ public class FormGraphicalEditor extends Dialog {
             	if ( showTable ) {
             		newItem = new MenuItem(subMenu, SWT.NONE);
                 	newItem.setText("table");
-                	newItem.setImage(TABLE_ICON);
+                	newItem.setImage(FormJsonParser.TABLE_ICON);
                 	newItem.setData("position", position);
                 	newItem.addSelectionListener(addTableListener);
             	}
@@ -488,7 +476,7 @@ public class FormGraphicalEditor extends Dialog {
             		case "tab":
                     	newItem = new MenuItem(treeMenu, SWT.NONE);
                     	newItem.setText(prefix+" tab "+suffix);
-                    	newItem.setImage(TAB_ICON);
+                    	newItem.setImage(FormJsonParser.TAB_ICON);
                     	newItem.setData("position", position);
                     	newItem.addSelectionListener(addTabListener);
                     	
@@ -518,21 +506,21 @@ public class FormGraphicalEditor extends Dialog {
                     	
             		case "columns":
                     	if ( position == Position.Before ) {
-                    		addItemsToSubMenu("Add column", "into", treeMenu);
+                    		addItemsToSubMenu("Add", "column", treeMenu);
                     	}
                     	break;
                     	
             		case "lines":
                     	if ( position == Position.Before ) {
                     		newItem = new MenuItem(treeMenu, SWT.CASCADE);
-                        	newItem.setText("Add into ...");
+                        	newItem.setText("Add line ...");
                         	
                         	Menu subMenu = new Menu(treeMenu);
                         	newItem.setMenu(subMenu);
                         	
                         	newItem = new MenuItem(subMenu, SWT.NONE);
                         	newItem.setText("line");
-                        	newItem.setImage(LINE_ICON);
+                        	newItem.setImage(FormJsonParser.LINE_ICON);
                         	newItem.setData("position", Position.Into);
                         	newItem.addSelectionListener(addLineListener);
                     	}
@@ -541,7 +529,7 @@ public class FormGraphicalEditor extends Dialog {
             		case "line":
                     	newItem = new MenuItem(treeMenu, SWT.NONE);
                     	newItem.setText(prefix+" line "+suffix);
-                    	newItem.setImage(LINE_ICON);
+                    	newItem.setImage(FormJsonParser.LINE_ICON);
                     	newItem.setData("position", position);
                     	newItem.addSelectionListener(addLineListener);
                     	break;
@@ -679,23 +667,18 @@ public class FormGraphicalEditor extends Dialog {
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
 	                	widget = jsonParser.createCheck(jsonControl, parent, treeItem);
-	                	treeItem.setImage(CHECK_ICON);
 	                	break;
 		            case "combo":
 	                	widget = jsonParser.createCombo(jsonControl, parent, treeItem);
-	                	treeItem.setImage(COMBO_ICON);
 	                	break;
 	                case "label":
 	                	widget = jsonParser.createLabel(jsonControl, parent, treeItem);
-	                	treeItem.setImage(LABEL_ICON);
 	                	break;
 	                case "table":
 	                	widget = jsonParser.createTable(jsonControl, parent, treeItem);
-	                	treeItem.setImage(TABLE_ICON);
 	                	break;
 	                case "text":
 	                	widget = jsonParser.createText(jsonControl, parent, treeItem);
-	                	treeItem.setImage(TEXT_ICON);
 	                	break;
 	                default:
 	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
@@ -704,7 +687,7 @@ public class FormGraphicalEditor extends Dialog {
 	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
 	            	TreeItem tableTreeItem = treeItem;
     	            TreeItem columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-    	            columnsTreeItem.setImage(COLUMN_ICON);
+    	            columnsTreeItem.setImage(FormJsonParser.COLUMN_ICON);
     	            columnsTreeItem.setText("columns");
     	            columnsTreeItem.setData("class", "columns");
     	            columnsTreeItem.setData("widget", widget);
@@ -722,19 +705,15 @@ public class FormGraphicalEditor extends Dialog {
                 	            switch ( clazz.toLowerCase() ) {
 	            	                case "check":
 	            	                	jsonParser.createCheckColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	treeItem.setImage(CHECK_ICON);
 	            	                	break;
 	            		            case "combo":
 	            	                	 jsonParser.createComboColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	treeItem.setImage(COMBO_ICON);
 	            	                	break;
 	            	                case "label":
 	            	                	jsonParser.createLabelColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	treeItem.setImage(LABEL_ICON);
 	            	                	break;
 	            	                case "text":
 	            	                	jsonParser.createTextColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	treeItem.setImage(TEXT_ICON);
 	            	                	break;
 	            	                default:
 	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
@@ -744,7 +723,7 @@ public class FormGraphicalEditor extends Dialog {
                     }
     	            
     	            TreeItem linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-    	            linesTreeItem.setImage(LINE_ICON);
+    	            linesTreeItem.setImage(FormJsonParser.LINE_ICON);
     	            linesTreeItem.setText("lines");
     	            linesTreeItem.setData("class", "lines");
     	            linesTreeItem.setData("widget", widget);
@@ -758,10 +737,8 @@ public class FormGraphicalEditor extends Dialog {
                             JSONObject jsonLine = linesIterator.next();
                             
                             treeItem = new TreeItem(linesTreeItem, SWT.NONE);
-                            TableItem tableItem = (TableItem)jsonParser.createLine(jsonLine, (Table)widget, treeItem);
+                            jsonParser.createLine(jsonLine, (Table)widget, treeItem);
                             
-    	    	            treeItem.setData("widget", tableItem);
-            	            treeItem.setImage(LINE_ICON);
             	            treeItem.setText(treeItem.getData("name")==null ? "" : (String)treeItem.getData("name"));
                         }
                     }
@@ -771,236 +748,6 @@ public class FormGraphicalEditor extends Dialog {
             FormPosition.resetControlClass();
     }
     
-
-
-     /**
-     * Create a Table control<br>
-     * <br>
-     * called by the createObjects() method
-     * 
-     * @param jsonObject
-     *            the JSON object to parse
-     * @param composite
-     *            the composite where the control will be created
-     */
-	/*
-    @SuppressWarnings("unchecked")
-    private void createTable(JSONObject jsonObject, TreeItem tabTreeItem, Composite composite) throws RuntimeException {
-
-        String tableName = jsonParser.getString(jsonObject, "name", "");
-        
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating table \"" + tableName + "\"");
-        
-        FormPosition.setControlName(tableName);
-        FormPosition.setControlClass("table");
-        
-        int x = jsonParser.getInt(jsonObject, "x", 0);
-        int y = jsonParser.getInt(jsonObject, "y", 0);
-        int width = jsonParser.getInt(jsonObject, "width", 100);
-        int height = jsonParser.getInt(jsonObject, "height", 50);
-        String background = jsonParser.getString(jsonObject, "background", "");
-        String foreground = jsonParser.getString(jsonObject, "foreground", "");
-        String tooltip = jsonParser.getString(jsonObject, "tooltip", "");
-        String excelSheet = jsonParser.getString(jsonObject, "excelSheet", "");
-        int excelFirstLine = jsonParser.getInt(jsonObject, "excelFirstLine", 1);
-        int excelLastLine = jsonParser.getInt(jsonObject, "excelLastLine", 0);
-
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating table");
-        if (logger.isTraceEnabled()) {
-            logger.trace("      x = " + FormDialog.debugValue(x, 0));
-            logger.trace("      y = " + FormDialog.debugValue(y, 0));
-            logger.trace("      width = " + FormDialog.debugValue(width, 100));
-            logger.trace("      height = " + FormDialog.debugValue(height, 50));
-            logger.trace("      background = " + FormDialog.debugValue(background, ""));
-            logger.trace("      foreground = " + FormDialog.debugValue(foreground, ""));
-            logger.trace("      tooltip = " + FormDialog.debugValue(tooltip, ""));
-            logger.trace("      excelSheet = " + FormDialog.debugValue(excelSheet, ""));
-            logger.trace("      excelFirstLine = " + FormDialog.debugValue(excelFirstLine, 1));
-            logger.trace("      excelLastLine = " + FormDialog.debugValue(excelLastLine, 0));
-        }
-        
-        TreeItem tableTreeItem = new TreeItem(tabTreeItem, SWT.NONE);
-        tableTreeItem.setText("Table: "+ tableName);
-        tableTreeItem.setData("class", "table");
-        tableTreeItem.setData("name", tableName);
-        tableTreeItem.setData("x", x);
-        tableTreeItem.setData("y", y);
-        tableTreeItem.setData("width", width);
-        tableTreeItem.setData("height", height);
-        tableTreeItem.setData("background", background);
-        tableTreeItem.setData("foreground", foreground);
-        tableTreeItem.setData("tooltip", tooltip);
-        tableTreeItem.setData("excelSheet", excelSheet);
-        tableTreeItem.setData("excelFirstLine", excelFirstLine);
-        tableTreeItem.setData("excelLastLine", excelLastLine);
-        
-        TreeItem columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-        columnsTreeItem.setText("Columns");
-        columnsTreeItem.setData("class", "columns");
-        
-        TreeItem linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-        linesTreeItem.setText("Lines");
-        linesTreeItem.setData("class", "lines");
-        
-        // we iterate over the "columns" entries
-        Iterator<JSONObject> columnsIterator = (jsonParser.getJSONArray(jsonObject, "columns")).iterator();
-        while (columnsIterator.hasNext()) {
-            JSONObject column = columnsIterator.next();
-
-            String columnName = jsonParser.getString(column, "name", "");
-            FormPosition.setColumnName(columnName);
-            
-            String columnClass = jsonParser.getString(column, "class").toLowerCase();
-            
-            tooltip = jsonParser.getString(column, "tooltip", "");
-            width = jsonParser.getInt(column, "width", 0);
-            background = jsonParser.getString(column, "background", "");
-            foreground = jsonParser.getString(column, "foreground", "");
-            String excelColumn = jsonParser.getString(column, "excelColumn", "");
-            String excelCellType = jsonParser.getString(column, "excelCellType", "string");
-            String excelDefault = jsonParser.getString(column, "excelDefault", "blank");
-
-            if (logger.isDebugEnabled())
-                logger.debug("   Creating column \"" + columnName + "\" of class \"" + columnClass + "\"");
-            if (logger.isTraceEnabled()) {
-                logger.trace("      width = " + FormDialog.debugValue(width, 0));
-                logger.trace("      background = " + FormDialog.debugValue(background, ""));
-                logger.trace("      foreground = " + FormDialog.debugValue(foreground, ""));
-                logger.trace("      tooltip = " + FormDialog.debugValue(tooltip, ""));
-                logger.trace("      excelColumn = " + FormDialog.debugValue(excelColumn, ""));
-                logger.trace("      excelCellType = " + FormDialog.debugValue(excelCellType, "string"));
-                logger.trace("      excelDefault = " + FormDialog.debugValue(excelDefault, "blank"));
-            }
-            
-            TreeItem columnTreeItem = new TreeItem(columnsTreeItem, SWT.NONE);
-            columnTreeItem.setText("Column: "+ columnName);
-            columnTreeItem.setData("class", "column");
-            columnTreeItem.setData("name", columnName);
-            columnTreeItem.setData("class", columnClass);
-            columnTreeItem.setData("width", width);
-            columnTreeItem.setData("background", background);
-            columnTreeItem.setData("foreground", foreground);
-            columnTreeItem.setData("tooltip", tooltip);
-            columnTreeItem.setData("excelColumn", excelColumn);
-            columnTreeItem.setData("excelCellType", excelCellType);
-            columnTreeItem.setData("excelDefault", excelDefault);
-
-            String alignment;
-
-            switch (columnClass) {
-                case "label":
-                    alignment = jsonParser.getString(column, "alignment", "left");
-                    
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("      alignment = "+FormDialog.debugValue(alignment, "left"));
-                    }
-                    
-                    columnTreeItem.setData("alignment", alignment);
-                    break;
-                    
-                case "text":
-                    String regexp = jsonParser.getString(column, "regexp", "");
-                    String defaultText = jsonParser.getString(column, "default", "");
-                    String whenEmpty = jsonParser.getString(column, "whenEmpty", globalWhenEmpty);
-                    boolean forceDefault = jsonParser.getBoolean(column, "forceDefault", false);
-                    alignment = jsonParser.getString(column, "alignment", "left");
-
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("      regexp = " + FormDialog.debugValue(regexp, ""));
-                        logger.trace("      default = " + FormDialog.debugValue(defaultText, ""));
-                        logger.trace("      forceDefault = " + FormDialog.debugValue(forceDefault, false));
-                        logger.trace("      whenEmpty = " + FormDialog.debugValue(whenEmpty, globalWhenEmpty));
-                        logger.trace("      alignment = "+FormDialog.debugValue(alignment, "left"));
-                    }
-
-                    columnTreeItem.setData("regexp", regexp);
-                    columnTreeItem.setData("default", defaultText);
-                    columnTreeItem.setData("forceDefault", forceDefault);
-                    columnTreeItem.setData("whenEmpty", whenEmpty);
-                    columnTreeItem.setData("alignment", alignment);
-                    break;
-                    
-                case "combo":
-                    String[] values = (String[]) (jsonParser.getJSONArray(column, "values")).toArray(new String[0]);
-                    String defaultValue = jsonParser.getString(column, "default", "");
-                    Boolean editable = jsonParser.getBoolean(column, "editable", true);
-                    whenEmpty = jsonParser.getString(jsonObject, "whenEmpty", globalWhenEmpty);
-                    alignment = jsonParser.getString(column, "alignment", "left");
-
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("      values = " + values);
-                        logger.trace("      default = " + FormDialog.debugValue(defaultValue, ""));
-                        logger.trace("      editable = " + FormDialog.debugValue(editable, true));
-                        logger.trace("      whenEmpty = " + FormDialog.debugValue(whenEmpty, globalWhenEmpty));
-                        logger.trace("      alignment = "+FormDialog.debugValue(alignment, "left"));
-                    }
-
-                    columnTreeItem.setData("values", values);
-                    columnTreeItem.setData("default", defaultValue);
-                    columnTreeItem.setData("editable", editable);
-                    columnTreeItem.setData("whenEmpty", whenEmpty);
-                    columnTreeItem.setData("alignment", alignment);
-                    break;
-                case "check":
-                    values = (String[]) (jsonParser.getJSONArray(column, "values")).toArray(new String[0]);
-                    defaultValue = jsonParser.getString(column, "default", "");
-                    forceDefault = jsonParser.getBoolean(column, "forceDefault", false);
-                    whenEmpty = jsonParser.getString(jsonObject, "whenEmpty", globalWhenEmpty);
-                    alignment = jsonParser.getString(column, "alignment", "left");
-
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("      values = " + values);
-                        logger.trace("      default = " + FormDialog.debugValue(defaultValue, ""));
-                        logger.trace("      forceDefault = " + FormDialog.debugValue(forceDefault, false));
-                        logger.trace("      whenEmpty = " + FormDialog.debugValue(whenEmpty, globalWhenEmpty));
-                        logger.trace("      alignment = "+FormDialog.debugValue(alignment, "left"));
-                    }
-
-                    columnTreeItem.setData("values", values);
-                    columnTreeItem.setData("default", defaultValue);
-                    columnTreeItem.setData("forceDefault", forceDefault);
-                    columnTreeItem.setData("whenEmpty", whenEmpty);
-                    columnTreeItem.setData("alignment", alignment);
-                    break;
-                default:
-                    throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" +jsonParser.getString(column, "class") + "\" (valid values are \"check\", \"combo\", \"label\" and \"text\").");
-            }
-        }
-        FormPosition.resetColumnName();
-
-
-        // we iterate over the "lines" entries
-        JSONArray lines = jsonParser.getJSONArray(jsonObject, "lines");
-        if (lines != null) {
-            Iterator<JSONObject> linesIterator = lines.iterator();
-            while (linesIterator.hasNext()) {
-                JSONObject line = linesIterator.next();
-                
-                TreeItem lineTreeItem = new TreeItem(linesTreeItem, SWT.NONE);
-                
-                lineTreeItem.setData("cells", jsonParser.getJSONArray(line, "cells"));
-                lineTreeItem.setData("class", "line");
-                
-                if ((boolean) jsonParser.getJSON(line, "generate", false) == false) {
-                    // static line
-                    if (logger.isTraceEnabled())
-                        logger.trace("Creating static line");
-                                        lineTreeItem.setText("Static line");
-                } else {
-                    // dynamic lines : we create one line per entry in getChildren()
-                    if (logger.isTraceEnabled())
-                        logger.trace("Generating dynamic lines");
-                    
-                    lineTreeItem.setText("Dynamic lines");
-                    lineTreeItem.setData("filter", jsonParser.getJSONObject(line, "filter"));
-                }
-            }
-        }
-    }
-            */
-
     private void cancel() {
         if (logger.isDebugEnabled())
             logger.debug("Cancel button selected by user.");
@@ -1080,7 +827,7 @@ public class FormGraphicalEditor extends Dialog {
 			
 			TreeItem newTreeItem = new TreeItem(parentTreeItem, SWT.NONE, index);
 			newTreeItem.setText("new tab");
-			newTreeItem.setImage(TAB_ICON);
+			newTreeItem.setImage(FormJsonParser.TAB_ICON);
         	newTreeItem.setData("class", "tab");
         	jsonParser.setData(newTreeItem, "name", "new tab");
         	jsonParser.setData(newTreeItem, "foreground", null);
@@ -1112,7 +859,48 @@ public class FormGraphicalEditor extends Dialog {
     private SelectionListener addTableListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			logger.error("addTableListener: code not yet written");
+	         Position position = (Position)((MenuItem)e.getSource()).getData("position");
+	            TreeItem selectedTreeItem = tree.getSelection()[0];
+	            TreeItem parentTreeItem = selectedTreeItem.getParentItem();
+	            TreeItem currentTreeItem = null;
+	            int index = 0;
+
+	            if ( parentTreeItem == null ) {
+	                parentTreeItem = selectedTreeItem;
+	                index = parentTreeItem.getItemCount();
+	            } else {
+	                switch ( position ) {
+	                    case Before: currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem);     break;
+	                    case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
+	                    case End:    currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();                break;
+	                    case Into:   currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
+	                }
+	            }
+	            
+	            TreeItem newTreeItem = new TreeItem(currentTreeItem, SWT.NONE, index);
+	            newTreeItem.setImage(FormJsonParser.TABLE_ICON);
+	            newTreeItem.setText("new table");
+	            
+                logger.trace("      adding table");
+                Composite parentComposite = (Composite)currentTreeItem.getData("widget");
+                
+                Table table = jsonParser.createTable(null, parentComposite, newTreeItem);
+                jsonParser.setData(newTreeItem, "name", "new table");
+                
+                TreeItem columnsItem = new TreeItem(newTreeItem, SWT.NONE);
+                columnsItem.setImage(FormJsonParser.COLUMN_ICON);
+                columnsItem.setText("columns");
+                columnsItem.setData("class", "columns");
+                columnsItem.setData("widget", table);
+                
+                TreeItem linesItem = new TreeItem(newTreeItem, SWT.NONE);
+                linesItem.setImage(FormJsonParser.LINE_ICON);
+                linesItem.setText("lines");
+                linesItem.setData("class", "lines");
+                linesItem.setData("widget", table);
+                
+                tree.setSelection(newTreeItem);
+                tree.notifyListeners(SWT.Selection, new Event());        // shows up the table's properties
 		}
 		
 		@Override
@@ -1152,91 +940,19 @@ public class FormGraphicalEditor extends Dialog {
 				Table table = (Table)parentComposite;
 				TableColumn column = null;
 				switch (widgetClass) {
-					case "label":  column = jsonParser.createLabelColumn(null, table, newTreeItem, index); newTreeItem.setImage(LABEL_ICON); break;
-					case "text":   column = jsonParser.createTextColumn (null, table, newTreeItem, index); newTreeItem.setImage(TEXT_ICON); break;
-					case "combo":  column = jsonParser.createComboColumn(null, table, newTreeItem, index); newTreeItem.setImage(COMBO_ICON); break;
-					case "check":  column = jsonParser.createCheckColumn(null, table, newTreeItem, index); newTreeItem.setImage(CHECK_ICON); break;
+					case "label":  column = jsonParser.createLabelColumn(null, table, newTreeItem, index); break;
+					case "text":   column = jsonParser.createTextColumn (null, table, newTreeItem, index); break;
+					case "combo":  column = jsonParser.createComboColumn(null, table, newTreeItem, index); break;
+					case "check":  column = jsonParser.createCheckColumn(null, table, newTreeItem, index); break;
 				}
 				
 				column.setText("new "+widgetClass);
-				
-				for ( TableItem tableItem: table.getItems() ) {
-					TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
-					TableEditor[] newEditors = new TableEditor[table.getColumnCount()];
-					
-					String[] oldCells = (String[])tableItem.getData("cells");
-					String[] newCells = new String[table.getColumnCount()];
-					
-					int newCol = 0;
-					for (int oldCol=0; oldCol < table.getColumnCount(); ++oldCol) {
-						if ( oldCol == index ) {
-							TableEditor editor= new TableEditor(table);
-				            newEditors[index] = editor;
-				            
-				            switch ( widgetClass ) {
-				                case "label":
-				                	newCells[index] = "";
-				                    logger.trace("      adding label cell with value \"" + newCells[index] + "\"");
-				                    Label label = new Label(table, SWT.WRAP | SWT.NONE);
-				                    label.setText(newCells[index]);
-				                    editor.setEditor(label, tableItem, index);
-				                    editor.grabHorizontal = true;
-				                    break;
-				                    
-				                case "text":
-				                	newCells[index] = "${void}";
-				                    StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
-				                    logger.trace("      adding text cell with value \"" + newCells[index] + "\"");
-				                    text.setText(newCells[index]);
-				                    editor.setEditor(text, tableItem, index);
-				                    editor.grabHorizontal = true;
-				                    break;
-				                    
-				                case "combo":
-				                	newCells[index] = "${void}";
-				                    CCombo combo = new CCombo(table, SWT.NONE);
-				                    logger.trace("      adding combo cell with value \"" + newCells[index] + "\"");
-				                    combo.setText(newCells[index]);
-				                    combo.setItems((String[])table.getColumn(index).getData("values"));
-				                    editor.setEditor(combo, tableItem, index);
-				                    editor.grabHorizontal = true;
-				                    break;
-				                    
-				                case "check":
-				                	newCells[index] = "${void}";
-				                    Button check = new Button(table, SWT.CHECK);
-				                    check.pack();
-				                    logger.trace("      adding check cell with value \"" + newCells[index] + "\"");
-				                    editor.minimumWidth = check.getSize().x;
-				                    editor.horizontalAlignment = SWT.CENTER;
-				                    editor.setEditor(check, tableItem, index);
-				                    break;
-				                    
-				                default:
-				                    throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)table.getColumn(index).getData("class")) + "\"");
-				    		}
-							++newCol;
-						}
-						
-						if ( oldCol < table.getColumnCount()-1 ) {
-							newEditors[newCol] = oldEditors[oldCol];
-							newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
-							newCells[newCol] = oldCells[oldCol];
-						}
-						++newCol;
-					}
-					tableItem.setData("editors", newEditors);
-					tableItem.setData("cells", newCells);
-					TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeitem");
-					if ( lineTreeItem != null )
-						lineTreeItem.setData("cells", newCells);
-				}
 			} else {
 				switch (widgetClass) {
-					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem); newTreeItem.setImage(LABEL_ICON); break;
-					case "text":   jsonParser.createText (null, parentComposite, newTreeItem); newTreeItem.setImage(TEXT_ICON); break;
-					case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem); newTreeItem.setImage(COMBO_ICON); break;
-					case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem); newTreeItem.setImage(CHECK_ICON); break;
+					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem); break;
+					case "text":   jsonParser.createText (null, parentComposite, newTreeItem); break;
+					case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem); break;
+					case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem); break;
 				}
 			}
 			
@@ -1275,8 +991,6 @@ public class FormGraphicalEditor extends Dialog {
             
             TreeItem newTreeItem = new TreeItem(currentTreeItem, SWT.NONE, index);
             newTreeItem.setText("new line");
-            newTreeItem.setData("class", "line");
-            newTreeItem.setImage(LINE_ICON);
             
             Composite parentComposite = (Composite)currentTreeItem.getData("widget");
             if ( parentComposite instanceof Table ) {

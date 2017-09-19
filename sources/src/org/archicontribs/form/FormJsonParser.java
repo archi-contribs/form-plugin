@@ -14,6 +14,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -34,7 +35,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
- * Methods to parse JSON objects and create the corresponding SWT widgets
+ * Helper methods to parse JSON objects and create the corresponding SWT widgets
  * 
  * @author Herve Jouin
  *
@@ -43,6 +44,16 @@ public class FormJsonParser {
 	private static final FormLogger logger            = new FormLogger(FormDialog.class);
 	
 	protected static Display        display           = Display.getDefault();
+	
+    public static final Image FORM_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
+    public static final Image TAB_ICON                = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
+    public static final Image LABEL_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/label.png"));
+    public static final Image TEXT_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/text.png"));
+    public static final Image CHECK_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/check.png"));
+    public static final Image COMBO_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/combo.png"));
+    public static final Image TABLE_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/table.png"));
+    public static final Image COLUMN_ICON             = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/column.png"));
+    public static final Image LINE_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/line.png"));
 	
     /**
      * @param ignoreErrors : set to true if the errors must be ignored, false if an Exception should be raised in case of error.<br><br>
@@ -70,10 +81,8 @@ public class FormJsonParser {
         if ( treeItem != null )
         	treeItem.setData("widget", form);
         
-        //TODO:
-        //TODO: use helper functions
-    	//TODO:
-        String  name              = getName(jsonObject, form, treeItem); FormPosition.setFormName(name);
+        String  name              = getName(jsonObject, form, treeItem);
+        FormPosition.setFormName(name);
         
         Integer width             = getInt(jsonObject, "width");
         Integer height            = getInt(jsonObject, "height");
@@ -201,8 +210,12 @@ public class FormJsonParser {
         
         form.setData("tab folder", tabFolder);					        // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
+            treeItem.setImage(FORM_ICON);
         	treeItem.setData("class", "form");
+            treeItem.setData("widget", form);
+            form.setData("treeItem", treeItem);
+        }
     }
     
     /**
@@ -239,6 +252,7 @@ public class FormJsonParser {
         	tabItem.setText(name);						// may be replaced by FormVariable.expand(name, selectedObject) in calling method
         
         if ( treeItem != null ) {
+            treeItem.setImage(TAB_ICON);
         	treeItem.setData("class", "tab");
             treeItem.setData("widget", composite);
             composite.setData("treeItem", treeItem);
@@ -272,6 +286,7 @@ public class FormJsonParser {
         getExcelCellOrColumn(jsonObject, label, treeItem);
         
         if ( treeItem != null ) {
+            treeItem.setImage(LABEL_ICON);
         	treeItem.setData("class", "label");
             treeItem.setData("widget", label);
             label.setData("treeItem", treeItem);
@@ -292,9 +307,9 @@ public class FormJsonParser {
         // we create the label
         TableColumn tableColumn;
         if ( index == null )
-        	tableColumn = new TableColumn(parent, SWT.NONE);
-        else
-        	tableColumn = new TableColumn(parent, SWT.NONE, index);
+            index = parent.getColumnCount();
+
+        tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -305,7 +320,46 @@ public class FormJsonParser {
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
+        // we update the editors and cells if necessary
+        for ( TableItem tableItem: parent.getItems() ) {
+            TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
+            TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
+            
+            String[] oldCells = (String[])tableItem.getData("cells");
+            String[] newCells = new String[parent.getColumnCount()];
+            
+            int newCol = 0;
+            for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
+                if ( oldCol == index ) {
+                    TableEditor editor= new TableEditor(parent);
+                    newEditors[index] = editor;
+                    
+                    newCells[index] = "";
+                    logger.trace("      adding label cell with value \"" + newCells[index] + "\"");
+                    Label label = new Label(parent, SWT.WRAP | SWT.NONE);
+                    label.setText(newCells[index]);
+                    editor.setEditor(label, tableItem, index);
+                    editor.grabHorizontal = true;
+                             
+                    ++newCol;
+                }
+                
+                if ( oldCol < parent.getColumnCount()-1 ) {
+                    newEditors[newCol] = oldEditors[oldCol];
+                    newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
+                    newCells[newCol] = oldCells[oldCol];
+                }
+                ++newCol;
+            }
+            tableItem.setData("editors", newEditors);
+            tableItem.setData("cells", newCells);
+            TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
+            if ( lineTreeItem != null )
+                lineTreeItem.setData("cells", newCells);
+        }
+        
         if ( treeItem != null ) {
+            treeItem.setImage(LABEL_ICON);
         	treeItem.setData("class", "labelColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
@@ -340,6 +394,7 @@ public class FormJsonParser {
         getExcelCellOrColumn(jsonObject, text, treeItem);
         
         if ( treeItem != null ) {
+            treeItem.setImage(TEXT_ICON);
         	treeItem.setData("class", "text");
         	treeItem.setData("widget", text);
         	text.setData("treeItem", treeItem);
@@ -360,9 +415,9 @@ public class FormJsonParser {
         // we create the text
         TableColumn tableColumn;
         if ( index == null )
-        	tableColumn = new TableColumn(parent, SWT.NONE);
-        else
-        	tableColumn = new TableColumn(parent, SWT.NONE, index);
+            index = parent.getColumnCount();
+
+        tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -373,7 +428,46 @@ public class FormJsonParser {
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
+        // we update the editors and cells if necessary
+        for ( TableItem tableItem: parent.getItems() ) {
+            TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
+            TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
+            
+            String[] oldCells = (String[])tableItem.getData("cells");
+            String[] newCells = new String[parent.getColumnCount()];
+            
+            int newCol = 0;
+            for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
+                if ( oldCol == index ) {
+                    TableEditor editor= new TableEditor(parent);
+                    newEditors[index] = editor;
+                    
+                    newCells[index] = "${void}";
+                    StyledText text = new StyledText(parent, SWT.WRAP | SWT.NONE);
+                    logger.trace("      adding text cell with value \"" + newCells[index] + "\"");
+                    text.setText(newCells[index]);
+                    editor.setEditor(text, tableItem, index);
+                    editor.grabHorizontal = true;
+                             
+                    ++newCol;
+                }
+                
+                if ( oldCol < parent.getColumnCount()-1 ) {
+                    newEditors[newCol] = oldEditors[oldCol];
+                    newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
+                    newCells[newCol] = oldCells[oldCol];
+                }
+                ++newCol;
+            }
+            tableItem.setData("editors", newEditors);
+            tableItem.setData("cells", newCells);
+            TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
+            if ( lineTreeItem != null )
+                lineTreeItem.setData("cells", newCells);
+        }
+        
         if ( treeItem != null ) {
+            treeItem.setImage(TEXT_ICON);
         	treeItem.setData("class", "textColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
@@ -408,6 +502,7 @@ public class FormJsonParser {
         getExcelCellOrColumn(jsonObject, combo, treeItem);
         
         if ( treeItem != null ) {
+            treeItem.setImage(COMBO_ICON);
         	treeItem.setData("class", "combo");
             treeItem.setData("widget", combo);
             combo.setData("treeItem", treeItem);
@@ -428,9 +523,9 @@ public class FormJsonParser {
         // we create the combo
         TableColumn tableColumn;
         if ( index == null )
-        	tableColumn = new TableColumn(parent, SWT.NONE);
-        else
-        	tableColumn = new TableColumn(parent, SWT.NONE, index);
+            index = parent.getColumnCount();
+
+        tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -441,7 +536,48 @@ public class FormJsonParser {
         getTooltip(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
+        // we update the editors and cells if necessary
+        for ( TableItem tableItem: parent.getItems() ) {
+            TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
+            TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
+            
+            String[] oldCells = (String[])tableItem.getData("cells");
+            String[] newCells = new String[parent.getColumnCount()];
+            
+            int newCol = 0;
+            for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
+                if ( oldCol == index ) {
+                    TableEditor editor= new TableEditor(parent);
+                    newEditors[index] = editor;
+                    
+                    newCells[index] = "${void}";
+                    CCombo combo = new CCombo(parent, SWT.NONE);
+                    logger.trace("      adding combo cell with value \"" + newCells[index] + "\"");
+                    combo.setText(newCells[index]);
+                    String[] values = (String[])parent.getColumn(index).getData("values");
+                    if ( values != null ) combo.setItems(values);
+                    editor.setEditor(combo, tableItem, index);
+                    editor.grabHorizontal = true;
+                             
+                    ++newCol;
+                }
+                
+                if ( oldCol < parent.getColumnCount()-1 ) {
+                    newEditors[newCol] = oldEditors[oldCol];
+                    newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
+                    newCells[newCol] = oldCells[oldCol];
+                }
+                ++newCol;
+            }
+            tableItem.setData("editors", newEditors);
+            tableItem.setData("cells", newCells);
+            TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
+            if ( lineTreeItem != null )
+                lineTreeItem.setData("cells", newCells);
+        }
+        
         if ( treeItem != null ) {
+            treeItem.setImage(COMBO_ICON);
         	treeItem.setData("class", "comboColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
@@ -476,7 +612,8 @@ public class FormJsonParser {
  	   	getExcelCellOrColumn(jsonObject, check, treeItem);
  	   	
         if ( treeItem != null ) {
-        	treeItem.setData("class", "check");
+            treeItem.setImage(CHECK_ICON);
+            treeItem.setData("class", "check");
             treeItem.setData("widget", check);
             check.setData("treeItem", treeItem);
         }
@@ -496,9 +633,9 @@ public class FormJsonParser {
         // we create the check button
         TableColumn tableColumn;
         if ( index == null )
-        	tableColumn = new TableColumn(parent, SWT.NONE);
-        else
-        	tableColumn = new TableColumn(parent, SWT.NONE, index);
+            index = parent.getColumnCount();
+
+       	tableColumn = new TableColumn(parent, SWT.NONE, index);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -510,7 +647,47 @@ public class FormJsonParser {
  	   	getTooltip(jsonObject, tableColumn, treeItem);
  	   	getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
  	   	
+        // we update the editors and cells if necessary
+        for ( TableItem tableItem: parent.getItems() ) {
+            TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
+            TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
+            
+            String[] oldCells = (String[])tableItem.getData("cells");
+            String[] newCells = new String[parent.getColumnCount()];
+            
+            int newCol = 0;
+            for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
+                if ( oldCol == index ) {
+                    TableEditor editor= new TableEditor(parent);
+                    newEditors[index] = editor;
+                    
+                    newCells[index] = "${void}";
+                    Button check = new Button(parent, SWT.CHECK);
+                    check.pack();
+                    logger.trace("      adding check cell with value \"" + newCells[index] + "\"");
+                    editor.minimumWidth = check.getSize().x;
+                    editor.horizontalAlignment = SWT.CENTER;
+                    editor.setEditor(check, tableItem, index);
+                             
+                    ++newCol;
+                }
+                
+                if ( oldCol < parent.getColumnCount()-1 ) {
+                    newEditors[newCol] = oldEditors[oldCol];
+                    newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
+                    newCells[newCol] = oldCells[oldCol];
+                }
+                ++newCol;
+            }
+            tableItem.setData("editors", newEditors);
+            tableItem.setData("cells", newCells);
+            TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
+            if ( lineTreeItem != null )
+                lineTreeItem.setData("cells", newCells);
+        }
+ 	   	
         if ( treeItem != null ) {
+            treeItem.setImage(CHECK_ICON);
         	treeItem.setData("class", "checkColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
@@ -520,210 +697,6 @@ public class FormJsonParser {
  	   	return tableColumn;
     }
 	
-    /*
-    // we iterate over the "columns" entries
-    Iterator<JSONObject> columnsIterator = (getJSONArray(jsonObject, "columns")).iterator();
-    while (columnsIterator.hasNext()) {
-        JSONObject column = columnsIterator.next();
-
-        String columnName = getString(column, "name", "(no name)");
-        FormPosition.setColumnName(columnName);
-        
-        String columnClass = getString(column, "class");
-        String columnTooltip = getString(column, "tooltype", "");
-        int columnWidth = getInt(column, "width", 0);
-        String excelColumn = getString(column, "excelColumn", "");
-        String excelCellType = getString(column, "excelCellType", "");
-        String excelDefault = getString(column, "excelDefault", "");
-        background = getString(column, "background", "");
-        foreground = getString(column, "foreground", "");
-
-        if (logger.isDebugEnabled())
-            logger.debug("   Creating column \"" + columnName + "\" of class \"" + columnClass + "\"");
-        if (logger.isTraceEnabled()) {
-            logger.trace("      background = " + background, ""));
-            logger.trace("      foreground = " + foreground, ""));
-            logger.trace("      width = " + columnWidth, 0));
-            logger.trace("      tooltip = " + columnTooltip, ""));
-            logger.trace("      excelColumn = " + excelColumn, ""));
-            logger.trace("      excelCellType = " + excelCellType, ""));
-            logger.trace("      excelDefault = " + excelDefault, ""));
-        }
-
-        TableColumn tableColumn = new TableColumn(table, SWT.NONE);
-        tableColumn.setText(columnName);
-        tableColumn.setAlignment(SWT.CENTER);
-        tableColumn.setWidth(columnWidth);
-        tableColumn.setResizable(columnWidth != 0);
-        tableColumn.setData("class", columnClass);
-        tableColumn.setData("excelColumn", excelColumn);
-        tableColumn.setData("excelCellType", excelCellType.toLowerCase());
-        tableColumn.setData("excelDefault", excelDefault.toLowerCase());
-        tableColumn.setData("tooltip", tooltip);
-        
-        if ( columnWidth == 0 )
-            columnWidth = (10 + columnName.length() * 8);
-            
-        if ( !FormPlugin.isEmpty((String)background) ) {
-            String[] colorArray = background.split(",");
-            tableColumn.setData("background", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-
-        if ( !FormPlugin.isEmpty((String)foreground) ) {
-            String[] colorArray = foreground.split(",");
-            tableColumn.setData("foreground", new Color(display, Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
-        }
-        
-        tableColumn.addListener(SWT.Selection, sortListener);
-        
-        String alignment;
-
-        switch (columnClass.toLowerCase()) {
-            case "check":
-                if (JSONContainsKey(column, "values")) {
-                    String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
-                    String defaultValue = getString(column, "default", "");
-                    boolean forceDefault = getBoolean(column, "forceDefault", false);
-                    String whenEmpty = getString(jsonObject, "whenEmpty", globalWhenEmpty);
-                    alignment = getString(column, "alignment", "left");
-
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("      values = " + values);
-                        logger.trace("      default = " + defaultValue, ""));
-                        logger.trace("      forceDefault = " + forceDefault, false));
-                        logger.trace("      whenEmpty = " + whenEmpty, globalWhenEmpty));
-                        logger.trace("      alignment = "+alignment, "left"));
-                    }
-
-                    if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
-                        whenEmpty = whenEmpty.toLowerCase();
-                        if (!inArray(validWhenEmpty, whenEmpty))
-                            throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
-                    }
-
-                    tableColumn.setData("values", values);
-                    tableColumn.setData("default", defaultValue);
-                    tableColumn.setData("forceDefault", forceDefault);
-                    tableColumn.setData("whenEmpty", whenEmpty);
-                    
-                    switch ( alignment.toLowerCase() ) {
-                        case "":
-                        case "left" :
-                            tableColumn.setData("alignment", SWT.LEFT);
-                            break;
-                        case "right" :
-                            tableColumn.setData("alignment", SWT.RIGHT);
-                            break;
-                        case "center":
-                            tableColumn.setData("alignment", SWT.CENTER);
-                            break;
-                        default:
-                            throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
-                    }
-                } else {
-                    tableColumn.setData("forceDefault", false);
-                }
-                break;
-            case "combo":
-                if (column.containsKey("values")) {
-                    String[] values = (String[]) (getJSONArray(column, "values")).toArray(new String[0]);
-                    String defaultValue = getString(column, "default", "");
-                    Boolean editable = getBoolean(column, "editable", true);
-                    String whenEmpty = getString(jsonObject, "whenEmpty", "");
-
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("      values = " + values);
-                        logger.trace("      default = " + defaultValue, ""));
-                        logger.trace("      editable = " + editable, true));
-                        logger.trace("      whenEmpty = " + whenEmpty, ""));
-                    }
-
-                    if ( !FormPlugin.isEmpty((String)whenEmpty)) {
-                        whenEmpty = whenEmpty.toLowerCase();
-                        if (!inArray(validWhenEmpty, whenEmpty))
-                            throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
-                    }
-
-                    tableColumn.setData("values", values);
-                    tableColumn.setData("default", defaultValue);
-                    tableColumn.setData("editable", editable);
-                    tableColumn.setData("whenEmpty", whenEmpty);
-                } else {
-                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nMissing mandatory attribute \"values\".");
-                }
-                break;
-            case "label":
-                alignment = getString(column, "alignment", "left");
-                
-                if (logger.isTraceEnabled()) {
-                    logger.trace("      alignment = "+alignment, "left"));
-                }
-                
-                switch ( alignment.toLowerCase() ) {
-                    case "right" :
-                        tableColumn.setData("alignment", SWT.RIGHT);
-                        break;
-                    case "left" :
-                        tableColumn.setData("alignment", SWT.LEFT);
-                        break;
-                    case "center":
-                        tableColumn.setData("alignment", SWT.CENTER);
-                        break;
-                    default:
-                        throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
-                }
-                break;
-            case "text":
-                String regexp = getString(column, "regexp", "");
-                String defaultText = getString(column, "default", "");
-                String whenEmpty = getString(column, "whenEmpty", "");
-                boolean forceDefault = getBoolean(column, "forceDefault", false);
-                alignment = getString(column, "alignment", "");
-
-                if (logger.isTraceEnabled()) {
-                    logger.trace("      regexp = " + regexp, ""));
-                    logger.trace("      default = " + defaultText, ""));
-                    logger.trace("      forceDefault = " + forceDefault, false));
-                    logger.trace("      whenEmpty = " + whenEmpty, ""));
-                    logger.trace("      alignment = "+alignment, ""));
-                }
-
-                if ( !FormPlugin.isEmpty((String)whenEmpty) ) {
-                    whenEmpty = whenEmpty.toLowerCase();
-                    if (!inArray(validWhenEmpty, whenEmpty))
-                        throw new RuntimeException(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \"" + whenEmpty + "\" (valid values are \"ignore\", \"create\" and \"delete\").");
-                }
-
-                tableColumn.setData("regexp", regexp);
-                tableColumn.setData("default", defaultText);
-                tableColumn.setData("forceDefault", forceDefault);
-                tableColumn.setData("whenEmpty", whenEmpty);
-                
-                switch ( alignment.toLowerCase() ) {
-                    case "":
-                    case "left" :
-                        tableColumn.setData("alignment", SWT.LEFT);
-                        break;
-                    case "right" :
-                        tableColumn.setData("alignment", SWT.RIGHT);
-                        break;
-                    case "center":
-                        tableColumn.setData("alignment", SWT.CENTER);
-                        break;
-                    default:
-                        throw new RuntimeException(FormPosition.getPosition("alignment") + "\n\nInvalid alignment value, must be \"right\", \"left\" or \"center\"."); 
-                }
-                break;
-            default:
-                throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + getString(column, "class") + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
-        }
-    }
-    FormPosition.resetColumnName();
-
-    table.setSortColumn(table.getColumn(0));
-    table.setSortDirection(SWT.UP);
-    */
-    
     /**
      * Create a table control<br>
      * <br>
@@ -746,8 +719,12 @@ public class FormJsonParser {
         getTooltip(jsonObject, table, treeItem);
         getExcelLines(jsonObject, table, treeItem);
         
-        if ( treeItem != null )
+        if ( treeItem != null ) {
+            treeItem.setImage(TABLE_ICON);
         	treeItem.setData("class", "table");
+        	treeItem.setData("widget", table);
+        	table.setData("treeItem", treeItem);
+        }
 
         return table;
     }
@@ -772,8 +749,10 @@ public class FormJsonParser {
         getFilter(jsonObject, tableItem, treeItem);
         
         if ( treeItem != null ) {
+            treeItem.setImage(LINE_ICON);
         	treeItem.setData("class", "line");
-        	tableItem.setData("treeitem", treeItem);
+        	treeItem.setData("widget", tableItem);
+            tableItem.setData("treeItem", treeItem);
         }
         
         return tableItem;
@@ -893,7 +872,8 @@ public class FormJsonParser {
                     CCombo combo = new CCombo(table, SWT.NONE);
                     logger.trace("      adding combo cell with value \"" + cells[columnNumber] + "\"");
                     combo.setText(cells[columnNumber]);
-                    combo.setItems((String[])table.getColumn(columnNumber).getData("values"));
+                    String[] values = (String[])table.getColumn(columnNumber).getData("values");
+                    if ( values != null ) combo.setItems(values);
                     editor.setEditor(combo, tableItem, columnNumber);
                     editor.grabHorizontal = true;
                     break;
@@ -929,51 +909,7 @@ public class FormJsonParser {
     	}
     }
     
-    
-    /*
-        // we iterate over the "lines" entries
-        JSONArray lines = getJSONArray(jsonObject, "lines");
-        if (lines != null) {
-            Iterator<JSONObject> linesIterator = lines.iterator();
-            while (linesIterator.hasNext()) {
-                JSONObject line = linesIterator.next();
-
-                if ((boolean) getJSON(line, "generate", false) == false) {
-                    // static line
-                    if (logger.isTraceEnabled())
-                        logger.trace("Creating static line");
-                    addTableItem(table, selectedObject, getJSONArray(line, "cells"));
-                } else {
-                    // dynamic lines : we create one line per entry in
-                    // getChildren()
-                    if (logger.isTraceEnabled())
-                        logger.trace("Generating dynamic lines");
-                    if (selectedObject instanceof IArchimateDiagramModel) {
-                        addTableItems(table, ((IArchimateDiagramModel) selectedObject).getChildren(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
-                    } else {
-                        if (selectedObject instanceof IDiagramModelContainer) {
-                            addTableItems(table, ((IDiagramModelContainer) selectedObject).getChildren(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
-                        } else if (selectedObject instanceof IFolder) {
-                            addTableItems(table, ((IFolder) selectedObject).getElements(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
-                        } else if (selectedObject instanceof IArchimateModel) {
-                            for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
-                                addTableItems(table, folder.getElements(), getJSONArray(line, "cells"), getJSONObject(line, "filter"));
-                            }
-                        } else {
-                            throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nCannot generate lines for selected component as it is not a container (" + selectedObject.getClass().getSimpleName() + ").");
-                        }
-                    }
-                }
-            }
-        }
-        return table;
-    }
-    */
-    
-    
     /*********************************************************************************************************************************/
-    
-    
     
     /**
      * Gets the value corresponding to the key in the JSONObject
@@ -997,28 +933,6 @@ public class FormJsonParser {
         }
         return null;
     }
-    
-    /**
-     * Gets the value corresponding to the key in the JSONObject
-     * 
-     * @param obj the JSONObject
-     * @param key the key to search for (case insensitive)
-     * @param defaultValue the value to return in case the value is not found
-     * @return the value corresponding to the key if it has been found, else the defaultValue. The returned value is an <i>object</i> and therefore might be cast.
-     */
-    /*
-    @SuppressWarnings("unchecked")
-	public static Object getJSON(JSONObject obj, String key, Object defaultValue) {
-        Iterator<String> iter = obj.keySet().iterator();
-        while (iter.hasNext()) {
-            String key1 = iter.next();
-            if (key1.equalsIgnoreCase(key)) {
-                return obj.get(key1);
-            }
-        }
-        return defaultValue;
-    }
-    */
 
     /**
      * Gets the value corresponding to the key in the JSONObject
