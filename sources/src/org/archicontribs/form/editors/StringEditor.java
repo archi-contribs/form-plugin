@@ -10,6 +10,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
@@ -112,7 +113,19 @@ public class StringEditor {
 	    				break;
 	    				
 	    			case "Label":
-	    				if ( mustSetControlText ) ((Label)widget).setText(getText());
+	    				if ( mustSetControlText ) {
+	    				    ((Label)widget).setText(getText());
+	    				    if ( treeItem.getData("width") == null || (int)treeItem.getData("width") == 0 ) {
+	    				        Point p = ((Control)widget).computeSize(SWT.DEFAULT, SWT.DEFAULT);
+	    				        int x = treeItem.getData("x")==null ? 0 : (int)treeItem.getData("x");
+	    		                int y = treeItem.getData("y")==null ? 0 : (int)treeItem.getData("y");
+	    		                int width  = treeItem.getData("width")==null ? 0 : (int)treeItem.getData("width");
+	    		                int height = treeItem.getData("height")==null ? 0 : (int)treeItem.getData("height");
+	    		                if ( width == 0 ) width = p.x;
+	    		                if ( height == 0 ) height = p.y;
+	    		                ((Control)widget).setBounds(x, y, width, height);
+	    				    }
+	    				}
 	    				if ( mustSetControlTolltip ) ((Label)widget).setToolTipText(getText());
 	    				break;
 	    				
