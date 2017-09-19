@@ -58,8 +58,9 @@ public class TextComposite extends Composite implements CompositeInterface {
         forceDefaultEditor.setProperty("forceDefault");
         
         // editable
-        editableEditor = new CheckEditor(this, "Editable:");
+        editableEditor = new CheckEditor(this, "Read only:");
         editableEditor.setPosition(forceDefaultEditor.getControl());
+        editableEditor.setInverse(true);
         editableEditor.setProperty("editable");
         
 		// x, y, width, height

@@ -17,6 +17,7 @@ public class CheckEditor {
 	private Button     check;
 	private Composite  parent;
 	private String     property = null;
+	private Boolean    inverse = false;
 	
 	public CheckEditor(Composite parent, String labelText) {
 		this.parent = parent;
@@ -43,11 +44,10 @@ public class CheckEditor {
 	
 	public void setProperty(String property) {
 		this.property = property;
-		
-		Control control = (Control)parent.getData("widget");
-		if ( control != null && property != null) {
-	        setChecked((boolean)control.getData(property));
-    	}
+	}
+	
+	public void setInverse(boolean inverse) {
+		this.inverse = inverse;
 	}
 	
 	private SelectionListener checkSelectionListener = new SelectionListener() {
@@ -89,11 +89,11 @@ public class CheckEditor {
     
     public void setChecked(Boolean checked) {
         check.removeSelectionListener(checkSelectionListener);
-        check.setSelection(checked!=null && checked);
+        check.setSelection(checked!=null && (inverse ? !checked : checked));
         check.removeSelectionListener(checkSelectionListener);
     }
     
     public boolean getChecked() {
-    	return check.getSelection();
+    	return inverse ? !check.getSelection() : check.getSelection();
     }
 }

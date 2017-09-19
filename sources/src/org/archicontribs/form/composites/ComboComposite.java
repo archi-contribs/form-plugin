@@ -61,8 +61,9 @@ public class ComboComposite extends Composite implements CompositeInterface {
         valuesEditor.setProperty("values");
         
         // editable
-        editableEditor = new CheckEditor(this, "Editable:");
+        editableEditor = new CheckEditor(this, "Read Only:");
         editableEditor.setPosition(valuesEditor.getControl());
+        editableEditor.setInverse(true);
         editableEditor.setProperty("editable");
         
 		// x, y, width, height
