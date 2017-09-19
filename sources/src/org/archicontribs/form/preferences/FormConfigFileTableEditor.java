@@ -436,7 +436,8 @@ public class FormConfigFileTableEditor extends FieldEditor {
             if ( f.length() == 0 ) {
                 try {
                     FileWriter fw = new FileWriter(configFilename);
-                    fw.write("{\n    \"version\": 3,\n    \"org.archicontribs.form\": {}\n}");
+                    String basename = new File(configFilename).getName().split(".")[0];
+                    fw.write("{\n    \"version\": 3,\n    \"org.archicontribs.form\": { \"name\": \""+basename+"\" }\n}");
                     fw.close();
                 } catch (IOException e) {
                     FormDialog.popup(Level.ERROR, "Failed : cannot write header", e);
