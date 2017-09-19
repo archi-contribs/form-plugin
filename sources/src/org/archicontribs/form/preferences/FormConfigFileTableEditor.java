@@ -8,7 +8,6 @@ package org.archicontribs.form.preferences;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -40,6 +39,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -400,7 +400,8 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	/**
 	 * Called when the "generate" button has been pressed
 	 */
-	private void generateCallback() {
+	@SuppressWarnings("unchecked")
+    private void generateCallback() {
 		if ( logger.isTraceEnabled() ) logger.trace("generateCallback()");
 		
 		if ( tblConfigFiles.getSelectionIndex() != -1 ) {
@@ -432,49 +433,55 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 return;
             }
             
+            JSONObject form = null;
+            
             // if the file is empty, we insert the header
             if ( f.length() == 0 ) {
+                String basename = new File(configFilename).getName();
+                String[] basenameParts = basename.split("\\.");
+                if ( basenameParts.length > 0 ) basename = basenameParts[0];
+                
+                JSONObject tab = new JSONObject();
+                tab.put("name", "new tab");
+                tab.put("controls", new JSONArray());
+                
+                JSONArray tabs = new JSONArray();
+                tabs.add(tab);
+                
+                form = new JSONObject();
+                form.put("name", basename);
+                form.put("tabs", tabs);
+                
+            } else {
+                JSONObject jsonFile;
                 try {
-                    FileWriter fw = new FileWriter(configFilename);
-                    String basename = new File(configFilename).getName().split(".")[0];
-                    fw.write("{\n    \"version\": 3,\n    \"org.archicontribs.form\": { \"name\": \""+basename+"\" }\n}");
-                    fw.close();
-                } catch (IOException e) {
-                    FormDialog.popup(Level.ERROR, "Failed : cannot write header", e);
-                    return;
-                }
-            }
-
-            try {
-                JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-                Integer version;
-                try {
-                    version = jsonParser.getInt(json, "version");
+                    jsonFile = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
+                    Integer version = jsonParser.getInt(jsonFile, "version");
                     if ( version != null && version != 3 ) {
                         FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 3).");
                         return;
                     }
+                    
+                    form = jsonParser.getJSONObject(jsonFile, FormPlugin.PLUGIN_ID);
+                    
                 } catch (ClassCastException e) {
                     FormDialog.popup(Level.ERROR, "Failed : the version specified is not an integer (should be 3).");
                     return;
                 } catch (RuntimeException e) {
                     FormDialog.popup(Level.ERROR, "Failed : the version is not specified (should be 3).");
                     return;
+                } catch (IOException e) {
+                    FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file \""+configFilename+"\"",e);
+                } catch (ParseException e) {
+                    if ( e.getMessage() !=null ) {
+                        FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+configFilename+"\"",e);
+                    } else {
+                        FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+configFilename+"\" : Unexpected "+e.getUnexpectedObject().toString()+" at position "+e.getPosition());
+                    }
                 }
-                
-                JSONObject form = jsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
-            
-                new FormGraphicalEditor(configFilename, form);
-            } catch (IOException e) {
-                FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file \""+configFilename+"\"",e);
-            } catch (ParseException e) {
-                if ( e.getMessage() !=null )
-                    FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+configFilename+"\"",e);
-                else
-                    FormDialog.popup(Level.ERROR, "Parsing error while reading configuration file \""+configFilename+"\" : Unexpected "+e.getUnexpectedObject().toString()+" at position "+e.getPosition());
-            }  catch (ClassCastException e) {
-                FormDialog.popup(Level.ERROR, "Wrong key type in the configuration files \""+configFilename+"\"",e);
             }
+            
+            new FormGraphicalEditor(configFilename, form);
 		}
 	}
 
