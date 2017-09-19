@@ -1462,7 +1462,7 @@ public class FormJsonParser {
     
     /***********************************************************************************************************/
     @SuppressWarnings("unchecked")
-	public JSONObject generateJson(Tree tree) {
+	public JSONObject generateJson(Tree tree) throws RuntimeException {
     	JSONObject json = new JSONObject();
     	
     	json.put("version", 3);
@@ -1473,7 +1473,7 @@ public class FormJsonParser {
     	
     
     @SuppressWarnings("unchecked")
-	private JSONObject generateJson(TreeItem treeItem) {
+	private JSONObject generateJson(TreeItem treeItem) throws RuntimeException {
     	JSONObject json = new JSONObject();
     	JSONObject filter = null;
     	
@@ -1495,7 +1495,17 @@ public class FormJsonParser {
     					break;
     					
     				default:
-    					json.put(key, treeItem.getData(key));
+    					Object value = treeItem.getData(key);
+    					if ( value != null ) {
+    						if ( value instanceof Integer ) {
+    							if ( (int)value != 0 ) json.put(key, value);
+    						} else if ( value instanceof String ) {
+    							if ( !((String)value).isEmpty() ) json.put(key, value);
+    						} else {
+    							throw new RuntimeException("Do not know how to save "+value.getClass().getSimpleName());
+    						}
+    					}
+    						
     			}
     		}
     	}
@@ -1504,7 +1514,7 @@ public class FormJsonParser {
     	if ( clazz != null ) {
     		if ( clazz.endsWith("Column") )
     			json.put("class", clazz.substring(0, clazz.length()-6));
-    		else if ( !clazz.equals("line") && !clazz.equals("column"))
+    		else if ( !clazz.equals("line") && !clazz.equals("column") && !clazz.equals("form") && !clazz.equals("tab") )
         		json.put("class", clazz);
     	}
     	

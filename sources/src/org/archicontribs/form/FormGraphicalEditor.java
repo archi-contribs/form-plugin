@@ -767,7 +767,14 @@ public class FormGraphicalEditor extends Dialog {
         if (logger.isDebugEnabled())
             logger.debug("Save button selected by user.");
 
-        JSONObject json = jsonParser.generateJson(tree);
+        JSONObject json = null;
+        try {
+        	json = jsonParser.generateJson(tree);
+        } catch (RuntimeException e) {
+            FormDialog.popup(Level.ERROR, "Failed to convert configuration to JSON format.", e);
+            return;
+        }
+        
         String jsonString = json.toJSONString();
         
         ScriptEngineManager manager = new ScriptEngineManager();
@@ -777,7 +784,7 @@ public class FormGraphicalEditor extends Dialog {
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 3)");
             jsonString = (String) scriptEngine.get("result");
         } catch (ScriptException e1) {
-            // if we cannot indent the json string, th'as not a big deal
+            // if we cannot indent the json string, that's not a big deal
         }
 
         try (FileWriter file = new FileWriter(configFilename)) {
