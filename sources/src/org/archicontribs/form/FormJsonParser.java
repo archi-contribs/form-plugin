@@ -125,7 +125,7 @@ public class FormJsonParser {
         	width = FormDialog.defaultDialogWidth;
         
         if ( height == null || height < 0 )
-        	width = FormDialog.defaultDialogHeight;
+        	height = FormDialog.defaultDialogHeight;
         
         if ( spacing == null || spacing < 0 )
         	spacing = FormDialog.defaultDialogSpacing;
