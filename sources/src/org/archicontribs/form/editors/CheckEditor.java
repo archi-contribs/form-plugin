@@ -1,6 +1,6 @@
 package org.archicontribs.form.editors;
 
-import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -24,16 +24,16 @@ public class CheckEditor {
 		
 		lblCheck = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblCheck.setLayoutData(fd);
         lblCheck.setText(labelText);
         
         check = new Button(parent, SWT.CHECK);
         fd = new FormData();
         fd.top = new FormAttachment(lblCheck, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         check.setLayoutData(fd);
         check.addSelectionListener(checkSelectionListener);
 	}
@@ -69,17 +69,17 @@ public class CheckEditor {
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblCheck.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblCheck.setLayoutData(fd);
 	}
 	

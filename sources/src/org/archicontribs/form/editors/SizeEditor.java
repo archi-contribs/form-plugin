@@ -1,6 +1,6 @@
 package org.archicontribs.form.editors;
 
-import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -39,9 +39,9 @@ public class SizeEditor {
 		
         lblPosition = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblPosition.setLayoutData(fd);
         lblPosition.setText(isTableColumn ? "Width" : "Position:");
 		
@@ -50,7 +50,7 @@ public class SizeEditor {
 			lblX = new Label(parent, SWT.NONE);
 			fd = new FormData();
 	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+	        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
 			lblX.setLayoutData(fd);
 			lblX.setText("X:");
 	
@@ -70,7 +70,7 @@ public class SizeEditor {
 			lblY = new Label(parent, SWT.NONE);
 			fd = new FormData();
 	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(txtX, FormGraphicalEditor.editorBorderMargin);
+	        fd.left = new FormAttachment(txtX, FormDialog.editorBorderMargin);
 			lblY.setLayoutData(fd);
 			lblY.setText("Y:");
 	
@@ -90,7 +90,7 @@ public class SizeEditor {
 			lblWidth = new Label(parent, SWT.NONE);
 			fd = new FormData();
 	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(txtY, FormGraphicalEditor.editorBorderMargin);
+	        fd.left = new FormAttachment(txtY, FormDialog.editorBorderMargin);
 			lblWidth.setLayoutData(fd);
 			lblWidth.setText("Width:");
 		}
@@ -99,7 +99,7 @@ public class SizeEditor {
 		fd = new FormData();
         fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
         if ( isTableColumn )
-        	fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        	fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         else
         	fd.left = new FormAttachment(lblWidth, 0);
         fd.right = new FormAttachment(txtWidth, 40);
@@ -118,7 +118,7 @@ public class SizeEditor {
 	        lblHeight = new Label(parent, SWT.NONE);
 	        fd = new FormData();
 	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(txtWidth, FormGraphicalEditor.editorBorderMargin);
+	        fd.left = new FormAttachment(txtWidth, FormDialog.editorBorderMargin);
 	        lblHeight.setLayoutData(fd);
 	        lblHeight.setText("Height:");
 	        
@@ -197,17 +197,17 @@ public class SizeEditor {
 	
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblPosition.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblPosition.setLayoutData(fd);
 	}
 	

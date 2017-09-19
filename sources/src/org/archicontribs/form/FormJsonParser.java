@@ -45,15 +45,15 @@ public class FormJsonParser {
 	
 	protected static Display        display           = Display.getDefault();
 	
-    public static final Image FORM_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/form.png"));
-    public static final Image TAB_ICON                = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/tab.png"));
-    public static final Image LABEL_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/label.png"));
-    public static final Image TEXT_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/text.png"));
-    public static final Image CHECK_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/check.png"));
-    public static final Image COMBO_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/combo.png"));
-    public static final Image TABLE_ICON              = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/table.png"));
-    public static final Image COLUMN_ICON             = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/column.png"));
-    public static final Image LINE_ICON               = new Image(display, FormGraphicalEditor.class.getResourceAsStream("/icons/line.png"));
+    public static final Image FORM_ICON               = new Image(display, FormDialog.class.getResourceAsStream("/icons/form.png"));
+    public static final Image TAB_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/tab.png"));
+    public static final Image LABEL_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/label.png"));
+    public static final Image TEXT_ICON               = new Image(display, FormDialog.class.getResourceAsStream("/icons/text.png"));
+    public static final Image CHECK_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/check.png"));
+    public static final Image COMBO_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/combo.png"));
+    public static final Image TABLE_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/table.png"));
+    public static final Image COLUMN_ICON             = new Image(display, FormDialog.class.getResourceAsStream("/icons/column.png"));
+    public static final Image LINE_ICON               = new Image(display, FormDialog.class.getResourceAsStream("/icons/line.png"));
 	
     /**
      * @param ignoreErrors : set to true if the errors must be ignored, false if an Exception should be raised in case of error.<br><br>

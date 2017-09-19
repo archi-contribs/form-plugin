@@ -1,6 +1,6 @@
 package org.archicontribs.form.editors;
 
-import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -26,17 +26,17 @@ public class IntegerEditor {
 		
 		lblInteger = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblInteger.setLayoutData(fd);
         lblInteger.setText(labelText);
         
         txtInteger = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblInteger, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
+        fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
         txtInteger.setLayoutData(fd);
         txtInteger.setLeftMargin(2);
         txtInteger.addVerifyListener(numericVerifyListener);
@@ -85,17 +85,17 @@ public class IntegerEditor {
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblInteger.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblInteger.setLayoutData(fd);
 	}
 	

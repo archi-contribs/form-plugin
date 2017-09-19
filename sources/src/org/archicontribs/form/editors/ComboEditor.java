@@ -1,6 +1,6 @@
 package org.archicontribs.form.editors;
 
-import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
@@ -23,16 +23,16 @@ public class ComboEditor {
 		
 		lblCombo = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblCombo.setLayoutData(fd);
         lblCombo.setText(labelText);
         
         combo = new CCombo(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblCombo, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         combo.setLayoutData(fd);
         combo.addSelectionListener(comboSelectionListener);
 	}
@@ -69,17 +69,17 @@ public class ComboEditor {
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblCombo.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblCombo.setLayoutData(fd);
 	}
 	

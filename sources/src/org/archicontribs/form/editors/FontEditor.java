@@ -1,6 +1,6 @@
 package org.archicontribs.form.editors;
 
-import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -39,18 +39,18 @@ public class FontEditor {
 		
 		lblFont = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblFont.setLayoutData(fd);
         lblFont.setText("Font:");
         
         btnResetToDefault = new Button(parent, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(lblFont, 0, SWT.CENTER);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
         btnResetToDefault.setLayoutData(fd);
-        btnResetToDefault.setImage(FormGraphicalEditor.binImage);
+        btnResetToDefault.setImage(FormDialog.binImage);
         btnResetToDefault.addSelectionListener(fontReset);
         btnResetToDefault.setToolTipText("Reset to the default font.");
         
@@ -66,21 +66,21 @@ public class FontEditor {
         lblSample = new Label(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblFont, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(btnSelectFont, -5);
         lblSample.setLayoutData(fd);
         lblSample.setText("");
         
         lblFontSize = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         lblFontSize.setLayoutData(fd);
         lblFontSize.setText("Font size: ");
         
         txtFontSize = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
+        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(lblFontSize, 5);
         fd.right = new FormAttachment(txtFontSize, 25);
         txtFontSize.setTextLimit(2);
@@ -91,16 +91,16 @@ public class FontEditor {
         
         btnBold = new Button(parent, SWT.CHECK);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(txtFontSize, FormGraphicalEditor.editorBorderMargin*2);
+        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(txtFontSize, FormDialog.editorBorderMargin*2);
         btnBold.setLayoutData(fd);
         btnBold.addSelectionListener(refreshFontSelectionListener);
         btnBold.setText("Bold");
         
         btnItalic = new Button(parent, SWT.CHECK);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(btnBold, FormGraphicalEditor.editorBorderMargin*2);
+        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(btnBold, FormDialog.editorBorderMargin*2);
         btnItalic.setLayoutData(fd);
         btnItalic.addSelectionListener(refreshFontSelectionListener);
         btnItalic.setText("Italic");
@@ -186,7 +186,7 @@ public class FontEditor {
 	    	if ( getBold() ) style |= SWT.BOLD;
 	    	if ( getItalic() ) style |= SWT.ITALIC;
 	    	
-	    	font = new Font(FormGraphicalEditor.display, getFontName(), getFontSize(), style);
+	    	font = new Font(FormDialog.display, getFontName(), getFontSize(), style);
     	}
 		lblSample.setFont(font);
 		
@@ -221,17 +221,17 @@ public class FontEditor {
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblFont.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblFont.setLayoutData(fd);
 	}
 	

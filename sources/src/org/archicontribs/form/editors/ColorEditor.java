@@ -1,6 +1,6 @@
 package org.archicontribs.form.editors;
 
-import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -31,18 +31,18 @@ public class ColorEditor {
 		
 		lblColor = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblColor.setLayoutData(fd);
         lblColor.setText(labelText);
         
         btnResetToDefault = new Button(parent, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(lblColor, 0, SWT.CENTER);
-        fd.right = new FormAttachment(100, -FormGraphicalEditor.editorBorderMargin);
+        fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
         btnResetToDefault.setLayoutData(fd);
-        btnResetToDefault.setImage(FormGraphicalEditor.binImage);
+        btnResetToDefault.setImage(FormDialog.binImage);
         btnResetToDefault.addSelectionListener(colorReset);
         btnResetToDefault.setToolTipText("Reset to the default color.");
         
@@ -67,7 +67,7 @@ public class ColorEditor {
         lblSample = new Label(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblColor, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(btnSelectForeground, -5);
         lblSample.setLayoutData(fd);
         lblSample.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit.");
@@ -94,7 +94,7 @@ public class ColorEditor {
    				color = (event.getSource() == btnSelectForeground) ? lblSample.getForeground() : lblSample.getBackground();
 				if ( color != null )
 					color.dispose();
-				color = new Color(FormGraphicalEditor.display, rgb);
+				color = new Color(FormDialog.display, rgb);
 				
 				if ( event.getSource() == btnSelectForeground ) {
 					lblSample.setForeground(color);
@@ -191,17 +191,17 @@ public class ColorEditor {
     
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblColor.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblColor.setLayoutData(fd);
 	}
 	
@@ -220,7 +220,7 @@ public class ColorEditor {
     			if ( color != null )
     				color.dispose();
 			
-    			color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
+    			color = new Color(FormDialog.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
     		}
     	} else {
             Widget widget = (Widget)parent.getData("widget");
@@ -245,7 +245,7 @@ public class ColorEditor {
 				if ( color != null )
 					color.dispose();
 				
-				color = new Color(FormGraphicalEditor.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
+				color = new Color(FormDialog.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
 	    	}
     	} else {
             Widget widget = (Widget)parent.getData("widget");

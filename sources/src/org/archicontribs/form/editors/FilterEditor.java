@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.archicontribs.form.FormGraphicalEditor;
+import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -46,31 +46,31 @@ public class FilterEditor {
 		
 		lblGenerate = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblGenerate.setLayoutData(fd);
         lblGenerate.setText("Generate lines:");
         
         btnGenerate = new Button(parent, SWT.CHECK);
         fd = new FormData();
         fd.top = new FormAttachment(lblGenerate, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         btnGenerate.setLayoutData(fd);
         btnGenerate.addSelectionListener(FilterSelectionListener);
 		
 		lblFilter = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblGenerate, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(lblGenerate, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblFilter.setLayoutData(fd);
         lblFilter.setText("Filter:");
         
         btnFilter = new Button(parent, SWT.CHECK);
         fd = new FormData();
         fd.top = new FormAttachment(lblFilter, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         btnFilter.setLayoutData(fd);
         btnFilter.addSelectionListener(FilterSelectionListener);
         
@@ -84,8 +84,8 @@ public class FilterEditor {
         
         Text attr = new Text(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblAttribute, (int)(FormGraphicalEditor.editorVerticalMargin/2));
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(lblAttribute, (int)(FormDialog.editorVerticalMargin/2));
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(lblAttribute, 0, SWT.RIGHT);
         attr.setLayoutData(fd);
         
@@ -95,8 +95,8 @@ public class FilterEditor {
 		lblOperation = new Label(parent, SWT.CENTER);
         fd = new FormData();
         fd.top = new FormAttachment(lblFilter, 0, SWT.CENTER);
-        fd.left = new FormAttachment(50, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(65, -FormGraphicalEditor.editorBorderMargin);
+        fd.left = new FormAttachment(50, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(65, -FormDialog.editorBorderMargin);
         lblOperation.setLayoutData(fd);
         lblOperation.setText("Operation");
         
@@ -136,7 +136,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(100, -16);
         fd.right = new FormAttachment(100);
         add.setLayoutData(fd);
-        add.setImage(FormGraphicalEditor.PLUS_ICON);
+        add.setImage(FormDialog.PLUS_ICON);
         add.addSelectionListener(addSelectionListener);
         
         btnAdd = new ArrayList<Button>();
@@ -148,7 +148,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(100, -35);
         fd.right = new FormAttachment(100, -19);
         del.setLayoutData(fd);
-        del.setImage(FormGraphicalEditor.BIN_ICON);
+        del.setImage(FormDialog.BIN_ICON);
         del.setVisible(false);
         
         btnDelete = new ArrayList<Button>();
@@ -156,15 +156,15 @@ public class FilterEditor {
         
 		lblGenre = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(attr, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.top = new FormAttachment(attr, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         lblGenre.setLayoutData(fd);
         lblGenre.setText("Genre:");
 		
         btnAnd = new Button(parent, SWT.RADIO);
 		fd = new FormData();
-        fd.top = new FormAttachment(lblGenre, FormGraphicalEditor.editorVerticalMargin, SWT.CENTER);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(lblGenre, FormDialog.editorVerticalMargin, SWT.CENTER);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         btnAnd.setLayoutData(fd);
         btnAnd.setSelection(true);
         btnAnd.setText("AND");
@@ -172,8 +172,8 @@ public class FilterEditor {
         
         btnOr = new Button(parent, SWT.RADIO);
 		fd = new FormData();
-        fd.top = new FormAttachment(lblGenre, FormGraphicalEditor.editorVerticalMargin, SWT.CENTER);
-        fd.left = new FormAttachment(btnAnd, FormGraphicalEditor.editorBorderMargin*2);
+        fd.top = new FormAttachment(lblGenre, FormDialog.editorVerticalMargin, SWT.CENTER);
+        fd.left = new FormAttachment(btnAnd, FormDialog.editorBorderMargin*2);
         btnOr.setLayoutData(fd);
         btnOr.setText("OR");
         btnOr.addSelectionListener(genreSelectionListener);
@@ -230,12 +230,12 @@ public class FilterEditor {
 	        txtValue.add(index+1, val);
 	        
 	        Button add = new Button(parent, SWT.NONE);
-	        add.setImage(FormGraphicalEditor.PLUS_ICON);
+	        add.setImage(FormDialog.PLUS_ICON);
 	        add.addSelectionListener(addSelectionListener);
 	        btnAdd.add(index+1, add);
 	        
 	        Button del = new Button(parent, SWT.NONE);
-	        del.setImage(FormGraphicalEditor.BIN_ICON);
+	        del.setImage(FormDialog.BIN_ICON);
 	        del.addSelectionListener(delSelectionListener);
 	        btnDelete.add(index+1, del);
 	        
@@ -342,8 +342,8 @@ public class FilterEditor {
         FormData fd;
     	for ( int i = 0; i < btnAdd.size(); ++i ) {
             fd = new FormData();
-            fd.top = new FormAttachment(i==0 ? lblAttribute : txtAttribute.get(i-1), (int)(FormGraphicalEditor.editorVerticalMargin/2));
-            fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+            fd.top = new FormAttachment(i==0 ? lblAttribute : txtAttribute.get(i-1), (int)(FormDialog.editorVerticalMargin/2));
+            fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
             fd.right = new FormAttachment(lblAttribute, 0, SWT.RIGHT);
             txtAttribute.get(i).setLayoutData(fd);
             
@@ -374,8 +374,8 @@ public class FilterEditor {
         }
     	
         fd = new FormData();
-        fd.top = new FormAttachment(txtAttribute.get(txtAttribute.size()-1), FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
+        fd.top = new FormAttachment(txtAttribute.get(txtAttribute.size()-1), FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         lblGenre.setLayoutData(fd);
         
         boolean   isGenerated = getGenerate();
@@ -402,17 +402,17 @@ public class FilterEditor {
 	
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblGenerate.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblGenerate.setLayoutData(fd);
 	}
 	

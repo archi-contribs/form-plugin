@@ -1,7 +1,6 @@
 package org.archicontribs.form.editors;
 
 import org.archicontribs.form.FormDialog;
-import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -39,16 +38,16 @@ public class FormSizeEditor {
 		// width
 		lblWidth = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblWidth.setLayoutData(fd);
         lblWidth.setText("Width:");
         
         txtWidth = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblWidth, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(txtWidth, 40);
         txtWidth.setLayoutData(fd);
         txtWidth.setTextLimit(4);
@@ -63,16 +62,16 @@ public class FormSizeEditor {
         // height
         lblHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtWidth, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(txtWidth, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblHeight.setLayoutData(fd);
         lblHeight.setText("Height:");
         
         txtHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblHeight, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(txtHeight, 40);
         txtHeight.setLayoutData(fd);
         txtHeight.setTextLimit(4);
@@ -87,16 +86,16 @@ public class FormSizeEditor {
         // spacing
         lblSpacing = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtHeight, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(txtHeight, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblSpacing.setLayoutData(fd);
         lblSpacing.setText("Spacing:");
         
         txtSpacing = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblSpacing, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(txtSpacing, 40);
         txtSpacing.setLayoutData(fd);
         txtSpacing.setTextLimit(2);
@@ -111,16 +110,16 @@ public class FormSizeEditor {
         // buttonWidth
         lblButtonWidth = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtSpacing, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(txtSpacing, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblButtonWidth.setLayoutData(fd);
         lblButtonWidth.setText("Buttons width:");
         
         txtButtonWidth = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblButtonWidth, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(txtButtonWidth, 40);
         txtButtonWidth.setLayoutData(fd);
         txtButtonWidth.setTextLimit(3);
@@ -135,16 +134,16 @@ public class FormSizeEditor {
         // buttonHeight
         lblButtonHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtButtonWidth, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(txtButtonWidth, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblButtonHeight.setLayoutData(fd);
         lblButtonHeight.setText("Buttons height:");
         
         txtButtonHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(lblButtonHeight, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(txtButtonHeight, 40);
         txtButtonHeight.setLayoutData(fd);
         txtButtonHeight.setTextLimit(2);
@@ -231,17 +230,17 @@ public class FormSizeEditor {
 	
 	public void setPosition(int position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblWidth.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
         FormData fd = new FormData();
-        fd.top = new FormAttachment(position, FormGraphicalEditor.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormGraphicalEditor.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormGraphicalEditor.editorLeftposition);
+        fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblWidth.setLayoutData(fd);
 	}
 	

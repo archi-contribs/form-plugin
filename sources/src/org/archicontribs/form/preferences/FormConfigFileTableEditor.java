@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormDialog;
-import org.archicontribs.form.FormGraphicalEditor;
 import org.archicontribs.form.FormJsonParser;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
@@ -481,7 +480,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 }
             }
             
-            new FormGraphicalEditor(configFilename, form);
+            new FormDialog(configFilename, form, null);
 		}
 	}
 
