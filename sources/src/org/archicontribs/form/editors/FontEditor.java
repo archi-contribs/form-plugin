@@ -192,9 +192,9 @@ public class FontEditor {
 		
 		if ( treeItem != null ) {
 			treeItem.setData("fontName", getFontName());
-			treeItem.setData("fontSize", getFontSize());
-			treeItem.setData("fontBold", getBold());
-			treeItem.setData("fontItalic", getItalic());
+			treeItem.setData("fontSize", getFontSize()==0 ? null : getFontSize());
+			treeItem.setData("fontBold", getBold() ? true : null);
+			treeItem.setData("fontItalic", getItalic() ? true : null);
 			
 			// we update all the embedded controls that do not have a font specified
 			for( TreeItem childTreeItem: treeItem.getItems() )
