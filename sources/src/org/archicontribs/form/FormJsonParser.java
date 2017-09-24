@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -33,6 +34,11 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import com.archimatetool.model.IArchimateDiagramModel;
+import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IDiagramModelContainer;
+import com.archimatetool.model.IFolder;
 
 /**
  * Helper methods to parse JSON objects and create the corresponding SWT widgets
@@ -166,7 +172,6 @@ public class FormJsonParser {
         	cancelButton.setText(buttonCancelText);
         else
         	cancelButton.setText(FormDialog.defaultButtonCancelText);
-        form.setData("cancel button", cancelButton);			         // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         
         Button okButton = new Button(form, SWT.NONE);
         fd = new FormData();
@@ -179,7 +184,6 @@ public class FormJsonParser {
         	okButton.setText(buttonOkText);
         else
         	okButton.setText(FormDialog.defaultButtonOkText);
-        form.setData("ok button", okButton);							 // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         
         Button exportToExcelButton = new Button(form, SWT.NONE);
         fd = new FormData();
@@ -192,8 +196,6 @@ public class FormJsonParser {
         	exportToExcelButton.setText(buttonExportText);
         else
         	exportToExcelButton.setText(FormDialog.defaultButtonExportText);
-        form.setData("export button", exportToExcelButton);			 // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
-        
         
         // we create the tab folder
         CTabFolder tabFolder = new CTabFolder(form, SWT.BORDER);
@@ -208,14 +210,21 @@ public class FormJsonParser {
         tabFolder.setForeground(form.getForeground());
         tabFolder.setBackground(form.getBackground());
         
-        form.setData("tab folder", tabFolder);					        // we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
-        
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(FORM_ICON);
         	treeItem.setData("class", "form");
             treeItem.setData("widget", form);
             form.setData("treeItem", treeItem);
         }
+        
+        // used by form
+        form.setData("variable separator", variableSeparator);			// we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
+        form.setData("tab folder", tabFolder);
+        form.setData("export button", exportToExcelButton);
+        form.setData("ok button", okButton);
+        form.setData("cancel button", cancelButton);
+        form.setData("excel sheets", new HashSet<String>());
     }
     
     /**
@@ -251,6 +260,7 @@ public class FormJsonParser {
         if ( name != null )
         	tabItem.setText(name);						// may be replaced by FormVariable.expand(name, selectedObject) in calling method
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(TAB_ICON);
         	treeItem.setData("class", "tab");
@@ -267,7 +277,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public Label createLabel(JSONObject jsonObject, Composite parent, TreeItem treeItem) throws RuntimeException, ClassCastException {
+    public Label createLabel(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating label control");
         
         // we create the label
@@ -279,12 +289,13 @@ public class FormJsonParser {
         
         getXY(jsonObject, label, treeItem);
         getForegroundAndBackground(jsonObject, label, treeItem);
-        getText(jsonObject, label, treeItem);
-        getTooltip(jsonObject, label, treeItem);
+        getText(jsonObject, label, treeItem, selectedObject);
+        getTooltip(jsonObject, label, treeItem, selectedObject);
         getFont(jsonObject, label, treeItem);
         getAlignment(jsonObject, label, treeItem);
         getExcelCellOrColumn(jsonObject, label, treeItem);
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(LABEL_ICON);
         	treeItem.setData("class", "label");
@@ -301,7 +312,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createLabelColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException, ClassCastException {
+    public TableColumn createLabelColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating label control");
         
         // we create the label
@@ -316,7 +327,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("label");
         
         getWidth(jsonObject, tableColumn, treeItem);
-        getTooltip(jsonObject, tableColumn, treeItem);
+        getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
@@ -358,6 +369,7 @@ public class FormJsonParser {
                 lineTreeItem.setData("cells", newCells);
         }
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(LABEL_ICON);
         	treeItem.setData("class", "labelColumn");
@@ -365,6 +377,9 @@ public class FormJsonParser {
             tableColumn.setData("treeItem", treeItem);
             tableColumn.setData("class", treeItem.getData("class"));
         }
+        
+        // used by form
+        tableColumn.setData("class", "labelColumn");
         
         return tableColumn;
     }
@@ -375,7 +390,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public StyledText createText(JSONObject jsonObject, Composite parent, TreeItem treeItem) throws RuntimeException {
+    public StyledText createText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating text control");
         
         // we create the text
@@ -386,14 +401,15 @@ public class FormJsonParser {
         FormPosition.setControlClass("text");
 
         getXY(jsonObject, text, treeItem);
-        getVariable(jsonObject, text, treeItem);
+        getVariable(jsonObject, text, treeItem, selectedObject);
         getRegexp(jsonObject, text, treeItem);
         getForegroundAndBackground(jsonObject, text, treeItem);
-        getTooltip(jsonObject, text, treeItem);
+        getTooltip(jsonObject, text, treeItem, selectedObject);
         getFont(jsonObject, text, treeItem);
         getAlignment(jsonObject, text, treeItem);
         getExcelCellOrColumn(jsonObject, text, treeItem);
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(TEXT_ICON);
         	treeItem.setData("class", "text");
@@ -410,7 +426,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException {
+    public TableColumn createTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating text control");
         
         // we create the text
@@ -427,7 +443,7 @@ public class FormJsonParser {
         getWidth(jsonObject, tableColumn, treeItem);
         getRegexp(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
-        getTooltip(jsonObject, tableColumn, treeItem);
+        getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
@@ -469,6 +485,7 @@ public class FormJsonParser {
                 lineTreeItem.setData("cells", newCells);
         }
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(TEXT_ICON);
         	treeItem.setData("class", "textColumn");
@@ -476,6 +493,9 @@ public class FormJsonParser {
             tableColumn.setData("treeItem", treeItem);
             tableColumn.setData("class", treeItem.getData("class"));
         }
+        
+        // used by form
+        tableColumn.setData("class", "textColumn");
 
         return tableColumn;
     }
@@ -486,7 +506,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public Widget createCombo(JSONObject jsonObject, Composite parent, TreeItem treeItem) throws RuntimeException {
+	public CCombo createCombo(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating combo control");
         
         // we create the combo
@@ -496,14 +516,15 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("combo");
 
-        getVariable(jsonObject, combo, treeItem);
+        getVariable(jsonObject, combo, treeItem, selectedObject);
         getValues(jsonObject, combo, treeItem);
         getXY(jsonObject, combo, treeItem);
         getForegroundAndBackground(jsonObject, combo, treeItem);
-        getTooltip(jsonObject, combo, treeItem);
+        getTooltip(jsonObject, combo, treeItem, selectedObject);
         getFont(jsonObject, combo, treeItem);
         getExcelCellOrColumn(jsonObject, combo, treeItem);
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(COMBO_ICON);
         	treeItem.setData("class", "combo");
@@ -520,7 +541,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public TableColumn createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException {
+	public TableColumn createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating combo column");
         
         // we create the combo
@@ -536,7 +557,7 @@ public class FormJsonParser {
         
         getValues(jsonObject, tableColumn, treeItem);
         getWidth(jsonObject, tableColumn, treeItem);
-        getTooltip(jsonObject, tableColumn, treeItem);
+        getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
         // we update the editors and cells if necessary
@@ -579,6 +600,7 @@ public class FormJsonParser {
                 lineTreeItem.setData("cells", newCells);
         }
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(COMBO_ICON);
         	treeItem.setData("class", "comboColumn");
@@ -586,6 +608,10 @@ public class FormJsonParser {
             tableColumn.setData("treeItem", treeItem);
             tableColumn.setData("class", treeItem.getData("class"));
         }
+        
+        // used by graphical editor
+        // used by form
+        tableColumn.setData("class", "comboColumn");
         
         return tableColumn;
     }
@@ -596,7 +622,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public Widget createCheck(JSONObject jsonObject, Composite parent, TreeItem treeItem) throws RuntimeException {
+	public Button createCheck(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating check control");
         
         // we create the combo
@@ -607,13 +633,14 @@ public class FormJsonParser {
         FormPosition.setControlClass("check");
 
  	   	getValues(jsonObject, check, treeItem);
- 	   	getVariable(jsonObject, check, treeItem);
+ 	   	getVariable(jsonObject, check, treeItem, selectedObject);
    		getXY(jsonObject, check, treeItem);
    		getForegroundAndBackground(jsonObject, check, treeItem);
    		getAlignment(jsonObject, check, treeItem);
- 	   	getTooltip(jsonObject, check, treeItem);
+ 	   	getTooltip(jsonObject, check, treeItem, selectedObject);
  	   	getExcelCellOrColumn(jsonObject, check, treeItem);
  	   	
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(CHECK_ICON);
             treeItem.setData("class", "check");
@@ -630,7 +657,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public TableColumn createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index) throws RuntimeException {
+	public TableColumn createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating check column");
         
         // we create the check button
@@ -647,7 +674,7 @@ public class FormJsonParser {
  	   	getValues(jsonObject, tableColumn, treeItem);
    		getWidth(jsonObject, tableColumn, treeItem);
    		getAlignment(jsonObject, tableColumn, treeItem);
- 	   	getTooltip(jsonObject, tableColumn, treeItem);
+ 	   	getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
  	   	getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
  	   	
         // we update the editors and cells if necessary
@@ -689,6 +716,7 @@ public class FormJsonParser {
                 lineTreeItem.setData("cells", newCells);
         }
  	   	
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(CHECK_ICON);
         	treeItem.setData("class", "checkColumn");
@@ -696,6 +724,9 @@ public class FormJsonParser {
             tableColumn.setData("treeItem", treeItem);
             tableColumn.setData("class", treeItem.getData("class"));
         }
+        
+        // used by form
+        tableColumn.setData("class", "checkColumn");
  	   	
  	   	return tableColumn;
     }
@@ -706,7 +737,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public Table createTable(JSONObject jsonObject, Composite parent, TreeItem treeItem) throws RuntimeException {
+    public Table createTable(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating table control");
     	
         Table table = new Table(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE | SWT.FULL_SELECTION);
@@ -719,9 +750,10 @@ public class FormJsonParser {
 
         getXY(jsonObject, table, treeItem);
         getForegroundAndBackground(jsonObject, table, treeItem);
-        getTooltip(jsonObject, table, treeItem);
+        getTooltip(jsonObject, table, treeItem, selectedObject);
         getExcelLines(jsonObject, table, treeItem);
         
+        // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(TABLE_ICON);
         	treeItem.setData("class", "table");
@@ -738,27 +770,176 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableItem createLine(JSONObject jsonObject, Table parent, TreeItem treeItem) throws RuntimeException {
+    public TableItem createLine(JSONObject jsonObject, Table parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating table item");
     	
-        TableItem tableItem = new TableItem(parent, SWT.NONE);
-        
-        String name = getName(jsonObject, tableItem, treeItem);
-        FormPosition.setControlName(name);
-        FormPosition.setControlClass("lines");
-        
-        getCells(jsonObject, tableItem, treeItem);
-        getGenerate(jsonObject, tableItem, treeItem);
-        getFilter(jsonObject, tableItem, treeItem);
-        
-        if ( treeItem != null ) {
-            treeItem.setImage(LINE_ICON);
-        	treeItem.setData("class", "line");
-        	treeItem.setData("widget", tableItem);
-            tableItem.setData("treeItem", treeItem);
-        }
-        
+    	TableItem tableItem = null;
+    	boolean mustCreateLine = true;
+    	Boolean generate = getBoolean(jsonObject, "generate");
+    	
+    	// if the selectedObject is provided AND if the lines are generated
+    	//    then we check the selectedObject against the filter
+    	if ( selectedObject != null && generate != null && generate )
+    		mustCreateLine = checkFilter(selectedObject, getJSONObject(jsonObject, "filter"));
+    	
+    	if ( mustCreateLine ) {
+	        tableItem = new TableItem(parent, SWT.NONE);
+	        
+	        String name = getName(jsonObject, tableItem, treeItem);
+	        FormPosition.setControlName(name);
+	        FormPosition.setControlClass("lines");
+	        
+	        getCells(jsonObject, tableItem, treeItem, selectedObject);
+	        getGenerate(jsonObject, tableItem, treeItem);
+	        getFilter(jsonObject, tableItem, treeItem);
+	        
+	        // used by graphical editor
+	        if ( treeItem != null ) {
+	            treeItem.setImage(LINE_ICON);
+	        	treeItem.setData("class", "line");
+	        	treeItem.setData("widget", tableItem);
+	            tableItem.setData("treeItem", treeItem);
+	        }
+    	}
+		
+    	// if the selected object is a container and if the lines are generated
+    	//    then we create a line for every object's child
+		if ( generate != null && generate ) {
+			if (selectedObject instanceof IArchimateDiagramModel) {
+				for ( EObject child: ((IArchimateDiagramModel) selectedObject).getChildren()) {
+					tableItem = createLine(jsonObject, parent, treeItem, child);
+				}
+			}
+			
+            if (selectedObject instanceof IDiagramModelContainer) {
+            	for ( EObject child: ((IDiagramModelContainer) selectedObject).getChildren()) {
+            		tableItem = createLine(jsonObject, parent, treeItem, child);
+            	}
+            }
+            
+            if (selectedObject instanceof IFolder) {
+            	for ( EObject child: ((IFolder) selectedObject).getElements()) {
+            		tableItem = createLine(jsonObject, parent, treeItem, child);
+            	}
+            }
+            
+            if (selectedObject instanceof IArchimateModel) {
+            	for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
+            		for ( EObject child: folder.getElements()) {
+            			tableItem = createLine(jsonObject, parent, treeItem, child);
+            		}
+            	}
+            }
+ 		}
+
         return tableItem;
+    }
+    
+    /***************************************************************/
+    /**
+     * Checks whether the eObject fits in the filter rules
+     */
+    public boolean checkFilter(EObject eObject, JSONObject filterObject) {
+        if (filterObject == null) {
+            return true;
+        }
+
+        String type = getString(filterObject, "genre");
+        if ( FormPlugin.isEmpty(type) )
+        	type = "AND";
+        else
+        	type = type.toUpperCase();
+
+        if (!type.equals("AND") && !type.equals("OR"))
+            throw new RuntimeException("Invalid filter genre. Supported genres are \"AND\" and \"OR\".");
+
+        boolean result;
+
+        @SuppressWarnings("unchecked")
+        Iterator<JSONObject> filterIterator = getJSONArray(filterObject, "tests").iterator();
+        while (filterIterator.hasNext()) {
+            JSONObject filter = filterIterator.next();
+            String attribute = getString(filter, "attribute");
+            String operation = getString(filter, "operation");
+            String value;
+            String[] values;
+
+            String attributeValue = FormVariable.expand(attribute, eObject);
+
+            switch (operation.toLowerCase()) {
+                case "equals":
+                    value = getString(filter, "value");
+
+                    result = attributeValue.equals(value);
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals \"" + value + "\" --> " + result);
+                    break;
+
+                case "in":
+                    value = getString(filter, "value");
+                    values = value.split(",");
+                    result = false;
+                    for (String str : values) {
+                        if (str.equals(attributeValue)) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
+                    break;
+
+                case "exists":
+                    result = attributeValue.isEmpty();
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") exists --> " + result);
+                    break;
+
+                case "iequals":
+                    value = getString(filter, "value");
+
+                    result = attributeValue.equalsIgnoreCase(value);
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals (ignore case) \"" + value + "\" --> " + result);
+                    break;
+
+                case "iin":
+                    value = getString(filter, "value");
+                    values = value.split(",");
+                    result = false;
+                    for (String str : values) {
+                        if (str.equals(attributeValue)) {
+                            result = true;
+                            break;
+                        }
+                    }
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
+                    break;
+
+                case "matches":
+                    value = (String)getJSON(filter, "value");
+
+                    result = (attributeValue != null) && attributeValue.matches(value);
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") matches \"" + value + "\" --> " + result);
+                    break;
+
+                default:
+                    throw new RuntimeException("Unknown operation type \"" + operation + "\" in filter.\n\nValid operations are \"equals\", \"exists\", \"iequals\" and \"matches\".");
+            }
+
+            // in AND mode, all the tests must return true, so if the current test is false, then the complete filter returns false
+            if (result == false && type.equals("AND"))
+                return false;
+
+            // in OR mode, one test at lease must return true, so if the current test is true, then the complete filter returns true
+            if (result == true && type.equals("OR"))
+                return true;
+        }
+        // in AND mode, we're here if all the tests were true
+        // in OR mode, we're here if all the tests were false
+        return type.equals("AND");
     }
     
     /***************************************************************/
@@ -810,7 +991,7 @@ public class FormJsonParser {
     	}
     }
     
-    private void getGenerate(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
+    private Boolean getGenerate(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
     	Boolean generate = getBoolean(jsonObject, "generate");
     	
     	// required by the graphical editor
@@ -822,9 +1003,11 @@ public class FormJsonParser {
     	if ( tableItem != null ) {
     		tableItem.setData("generate", generate);
     	}
+    	
+    	return generate;
     }
     
-    private void getCells(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
+    private void getCells(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem, EObject selectedObject) {
     	Table table = tableItem.getParent();
     	JSONArray jsonCells = getJSONArray(jsonObject, "cells");
     	String[] cells = null;
@@ -841,6 +1024,7 @@ public class FormJsonParser {
     		// for each cell, we create the corresponding table editor
     		TableEditor editor= new TableEditor(table);
             editors[columnNumber] = editor;
+            String[] values;
             
     		switch ( (String)table.getColumn(columnNumber).getData("class") ) {
                 case "labelColumn":
@@ -850,7 +1034,10 @@ public class FormJsonParser {
                         cells[columnNumber] = "label";
                     logger.trace("      adding label cell with value \"" + cells[columnNumber] + "\"");
                     Label label = new Label(table, SWT.WRAP | SWT.NONE);
-                    label.setText(cells[columnNumber]);
+                    if ( selectedObject == null )
+                    	label.setText(cells[columnNumber]);
+                    else
+                    	label.setText(FormVariable.expand(cells[columnNumber], selectedObject));
                     editor.setEditor(label, tableItem, columnNumber);
                     editor.grabHorizontal = true;
                     break;
@@ -862,7 +1049,21 @@ public class FormJsonParser {
                         cells[columnNumber] = "${void}";
                     StyledText text = new StyledText(table, SWT.WRAP | SWT.NONE);
                     logger.trace("      adding text cell with value \"" + cells[columnNumber] + "\"");
-                    text.setText(cells[columnNumber]);
+                    if ( selectedObject == null )
+                    	text.setText(cells[columnNumber]);
+                    else {
+                    	text.setText(FormVariable.expand(cells[columnNumber], selectedObject));
+                    	
+                    	EObject referedEObject;
+    	                String unscoppedVariable;
+                    	referedEObject = FormVariable.getReferedEObject(cells[columnNumber], selectedObject);
+                    	unscoppedVariable = FormVariable.getUnscoppedVariable(cells[columnNumber], selectedObject);
+                    	text.setData("variable", unscoppedVariable);
+                    	text.setData("eObject", referedEObject);
+                    	FormDialog.formVarList.set(referedEObject, unscoppedVariable, text);
+                    	
+                    	text.addModifyListener(FormDialog.textModifyListener);
+                    }
                     editor.setEditor(text, tableItem, columnNumber);
                     editor.grabHorizontal = true;
                     break;
@@ -874,8 +1075,30 @@ public class FormJsonParser {
                         cells[columnNumber] = "${void}";
                     CCombo combo = new CCombo(table, SWT.NONE);
                     logger.trace("      adding combo cell with value \"" + cells[columnNumber] + "\"");
-                    combo.setText(cells[columnNumber]);
-                    String[] values = (String[])table.getColumn(columnNumber).getData("values");
+                    if ( selectedObject == null )
+                    	combo.setText(cells[columnNumber]);
+                    else {
+                    	combo.setText(FormVariable.expand(cells[columnNumber], selectedObject));
+                    	
+                    	EObject referedEObject;
+    	                String unscoppedVariable;
+                    	referedEObject = FormVariable.getReferedEObject(cells[columnNumber], selectedObject);
+                    	unscoppedVariable = FormVariable.getUnscoppedVariable(cells[columnNumber], selectedObject);
+                    	combo.setData("variable", unscoppedVariable);
+                    	combo.setData("eObject", referedEObject);
+                    	FormDialog.formVarList.set(referedEObject, unscoppedVariable, combo);
+                    	
+                    	combo.addModifyListener(FormDialog.textModifyListener);
+                    }
+                    values = (String[])table.getColumn(columnNumber).getData("values");
+                    if ( selectedObject != null && values != null ) {
+                		int nbValues = ((String[])table.getColumn(columnNumber).getData("values")).length; 
+                		String[] newValues = new String[nbValues];
+                		for ( int i=0; i<nbValues; ++i) {
+                			newValues[i] = FormVariable.expand(values[i], selectedObject);
+                		}
+                		values = newValues;
+                    }
                     if ( values != null ) combo.setItems(values);
                     editor.setEditor(combo, tableItem, columnNumber);
                     editor.grabHorizontal = true;
@@ -889,6 +1112,31 @@ public class FormJsonParser {
                     Button check = new Button(table, SWT.CHECK);
                     check.pack();
                     logger.trace("      adding check cell with value \"" + cells[columnNumber] + "\"");
+                    values = (String[])table.getColumn(columnNumber).getData("values");
+                    if ( selectedObject != null && values != null ) {
+                		int nbValues = ((String[])table.getColumn(columnNumber).getData("values")).length; 
+                		String[] newValues = new String[nbValues];
+                		for ( int i=0; i<nbValues; ++i) {
+                			newValues[i] = FormVariable.expand(values[i], selectedObject);
+                		}
+                		values = newValues;
+                    }
+                    String trueValue = (values == null) ? "true" : values[0];
+                    if ( selectedObject == null )
+                    	check.setSelection(FormPlugin.areEqual(cells[columnNumber], trueValue));
+                    else {
+                    	check.setSelection(FormPlugin.areEqual(FormVariable.expand(cells[columnNumber], selectedObject), trueValue));
+                    	
+                    	EObject referedEObject;
+    	                String unscoppedVariable;
+                    	referedEObject = FormVariable.getReferedEObject(cells[columnNumber], selectedObject);
+                    	unscoppedVariable = FormVariable.getUnscoppedVariable(cells[columnNumber], selectedObject);
+                    	check.setData("variable", unscoppedVariable);
+                    	check.setData("eObject", referedEObject);
+                    	FormDialog.formVarList.set(referedEObject, unscoppedVariable, check);
+                    	
+                    	check.addSelectionListener(FormDialog.checkButtonSelectionListener);
+                    }
                     editor.minimumWidth = check.getSize().x;
                     editor.horizontalAlignment = SWT.CENTER;
                     editor.setEditor(check, tableItem, columnNumber);
@@ -1207,7 +1455,7 @@ public class FormJsonParser {
     	}
     }
     
-    private void getVariable(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private void getVariable(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
     	String  variable      = getString(jsonObject, "variable");
     	String  defaultText   = getString(jsonObject, "default");
     	Boolean forceDefault  = getBoolean(jsonObject, "forceDefault");
@@ -1249,13 +1497,21 @@ public class FormJsonParser {
 	        	((StyledText)widget).setEditable(editable);
 	        if ( widget instanceof CCombo && editable != null )
 	        	((CCombo)widget).setEditable(editable);
+	        
+            // if the selectedObject is specified, we replace the variable by it's expanded value
+	        String variableValue = variable;
+	        if ( selectedObject != null ) {
+	        	variableValue = FormVariable.expand(variable, selectedObject);
+            	if ( FormPlugin.isEmpty(variableValue) || (forceDefault!=null && forceDefault) )
+            		variableValue = FormVariable.expand(defaultText, selectedObject);
+	        }
 			
 			// we set a default text content for the graphical editor. Real form will replace this text with the variable content.
 			if ( variable != null ) {
 				switch ( widget.getClass().getSimpleName() ) {
-					case "StyledText": ((StyledText)widget).setText(variable); break;
-					case "CCombo":     ((CCombo)widget).setText(variable); break;
-					case "Button":     ((Button)widget).setText(variable); break;
+					case "StyledText": ((StyledText)widget).setText(variableValue); break;
+					case "CCombo":     ((CCombo)widget).setText(variableValue); break;
+					case "Button":     ((Button)widget).setText(variableValue); break;
 				}
 			}
 		}
@@ -1301,11 +1557,18 @@ public class FormJsonParser {
         
         // required by the form
         if ( widget != null ) {
-        	if ( widget instanceof TableColumn ) {		// when TableColumn (excelSheet is referenced in the Table)
+        	if ( widget instanceof TableColumn ) {
+        		// when TableColumn (excelSheet is referenced in the Table)
         		widget.setData("excelColumn",    excelColumn);
         	} else {														// when Text, CCombo or Button
         		widget.setData("excelSheet",     excelSheet);
         		widget.setData("excelCell",      excelCell);
+        		
+        		if ( excelSheet != null ) {
+        			@SuppressWarnings("unchecked")
+        			HashSet<String> excelSheets = (HashSet<String>)((Control)widget).getShell().getData("excel sheets");
+        			excelSheets.add(excelSheet);
+        		}
         	}
         	widget.setData("excelCellType",  excelCellType);
         	widget.setData("excelDefault",   excelDefault);
@@ -1357,7 +1620,7 @@ public class FormJsonParser {
 		}
 		
 		// required by the form
-		if ( widget != null && widget instanceof TableColumn ) {
+		if ( widget != null ) {
 			widget.setData("values", values);
 		}
 		
@@ -1367,7 +1630,7 @@ public class FormJsonParser {
 		}
     }
     
-    private void getTooltip(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private void getTooltip(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
     	String tooltip = getString(jsonObject, "tooltip");
     	
         if ( logger.isTraceEnabled() ) {
@@ -1381,10 +1644,14 @@ public class FormJsonParser {
     	
         // we set the tooltip text
         if ( widget != null && tooltip != null) {
-	        if (  widget instanceof Control )
+        	if ( selectedObject != null )
+        		tooltip = FormVariable.expand(tooltip, selectedObject);
+        	
+	        if (  widget instanceof Control ) {
 	        	((Control)widget).setToolTipText(tooltip);
-	        if ( widget instanceof TableColumn )
+	        } else if ( widget instanceof TableColumn ) {
 	        	((TableColumn)widget).setToolTipText(tooltip);
+	        }
         }
     }
     
@@ -1411,7 +1678,7 @@ public class FormJsonParser {
         return name;
     }
 
-	private void getText(JSONObject jsonObject, Label label, TreeItem treeItem) {
+	private void getText(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
 		String text = getString(jsonObject, "text");
 		
 	    if ( logger.isTraceEnabled() ) {
@@ -1425,7 +1692,10 @@ public class FormJsonParser {
 	    
 		// we set the label's text
 	    if ( label != null && text != null )
-	    	label.setText(text);
+	    	if ( selectedObject == null )
+	    		label.setText(text);
+	    	else
+	    		label.setText(FormVariable.expand(text, selectedObject));
 	}
     
     private void getFont(JSONObject jsonObject, Control control, TreeItem treeItem) {

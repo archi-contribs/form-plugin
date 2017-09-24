@@ -1,16 +1,33 @@
 package org.archicontribs.form;
 
+import java.awt.Desktop;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.log4j.Level;
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellReference;
 import org.archicontribs.form.composites.CheckColumnComposite;
 import org.archicontribs.form.composites.CheckComposite;
 import org.archicontribs.form.composites.ComboColumnComposite;
@@ -25,14 +42,21 @@ import org.archicontribs.form.composites.TableComposite;
 import org.archicontribs.form.composites.TextColumnComposite;
 import org.archicontribs.form.composites.TextComposite;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.gef.commands.CommandStack;
+import org.eclipse.gef.commands.CompoundCommand;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
@@ -49,9 +73,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
@@ -67,6 +93,15 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+
+import com.archimatetool.editor.model.commands.NonNotifyingCompoundCommand;
+import com.archimatetool.model.IArchimateElement;
+import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IArchimateRelationship;
+import com.archimatetool.model.IDiagramModel;
+import com.archimatetool.model.IDiagramModelArchimateConnection;
+import com.archimatetool.model.IDiagramModelArchimateObject;
+import com.archimatetool.model.IFolder;
 
 /**
  * Create a Dialog with graphical controls as described in the configuration
@@ -150,10 +185,14 @@ public class FormDialog extends Dialog {
     private Button               btnDown              = null;
     
     private enum                 Position {Before, After, Into, End};
-    private String               configFilename = null;
-    private boolean              editMode = false;
     
-    private static final FormJsonParser jsonParser = new FormJsonParser();
+    private String               configFilename       = null;
+    private boolean              editMode             = false;
+    private EObject              selectedObject       = null;
+    
+    
+    public  final static FormVarList    formVarList   = new FormVarList();
+    private static final FormJsonParser jsonParser    = new FormJsonParser();
     
     
     
@@ -161,6 +200,7 @@ public class FormDialog extends Dialog {
         super(display.getActiveShell(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         
         this.configFilename = configFilename;
+        this.selectedObject = selectedObject;
 
         try {
         	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -169,8 +209,10 @@ public class FormDialog extends Dialog {
             // If the dialog is ran against no EObject, then we switch to edit mode 
             editMode = ( selectedObject == null );
             
-            if ( editMode )
+            if ( editMode ) {
+            	// in edit mode, we show up the graphical editor
             	formTreeItem = createPropertiesDialog(jsonForm);
+            }
             
             jsonParser.createForm(jsonForm, formDialog, formTreeItem);
 
@@ -204,16 +246,38 @@ public class FormDialog extends Dialog {
             }
             
             if ( editMode ) {
+            	// in edit mode, we expand the form in the tree and select it
             	formTreeItem.setExpanded(true);
             
             	tree.setSelection(formTreeItem);
             	tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties
+            } else {
+            	// in form mode, the graphical editor is not shown so we activate the form's OK and CANCEL buttons
+            	Button cancelButton = (Button)formDialog.getData("cancel button");
+            	cancelButton.addSelectionListener(new SelectionListener() {
+                    @Override public void widgetSelected(SelectionEvent e) { cancel(); }
+                    @Override public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+                });
+            	
+            	Button okButton = (Button)formDialog.getData("ok button");
+            	okButton.addSelectionListener(new SelectionListener() {
+                    public void widgetSelected(SelectionEvent e) { ok(); }
+                    public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+                });
+            	
+            	Button exportButton = (Button)formDialog.getData("export button");
+            	exportButton.addSelectionListener(new SelectionListener() {
+                    public void widgetSelected(SelectionEvent e) { exportToExcel(); }
+                    public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+                });
+            	
+            	
+                // If there is at least one Excel sheet specified, then we show up the "export to Excel" button
+                @SuppressWarnings("unchecked")
+				HashSet<String> excelSheets = (HashSet<String>)formDialog.getData("excel sheets");
+                //TODO: must be filled in in FormJsonParser
+                exportButton.setVisible(!excelSheets.isEmpty());
             }
-           
-            // TODO: If there is at least one Excel sheet specified, then we show up the "export to Excel" button
-            //if (excelSheets.isEmpty()) {
-            //    exportButton.setVisible(false);
-            //}
         } catch (ClassCastException e) {
             FormDialog.popup(Level.ERROR, "Wrong key type in the configuration file \"" + configFilename + "\"", e);
             if (formDialog != null)
@@ -261,7 +325,7 @@ public class FormDialog extends Dialog {
         btnSave.setLayoutData(fd);
         btnSave.setText("Save");
         btnSave.addSelectionListener(new SelectionListener() {
-            @Override public void widgetSelected(SelectionEvent event) {save();}
+            @Override public void widgetSelected(SelectionEvent event) {saveConfToJSON();}
             @Override public void widgetDefaultSelected(SelectionEvent e) {widgetSelected(e);}
         });
         
@@ -728,106 +792,637 @@ public class FormDialog extends Dialog {
 
             String clazz = jsonParser.getString(jsonControl, "class");
             if ( clazz != null ) {
-            	Widget widget;
+                String variableValue;
+                Control control = null;
+                
             	if ( editMode )
             		treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
-	                	widget = jsonParser.createCheck(jsonControl, parent, treeItem);
+	                	control = jsonParser.createCheck(jsonControl, parent, treeItem, selectedObject);
+	                	
+	                	// In form mode
+	                	if ( !editMode ) {
+	                		// we expand the values 
+	                		String[] values = (String[])control.getData("values");
+		                    if ( values != null ) {
+		                    	for ( int i = 0; i < values.length; ++i ) {
+		                    		values[i] = FormVariable.expand(values[i], selectedObject);
+		                    	}
+		                    }
+		                    
+		                    // we expand the variable
+		                    variableValue = FormVariable.expand((String)control.getData("variable"), selectedObject); 
+		                    if ( FormPlugin.isEmpty(variableValue) || (control.getData("forceDefault")!=null && (Boolean)control.getData("forceDefault")) )
+		                    	variableValue = FormVariable.expand((String)control.getData("default"), selectedObject);
+		                    
+		                    if ( values == null || values.length == 0 ) 										// should be "true" or "false"
+		                    	((Button)control).setSelection(FormPlugin.areEqualIgnoreCase(variableValue, "true"));
+		                    else																				// should be values[0] or values[1]
+		                    	((Button)control).setSelection(FormPlugin.areEqualIgnoreCase(variableValue, values[0]));
+		                    
+		                    // we update the widgets that refer to the same variable when the user changes its value
+		                    ((Button)control).addSelectionListener(checkButtonSelectionListener);
+	                	}
 	                	break;
+	                	
 		            case "combo":
-	                	widget = jsonParser.createCombo(jsonControl, parent, treeItem);
+	                	control = jsonParser.createCombo(jsonControl, parent, treeItem, selectedObject);
+	                	
+	                	// In form mode
+	                	if ( !editMode ) {
+		                    // we update the widgets that refer to the same variable when the user changes its value
+		                    ((CCombo)control).addModifyListener(textModifyListener);
+	                	}
 	                	break;
+	                	
 	                case "label":
-	                	widget = jsonParser.createLabel(jsonControl, parent, treeItem);
+	                	control = jsonParser.createLabel(jsonControl, parent, treeItem, selectedObject);
 	                	break;
+	                	
 	                case "table":
-	                	widget = jsonParser.createTable(jsonControl, parent, treeItem);
+	                	Table table = jsonParser.createTable(jsonControl, parent, treeItem, selectedObject);
+    	            	TreeItem tableTreeItem = treeItem;
+        	            TreeItem columnsTreeItem = null;
+        	            
+	                	// if form mode, we replace the controls' tooltip by its expanded value in case it contains a variable
+	                	table.setToolTipText(FormVariable.expand(table.getToolTipText(), selectedObject));
+
+        	            // required by the graphical editor
+        	            if ( editMode ) {
+        	            	columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
+            	            columnsTreeItem.setImage(FormJsonParser.COLUMN_ICON);
+            	            columnsTreeItem.setText("columns");
+            	            columnsTreeItem.setData("class", "columns");
+            	            columnsTreeItem.setData("widget", table);
+        	            }
+
+                        JSONArray columns = jsonParser.getJSONArray(jsonControl, "columns");
+                        if ( columns != null ) {
+                            @SuppressWarnings("unchecked")
+    						Iterator<JSONObject> columnsIterator = columns.iterator();
+                            while (columnsIterator.hasNext()) {
+                                JSONObject jsonColumn = columnsIterator.next();
+                                
+                                clazz = jsonParser.getString(jsonColumn, "class");
+                                if ( clazz != null ) {
+                                	if ( editMode )
+                                		treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
+
+                    	            switch ( clazz.toLowerCase() ) {
+    	            	                case "check":
+    	            	                	jsonParser.createCheckColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                	break;
+    	            		            case "combo":
+    	            	                	 jsonParser.createComboColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                	break;
+    	            	                case "label":
+    	            	                	jsonParser.createLabelColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                	break;
+    	            	                case "text":
+    	            	                	jsonParser.createTextColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                	break;
+    	            	                default:
+    	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
+                    	            }
+                                }
+                            }
+                        }
+        	            
+        	            TreeItem linesTreeItem = null;
+        	            
+        	            if ( editMode ) {
+        	            	linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
+            	            linesTreeItem.setImage(FormJsonParser.LINE_ICON);
+            	            linesTreeItem.setText("lines");
+            	            linesTreeItem.setData("class", "lines");
+            	            linesTreeItem.setData("widget", table);
+        	            }
+        	            
+        	            
+        	            JSONArray lines = jsonParser.getJSONArray(jsonControl, "lines");
+                        if ( lines != null ) {
+                            @SuppressWarnings("unchecked")
+    						Iterator<JSONObject> linesIterator = lines.iterator();
+                            while (linesIterator.hasNext()) {
+                                JSONObject jsonLine = linesIterator.next();
+                                
+                	            if ( editMode )
+                	            	treeItem = new TreeItem(linesTreeItem, SWT.NONE);
+
+                                TableItem tableItem = jsonParser.createLine(jsonLine, table, treeItem, selectedObject);
+                                
+                	            if ( editMode ) {
+                	            	if ( treeItem.getData("name")!=null ) treeItem.setText((String)treeItem.getData("name"));
+                	            } else {
+                	            	// we replace the line cells with the corresponding expanded values
+                	            	// if the lines are generated, then we caculate the 
+                	            }
+                            }
+                        }
+                        
+                        control = (Control)table;
 	                	break;
+	                	
 	                case "text":
-	                	widget = jsonParser.createText(jsonControl, parent, treeItem);
+	                	control = jsonParser.createText(jsonControl, parent, treeItem, selectedObject);
+	                	
+	                	if ( !editMode ) {
+	                		// if the tooltip is empty but a regexp is defined,then we add a tooltip with a little help message about the regexp
+	                		if (  FormPlugin.isEmpty(control.getToolTipText()) && !FormPlugin.isEmpty((String)control.getData("regexp") )) {
+	                			control.setData("pattern", Pattern.compile((String)control.getData("regexp")));
+	                            control.setToolTipText("Your text should match the following regexp :\n" + (String)control.getData("regexp"));
+	                		}
+	                		
+		                    ((StyledText)control).addModifyListener(textModifyListener);
+	                	}
 	                	break;
 	                default:
 	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
 	            }
 	            
-	            if ( FormPlugin.areEqualIgnoreCase(clazz, "table") ) {
-	            	TreeItem tableTreeItem = treeItem;
-    	            TreeItem columnsTreeItem = null;
-    	            
-    	            if ( editMode ) {
-    	            	columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-        	            columnsTreeItem.setImage(FormJsonParser.COLUMN_ICON);
-        	            columnsTreeItem.setText("columns");
-        	            columnsTreeItem.setData("class", "columns");
-        	            columnsTreeItem.setData("widget", widget);
-    	            }
-
-                    JSONArray columns = jsonParser.getJSONArray(jsonControl, "columns");
-                    if ( columns != null ) {
-                        @SuppressWarnings("unchecked")
-						Iterator<JSONObject> columnsIterator = columns.iterator();
-                        while (columnsIterator.hasNext()) {
-                            JSONObject jsonColumn = columnsIterator.next();
-                            
-                            clazz = jsonParser.getString(jsonColumn, "class");
-                            if ( clazz != null ) {
-                            	if ( editMode )
-                            		treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
-
-                	            switch ( clazz.toLowerCase() ) {
-	            	                case "check":
-	            	                	jsonParser.createCheckColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	break;
-	            		            case "combo":
-	            	                	 jsonParser.createComboColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	break;
-	            	                case "label":
-	            	                	jsonParser.createLabelColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	break;
-	            	                case "text":
-	            	                	jsonParser.createTextColumn(jsonColumn, (Table)widget, treeItem, null);
-	            	                	break;
-	            	                default:
-	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
-                	            }
-                            }
-                        }
-                    }
-    	            
-    	            TreeItem linesTreeItem = null;
-    	            
-    	            if ( editMode ) {
-    	            	linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
-        	            linesTreeItem.setImage(FormJsonParser.LINE_ICON);
-        	            linesTreeItem.setText("lines");
-        	            linesTreeItem.setData("class", "lines");
-        	            linesTreeItem.setData("widget", widget);
-    	            }
-    	            
-    	            
-    	            JSONArray lines = jsonParser.getJSONArray(jsonControl, "lines");
-                    if ( lines != null ) {
-                        @SuppressWarnings("unchecked")
-						Iterator<JSONObject> linesIterator = lines.iterator();
-                        while (linesIterator.hasNext()) {
-                            JSONObject jsonLine = linesIterator.next();
-                            
-            	            if ( editMode )
-            	            	treeItem = new TreeItem(linesTreeItem, SWT.NONE);
-
-                            jsonParser.createLine(jsonLine, (Table)widget, treeItem);
-                            
-            	            if ( editMode )
-            	            	treeItem.setText(treeItem.getData("name")==null ? "" : (String)treeItem.getData("name"));
-                        }
+	            if ( !editMode ) {
+                    // We reference the variable and the control to the eObject that the variable refers to
+                    if ( control.getData("variable") != null ) {
+    	                EObject referedEObject;
+    	                String unscoppedVariable;
+    	                
+                    	referedEObject = FormVariable.getReferedEObject((String)control.getData("variable"), selectedObject);
+                    	unscoppedVariable = FormVariable.getUnscoppedVariable((String)control.getData("variable"), selectedObject);
+                    	control.setData("variable", unscoppedVariable);
+                    	control.setData("eObject", referedEObject);
+                    	formVarList.set(referedEObject, unscoppedVariable, control);
                     }
 	            }
             }
             FormPosition.resetControlName();
             FormPosition.resetControlClass();
     }
+    
+    /**
+     * This method is called when the user chicks on the "OK" button in form mode
+     * 
+     * It creates a command to modify the objects properties in order to allow undo/redo.
+     */
+    private void ok() {
+        if (logger.isDebugEnabled())
+            logger.debug("Ok button selected by user.");
+        CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
+        try {
+            for (Control control : formDialog.getChildren()) {
+                save(control);
+            }
+        } catch (RuntimeException e) {
+            popup(Level.ERROR, "Failed to save variables.", e);
+            return;
+        }
+
+        IArchimateModel model;
+
+        if (selectedObject instanceof IArchimateModel) {
+            model = ((IArchimateModel) selectedObject).getArchimateModel();
+        } else if (selectedObject instanceof IDiagramModel) {
+            model = ((IDiagramModel) selectedObject).getArchimateModel();
+        } else if (selectedObject instanceof IDiagramModelArchimateObject) {
+            model = ((IDiagramModelArchimateObject) selectedObject).getDiagramModel().getArchimateModel();
+        } else if (selectedObject instanceof IDiagramModelArchimateConnection) {
+            model = ((IDiagramModelArchimateConnection) selectedObject).getDiagramModel().getArchimateModel();
+        } else if (selectedObject instanceof IArchimateElement) {
+            model = ((IArchimateElement) selectedObject).getArchimateModel();
+        } else if (selectedObject instanceof IArchimateRelationship) {
+            model = ((IArchimateRelationship) selectedObject).getArchimateModel();
+        } else if (selectedObject instanceof IFolder) {
+            model = ((IFolder) selectedObject).getArchimateModel();
+        } else {
+            popup(Level.ERROR, "Failed to get the model.");
+            return;
+        }
+
+        CommandStack stack = (CommandStack) model.getAdapter(CommandStack.class);
+        stack.execute(compoundCommand);
+
+        close();
+    }
+    
+    private void save(Control control) throws RuntimeException {
+        switch (control.getClass().getSimpleName()) {
+            case "Label":
+                break;					// nothing to save here
+
+            case "Button":
+            case "CCombo":
+            case "StyledText":
+                if (control.getData("variable") != null)
+                    do_save(control);
+                break;
+
+            case "TabFolder":
+                for (Control child : ((CTabFolder) control).getChildren()) {
+                    save(child);
+                }
+                break;
+            case "Table":
+                for (TableItem item : ((Table) control).getItems()) {
+                    for (TableEditor editor : (TableEditor[]) item.getData("editors")) {
+                        if (editor != null)
+                            save(editor.getEditor());
+                    }
+                }
+                break;
+            case "Composite":
+                for (Control child : ((Composite) control).getChildren()) {
+                    save(child);
+                }
+                break;
+
+            default:
+                throw new RuntimeException("Save : do not know how to save a " + control.getClass().getSimpleName());
+        }
+    }
+
+    private void do_save(Control control) throws RuntimeException {
+        String unscoppedVariable = (String)control.getData("variable");
+        EObject referedEObject = (EObject)control.getData("eObject");
+        String value;
+
+        switch (control.getClass().getSimpleName()) {
+            case "Button":
+                String[] values = (String[])control.getData("values");
+                if ( values == null )
+                    value = String.valueOf(((Button) control).getSelection());
+                else
+                    value = values[((Button) control).getSelection()?0:1];
+                break;
+            case "CCombo":
+                value = ((CCombo) control).getText();
+                break;
+            case "StyledText":
+                value = ((StyledText) control).getText();
+                break;
+            default:
+                throw new RuntimeException("Do_save : do not know how to save a " + control.getClass().getSimpleName());
+        }
+
+        if (logger.isDebugEnabled())
+            logger.debug("do_save " + control.getClass().getSimpleName() + " : " + unscoppedVariable + " = \"" + value + "\"");
+
+        if (value == null || value.isEmpty()) {
+            String whenEmpty = (String) control.getData("whenEmpty");
+
+            switch (whenEmpty) {
+                case "ignore":
+                    if (logger.isTraceEnabled())
+                        logger.trace("   value is empty : ignored.");
+                    break;
+                case "create":
+                    if (logger.isTraceEnabled())
+                        logger.trace("   value is empty : creating property.");
+                    FormVariable.setVariable(unscoppedVariable, (String)formDialog.getData("variable separator"), "", referedEObject);
+                    break;
+                case "delete":
+                    if (logger.isTraceEnabled())
+                        logger.trace("   value is empty : deleting property.");
+                    FormVariable.setVariable(unscoppedVariable, (String)formDialog.getData("variable separator"), null, referedEObject);
+                    break;
+            }
+        } else {
+            if (logger.isTraceEnabled())
+                logger.trace("   value is not empty.");
+            FormVariable.setVariable(unscoppedVariable, (String)formDialog.getData("variable separator"), value, referedEObject);
+        }
+    }
+
+    //@SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation")
+	private void exportToExcel() {
+        if (logger.isDebugEnabled())
+            logger.debug("Export button selected by user.");
+        
+        FileDialog fsd = new FileDialog(formDialog, SWT.SINGLE);
+        fsd.setFilterExtensions(new String[] { "*.xls*" });
+        fsd.setText("Select Excel File...");
+        String excelFile = fsd.open();
+
+        // we wait for the dialog disposal
+        while (display.readAndDispatch())
+            ;
+
+        Workbook workbook;
+        Sheet sheet;
+        
+        if (excelFile != null) {
+            FileInputStream file;
+            try {
+                file = new FileInputStream(excelFile);
+            } catch (FileNotFoundException e) {
+                popup(Level.ERROR, "Cannot open the Excel file.", e);
+                return;
+            }
+  
+            try {
+                workbook = WorkbookFactory.create(file);
+            } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
+                closePopup();
+                popup(Level.ERROR, "The file " + excelFile + " seems not to be an Excel file!", e);
+                // TODO: add an option to create an empty Excel file
+                return;
+            }
+            
+            // we check that all the sheets already exist
+            @SuppressWarnings("unchecked")
+    		HashSet<String> excelSheets = (HashSet<String>)formDialog.getData("excel sheets");
+            for (String sheetName : excelSheets) {
+                sheet = workbook.getSheet(sheetName);
+                if (sheet == null) {
+                    closePopup();
+                    popup(Level.ERROR, "The file " + excelFile + " does not contain a sheet called \"" + sheetName + "\"");
+                    // TODO : add a preference to create the sheet
+                    try {
+                        workbook.close();
+                    } catch (IOException ign) {
+                        ign.printStackTrace();
+                    }
+                    return;
+                }
+            }
+
+
+            boolean exportOk = true;
+
+            try {
+                // we go through all the controls and export the corresponding excel cells
+            	CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
+                for (CTabItem tabItem : tabFolder.getItems()) {
+                    if (logger.isDebugEnabled())
+                        logger.debug("Exporting tab " + tabItem.getText());
+
+                    Composite composite = (Composite) tabItem.getControl();
+                    for (Control control : composite.getChildren()) {
+                        String excelSheet = (String) control.getData("excelSheet");
+
+                        if (excelSheet != null) {
+                            sheet = workbook.getSheet(excelSheet);		// cannot be null as it has been checked before
+
+                            if ((control instanceof StyledText) || (control instanceof Label)
+                                    || (control instanceof CCombo) || (control instanceof Button)) {
+                                String excelCell = (String) control.getData("excelCell");
+
+                                CellReference ref = new CellReference(excelCell);
+                                Row row = sheet.getRow(ref.getRow());
+                                if (row == null) {
+                                    row = sheet.createRow(ref.getRow());
+                                }
+                                Cell cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+                                String text = "";
+                                switch (control.getClass().getSimpleName()) {
+                                    case "StyledText":
+                                        text = ((StyledText) control).getText();
+                                        break;
+                                    case "Label":
+                                        text = ((Label) control).getText();
+                                        break;
+                                    case "CCombo":
+                                        text = ((CCombo) control).getText();
+                                        break;
+                                    case "Button":
+                                        String[]values = (String[])control.getData("values");
+                                        if ( values == null )
+                                            text = String.valueOf(((Button)control).getSelection());
+                                        else
+                                            text = values[((Button)control).getSelection()?0:1];
+                                        break;
+                                }
+                                cell.setCellValue(text);
+                                if (logger.isTraceEnabled())
+                                    logger.trace("   '" + excelSheet + "'!" + excelCell + " -> \"" + text + "\"");
+                            } else
+                                if (control instanceof Table) {
+                                    if (logger.isDebugEnabled())
+                                        logger.debug("Exporting table");
+                                    Table table = (Table) control;
+                                    int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	            // we decrease the provided value because POI lines begin at zero
+                                    for (int line = 0; line < table.getItemCount(); ++line) {
+                                        TableItem tableItem = table.getItem(line);
+                                        Row row = sheet.getRow(excelFirstLine + line);
+                                        if (row == null)
+                                            row = sheet.createRow(excelFirstLine + line);
+
+                                        for (int col = 0; col < table.getColumnCount(); ++col) {
+                                            TableColumn tableColumn = table.getColumn(col);
+                                            String excelColumn = (String) tableColumn.getData("excelColumn");
+
+                                            if (excelColumn != null) {
+                                                CellReference ref = new CellReference(excelColumn);
+                                                Cell cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+
+                                                TableEditor editor = ((TableEditor[]) tableItem.getData("editors"))[col];
+
+                                                String value;
+                                                if (editor == null)
+                                                    value = tableItem.getText(col);
+                                                else
+                                                    switch (editor.getEditor().getClass().getSimpleName()) {
+                                                        case "StyledText":
+                                                            value = ((StyledText)editor.getEditor()).getText();
+                                                            break;
+                                                        case "Button":
+                                                            String[]values = (String[])tableColumn.getData("values");
+                                                            if ( values == null )
+                                                                value = String.valueOf(((Button)editor.getEditor()).getSelection());
+                                                            else
+                                                                value = values[((Button)editor.getEditor()).getSelection()?0:1];
+                                                            break;
+                                                        case "CCombo":
+                                                            value = ((CCombo)editor.getEditor()).getText();
+                                                            break;
+                                                        case "Label":
+                                                            value = ((Label)editor.getEditor()).getText();
+                                                            break;
+                                                        default:
+                                                            throw new RuntimeException("ExportToExcel : Do not know how to export columns of class " + editor.getEditor().getClass().getSimpleName());
+                                                    }
+
+                                                String excelCellType = (String) tableColumn.getData("excelCellType");
+                                                String excelDefault = (String) tableColumn.getData("excelDefault");
+
+                                                if ( value.isEmpty() ) {
+                                                    switch (excelDefault) {
+                                                        case "blank":
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                            cell.setCellType(CellType.BLANK);
+                                                            break;
+                                                        case "zero":
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                            switch (excelCellType) {
+                                                                case "string":
+                                                                    cell.setCellType(CellType.STRING);
+                                                                    cell.setCellValue("");
+                                                                    break;
+                                                                case "numeric":
+                                                                    cell.setCellType(CellType.NUMERIC);
+                                                                    cell.setCellValue(0.0);
+                                                                    break;
+                                                                case "boolean":
+                                                                    cell.setCellType(CellType.BOOLEAN);
+                                                                    cell.setCellValue(false);
+                                                                    break;
+                                                                case "formula":
+                                                                    cell.setCellType(CellType.FORMULA);
+                                                                    cell.setCellValue("");
+                                                                    break;
+                                                            }
+                                                            break;
+                                                        case "delete":
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                                                            if ( cell != null )
+                                                                row.removeCell(cell);
+                                                            break;
+                                                    }
+                                                } else {
+                                                    cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                    switch (excelCellType) {
+                                                        case "string":
+                                                            cell.setCellType(CellType.STRING);
+                                                            cell.setCellValue(value);
+                                                            break;
+                                                        case "numeric":
+                                                            cell.setCellType(CellType.NUMERIC);
+                                                            try {
+                                                                cell.setCellValue(Double.parseDouble(value));
+                                                            } catch (NumberFormatException e) {
+                                                                throw new RuntimeException("ExportToExcel : cell " + excelColumn + row.getRowNum() + " : failed to convert \"" + value + "\" to numeric.", e);
+                                                            }
+                                                            break;
+                                                        case "boolean":
+                                                            cell.setCellType(CellType.BOOLEAN);
+                                                            cell.setCellValue(Boolean.parseBoolean(value));
+                                                            break;
+                                                        case "formula":
+                                                            cell.setCellType(CellType.FORMULA);
+                                                            cell.setCellFormula(value);
+                                                            break;
+                                                        case "blank":
+                                                            cell.setCellType(CellType.BLANK);
+                                                            break;
+    
+                                                        default:
+                                                            throw new RuntimeException("ExportToExcel : cell " + excelColumn + row.getRowNum() + " : don't know to deal with excell cell Type \"" + excelCellType + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
+                                                    }
+                                                }
+
+                                                if (logger.isTraceEnabled())
+                                                    logger.trace("   '" + excelSheet + "'!" + excelColumn + (excelFirstLine + line + 1) + " -> \"" + value + "\" (" + cell.getCellTypeEnum().toString() + ")");
+                                            }
+                                        }
+                                    }
+                                    
+                                    int excelLastLine = (int) table.getData("excelLastLine");
+                                    for ( int line = excelFirstLine+table.getItemCount(); line < excelLastLine; ++line) {               // we do not decrease excelFirstLine by 1 because it has already been done earlier
+                                        if ( logger.isTraceEnabled() ) logger.trace("   '" + excelSheet + " : removing values from line "+line);
+                                        
+                                        Row row = sheet.getRow(line);
+                                        
+                                        for (int col = 0; col < table.getColumnCount(); ++col) {
+                                            TableColumn tableColumn = table.getColumn(col);
+                                            String excelCellType = (String) tableColumn.getData("excelCellType");
+                                            String excelDefault = (String) tableColumn.getData("excelDefault");
+                                            String excelColumn = (String) tableColumn.getData("excelColumn");
+                                            
+                                            if (excelColumn != null) {
+                                                CellReference ref = new CellReference(excelColumn);
+                                                Cell cell;
+
+                                                switch (excelDefault) {
+                                                    case "blank":
+                                                        if ( row == null ) {
+                                                            row = sheet.createRow(line - 1);
+                                                        }
+                                                        cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                        cell.setCellType(CellType.BLANK);
+                                                        break;
+                                                    case "zero":
+                                                        if ( row == null ) {
+                                                            row = sheet.createRow(line - 1);
+                                                        }
+                                                        cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                        switch (excelCellType) {
+                                                            case "string":
+                                                                cell.setCellType(CellType.STRING);
+                                                                cell.setCellValue("");
+                                                                break;
+                                                            case "numeric":
+                                                                cell.setCellType(CellType.NUMERIC);
+                                                                cell.setCellValue(0.0);
+                                                                break;
+                                                            case "boolean":
+                                                                cell.setCellType(CellType.BOOLEAN);
+                                                                cell.setCellValue(false);
+                                                                break;
+                                                            case "formula":
+                                                                cell.setCellType(CellType.FORMULA);
+                                                                cell.setCellValue("");
+                                                                break;
+                                                        }
+                                                        break;
+                                                    case "delete":
+                                                        if ( row != null ) {
+                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                                                            if ( cell != null )
+                                                                row.removeCell(cell);
+                                                        }
+                                                        break;
+                                                        
+                                                        //TODO: add an option to delete entire line
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                        }
+                    }
+                }
+            } catch (RuntimeException e) {
+                closePopup();
+                popup(Level.ERROR, "Failed to update Excel file.", e);
+                exportOk = false;
+            }
+
+            if (exportOk) {
+                workbook.setForceFormulaRecalculation(true);
+                if (logger.isDebugEnabled())
+                    logger.debug("Saving Excel file");
+                try {
+                    file.close();
+                    FileOutputStream outFile = new FileOutputStream(excelFile);
+                    workbook.write(outFile);
+                    outFile.close();
+                } catch (IOException e) {
+                    closePopup();
+                    popup(Level.ERROR, "Failed to export updates to Excel file.", e);
+                    exportOk = false;
+                }
+            }
+
+            try {
+                workbook.close();
+            } catch (IOException ign) {
+                ign.printStackTrace();
+            }
+
+            closePopup();
+
+            if (exportOk && question("Export to Excel successful.\n\nDo you wish to open the Excel spreadsheet ?")) {
+                try {
+                    Desktop.getDesktop().open(new File(excelFile));
+                } catch (IOException e) {
+                    popup(Level.ERROR, "Failed to launch Excel.", e);
+                }
+            }
+        }
+    }
+    
     
     private void cancel() {
         if (logger.isDebugEnabled())
@@ -836,7 +1431,7 @@ public class FormDialog extends Dialog {
         close();
     }
 
-    private void save() {
+    private void saveConfToJSON() {
         if (logger.isDebugEnabled())
             logger.debug("Save button selected by user.");
 
@@ -992,7 +1587,7 @@ public class FormDialog extends Dialog {
                 logger.trace("      adding table");
                 Composite parentComposite = (Composite)currentTreeItem.getData("widget");
                 
-                Table table = jsonParser.createTable(null, parentComposite, newTreeItem);
+                Table table = jsonParser.createTable(null, parentComposite, newTreeItem, selectedObject);
                 jsonParser.setData(newTreeItem, "name", "new table");
                 
                 TreeItem columnsItem = new TreeItem(newTreeItem, SWT.NONE);
@@ -1048,19 +1643,19 @@ public class FormDialog extends Dialog {
 				Table table = (Table)parentComposite;
 				TableColumn column = null;
 				switch (widgetClass) {
-					case "label":  column = jsonParser.createLabelColumn(null, table, newTreeItem, index); break;
-					case "text":   column = jsonParser.createTextColumn (null, table, newTreeItem, index); break;
-					case "combo":  column = jsonParser.createComboColumn(null, table, newTreeItem, index); break;
-					case "check":  column = jsonParser.createCheckColumn(null, table, newTreeItem, index); break;
+					case "label":  column = jsonParser.createLabelColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "text":   column = jsonParser.createTextColumn (null, table, newTreeItem, index, selectedObject); break;
+					case "combo":  column = jsonParser.createComboColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "check":  column = jsonParser.createCheckColumn(null, table, newTreeItem, index, selectedObject); break;
 				}
 				
 				column.setText("new "+widgetClass);
 			} else {
 				switch (widgetClass) {
-					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem); break;
-					case "text":   jsonParser.createText (null, parentComposite, newTreeItem); break;
-					case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem); break;
-					case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem); break;
+					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem, selectedObject); break;
+					case "text":   jsonParser.createText (null, parentComposite, newTreeItem, selectedObject); break;
+					case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem, selectedObject); break;
+					case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem, selectedObject); break;
 				}
 			}
 			
@@ -1104,7 +1699,7 @@ public class FormDialog extends Dialog {
             if ( parentComposite instanceof Table ) {
                 Table table = (Table)parentComposite;
             
-                jsonParser.createLine(null, table, newTreeItem);
+                jsonParser.createLine(null, table, newTreeItem, selectedObject);
             }
             
             jsonParser.setData(newTreeItem, "name", "new line");
@@ -1375,109 +1970,7 @@ public class FormDialog extends Dialog {
     
     /************************************************************************************************/
     
-    /**
-     * Checks whether the eObject fits in the filter rules
-     */
-    public static boolean checkFilter(EObject eObject, JSONObject filterObject) {
-        if (filterObject == null) {
-            return true;
-        }
 
-        String type = ((String)jsonParser.getJSON(filterObject, "genre")).toUpperCase();
-        if ( FormPlugin.isEmpty(type) )
-        	type = "AND";
-
-        if (!type.equals("AND") && !type.equals("OR"))
-            throw new RuntimeException("Invalid filter genre. Supported genres are \"AND\" and \"OR\".");
-
-        boolean result;
-
-        @SuppressWarnings("unchecked")
-        Iterator<JSONObject> filterIterator = ((JSONArray)jsonParser.getJSON(filterObject, "tests")).iterator();
-        while (filterIterator.hasNext()) {
-            JSONObject filter = filterIterator.next();
-            String attribute = (String)jsonParser.getJSON(filter, "attribute");
-            String operation = (String)jsonParser.getJSON(filter, "operation");
-            String value;
-            String[] values;
-
-            String attributeValue = FormVariable.expand(attribute, eObject);
-
-            switch (operation.toLowerCase()) {
-                case "equals":
-                    value = (String)jsonParser.getJSON(filter, "value");
-
-                    result = attributeValue.equals(value);
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals \"" + value + "\" --> " + result);
-                    break;
-
-                case "in":
-                    value = (String)jsonParser.getJSON(filter, "value");
-                    values = value.split(",");
-                    result = false;
-                    for (String str : values) {
-                        if (str.equals(attributeValue)) {
-                            result = true;
-                            break;
-                        }
-                    }
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
-                    break;
-
-                case "exists":
-                    result = attributeValue.isEmpty();
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") exists --> " + result);
-                    break;
-
-                case "iequals":
-                    value = (String)jsonParser.getJSON(filter, "value");
-
-                    result = attributeValue.equalsIgnoreCase(value);
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals (ignore case) \"" + value + "\" --> " + result);
-                    break;
-
-                case "iin":
-                    value = (String)jsonParser.getJSON(filter, "value");
-                    values = value.split(",");
-                    result = false;
-                    for (String str : values) {
-                        if (str.equals(attributeValue)) {
-                            result = true;
-                            break;
-                        }
-                    }
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
-                    break;
-
-                case "matches":
-                    value = (String)jsonParser.getJSON(filter, "value");
-
-                    result = (attributeValue != null) && attributeValue.matches(value);
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") matches \"" + value + "\" --> " + result);
-                    break;
-
-                default:
-                    throw new RuntimeException("Unknown operation type \"" + operation + "\" in filter.\n\nValid operations are \"equals\", \"exists\", \"iequals\" and \"matches\".");
-            }
-
-            // in AND mode, all the tests must return true, so if the current test is false, then the complete filter returns false
-            if (result == false && type.equals("AND"))
-                return false;
-
-            // in OR mode, one test at lease must return true, so if the current test is true, then the complete filter returns true
-            if (result == true && type.equals("OR"))
-                return true;
-        }
-        // in AND mode, we're here if all the tests were true
-        // in OR mode, we're here if all the tests were false
-        return type.equals("AND");
-    }
 
     /**
      * Checks whether a value is in an array
@@ -1488,5 +1981,97 @@ public class FormDialog extends Dialog {
                 return true;
         }
         return false;
+    }
+    
+    static ModifyListener textModifyListener = new ModifyListener() {
+        public void modifyText(ModifyEvent e) {
+        	if ( logger.isTraceEnabled() ) logger.trace("calling textModifyListener");
+        	
+            updateWidget((Control)e.widget);
+        }
+    };
+    
+    static SelectionListener checkButtonSelectionListener = new SelectionListener(){
+        @Override public void widgetSelected(SelectionEvent e) {
+            updateWidget((Control)e.widget);
+        }
+
+        @Override public void widgetDefaultSelected(SelectionEvent e) {
+            widgetSelected(e);
+        }
+    };
+    
+    private static void updateWidget(Control control) {
+    	String unscoppedVariable = (String)control.getData("variable");
+        EObject referedEObject = (EObject)control.getData("eObject");
+    	String content;
+    	
+    	switch ( control.getClass().getSimpleName() ) {
+    		case "Button":
+    			String[]values = (String[])control.getData("values");
+    			if ( values == null )
+    			    content = null;
+    			else
+    			    content = values[((Button)control).getSelection()?0:1];
+    			break;
+    		
+    		case "StyledText":
+                content = ((StyledText)control).getText();
+                break;
+                
+    		case "CCombo":
+    			content = ((CCombo)control).getText();
+                break;
+                
+            default:
+                throw new RuntimeException("Do not know how to update "+control.getClass().getSimpleName()+" control.");
+    	}
+
+        for ( Control otherControl: formVarList.getControls(referedEObject, unscoppedVariable)) {
+            if ( otherControl == control ) {
+                if (logger.isTraceEnabled()) logger.trace("same combo - ignored");
+            } else {
+                if (logger.isTraceEnabled()) logger.trace("updating "+otherControl);
+                
+                switch (control.getClass().getSimpleName()) {
+                    case "CCombo":
+                        CCombo combo = ((CCombo)otherControl);
+
+                    	combo.removeModifyListener(textModifyListener);
+                        combo.setText(content);
+                        combo.addModifyListener(textModifyListener);
+                        break;
+    
+                    case "Button":
+                    	Button button= (Button)otherControl;
+
+                    	String[]values = (String[])button.getData("values");
+                        
+                        button.removeSelectionListener(checkButtonSelectionListener);
+                        if ( values == null )
+                            button.setSelection(((Button)control).getSelection());
+                        else
+                            button.setSelection(FormPlugin.areEqual(content, values[1]));       // any other value than values[1] implies the button is unchecked
+                        button.addSelectionListener(checkButtonSelectionListener);
+                        break;
+    
+                    case "Label":
+                        ((Label)otherControl).setText(content);
+                        break;
+    
+                    case "StyledText":
+                        StyledText text = (StyledText)otherControl;
+                        
+                        text.removeModifyListener(textModifyListener);
+                        text.setText(content);
+                        Pattern pattern = (Pattern)text.getData("pattern");		               // if a regex has been provided, we change the text color to show if it matches
+                        if ( pattern != null ) {
+                        	text.setStyleRange(new StyleRange(0, content.length(), pattern.matcher(content).matches() ? goodValueColor : badValueColor, null));
+                        }
+                        text.addModifyListener(textModifyListener);
+                        break;
+                }
+            }
+        }
     }
 }
