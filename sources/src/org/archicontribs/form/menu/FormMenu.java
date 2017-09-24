@@ -187,7 +187,7 @@ public class FormMenu extends ExtensionContributionFactory {
 	                    }
 
 						// we guarantee than an object is not included in the same menu several times
-						if ( !selected.contains(selectedObject) && ((filter == null) || FormDialog.checkFilter(selectedObject, filter)) ) {
+						if ( !selected.contains(selectedObject) && ((filter == null) || formJsonParser.checkFilter(selectedObject, filter)) ) {
 							String menuLabel = FormVariable.expand(formName, selectedObject);
 							if ( logger.isDebugEnabled() ) logger.debug("Adding menu entry \""+menuLabel+"\"");
 							
