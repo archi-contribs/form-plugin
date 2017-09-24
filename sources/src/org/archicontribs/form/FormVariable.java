@@ -62,6 +62,9 @@ public class FormVariable {
     public static EObject getReferedEObject(String variable, EObject eObject) {
         if ( logger.isTraceEnabled() ) logger.trace("         getting refered EObject from variable \""+variable+"\" (source object = "+FormPlugin.getDebugName(eObject)+")");
 
+        if ( variable == null || eObject == null )
+        	return null;
+        
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") ) {
         	if ( logger.isTraceEnabled() ) logger.trace("         --> not a variable");
@@ -163,6 +166,9 @@ public class FormVariable {
      * Gets the variable without its scope
      */
     public static String getUnscoppedVariable(String variable, EObject eObject) {
+    	if ( variable == null || eObject == null )
+    		return null;
+    	
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
             return null;
