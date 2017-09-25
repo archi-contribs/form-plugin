@@ -1,3 +1,13 @@
+## v1.5.4:	25/09/2017
+* Add graphical interface to generate the configuration file
+* Configuration files can now contain a single form only
+* Change JSON file version to 3
+* Fix check for update at startup
+* Fix properties changes undo/redo
+
+* TODO list
+  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+
 ## v1.5.4:	05/08/2017
 * Add "in" and "iin" tests
 * Add "${source:xxx}" and "${target:xxx}" variables scope when selected object is a relationship
@@ -7,10 +17,6 @@
 * Updating a control updates in real time all the other controls that refer to the same variable
 * Add "foreground" and "background" keywords for table columns
 * Labels are now in wrap mode
-
-* TODO list
-  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
-  * Create a graphical interface to generate the form as the configuration file becomes quite complex to be managed manually)
  
 ## v1.5.3:	30/06/2017
 * Accept to change IDs
