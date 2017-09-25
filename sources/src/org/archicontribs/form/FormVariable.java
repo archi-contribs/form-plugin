@@ -385,28 +385,10 @@ public class FormVariable {
                     
                     if ( eObject instanceof IProperties ) {
                         String propertyName = variableName.substring(9);
-
-                        IProperty propertyToUpdate = null;
-                        for ( IProperty property: ((IProperties)eObject).getProperties() ) {
-                            if ( FormPlugin.areEqual(property.getKey(), propertyName) ) {
-                                propertyToUpdate = property;
-                                break;
-                            }
-                        }
-                        // if the property does not (yet) exists
-                        if ( propertyToUpdate == null ) {
-                            // we create a new property if and only if the value is not null
-                            if ( value != null ) {
-                            	fCommand = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyName, value);
-                                if ( fCommand.canExecute() )
-                                	compoundCommand.add(fCommand);
-                            }
-                        } else {
-                            // if the property already exists, we update its value
-                            fCommand = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyToUpdate, value);
-                            if ( fCommand.canExecute() )
-                            	compoundCommand.add(fCommand);
-                        }
+                        
+                    	fCommand = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyName, value);
+                        if ( fCommand.canExecute() )
+                        	compoundCommand.add(fCommand);
                         return;
                     } else {
                         //TODO : show up an error
