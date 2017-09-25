@@ -913,7 +913,7 @@ public class FormDialog extends Dialog {
                 	            if ( editMode )
                 	            	treeItem = new TreeItem(linesTreeItem, SWT.NONE);
 
-                                TableItem tableItem = jsonParser.createLine(jsonLine, table, treeItem, selectedObject);
+                                jsonParser.createLine(jsonLine, table, treeItem, selectedObject);
                                 
                 	            if ( editMode ) {
                 	            	if ( treeItem.getData("name")!=null ) treeItem.setText((String)treeItem.getData("name"));
