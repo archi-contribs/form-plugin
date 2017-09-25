@@ -124,13 +124,15 @@ import com.archimatetool.model.INameable;
  *                              Add "foreground" and "background" keywords for table columns
  *                              Labels are now in wrap mode
  * 
- * v1.6 :		15/08/2017		Add graphical interface to generate the configuration file
- * 								fix check for update at startup
+ * v1.6 :		25/09/2017		Add graphical interface to generate the configuration file
+ * 								Configuration files can now contain a single form only
+ * 								Change JSON file version to 3
+ *  							Fix check for update at startup
+ *                              Fix properties changes undo/redo
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
- * 								Create a graphical interface to generate the forms rather than requiring the user to edit a json file that is quite very complex to understand
  */
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
