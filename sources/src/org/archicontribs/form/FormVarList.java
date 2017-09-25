@@ -11,7 +11,11 @@ public class FormVarList {
     HashMap<EObject, HashMap<String, Set<Control>>> varList;
     
     public FormVarList() {
-        varList = new HashMap<EObject, HashMap<String, Set<Control>>>();
+        reset();
+    }
+    
+    public void reset() {
+    	varList = new HashMap<EObject, HashMap<String, Set<Control>>>();
     }
     
     public void set(EObject eObject, String variable, Control control) {

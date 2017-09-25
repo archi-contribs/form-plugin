@@ -219,6 +219,8 @@ public class FormJsonParser {
         }
         
         // used by form
+        if ( variableSeparator == null )
+        	variableSeparator = FormDialog.defaultVariableSeparator;
         form.setData("variable separator", variableSeparator);			// we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         form.setData("tab folder", tabFolder);
         form.setData("export button", exportToExcelButton);

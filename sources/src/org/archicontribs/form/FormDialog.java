@@ -201,6 +201,8 @@ public class FormDialog extends Dialog {
         
         this.configFilename = configFilename;
         this.selectedObject = selectedObject;
+        
+        formVarList.reset();
 
         try {
         	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
@@ -971,7 +973,7 @@ public class FormDialog extends Dialog {
         CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
         try {
             for (Control control : formDialog.getChildren()) {
-                save(control);
+                save(compoundCommand, control);
             }
         } catch (RuntimeException e) {
             popup(Level.ERROR, "Failed to save variables.", e);
@@ -998,6 +1000,8 @@ public class FormDialog extends Dialog {
             popup(Level.ERROR, "Failed to get the model.");
             return;
         }
+        
+        logger.trace("Executing "+compoundCommand.size()+" command ...");
 
         CommandStack stack = (CommandStack) model.getAdapter(CommandStack.class);
         stack.execute(compoundCommand);
@@ -1005,7 +1009,7 @@ public class FormDialog extends Dialog {
         close();
     }
     
-    private void save(Control control) throws RuntimeException {
+    private void save(CompoundCommand compoundCommand, Control control) throws RuntimeException {
         switch (control.getClass().getSimpleName()) {
             case "Label":
                 break;					// nothing to save here
@@ -1014,34 +1018,38 @@ public class FormDialog extends Dialog {
             case "CCombo":
             case "StyledText":
                 if (control.getData("variable") != null)
-                    do_save(control);
+                    do_save(compoundCommand, control);
                 break;
 
-            case "TabFolder":
+            case "CTabFolder":
                 for (Control child : ((CTabFolder) control).getChildren()) {
-                    save(child);
+                    save(compoundCommand, child);
                 }
                 break;
             case "Table":
                 for (TableItem item : ((Table) control).getItems()) {
                     for (TableEditor editor : (TableEditor[]) item.getData("editors")) {
                         if (editor != null)
-                            save(editor.getEditor());
+                            save(compoundCommand, editor.getEditor());
                     }
                 }
                 break;
             case "Composite":
                 for (Control child : ((Composite) control).getChildren()) {
-                    save(child);
+                    save(compoundCommand, child);
                 }
                 break;
 
+            case "ToolBar":
+            	// do nothing as it is created by the CTabFolder
+            	break;
+            	
             default:
                 throw new RuntimeException("Save : do not know how to save a " + control.getClass().getSimpleName());
         }
     }
 
-    private void do_save(Control control) throws RuntimeException {
+    private void do_save(CompoundCommand compoundCommand, Control control) throws RuntimeException {
         String unscoppedVariable = (String)control.getData("variable");
         EObject referedEObject = (EObject)control.getData("eObject");
         String value;
@@ -1069,6 +1077,9 @@ public class FormDialog extends Dialog {
 
         if (value == null || value.isEmpty()) {
             String whenEmpty = (String) control.getData("whenEmpty");
+            
+            if ( whenEmpty == null )
+            	whenEmpty = FormDialog.validWhenEmpty[0];
 
             switch (whenEmpty) {
                 case "ignore":
@@ -1078,18 +1089,18 @@ public class FormDialog extends Dialog {
                 case "create":
                     if (logger.isTraceEnabled())
                         logger.trace("   value is empty : creating property.");
-                    FormVariable.setVariable(unscoppedVariable, (String)formDialog.getData("variable separator"), "", referedEObject);
+                    FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)formDialog.getData("variable separator"), "", referedEObject);
                     break;
                 case "delete":
                     if (logger.isTraceEnabled())
                         logger.trace("   value is empty : deleting property.");
-                    FormVariable.setVariable(unscoppedVariable, (String)formDialog.getData("variable separator"), null, referedEObject);
+                    FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)formDialog.getData("variable separator"), null, referedEObject);
                     break;
             }
         } else {
             if (logger.isTraceEnabled())
                 logger.trace("   value is not empty.");
-            FormVariable.setVariable(unscoppedVariable, (String)formDialog.getData("variable separator"), value, referedEObject);
+            FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)formDialog.getData("variable separator"), value, referedEObject);
         }
     }
 

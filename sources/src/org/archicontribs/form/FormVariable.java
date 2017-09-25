@@ -4,7 +4,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.gef.commands.CompoundCommand;
 
 import com.archimatetool.editor.model.commands.EObjectFeatureCommand;
-import com.archimatetool.editor.model.commands.NonNotifyingCompoundCommand;
 import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateModelObject;
@@ -319,10 +318,11 @@ public class FormVariable {
      * This method does not throw exceptions as it is mainly called by SWT which won't know what to do with these exceptions.<br>
      * Instead, it opens a popup to display the error message.
      */
-    public static void setVariable(String variable, String separator, String value, EObject eObject) throws RuntimeException {
+    public static void setVariable(CompoundCommand compoundCommand, String variable, String separator, String value, EObject eObject) throws RuntimeException {
         if ( logger.isTraceEnabled() ) logger.trace("   setting \""+value+"\" to "+variable+" of "+FormPlugin.getDebugName(eObject));
         
-        CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
+        EObjectFeatureCommand eCommand;
+        FormPropertyCommand fCommand;
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         Pattern pattern = Pattern.compile("^\\$\\{[^}]+}$");
@@ -340,8 +340,9 @@ public class FormVariable {
                 if (eObject instanceof IIdentifier) {
                     if ( value == null || value.length()==0 )
                         throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the value provided is null.");
-                    compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.IDENTIFIER__ID, value));
-                    compoundCommand.execute();
+                    eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.IDENTIFIER__ID, value);
+                    if ( eCommand.canExecute() )
+                    	compoundCommand.add(eCommand);
                     return;
                 }
                 break;
@@ -349,8 +350,9 @@ public class FormVariable {
             case "documentation" :
                 if (eObject instanceof IDocumentable) {
                     //((IDocumentable)eObject).setDocumentation(value == null ? "" : value);
-                    compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value));
-                    compoundCommand.execute();
+                    eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value);
+                    if ( eCommand.canExecute() )
+                    	compoundCommand.add(eCommand);
                     return;
                 }
                 else {
@@ -361,8 +363,9 @@ public class FormVariable {
             case "name" :
                 if (eObject instanceof INameable) {
                     //((INameable)eObject).setName(value == null ? "" : value);
-                    compoundCommand.add(new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.NAMEABLE__NAME, value == null ? "" : value));
-                    compoundCommand.execute();
+                	eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.NAMEABLE__NAME, value == null ? "" : value);
+                    if ( eCommand.canExecute() )
+                    	compoundCommand.add(eCommand);
                     return;
                 } else {
                     // TODO: show error message
@@ -394,13 +397,15 @@ public class FormVariable {
                         if ( propertyToUpdate == null ) {
                             // we create a new property if and only if the value is not null
                             if ( value != null ) {
-                                compoundCommand.add(new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyName, value));
-                                compoundCommand.execute();
+                            	fCommand = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyName, value);
+                                if ( fCommand.canExecute() )
+                                	compoundCommand.add(fCommand);
                             }
                         } else {
                             // if the property already exists, we update its value
-                            compoundCommand.add(new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyToUpdate, value));
-                            compoundCommand.execute();
+                            fCommand = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyToUpdate, value);
+                            if ( fCommand.canExecute() )
+                            	compoundCommand.add(fCommand);
                         }
                         return;
                     } else {
@@ -411,11 +416,11 @@ public class FormVariable {
                     // check for ${view:xxx}
                 else if ( variableName.startsWith("view"+separator) ) {
                     if ( eObject instanceof IDiagramModel ) {
-                        setVariable("${"+variableName.substring(5)+"}", separator, value, eObject);
+                        setVariable(compoundCommand, "${"+variableName.substring(5)+"}", separator, value, eObject);
                         return;
                     }
                     else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                        setVariable("${"+variableName.substring(5)+"}", separator, value, (EObject)((IDiagramModelArchimateObject)eObject).getDiagramModel());
+                        setVariable(compoundCommand, "${"+variableName.substring(5)+"}", separator, value, (EObject)((IDiagramModelArchimateObject)eObject).getDiagramModel());
                         return;
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the object is not part of a DiagramModel.");
@@ -424,11 +429,11 @@ public class FormVariable {
                     // check for ${model:xxx}
                 else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
                     if ( eObject instanceof IArchimateDiagramModel ) {
-                        setVariable("${"+variableName.substring(6)+"}", separator, value, eObject);
+                        setVariable(compoundCommand, "${"+variableName.substring(6)+"}", separator, value, eObject);
                         return;
                     }
                     else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                        setVariable("${"+variableName.substring(6)+"}", separator, value, ((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel()); ;
+                        setVariable(compoundCommand, "${"+variableName.substring(6)+"}", separator, value, ((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel()); ;
                         return;
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not part of a model.");
@@ -437,7 +442,7 @@ public class FormVariable {
                 // check for ${source:xxx}
             else if ( variableName.toLowerCase().startsWith("source"+separator) ) {
                 if ( eObject instanceof IArchimateRelationship ) {
-                    setVariable("${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getSource());
+                    setVariable(compoundCommand, "${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getSource());
                     return;
                 }
                 throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not a relationship.");
@@ -446,7 +451,7 @@ public class FormVariable {
                 // check for ${target:xxx}
             else if ( variableName.toLowerCase().startsWith("target"+separator) ) {
                 if ( eObject instanceof IArchimateRelationship ) {
-                    setVariable("${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getTarget());
+                    setVariable(compoundCommand, "${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getTarget());
                     return;
                 }
                 throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not a relationship.");
