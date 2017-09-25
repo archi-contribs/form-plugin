@@ -17,8 +17,9 @@ public class FormPropertyCommand extends Command {
 	protected IProperty property = null;
 	protected String propertyName = null;
 	protected String propertyValue = null;
-	protected String oldValue = null;
-	protected int oldIndex = -1;
+	protected String oldPropertyValue = null;
+	protected int propertyIndex = 0;
+	protected boolean propertyCreated;
 		
 	/*
 	 * Creates a new property
@@ -26,8 +27,12 @@ public class FormPropertyCommand extends Command {
 	public FormPropertyCommand(String label, IProperties eObject, String propertyName, String propertyValue) {
 	    setLabel(label);
 	    this.eObject = eObject;
+	    this.property = null;
 	    this.propertyName = propertyName;
+	    this.oldPropertyValue = null;
 	    this.propertyValue = propertyValue;
+	    this.propertyIndex = 0;
+	    propertyCreated = true;
 	}
 	
 	/*
@@ -37,41 +42,41 @@ public class FormPropertyCommand extends Command {
 		setLabel(label);
 	    this.eObject = eObject;
 		this.property = property;
+		this.propertyName = property.getKey();
+		this.oldPropertyValue = property.getValue();
 		this.propertyValue = propertyValue;
-		this.oldValue = property.getValue();
+		this.propertyIndex = eObject.getProperties().indexOf(property);
+		propertyCreated = false;
 	}
 	
     @Override
     public void execute() {
-        if ( property == null ) {
-            // if the property is null, this means that the property does not exist yet.
-            // Therefore, a new property needs to be created
+        if ( propertyCreated ) {
+        	// We create a new property
             property = IArchimateFactory.eINSTANCE.createProperty();
             property.setKey(propertyName);
             property.setValue(propertyValue);
             eObject.getProperties().add(property);
         } else {
-            // Else, we just have to update the existing property
+            // we update the existing property
             if ( propertyValue == null ) {
-                // if the value is null, then we remove the property
-                oldIndex = eObject.getProperties().indexOf(property);
-                eObject.getProperties().remove(property);
+                eObject.getProperties().remove(property);		// if the value is null, then we remove the property
             } else {
-                property.setValue(propertyValue);
+                property.setValue(propertyValue);				// if the value is not null, we set it
             }
         }
     }
     
     @Override
     public void undo() {
-        if (propertyName == null ) {
+        if ( propertyCreated ) {
             // if is was a new property, we remove it
             eObject.getProperties().remove(property);
         } else {
-            property.setValue(oldValue);
-            // else the property had been deleted, then we need to create a new one at the same index
-            if ( oldIndex != -1 ) {
-                eObject.getProperties().add(oldIndex, property);
+            if ( propertyValue == null ) {
+                eObject.getProperties().add(propertyIndex, property);		// we restore the property
+            } else {
+            	property.setValue(oldPropertyValue);						// we restore the old value
             }
         }
     }
