@@ -104,7 +104,7 @@ public class FormMenu extends ExtensionContributionFactory {
     			try {
     			    version = formJsonParser.getInt(json, "version");
     	            if ( version == null || version != 3 ) {
-	                    logger.error("Ignored : not the right version (should be 2).");
+	                    logger.error("Ignored : not the right version (should be 3).");
 	                    continue loopOnConfigFiles;
 	                }
     			} catch (ClassCastException e) {
