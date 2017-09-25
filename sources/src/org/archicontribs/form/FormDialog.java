@@ -1208,7 +1208,7 @@ public class FormDialog extends Dialog {
                                 cell.setCellValue(text);
                                 if (logger.isTraceEnabled())
                                     logger.trace("   '" + excelSheet + "'!" + excelCell + " -> \"" + text + "\"");
-                            } else
+                            } else {
                                 if (control instanceof Table) {
                                     if (logger.isDebugEnabled())
                                         logger.debug("Exporting table");
@@ -1391,6 +1391,7 @@ public class FormDialog extends Dialog {
                                         }
                                     }
                                 }
+                            }
                         }
                     }
                 }
@@ -1427,7 +1428,7 @@ public class FormDialog extends Dialog {
             if (exportOk && question("Export to Excel successful.\n\nDo you wish to open the Excel spreadsheet ?")) {
                 try {
                     Desktop.getDesktop().open(new File(excelFile));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     popup(Level.ERROR, "Failed to launch Excel.", e);
                 }
             }
