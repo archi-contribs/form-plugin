@@ -153,7 +153,7 @@ public class FormDialog extends Dialog {
     public static final String   defaultTabName           = "tab";
     public static final String   defaultVariableSeparator = ":";
     public static final String[] validAlignment           = new String[] {"left", "center", "right"};						// default value is first one
-    public static final String[] validRefers              = new String[] {"selected", "container", "model"};				// default value is first one
+    public static final String[] validRefers              = new String[] {"selected", "view", "folder", "model"};   		// default value is first one
     public static final String[] validWhenEmpty           = new String[] {"ignore", "create", "delete" };					// default value is first one
     public static final String[] validExcelCellType       = new String[] {"string", "numeric", "boolean", "formula" };		// default value is first one
     public static final String[] validExcelDefault        = new String[] {"blank", "zero", "delete" };						// default value is first one
@@ -201,6 +201,8 @@ public class FormDialog extends Dialog {
         
         this.configFilename = configFilename;
         this.selectedObject = selectedObject;
+        
+        logger.trace("Selected object is "+FormPlugin.getDebugName(selectedObject));
         
         formVarList.reset();
 

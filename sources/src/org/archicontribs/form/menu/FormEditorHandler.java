@@ -53,8 +53,9 @@ public class FormEditorHandler extends AbstractHandler {
 			if ( FormPlugin.isEmpty("refers") )
 				refers = FormDialog.validRefers[0];
 			switch ( refers.toLowerCase() ) {
-				case "container":   selectedObject = FormMenu.getContainer(selectedObject); break;
-				case "model":    	selectedObject = FormMenu.getModel(selectedObject);     break;
+				case "view":   selectedObject = FormMenu.getContainer(selectedObject); break;
+				case "folder": selectedObject = FormMenu.getContainer(selectedObject); break;
+				case "model":  selectedObject = FormMenu.getModel(selectedObject);     break;
 				//case "selected": selectedObject remains the same
 			}
 			

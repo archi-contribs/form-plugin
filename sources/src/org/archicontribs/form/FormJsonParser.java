@@ -37,7 +37,9 @@ import org.json.simple.JSONObject;
 
 import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
+import com.archimatetool.model.IDiagramModelConnection;
 import com.archimatetool.model.IDiagramModelContainer;
+import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.IFolder;
 
 /**
@@ -106,17 +108,17 @@ public class FormJsonParser {
         String  buttonExportText      = getString(jsonObject, "buttonExport");
     	
         if (logger.isTraceEnabled()) {
-            logger.trace("   variableSeparator = " + variableSeparator);
-            logger.trace("   width = " + width);
-            logger.trace("   height = " + height);
-            logger.trace("   spacing = " + spacing);
-            logger.trace("   buttonWidth = " + buttonWidth);
-            logger.trace("   buttonHeight = " + buttonHeight);
-            logger.trace("   refers = " + refers);
-            logger.trace("   buttonOk = " + buttonOkText);
-            logger.trace("   buttonCancel = " + buttonCancelText);
-            logger.trace("   buttonExport = " + buttonExportText);
-            logger.trace("   whenEmpty = " + whenEmpty);
+            logger.trace("      variableSeparator = " + variableSeparator);
+            logger.trace("      width = " + width);
+            logger.trace("      height = " + height);
+            logger.trace("      spacing = " + spacing);
+            logger.trace("      buttonWidth = " + buttonWidth);
+            logger.trace("      buttonHeight = " + buttonHeight);
+            logger.trace("      refers = " + refers);
+            logger.trace("      buttonOk = " + buttonOkText);
+            logger.trace("      buttonCancel = " + buttonCancelText);
+            logger.trace("      buttonExport = " + buttonExportText);
+            logger.trace("      whenEmpty = " + whenEmpty);
         }
         
         // we register the values from the configuration file that are needed by the graphical editor
@@ -808,24 +810,24 @@ public class FormJsonParser {
     	//    then we create a line for every object's child
 		if ( generate != null && generate ) {
 			if (selectedObject instanceof IArchimateDiagramModel) {
-				for ( EObject child: ((IArchimateDiagramModel) selectedObject).getChildren()) {
+				for ( IDiagramModelObject child: ((IArchimateDiagramModel) selectedObject).getChildren()) {
 					tableItem = createLine(jsonObject, parent, treeItem, child);
+					for ( IDiagramModelConnection relation: child.getSourceConnections() ) {
+						tableItem = createLine(jsonObject, parent, treeItem, relation);
+					}
 				}
-			}
-			
-            if (selectedObject instanceof IDiagramModelContainer) {
-            	for ( EObject child: ((IDiagramModelContainer) selectedObject).getChildren()) {
+			} else if (selectedObject instanceof IDiagramModelContainer) {
+            	for ( IDiagramModelObject child: ((IDiagramModelContainer) selectedObject).getChildren()) {
             		tableItem = createLine(jsonObject, parent, treeItem, child);
+					for ( IDiagramModelConnection relation: child.getSourceConnections() ) {
+						tableItem = createLine(jsonObject, parent, treeItem, relation);
+					}
             	}
-            }
-            
-            if (selectedObject instanceof IFolder) {
+            } else if (selectedObject instanceof IFolder) {
             	for ( EObject child: ((IFolder) selectedObject).getElements()) {
             		tableItem = createLine(jsonObject, parent, treeItem, child);
             	}
-            }
-            
-            if (selectedObject instanceof IArchimateModel) {
+            } else if (selectedObject instanceof IArchimateModel) {
             	for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
             		for ( EObject child: folder.getElements()) {
             			tableItem = createLine(jsonObject, parent, treeItem, child);

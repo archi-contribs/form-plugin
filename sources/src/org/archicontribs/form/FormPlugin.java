@@ -129,6 +129,8 @@ import com.archimatetool.model.INameable;
  * 								Change JSON file version to 3
  *  							Fix check for update at startup
  *                              Fix properties changes undo/redo
+ *                              
+ * v1.6.1 :		26/09/2017		Fix missing relationships in tables
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
@@ -137,7 +139,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.6";
+	public static final String pluginVersion = "1.6.1";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
