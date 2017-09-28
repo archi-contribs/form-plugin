@@ -1,12 +1,20 @@
-## v1.5.4:	25/09/2017
+## v1.6.2:  28/09/2017
+* Fix duplicate table lines whent the form is applied to the whole model
+* Forcing layout of table widgets todisplay them quicker
+* Adding a filter editor on the form
+
+* TODO list
+  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+
+## v1.6.1:  26/09/2017
+* fix missing relationships in table
+  
+## v1.6:	25/09/2017
 * Add graphical interface to generate the configuration file
 * Configuration files can now contain a single form only
 * Change JSON file version to 3
 * Fix check for update at startup
 * Fix properties changes undo/redo
-
-* TODO list
-  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
 
 ## v1.5.4:	05/08/2017
 * Add "in" and "iin" tests
