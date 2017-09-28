@@ -1148,8 +1148,10 @@ public class FormJsonParser {
                 default:
                     throw new RuntimeException(FormPosition.getPosition("lines") + "\n\nFailed to add table item for unknown object class \"" + ((String)table.getColumn(columnNumber).getData("class")) + "\"");
     		}
-	    	tableItem.setData("editors", editors);
+    		editor.layout();
     	}
+    	
+    	tableItem.setData("editors", editors);
     	
     	// required by the graphical editor
     	if ( treeItem != null ) {
