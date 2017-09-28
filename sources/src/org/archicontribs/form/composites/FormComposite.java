@@ -3,6 +3,7 @@ package org.archicontribs.form.composites;
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.editors.ColorEditor;
 import org.archicontribs.form.editors.ComboEditor;
+import org.archicontribs.form.editors.FilterEditor;
 import org.archicontribs.form.editors.FormSizeEditor;
 import org.archicontribs.form.editors.StringEditor;
 import org.eclipse.swt.layout.FormLayout;
@@ -14,6 +15,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 	private FormSizeEditor          formSizeEditor;    			// width, height, spacing, buttonWidth, buttonHeight						//TODO : rename spacing to margin
 	private ColorEditor             colorEditor;        		// foreground, background
     private ComboEditor             refersEditor; 				// refers
+    private FilterEditor			filterEditor;               // filter
     private StringEditor            variableSeparatorEditor;	// variableSeparator
     private StringEditor            buttonOkEditor; 			// buttonOk
     private StringEditor            buttonCancelEditor; 		// buttonCancel
@@ -54,9 +56,13 @@ public class FormComposite extends Composite implements CompositeInterface {
                 "Default: "+FormDialog.validRefers[0]+"."
                 );
 		
+	    // filter
+		filterEditor = new FilterEditor(this);
+		filterEditor.setPosition(refersEditor.getControl());
+		
 	    // variableSeparator
 		variableSeparatorEditor = new StringEditor(this, "Variable separator:");
-		variableSeparatorEditor.setPosition(refersEditor.getControl());
+		variableSeparatorEditor.setPosition(filterEditor.getControl());
 		variableSeparatorEditor.setProperty("variableSeparator");
 		variableSeparatorEditor.setTextLimit(1);
 		variableSeparatorEditor.setWidth(25);
