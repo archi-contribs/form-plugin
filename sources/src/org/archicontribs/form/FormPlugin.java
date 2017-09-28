@@ -132,6 +132,10 @@ import com.archimatetool.model.INameable;
  *                              
  * v1.6.1 :		26/09/2017		Fix missing relationships in tables
  * 
+ * v1.6.2 :     28/09/2017		Fix duplicate table lines when the form is applied to the whole model
+ * 								Forcing layout of table widgets to display them quicker
+ * 								Adding a filter editor on the form
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
@@ -139,7 +143,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.6.1";
+	public static final String pluginVersion = "1.6.2";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
