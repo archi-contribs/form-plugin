@@ -27,7 +27,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		
-		// variable
+		// cells
 		cellsEditor = new StringEditor(this, "Cells:");
 		cellsEditor.setPosition(nameEditor.getControl());
 		cellsEditor.setProperty("cells");
@@ -36,7 +36,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 			"\n"+
 			"You must have as many lines than the columns.");
 		
-	    // defaultText
+	    // filter
 		filterEditor = new FilterEditor(this);
 		filterEditor.setPosition(cellsEditor.getControl());
 	}
