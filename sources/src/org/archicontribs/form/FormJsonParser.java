@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.archimatetool.model.IArchimateDiagramModel;
+import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IDiagramModelConnection;
 import com.archimatetool.model.IDiagramModelContainer;
@@ -809,14 +809,8 @@ public class FormJsonParser {
     	// if the selected object is a container and if the lines are generated
     	//    then we create a line for every object's child
 		if ( generate != null && generate ) {
-			if (selectedObject instanceof IArchimateDiagramModel) {
-				for ( IDiagramModelObject child: ((IArchimateDiagramModel) selectedObject).getChildren()) {
-					tableItem = createLine(jsonObject, parent, treeItem, child);
-					for ( IDiagramModelConnection relation: child.getSourceConnections() ) {
-						tableItem = createLine(jsonObject, parent, treeItem, relation);
-					}
-				}
-			} else if (selectedObject instanceof IDiagramModelContainer) {
+			if (selectedObject instanceof IDiagramModelContainer) {
+				if (logger.isTraceEnabled()) logger.debug("is a DiagramModelContainer : getting children");
             	for ( IDiagramModelObject child: ((IDiagramModelContainer) selectedObject).getChildren()) {
             		tableItem = createLine(jsonObject, parent, treeItem, child);
 					for ( IDiagramModelConnection relation: child.getSourceConnections() ) {
@@ -824,14 +818,19 @@ public class FormJsonParser {
 					}
             	}
             } else if (selectedObject instanceof IFolder) {
+            	if (logger.isTraceEnabled()) logger.debug("is a Folder : getting elements");
             	for ( EObject child: ((IFolder) selectedObject).getElements()) {
             		tableItem = createLine(jsonObject, parent, treeItem, child);
             	}
             } else if (selectedObject instanceof IArchimateModel) {
+            	if (logger.isTraceEnabled()) logger.debug("is an ArchimateModel : getting elements");
             	for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
-            		for ( EObject child: folder.getElements()) {
-            			tableItem = createLine(jsonObject, parent, treeItem, child);
-            		}
+        			// we do not go through the "views" folder to avoid elements and relationships duplicated
+        			if ( folder.getType().ordinal() != FolderType.DIAGRAMS_VALUE ) { 
+        				for ( EObject child: folder.getElements()) {
+        					tableItem = createLine(jsonObject, parent, treeItem, child);
+        				}
+        			}
             	}
             }
  		}
