@@ -82,7 +82,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Sash;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -1957,40 +1956,6 @@ public class FormDialog extends Dialog {
                 }
             });
         }
-    }
-    
-    /**
-     * shows up an on screen popup with a progressbar<br>
-     * it is the responsibility of the caller to dismiss the popup
-     */
-    public static ProgressBar progressbarPopup(String msg) {
-        if (logger.isDebugEnabled())
-            logger.debug("new progressbarPopup(\"" + msg + "\")");
-        Shell shell = new Shell(display, SWT.SHELL_TRIM);
-        shell.setSize(600, 100);
-        shell.setBackground(BLACK_COLOR);
-        shell.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - shell.getSize().x) / 4, (Toolkit.getDefaultToolkit().getScreenSize().height - shell.getSize().y) / 4);
-
-        Composite composite = new Composite(shell, SWT.NONE);
-        composite.setBackground(LIGHT_BLUE);
-        composite.setLayout(new GridLayout(2, false));
-        composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-        Label label = new Label(composite, SWT.NONE);
-        label.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        label.setBackground(LIGHT_BLUE);
-        label.setFont(TITLE_FONT);
-        label.setText(msg);
-
-        ProgressBar progressBar = new ProgressBar(composite, SWT.SMOOTH);
-        progressBar.setLayoutData(new GridData(SWT.FILL, SWT.END, true, false));
-        progressBar.setMinimum(0);
-        progressBar.setMaximum(100);
-
-        shell.layout();
-        shell.open();
-
-        return progressBar;
     }
     
     /************************************************************************************************/
