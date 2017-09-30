@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import org.apache.log4j.Level;
 import org.archicontribs.form.FormLogger;
 import org.archicontribs.form.FormPlugin;
+import org.archicontribs.form.FormUpdate;
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.preferences.FormFileFieldEditor;
 import org.archicontribs.form.preferences.FormTextFieldEditor;
@@ -149,7 +150,15 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 		fd.left = new FormAttachment(versionValue, 100);
 		checkUpdateButton.setLayoutData(fd);
 		checkUpdateButton.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { FormPlugin.checkForUpdate(true); }
+			public void widgetSelected(SelectionEvent e) {
+				new Thread("checkForUpdate") {
+					@Override
+					public void run() {
+						FormUpdate formUpdate = new FormUpdate();
+						formUpdate.checkUpdate(true);
+					}
+				}.start();
+			}
 			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
 		
