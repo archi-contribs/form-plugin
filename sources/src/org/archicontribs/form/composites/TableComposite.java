@@ -27,6 +27,7 @@ public class TableComposite extends Composite implements CompositeInterface {
 		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
 		nameEditor.mustSetTreeItemText(true);
+		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
@@ -40,6 +41,7 @@ public class TableComposite extends Composite implements CompositeInterface {
 		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(colorEditor.getControl());
 		tooltipEditor.mustSetControlTolltip(true);
+		tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
 		
         // excelSheet
         excelSheetEditor = new StringEditor(this, "excelSheet", "Excel sheet:");

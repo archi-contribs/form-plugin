@@ -1,7 +1,9 @@
 package org.archicontribs.form.composites;
 
+import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.editors.AlignmentEditor;
 import org.archicontribs.form.editors.CheckEditor;
+import org.archicontribs.form.editors.ColorEditor;
 import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
@@ -14,6 +16,7 @@ public class TextColumnComposite extends Composite implements CompositeInterface
     private CheckEditor             forceDefaultEditor;  // forceDefault
     private CheckEditor             editableEditor;  	 // editable
 	private SizeEditor              sizeEditor;          // width
+	private ColorEditor             colorEditor;         // foreground, background
 	private StringEditor		    tooltipEditor;       // tooltip
 	private StringEditor		    regexpEditor;        // regexp
 	private ComboEditor             whenEmptyEditor;  	 // whenEmpty
@@ -35,25 +38,37 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		nameEditor.setPosition(0);
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.mustSetControlText(true);
+		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "default", "Default text:");
         defaultTextEditor.setPosition(nameEditor.getControl());
+        defaultTextEditor.setTooltipText("Default value when the one corresponding to the variable value is empty.");
         
         // defaultText
         forceDefaultEditor = new CheckEditor(this, "forceDefault", "Force default:");
+        forceDefaultEditor.setPosition(defaultTextEditor.getControl());
+        forceDefaultEditor.setTooltipText("Force the default value even if the the variable value is not empty.");
         
         // editable
-        editableEditor = new CheckEditor(this, "editable", "Editable:");
+        editableEditor = new CheckEditor(this, "editable", "Read only:");
+        editableEditor.setPosition(forceDefaultEditor.getControl());
+        editableEditor.setInverse(true);
+        editableEditor.setTooltipText("Specifies if the variable is read only.\n\nDefault: false.");
         
-		// x, y, width, height
+		// Background
+		colorEditor = new ColorEditor(this, "Color:");
+		colorEditor.setPosition(editableEditor.getControl());
+        
+		// width
 		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(editableEditor.getControl());
+		sizeEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
 		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
 		tooltipEditor.mustSetControlTolltip(true);
+		tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
 		
 		// regexp
 		regexpEditor = new StringEditor(this, "regexp", "Regexp:");
@@ -63,6 +78,15 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		whenEmptyEditor = new ComboEditor(this, "whenEmpty", "When empty:");
 		whenEmptyEditor.setPosition(regexpEditor.getControl());
 		whenEmptyEditor.setItems(new String[] {"", "ignore", "create", "delete"});
+        whenEmptyEditor.setTooltipText("Choose the plugin behaviour when a variable is left empty in the form:\n"+
+                "   - ignore: do not change the property value:\n"+
+                "                 - if the property does not already exist, it will not be created,\n"+
+                "                 - if the propety does already exist, its value is left unmodified.\n"+
+                "   - create: empty the property's value if it does already exist, or create a new one with an empty value,\n"+
+                "   - delete: delete the property if it does already exist.\n"+
+                "\n"+
+                "Default: "+FormDialog.validWhenEmpty[0]+"."
+                );
 		
         // alignment
         alignmentEditor = new AlignmentEditor(this, "Alignment:");
@@ -73,7 +97,10 @@ public class TextColumnComposite extends Composite implements CompositeInterface
         // excelColumn
         excelColumnEditor = new StringEditor(this, "excelColumn", "Excel column:");
         excelColumnEditor.setPosition(alignmentEditor.getControl());
-        excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
+        excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n"+
+        		"\n"+
+        		"If the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set."
+        		);
         
         // excelCellType
         excelCellTypeEditor = new ComboEditor(this, "excelType", "Excel type:");
@@ -102,10 +129,9 @@ public class TextColumnComposite extends Composite implements CompositeInterface
             case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
             case "editable":      editableEditor.setChecked((Boolean)value); break;
-    		case "x":			  sizeEditor.setX((Integer)value); break;
-    		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
-    		case "height":		  sizeEditor.setHeight((Integer)value); break;
+    		case "foreground":	  colorEditor.setForeground((String)value); break;
+    		case "background":	  colorEditor.setBackround((String)value); break;
             case "alignment":	  alignmentEditor.setText((String)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "regexp":    	  regexpEditor.setText((String)value); break;

@@ -25,6 +25,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
 		nameEditor.mustSetTreeItemText(true);
+		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 		// cells
 		cellsEditor = new StringEditor(this, "cells", "Cells:");

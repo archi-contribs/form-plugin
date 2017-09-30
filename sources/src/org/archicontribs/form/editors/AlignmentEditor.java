@@ -26,7 +26,7 @@ public class AlignmentEditor extends ComboEditor {
 		combo=super.getControl();
 		combo.addSelectionListener(alignmentSelectionListener);
 		
-        super.setTooltipText("Choose the alignment.\n\nDefault: left.");
+        super.setTooltipText("Choose the alignment between \"left\", \"center\" and \"right\".\n\nDefault: left.");
         super.setItems(new String[] {"left", "center", "right"});
 	}
 	

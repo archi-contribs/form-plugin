@@ -29,6 +29,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		nameEditor.setPosition(0);
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.mustSetControlText(true);
+		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 		// text
 		textEditor = new StringEditor(this, "text", "Text:");
@@ -43,6 +44,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
 		tooltipEditor.mustSetControlTolltip(true);
+		tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
 		
 	      // alignement
         alignmentEditor = new AlignmentEditor(this, "Alignment:");
@@ -51,7 +53,10 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
         // excelCell
         excelColumnEditor = new StringEditor(this, "excelColumn", "Excel column:");
         excelColumnEditor.setPosition(alignmentEditor.getControl());
-        excelColumnEditor.setTooltipText("Adress of the Excel cell where the text should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
+        excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n"+
+        		"\n"+
+        		"If the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set."
+        		);
         
         // excelCellType
         excelCellTypeEditor = new ComboEditor(this, "exceltype", "Excel type:");

@@ -33,6 +33,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
 		nameEditor.mustSetControlText(true);
+		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 				
         // width, height, spacing, buttonWidth, buttonHeight
 		formSizeEditor = new FormSizeEditor(this);

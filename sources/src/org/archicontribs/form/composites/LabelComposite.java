@@ -33,6 +33,7 @@ public class LabelComposite extends Composite implements CompositeInterface {
 		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
 		nameEditor.mustSetTreeItemText(true);
+		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 		// text
 		textEditor = new StringEditor(this, "text", "Text:");
@@ -55,6 +56,7 @@ public class LabelComposite extends Composite implements CompositeInterface {
 		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(fontEditor.getControl());
 		tooltipEditor.mustSetControlTolltip(true);
+		tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
 		
 	      // alignement
         alignmentEditor = new AlignmentEditor(this, "Alignment:");
