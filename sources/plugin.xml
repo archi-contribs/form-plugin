@@ -58,4 +58,10 @@
             primary="true">
       </toc>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="org.archicontribs.form.FormEarlyStartup">
+      </startup>
+   </extension>
 </plugin>
