@@ -1,10 +1,15 @@
+## v1.6.3:  30/09/2017
+* Fix the "refers" field was not correctly set
+* Fix the plugin auto update
+* Add tooltips on the graphical editor fields
+
+* TODO list
+  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+
 ## v1.6.2:  28/09/2017
 * Fix duplicate table lines whent the form is applied to the whole model
 * Forcing layout of table widgets todisplay them quicker
 * Adding a filter editor on the form
-
-* TODO list
-  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
 
 ## v1.6.1:  26/09/2017
 * fix missing relationships in table
