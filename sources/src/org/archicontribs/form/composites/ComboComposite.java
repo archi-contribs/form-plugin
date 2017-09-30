@@ -35,36 +35,30 @@ public class ComboComposite extends Composite implements CompositeInterface {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "Name:");
+		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
-		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		
 		// variable
-		variableEditor = new StringEditor(this, "Variable:");
+		variableEditor = new StringEditor(this, "variable", "Variable:");
 		variableEditor.setPosition(nameEditor.getControl());
-		variableEditor.setProperty("variable");
 		
 	    // defaultText
-        defaultTextEditor = new StringEditor(this, "Default text:");
+        defaultTextEditor = new StringEditor(this, "default", "Default text:");
         defaultTextEditor.setPosition(variableEditor.getControl());
-        defaultTextEditor.setProperty("default");
         
         // defaultText
-        forceDefaultEditor = new CheckEditor(this, "Force default:");
+        forceDefaultEditor = new CheckEditor(this, "forceDefault", "Force default:");
         forceDefaultEditor.setPosition(defaultTextEditor.getControl());
-        forceDefaultEditor.setProperty("forceDefault");
         
         // values
-        valuesEditor = new StringEditor(this, "Values:");
+        valuesEditor = new StringEditor(this, "values", "Values:");
         valuesEditor.setPosition(forceDefaultEditor.getControl());
-        valuesEditor.setProperty("values");
         
         // editable
-        editableEditor = new CheckEditor(this, "Read Only:");
+        editableEditor = new CheckEditor(this, "editable", "Read Only:");
         editableEditor.setPosition(valuesEditor.getControl());
         editableEditor.setInverse(true);
-        editableEditor.setProperty("editable");
         
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
@@ -79,40 +73,34 @@ public class ComboComposite extends Composite implements CompositeInterface {
 		fontEditor.setPosition(colorEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:");
+		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(fontEditor.getControl());
-		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
 		// whenempty
-		whenEmptyEditor = new ComboEditor(this, "When empty:");
+		whenEmptyEditor = new ComboEditor(this, "whenEmpty", "When empty:");
 		whenEmptyEditor.setPosition(tooltipEditor.getControl());
 		whenEmptyEditor.setItems(new String[] {"", "ignore", "create", "delete"});
-		whenEmptyEditor.setProperty("whenEmpty");
         
         // excelSheet
-        excelSheetEditor = new StringEditor(this, "Excel sheet:");
+        excelSheetEditor = new StringEditor(this, "excelSheet", "Excel sheet:");
         excelSheetEditor.setPosition(whenEmptyEditor.getControl());
-        excelSheetEditor.setProperty("excelSheet");
         excelSheetEditor.setTooltipText("Name of the Excel sheet where the variable should be exported to.\n\nIf this field is left blank, then the variable will not be exported to Excel, even if the others Excel related field are set.");
         
         // excelCell
-        excelCellEditor = new StringEditor(this, "Excel cell:");
+        excelCellEditor = new StringEditor(this, "excelCell", "Excel cell:");
         excelCellEditor.setPosition(excelSheetEditor.getControl());
-        excelCellEditor.setProperty("excelCell");
         excelCellEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
         
         // excelCellType
-        excelCellTypeEditor = new ComboEditor(this, "Excel type:");
+        excelCellTypeEditor = new ComboEditor(this, "excelType", "Excel type:");
         excelCellTypeEditor.setPosition(excelCellEditor.getControl());
-        excelCellTypeEditor.setProperty("excelType");
         excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
         excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
         
         // excelDefault
-        excelDefaultEditor = new ComboEditor(this, "Excel default:");
+        excelDefaultEditor = new ComboEditor(this, "excelDefault", "Excel default:");
         excelDefaultEditor.setPosition(excelCellTypeEditor.getControl());
-        excelDefaultEditor.setProperty("exceldefault");
         excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
         excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
                 "   - blank : a blank cell will be created (ie a cell with no content)\n"+

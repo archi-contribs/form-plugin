@@ -18,8 +18,9 @@ public class ComboEditor {
 	private Composite  parent;
 	private String     property = null;
 	
-	public ComboEditor(Composite parent, String labelText) {
+	public ComboEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
+		this.property = property;
 		
 		lblCombo = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
@@ -35,19 +36,15 @@ public class ComboEditor {
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         combo.setLayoutData(fd);
         combo.addSelectionListener(comboSelectionListener);
+        
+    	Control control = (Control)parent.getData("widget");
+    	if ( control != null && property != null) {
+    	    setText((String)control.getData(property));
+        }
 	}
 	
 	public void setTooltipText(String tooltip) {
 		combo.setToolTipText(tooltip);
-	}
-	
-	public void setProperty(String property) {
-		this.property = property;
-		
-		Control control = (Control)parent.getData("widget");
-		if ( control != null && property != null) {
-	        setText((String)control.getData(property));
-    	}
 	}
 	
 	private SelectionListener comboSelectionListener = new SelectionListener() {

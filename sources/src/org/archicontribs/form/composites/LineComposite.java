@@ -22,15 +22,13 @@ public class LineComposite extends Composite implements CompositeInterface {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "Name:");
+		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
-		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		
 		// cells
-		cellsEditor = new StringEditor(this, "Cells:");
+		cellsEditor = new StringEditor(this, "cells", "Cells:");
 		cellsEditor.setPosition(nameEditor.getControl());
-		cellsEditor.setProperty("cells");
 		cellsEditor.mustSetControlText(true);
 		cellsEditor.setTooltipText("Please enter the variables corresponding to the table columns, one line per variable.\n"+
 			"\n"+

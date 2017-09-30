@@ -24,9 +24,8 @@ public class TableComposite extends Composite implements CompositeInterface {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "Name:");
+		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
-		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		
 		// x, y, width, height
@@ -38,26 +37,22 @@ public class TableComposite extends Composite implements CompositeInterface {
 		colorEditor.setPosition(sizeEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:");
+		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(colorEditor.getControl());
-		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
         // excelSheet
-        excelSheetEditor = new StringEditor(this, "Excel sheet:");
+        excelSheetEditor = new StringEditor(this, "excelSheet", "Excel sheet:");
         excelSheetEditor.setPosition(tooltipEditor.getControl());
-        excelSheetEditor.setProperty("excelSheet");
         excelSheetEditor.setTooltipText("Name of the Excel sheet where the text should be exported to.\n\nIf this field is left blank, then the variable will not be exported to Excel, even if the others Excel related field are set.");
         
 		// name
-        excelFirstLineEditor = new IntegerEditor(this, "Excel first line:");
+        excelFirstLineEditor = new IntegerEditor(this, "excelFirstLine", "Excel first line:");
         excelFirstLineEditor.setPosition(excelSheetEditor.getControl());
-        excelFirstLineEditor.setProperty("excelFirstLine");
 		
 		// name
-        excelLastLineEditor = new IntegerEditor(this, "Excel last line:");
+        excelLastLineEditor = new IntegerEditor(this, "excelLastLine", "Excel last line:");
         excelLastLineEditor.setPosition(excelFirstLineEditor.getControl());
-        excelLastLineEditor.setProperty("excelLastLine");
         
 	}
 	

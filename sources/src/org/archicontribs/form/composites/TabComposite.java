@@ -17,9 +17,8 @@ public class TabComposite extends Composite implements CompositeInterface {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "Name:");
+		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
-		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.mustSetControlText(true);
         

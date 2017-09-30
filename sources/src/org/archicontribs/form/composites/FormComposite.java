@@ -30,9 +30,8 @@ public class FormComposite extends Composite implements CompositeInterface {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "Name:");
+		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
-		nameEditor.setProperty("name");
 		nameEditor.mustSetControlText(true);
 				
         // width, height, spacing, buttonWidth, buttonHeight
@@ -44,7 +43,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 		colorEditor.setPosition(formSizeEditor.getControl());
 		
 		// Refers
-		refersEditor = new ComboEditor(this, "Refers to:");
+		refersEditor = new ComboEditor(this, "refers", "Refers to:");
 		refersEditor.setPosition(colorEditor.getControl());
 		refersEditor.setItems(FormDialog.validRefers);
 		refersEditor.setTooltipText("Choose which component the form will apply to:\n"+
@@ -61,39 +60,35 @@ public class FormComposite extends Composite implements CompositeInterface {
 		filterEditor.setPosition(refersEditor.getControl());
 		
 	    // variableSeparator
-		variableSeparatorEditor = new StringEditor(this, "Variable separator:");
+		variableSeparatorEditor = new StringEditor(this, "variableSeparator", "Variable separator:");
 		variableSeparatorEditor.setPosition(filterEditor.getControl());
-		variableSeparatorEditor.setProperty("variableSeparator");
 		variableSeparatorEditor.setTextLimit(1);
 		variableSeparatorEditor.setWidth(25);
 		variableSeparatorEditor.setTooltipText("Character used to separate the different fields of a variable\n\nDefault: "+FormDialog.defaultVariableSeparator+".");
 		
 	    // buttonOk
-		buttonOkEditor = new StringEditor(this, "OK button text:");
+		buttonOkEditor = new StringEditor(this, "buttonOk", "OK button text:");
 		buttonOkEditor.setPosition(variableSeparatorEditor.getControl());
-		buttonOkEditor.setProperty("buttonOk");
 		buttonOkEditor.setWidget((Widget)getShell().getData("ok button"));
 		buttonOkEditor.mustSetControlText(true);
 		buttonOkEditor.setTooltipText("Text of the OK button\n\nDefault: "+FormDialog.defaultButtonOkText+".");
         
         // buttonCancel
-		buttonCancelEditor = new StringEditor(this, "Cancel button text:");
+		buttonCancelEditor = new StringEditor(this, "buttonCancel", "Cancel button text:");
 		buttonCancelEditor.setPosition(buttonOkEditor.getControl());
-		buttonCancelEditor.setProperty("buttonCancel");
 		buttonCancelEditor.setWidget((Widget)getShell().getData("cancel button"));
 		buttonCancelEditor.mustSetControlText(true);
 		buttonCancelEditor.setTooltipText("Text of the Cancel button\n\nDefault: "+FormDialog.defaultButtonCancelText+".");
         
         // buttonExport
-		buttonExportEditor = new StringEditor(this, "Export button text:");
+		buttonExportEditor = new StringEditor(this, "buttonExport", "Export button text:");
 		buttonExportEditor.setPosition(buttonCancelEditor.getControl());
-		buttonExportEditor.setProperty("buttonExport");
 		buttonExportEditor.setWidget((Widget)getShell().getData("export button"));
 		buttonExportEditor.mustSetControlText(true);
 		buttonExportEditor.setTooltipText("Text of the Export to Excel button\n\nDefault: "+FormDialog.defaultButtonExportText+".");
 		
         // whenEmpty
-        whenEmptyEditor = new ComboEditor(this, "When empty :");
+        whenEmptyEditor = new ComboEditor(this, "whenEmpty", "When empty :");
         whenEmptyEditor.setPosition(buttonExportEditor.getControl());
         whenEmptyEditor.setItems(FormDialog.validWhenEmpty);
         whenEmptyEditor.setTooltipText("Choose the plugin behaviour when a variable is left empty in the form:\n"+

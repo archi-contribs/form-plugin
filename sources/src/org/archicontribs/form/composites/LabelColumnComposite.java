@@ -25,16 +25,14 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "Name:");
+		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
-		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.mustSetControlText(true);
 		
 		// text
-		textEditor = new StringEditor(this, "Text:");
+		textEditor = new StringEditor(this, "text", "Text:");
 		textEditor.setPosition(nameEditor.getControl());
-		textEditor.setProperty("text");
 		textEditor.mustSetControlText(true);
 						
 		// width
@@ -42,33 +40,28 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		sizeEditor.setPosition(textEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:");
+		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
-		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
 	      // alignement
         alignmentEditor = new AlignmentEditor(this, "Alignment:");
         alignmentEditor.setPosition(tooltipEditor.getControl());
-        alignmentEditor.setProperty("alignment");
         
         // excelCell
-        excelColumnEditor = new StringEditor(this, "Excel column:");
+        excelColumnEditor = new StringEditor(this, "excelColumn", "Excel column:");
         excelColumnEditor.setPosition(alignmentEditor.getControl());
-        excelColumnEditor.setProperty("excelColumn");
         excelColumnEditor.setTooltipText("Adress of the Excel cell where the text should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
         
         // excelCellType
-        excelCellTypeEditor = new ComboEditor(this, "Excel type:");
+        excelCellTypeEditor = new ComboEditor(this, "exceltype", "Excel type:");
         excelCellTypeEditor.setPosition(excelColumnEditor.getControl());
-        excelCellTypeEditor.setProperty("exceltype");
         excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
         excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
         
         // excelDefault
-        excelDefaultEditor = new ComboEditor(this, "Excel default:");
+        excelDefaultEditor = new ComboEditor(this, "exceldefault", "Excel default:");
         excelDefaultEditor.setPosition(excelCellTypeEditor.getControl());
-        excelDefaultEditor.setProperty("exceldefault");
         excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
         excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
                 "   - blank : a blank cell will be created (ie a cell with no content)\n"+

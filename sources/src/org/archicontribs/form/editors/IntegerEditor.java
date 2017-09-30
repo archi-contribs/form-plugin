@@ -21,8 +21,9 @@ public class IntegerEditor {
 	private Composite  parent;
 	private String     property = null;
 	
-	public IntegerEditor(Composite parent, String labelText) {
+	public IntegerEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
+		this.property = property;
 		
 		lblInteger = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
@@ -41,6 +42,11 @@ public class IntegerEditor {
         txtInteger.setLeftMargin(2);
         txtInteger.addVerifyListener(numericVerifyListener);
         txtInteger.addModifyListener(stringModifyListener);
+        
+		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+    	if ( treeItem != null && property != null) {
+    		setInteger((int)treeItem.getData(property));
+    	}
 	}
 	
     VerifyListener numericVerifyListener = new VerifyListener() {
@@ -60,16 +66,6 @@ public class IntegerEditor {
 	
 	public void setTooltipText(String tooltip) {
 		txtInteger.setToolTipText(tooltip);
-	}
-	
-	public void setProperty(String property) {
-		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
-		
-		this.property = property;
-		
-    	if ( treeItem != null && property != null) {
-    		setInteger((int)treeItem.getData(property));
-    	}
 	}
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {

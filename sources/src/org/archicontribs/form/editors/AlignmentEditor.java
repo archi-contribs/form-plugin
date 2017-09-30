@@ -19,7 +19,7 @@ public class AlignmentEditor extends ComboEditor {
     private Composite  parent;
 	
 	public AlignmentEditor(Composite parent, String labelText) {
-		super(parent, labelText);
+		super(parent, "alignment", labelText);
 		
 		this.parent = parent;
 		

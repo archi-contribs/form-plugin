@@ -36,9 +36,10 @@ public class StringEditor {
 	
 	private boolean    isArray = false;
 
-	public StringEditor(Composite parent, String labelText) {
+	public StringEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
-		
+   		this.property = property;
+   		
 		lblString = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
@@ -55,6 +56,12 @@ public class StringEditor {
         txtString.setLayoutData(fd);
         txtString.setLeftMargin(2);
         txtString.addModifyListener(stringModifyListener);
+        
+
+    	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+       	if ( treeItem != null && property != null) {
+            setText((String)treeItem.getData(property));
+        }
 	}
 	
 	public void setTooltipText(String tooltip) {
@@ -81,16 +88,6 @@ public class StringEditor {
 		FormData fd = (FormData)txtString.getLayoutData();
 		fd.right = new FormAttachment(txtString, width);
 		txtString.layout();
-	}
-	
-	public void setProperty(String property) {
-		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
-		
-		this.property = property;
-		
-    	if ( treeItem != null && property != null) {
-    	    setText((String)treeItem.getData(property));
-    	}
 	}
 	
 	public void setWidget(Widget widget) {

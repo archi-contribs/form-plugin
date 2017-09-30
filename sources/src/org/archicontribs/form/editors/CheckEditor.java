@@ -19,8 +19,9 @@ public class CheckEditor {
 	private String     property = null;
 	private Boolean    inverse = false;
 	
-	public CheckEditor(Composite parent, String labelText) {
+	public CheckEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
+		this.property = property;
 		
 		lblCheck = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
@@ -40,10 +41,6 @@ public class CheckEditor {
 	
 	public void setTooltipText(String tooltip) {
 	    check.setToolTipText(tooltip);
-	}
-	
-	public void setProperty(String property) {
-		this.property = property;
 	}
 	
 	public void setInverse(boolean inverse) {

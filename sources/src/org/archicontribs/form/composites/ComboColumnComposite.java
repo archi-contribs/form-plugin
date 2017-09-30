@@ -29,65 +29,55 @@ public class ComboColumnComposite extends Composite implements CompositeInterfac
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "Name:");
+		nameEditor = new StringEditor(this, "name", "Name:");
 		nameEditor.setPosition(0);
-		nameEditor.setProperty("name");
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.mustSetControlText(true);
 		
 	    // defaultText
-        defaultTextEditor = new StringEditor(this, "Default text:");
+        defaultTextEditor = new StringEditor(this, "default", "Default text:");
         defaultTextEditor.setPosition(nameEditor.getControl());
-        defaultTextEditor.setProperty("default");
         
         // defaultText
-        forceDefaultEditor = new CheckEditor(this, "Force default:");
+        forceDefaultEditor = new CheckEditor(this, "forceDefault", "Force default:");
         forceDefaultEditor.setPosition(defaultTextEditor.getControl());
-        forceDefaultEditor.setProperty("forceDefault");
         
         // values
-        valuesEditor = new StringEditor(this, "Values:");
+        valuesEditor = new StringEditor(this, "values", "Values:");
         valuesEditor.setPosition(forceDefaultEditor.getControl());
-        valuesEditor.setProperty("values");
         
         // editable
-        editableEditor = new CheckEditor(this, "Editable:");
+        editableEditor = new CheckEditor(this, "editable", "Editable:");
         editableEditor.setPosition(valuesEditor.getControl());
-        editableEditor.setProperty("editable");
         
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
 		sizeEditor.setPosition(editableEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "Tooltip:");
+		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
 		tooltipEditor.setPosition(sizeEditor.getControl());
-		tooltipEditor.setProperty("tooltip");
 		tooltipEditor.mustSetControlTolltip(true);
 		
 		// whenempty
-		whenEmptyEditor = new ComboEditor(this, "When empty:");
+		whenEmptyEditor = new ComboEditor(this, "whenEmpty", "When empty:");
 		whenEmptyEditor.setPosition(tooltipEditor.getControl());
 		whenEmptyEditor.setItems(new String[] {"", "ignore", "create", "delete"});
-		whenEmptyEditor.setProperty("whenEmpty");
         
         // excelColumn
-        excelColumnEditor = new StringEditor(this, "Excel cell:");
+        excelColumnEditor = new StringEditor(this, "excelColumn", "Excel cell:");
         excelColumnEditor.setPosition(whenEmptyEditor.getControl());
-        excelColumnEditor.setProperty("excelColumn");
-        excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
+         excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
         
         // excelCellType
-        excelCellTypeEditor = new ComboEditor(this, "Excel type:");
+        excelCellTypeEditor = new ComboEditor(this, "excelType", "Excel type:");
         excelCellTypeEditor.setPosition(excelColumnEditor.getControl());
-        excelCellTypeEditor.setProperty("excelType");
         excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
         excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
         
         // excelDefault
-        excelDefaultEditor = new ComboEditor(this, "Excel default:");
+        excelDefaultEditor = new ComboEditor(this, "excelDefault", "Excel default:");
         excelDefaultEditor.setPosition(excelCellTypeEditor.getControl());
-        excelDefaultEditor.setProperty("exceldefault");
         excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
         excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
                 "   - blank : a blank cell will be created (ie a cell with no content)\n"+
