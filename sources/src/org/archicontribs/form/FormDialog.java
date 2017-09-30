@@ -135,9 +135,6 @@ public class FormDialog extends Dialog {
     public final static Color    blackColor       	      = new Color(display, 0, 0, 0);
     public final static Color    whiteColor       	      = new Color(display, 255, 255, 255);
     
-	public static final Cursor   CURSOR_WAIT              = display.getSystemCursor(SWT.CURSOR_WAIT);
-	public static final Cursor   CURSOR_ARROW             = display.getSystemCursor(SWT.CURSOR_ARROW);
-    
     public final static int      editorLeftposition       = 110;
     public final static int      editorBorderMargin       = 10;
     public final static int      editorVerticalMargin     = 10;
@@ -210,10 +207,7 @@ public class FormDialog extends Dialog {
         formVarList.reset();
 
         try {
-        	display.getActiveShell().setCursor(CURSOR_WAIT);
-        	
         	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-        	formDialog.setCursor(CURSOR_WAIT);
         	
             TreeItem formTreeItem = null;
             // If the dialog is ran against no EObject, then we switch to edit mode 
@@ -222,7 +216,6 @@ public class FormDialog extends Dialog {
             if ( editMode ) {
             	// in edit mode, we show up the graphical editor
             	formTreeItem = createPropertiesDialog(jsonForm);
-            	propertiesDialog.setCursor(CURSOR_WAIT);
             }
             
             jsonParser.createForm(jsonForm, formDialog, formTreeItem);
@@ -303,13 +296,11 @@ public class FormDialog extends Dialog {
             FormDialog.popup(Level.ERROR, "Wrong key type in the configuration file \"" + configFilename + "\"", e);
             if (formDialog != null)
             	formDialog.dispose();
-        	display.getActiveShell().setCursor(CURSOR_ARROW);
             return;
         } catch (RuntimeException e) {
             FormDialog.popup(Level.ERROR, "Please check your configuration file \"" + configFilename + "\"", e);
             if (formDialog != null)
             	formDialog.dispose();
-            display.getActiveShell().setCursor(CURSOR_ARROW);
             return;
         }
 
@@ -319,11 +310,7 @@ public class FormDialog extends Dialog {
         if ( selectedObject == null ) {
         	propertiesDialog.open();
             propertiesDialog.layout();
-            propertiesDialog.setCursor(CURSOR_ARROW);
         }
-        
-        display.getActiveShell().setCursor(CURSOR_ARROW);
-        formDialog.setCursor(CURSOR_ARROW);
     }
 
     /**
