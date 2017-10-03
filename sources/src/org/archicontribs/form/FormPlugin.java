@@ -115,6 +115,8 @@ import com.archimatetool.model.INameable;
  * v1.6.3 :		30/09/2017		Fix the "refers" field was not correctly set
  * 								Fix the plugin auto update
  *								Add tooltips on the graphical editor fields
+ *
+ * v1.6.4 :     03/10/2017      Fix getting default font from parent's
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
