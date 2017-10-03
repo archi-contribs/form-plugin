@@ -2041,7 +2041,7 @@ public class FormDialog extends Dialog {
                         if ( values == null )
                             button.setSelection(((Button)control).getSelection());
                         else
-                            button.setSelection(FormPlugin.areEqual(content, values[1]));       // any other value than values[1] implies the button is unchecked
+                            button.setSelection(FormPlugin.areEqual(content, values[0]));       // any other value than values[0] implies the button is unchecked
                         button.addSelectionListener(checkButtonSelectionListener);
                         break;
     

@@ -1078,6 +1078,15 @@ public class FormJsonParser {
                         cells[columnNumber] = "${void}";
                     CCombo combo = new CCombo(table, SWT.NONE);
                     logger.trace("      adding combo cell with value \"" + cells[columnNumber] + "\"");
+                    values = (String[])table.getColumn(columnNumber).getData("values");
+                    if ( selectedObject != null && values != null ) {
+                        int nbValues = ((String[])table.getColumn(columnNumber).getData("values")).length; 
+                        String[] newValues = new String[nbValues];
+                        for ( int i=0; i<nbValues; ++i) {
+                            newValues[i] = FormVariable.expand(values[i], selectedObject);
+                        }
+                        values = newValues;
+                    }
                     if ( selectedObject == null )
                     	combo.setText(cells[columnNumber]);
                     else {
@@ -1089,18 +1098,10 @@ public class FormJsonParser {
                     	unscoppedVariable = FormVariable.getUnscoppedVariable(cells[columnNumber], selectedObject);
                     	combo.setData("variable", unscoppedVariable);
                     	combo.setData("eObject", referedEObject);
+                    	combo.setData("values", values);
                     	FormDialog.formVarList.set(referedEObject, unscoppedVariable, combo);
                     	
                     	combo.addModifyListener(FormDialog.textModifyListener);
-                    }
-                    values = (String[])table.getColumn(columnNumber).getData("values");
-                    if ( selectedObject != null && values != null ) {
-                		int nbValues = ((String[])table.getColumn(columnNumber).getData("values")).length; 
-                		String[] newValues = new String[nbValues];
-                		for ( int i=0; i<nbValues; ++i) {
-                			newValues[i] = FormVariable.expand(values[i], selectedObject);
-                		}
-                		values = newValues;
                     }
                     if ( values != null ) combo.setItems(values);
                     editor.setEditor(combo, tableItem, columnNumber);
@@ -1136,6 +1137,7 @@ public class FormJsonParser {
                     	unscoppedVariable = FormVariable.getUnscoppedVariable(cells[columnNumber], selectedObject);
                     	check.setData("variable", unscoppedVariable);
                     	check.setData("eObject", referedEObject);
+                    	check.setData("values", values);
                     	FormDialog.formVarList.set(referedEObject, unscoppedVariable, check);
                     	
                     	check.addSelectionListener(FormDialog.checkButtonSelectionListener);
@@ -1612,7 +1614,7 @@ public class FormJsonParser {
     	String[] values = null;
     	
         if ( logger.isTraceEnabled() )
-        	logger.trace("      values = " + (jsonValues==null ? null : jsonValues.toArray(new String[0])));
+        	logger.trace("      values = " + (jsonValues==null ? null : FormPlugin.concat((String[])jsonValues.toArray(new String[0]), "", ",")));
     	
         
     	if ( jsonValues != null ) {
