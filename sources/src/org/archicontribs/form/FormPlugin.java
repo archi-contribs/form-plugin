@@ -117,6 +117,7 @@ import com.archimatetool.model.INameable;
  *								Add tooltips on the graphical editor fields
  *
  * v1.6.4 :     03/10/2017      Fix getting default font from parent's
+ *                              Fix checkbox value
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
