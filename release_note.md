@@ -1,10 +1,13 @@
+## v1.6.4: 03/10/2017
+* fix getting default font from parent's
+
+* TODO list
+  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+
 ## v1.6.3:  30/09/2017
 * Fix the "refers" field was not correctly set
 * Fix the plugin auto update
 * Add tooltips on the graphical editor fields
-
-* TODO list
-  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
 
 ## v1.6.2:  28/09/2017
 * Fix duplicate table lines whent the form is applied to the whole model
