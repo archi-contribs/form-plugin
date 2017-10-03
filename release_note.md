@@ -1,5 +1,6 @@
 ## v1.6.4: 03/10/2017
 * fix getting default font from parent's
+* fix checkbox value
 
 * TODO list
   * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
