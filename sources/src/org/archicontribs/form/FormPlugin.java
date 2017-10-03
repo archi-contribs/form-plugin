@@ -343,7 +343,7 @@ public class FormPlugin extends AbstractUIPlugin {
 	 * Sets the control's font  color according to the RGB vlues encoded in the foreground parameter, or to its parent's foreground in case of error 
 	 */
 	public static void setFont(Control control, String fontName, Integer fontSize, Boolean fontBold, Boolean fontItalic) {
-		if ( FormPlugin.isEmpty(fontName) && (fontSize == null || fontSize <= 0) && fontBold != null && fontItalic != null ) {
+		if ( FormPlugin.isEmpty(fontName) && (fontSize == null || fontSize <= 0) && fontBold == null && fontItalic == null ) {
 			try {
 				control.setFont(control.getParent().getFont());
 			} catch (Exception e) {
