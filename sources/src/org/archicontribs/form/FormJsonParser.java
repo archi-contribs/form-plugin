@@ -868,6 +868,12 @@ public class FormJsonParser {
             String[] values;
 
             String attributeValue = FormVariable.expand(attribute, eObject);
+            boolean negate = false;
+            
+            if ( operation.toLowerCase().startsWith("not ") ) {
+                operation=operation.substring(4);
+                negate = true;
+            }
 
             switch (operation.toLowerCase()) {
                 case "equals":
@@ -929,8 +935,12 @@ public class FormJsonParser {
                     break;
 
                 default:
-                    throw new RuntimeException("Unknown operation type \"" + operation + "\" in filter.\n\nValid operations are \"equals\", \"exists\", \"iequals\" and \"matches\".");
+                    throw new RuntimeException("Unknown operation type \"" + operation + "\" in filter.\n\nValid operations are \"equals\"/\"not equals\", \"iequals\"/\"not iquals\", \"exists\"/\"not exists\" and \"matches\"/\"not matches\".");
             }
+            
+            // if the operation starts with "not ", then we negate the result
+            if ( negate )
+                result = !result;
 
             // in AND mode, all the tests must return true, so if the current test is false, then the complete filter returns false
             if (result == false && type.equals("AND"))
