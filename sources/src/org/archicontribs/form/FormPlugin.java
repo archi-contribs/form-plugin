@@ -120,7 +120,8 @@ import com.archimatetool.model.INameable;
  *                              Fix checkbox value
  *                              
  * v1.6.5 :     25/10/2017      Fix Export to Excel button that was not shown when required
- *                              Add "not" keyword in filter tests 
+ *                              Add "not" keyword in filter tests
+ *                              Fix table columns sorting that did not work since the graphical editor
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
