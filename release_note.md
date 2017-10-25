@@ -1,9 +1,14 @@
-## v1.6.4: 03/10/2017
-* fix getting default font from parent's
-* fix checkbox value
+## v1.6.5: 25/10/2017
+* Fix Export to Excel button that was not shown when required
+* Add "not" keyword in filter tests
+* Fix table columns sorting that did not work since the graphical editor
 
 * TODO list
   * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+
+## v1.6.4: 03/10/2017
+* fix getting default font from parent's
+* fix checkbox value
 
 ## v1.6.3:  30/09/2017
 * Fix the "refers" field was not correctly set
