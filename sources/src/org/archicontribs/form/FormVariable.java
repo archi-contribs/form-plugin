@@ -191,7 +191,7 @@ public class FormVariable {
      * can return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
      */
     public static String getVariable(String variable, EObject eObject) {
-        //if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
+        if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
 
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
