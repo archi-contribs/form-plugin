@@ -8,6 +8,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.Collator;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -882,23 +885,26 @@ public class FormDialog extends Dialog {
                                 if ( clazz != null ) {
                                 	if ( editMode )
                                 		treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
+                                	
+                                	TableColumn tableColumn = null;
 
                     	            switch ( clazz.toLowerCase() ) {
     	            	                case "check":
-    	            	                	jsonParser.createCheckColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                    tableColumn = jsonParser.createCheckColumn(jsonColumn, table, treeItem, null, selectedObject);
     	            	                	break;
     	            		            case "combo":
-    	            	                	 jsonParser.createComboColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            		                tableColumn = jsonParser.createComboColumn(jsonColumn, table, treeItem, null, selectedObject);
     	            	                	break;
     	            	                case "label":
-    	            	                	jsonParser.createLabelColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                    tableColumn = jsonParser.createLabelColumn(jsonColumn, table, treeItem, null, selectedObject);
     	            	                	break;
     	            	                case "text":
-    	            	                	jsonParser.createTextColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                    tableColumn = jsonParser.createTextColumn(jsonColumn, table, treeItem, null, selectedObject);
     	            	                	break;
     	            	                default:
     	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
                     	            }
+                    	            tableColumn.addListener(SWT.Selection, sortListener);
                                 }
                             }
                         }
@@ -1674,6 +1680,7 @@ public class FormDialog extends Dialog {
 				}
 				
 				column.setText("new "+widgetClass);
+				column.addListener(SWT.Selection, sortListener);
 			} else {
 				switch (widgetClass) {
 					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem, selectedObject); break;
@@ -2062,6 +2069,175 @@ public class FormDialog extends Dialog {
                         break;
                 }
             }
+        }
+    }
+    
+    private Listener sortListener=new Listener() {
+        public void handleEvent(Event e) {
+            // Because of the graphical controls and the tableEditors, it is much more easier and quicker to create a new table rather than add new tableItems and removing the old ones
+            Table oldTable=((TableColumn)e.widget).getParent();TableColumn sortedColumn=(TableColumn)e.widget;oldTable.setSortColumn(sortedColumn);Integer sortDirection=(Integer)sortedColumn.getData("sortDirection");if(sortDirection==null||sortDirection==SWT.DOWN)sortDirection=SWT.UP;else sortDirection=SWT.DOWN;sortedColumn.setData("sortDirection",sortDirection);logger.trace("set sort direction "+sortDirection);oldTable.setSortDirection(sortDirection);
+            TableItem[]oldTableItems=oldTable.getItems();
+
+            if( (oldTableItems!=null) && (oldTableItems.length>0) ) {
+                Table newTable = new Table(oldTable.getParent(),oldTable.getStyle());
+                newTable.setLinesVisible(oldTable.getLinesVisible());
+                newTable.setHeaderVisible(oldTable.getHeaderVisible());
+                newTable.setLocation(oldTable.getLocation());
+                newTable.setSize(oldTable.getSize());
+                newTable.setLayoutData(oldTable.getLayoutData());
+                newTable.setLayout(oldTable.getLayout());
+
+                for(TableColumn oldTableColumn: oldTable.getColumns()) {
+                    TableColumn newTableColumn = new TableColumn(newTable,SWT.NONE);
+                    newTableColumn.setText(oldTableColumn.getText());
+                    newTableColumn.setAlignment(oldTableColumn.getAlignment());
+                    newTableColumn.setWidth(oldTableColumn.getWidth());
+                    newTableColumn.setResizable(oldTableColumn.getResizable());
+                    newTableColumn.setData("class",oldTableColumn.getData("class"));
+                    newTableColumn.setData("tooltip",oldTableColumn.getData("tooltip"));
+                    newTableColumn.setData("values",oldTableColumn.getData("values"));
+                    newTableColumn.setData("regexp",oldTableColumn.getData("regexp"));
+                    newTableColumn.setData("excelColumn",oldTableColumn.getData("excelColumn"));
+                    newTableColumn.setData("excelCellType",oldTableColumn.getData("excelCellType"));
+                    newTableColumn.setData("excelDefault",oldTableColumn.getData("excelDefault"));
+                    newTableColumn.setData("sortDirection",oldTableColumn.getData("sortDirection"));
+                    newTableColumn.addListener(SWT.Selection,sortListener);
+                    newTableColumn.setImage(oldTableColumn.getImage());
+
+                    if( oldTableColumn == oldTable.getSortColumn() ) {
+                        newTable.setSortColumn(newTableColumn);
+                        newTable.setSortDirection(oldTable.getSortDirection());
+                    }
+                }
+
+                Arrays.sort(oldTableItems,new TableItemComparator(oldTable.indexOf(sortedColumn),sortDirection));
+
+                for(TableItem oldTableItem:oldTableItems) {
+                    TableEditor[]oldEditors = (TableEditor[])oldTableItem.getData("editors");
+                    TableEditor[]newEditors = new TableEditor[oldEditors.length];
+
+                    TableItem newTableItem = new TableItem(newTable,SWT.NONE);
+
+                    for ( int column=0; column < oldTable.getColumnCount(); ++column) {
+                        TableEditor newEditor = new TableEditor(newTable);
+                        switch (oldEditors[column].getEditor().getClass().getSimpleName()) {
+                            case"Label":
+                                Label oldLabel = (Label)oldEditors[column].getEditor();
+                                Label newLabel = new Label(newTable,SWT.WRAP|SWT.NONE);
+
+                                newLabel.setText(oldLabel.getText());
+                                newLabel.setToolTipText(oldLabel.getToolTipText());
+                                newLabel.setAlignment(oldLabel.getAlignment());
+                                newLabel.setData("eObject",oldLabel.getData("eObject"));
+                                newLabel.setData("variable",oldLabel.getData("variable"));
+                                newLabel.setData("pattern",oldLabel.getData("pattern"));
+                                
+                                newEditor.grabHorizontal=true;
+                                newEditor.setEditor(newLabel,newTableItem,column);
+                                
+                                formVarList.replaceControl(oldLabel, newLabel);
+                                break;
+                            
+                            case"StyledText":
+                                StyledText oldText = (StyledText)oldEditors[column].getEditor();
+                                StyledText newText = new StyledText(newTable,SWT.WRAP|SWT.NONE);
+  
+                                newText.setText(oldText.getText());
+                                newText.setToolTipText(oldText.getToolTipText());
+                                newText.setAlignment(oldText.getAlignment());
+                                newText.setData("eObject",oldText.getData("eObject"));
+                                newText.setData("variable",oldText.getData("variable"));
+                                newText.setData("pattern",oldText.getData("pattern"));
+
+                                newEditor.grabHorizontal=true;
+                                newEditor.setEditor(newText,newTableItem,column);
+                                
+                                newText.addModifyListener(textModifyListener);
+                                formVarList.replaceControl(oldText, newText);
+                                break;
+
+                            case"CCombo":
+                                CCombo oldCombo=(CCombo)oldEditors[column].getEditor();
+                                CCombo newCombo=new CCombo(newTable,SWT.NONE);
+
+                                newCombo.setText(oldCombo.getText());
+                                newCombo.setItems(oldCombo.getItems());
+                                newCombo.setToolTipText(oldCombo.getToolTipText());
+                                newCombo.setData("eObject",oldCombo.getData("eObject"));
+                                newCombo.setData("variable",oldCombo.getData("variable"));
+                                newCombo.setEditable(false);newEditor.grabHorizontal=true;
+                                
+                                newEditor.grabHorizontal=true;
+                                newEditor.setEditor(newCombo,newTableItem,column);
+                                
+                                newCombo.addModifyListener(textModifyListener);
+                                formVarList.replaceControl(oldCombo, newCombo);
+                                break;
+
+                            case"Button":
+                                Button oldButton=(Button)oldEditors[column].getEditor();
+                                Button newButton=new Button(newTable,SWT.CHECK);
+
+                                newButton.pack();
+                                newEditor.minimumWidth=newButton.getSize().x;
+                                newEditor.horizontalAlignment=SWT.CENTER;
+                                newButton.setAlignment(oldButton.getAlignment());
+                                newButton.setData("eObject",oldButton.getData("eObject"));
+                                newButton.setData("variable",oldButton.getData("variable"));
+                                newButton.setData("values",oldButton.getData("values"));
+                                newButton.setSelection(oldButton.getSelection());
+                                newButton.addSelectionListener(checkButtonSelectionListener);
+                                
+                                newEditor.grabHorizontal=true;
+                                newEditor.setEditor(newButton,newTableItem,column);
+                                
+                                newButton.addSelectionListener(checkButtonSelectionListener);
+                                formVarList.replaceControl(oldButton, newButton);
+                        }
+                        newEditors[column]=newEditor;
+                    }
+                    newTableItem.setData("editors",newEditors);
+                }
+
+                logger.debug("Replacing old table with new table");newTable.setVisible(true);oldTable.dispose();}
+        }
+    };
+    
+    private class TableItemComparator implements Comparator<TableItem> {
+        int columnIndex   = 0;
+        int sortDirection = SWT.UP;
+
+        public TableItemComparator(int columnIndex, int sortDirection) {
+            this.columnIndex = columnIndex;
+            this.sortDirection = sortDirection;
+        }
+
+        public int compare(TableItem first, TableItem second) {
+            TableEditor[] editorsFirst = (TableEditor[]) first.getData("editors");
+
+            if (editorsFirst[columnIndex] != null) {
+                TableEditor[] editorsSecond = (TableEditor[]) second.getData("editors");
+
+                switch (editorsFirst[columnIndex].getEditor().getClass().getSimpleName()) {
+                    case "StyledText":
+                        logger.trace("comparing \"" + ((StyledText) editorsFirst[columnIndex].getEditor()).getText() + "\" and \"" + ((StyledText) editorsSecond[columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(((StyledText) editorsFirst[columnIndex].getEditor()).getText(), ((StyledText) editorsSecond[columnIndex].getEditor()).getText()) * (sortDirection == SWT.UP ? 1 : -1);
+                    case "Button":
+                        logger.trace("comparing \"" + ((Button) editorsFirst[columnIndex].getEditor()).getSelection()
+                                + "\" and \"" + ((Button) editorsSecond[columnIndex].getEditor()).getSelection()
+                                + "\"");
+                        return Collator.getInstance().compare(((Button) editorsFirst[columnIndex].getEditor()).getSelection(), ((Button) editorsSecond[columnIndex].getEditor()).getSelection())* (sortDirection == SWT.UP ? 1 : -1);
+
+                    case "CCombo":
+                        logger.trace("comparing \"" + ((CCombo) editorsFirst[columnIndex].getEditor()).getText() + "\" and \"" + ((CCombo) editorsSecond[columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(((CCombo) editorsFirst[columnIndex].getEditor()).getText(), ((CCombo) editorsSecond[columnIndex].getEditor()).getText()) * (sortDirection == SWT.UP ? 1 : -1);
+
+                    default:
+                        throw new RuntimeException("Do not know how to compare elements of class " + editorsFirst[columnIndex].getClass().getSimpleName());
+                }
+            }
+
+            return Collator.getInstance().compare(first.getText(columnIndex), second.getText(columnIndex)) * (sortDirection == SWT.UP ? 1 : -1);
         }
     }
 }
