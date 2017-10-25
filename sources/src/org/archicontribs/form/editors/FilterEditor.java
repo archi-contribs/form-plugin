@@ -106,7 +106,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(lblOperation, 0, SWT.LEFT);
         fd.right = new FormAttachment(lblOperation, 0, SWT.RIGHT);
         cmb.setLayoutData(fd);
-        cmb.setItems(new String[] {"exists", "equals", "iequals", "in", "iin", "matches"});
+        cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches"});
         cmb.addSelectionListener(operationSelectionListener);
         
         comboOperation = new ArrayList<CCombo>();
@@ -222,7 +222,7 @@ public class FilterEditor {
 	        txtAttribute.add(index+1, attr);
 	        
 	        CCombo cmb = new CCombo(parent, SWT.BORDER);
-	        cmb.setItems(new String[] {"exists", "equals", "iequals", "in", "iin", "matches"});
+	        cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches"});
 	        cmb.addSelectionListener(operationSelectionListener);
 	        comboOperation.add(index+1, cmb);
 
