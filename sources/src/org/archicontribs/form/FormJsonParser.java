@@ -1605,6 +1605,12 @@ public class FormJsonParser {
     		table.setData("excelSheet",     excelSheet);
     		table.setData("excelFirstLine", excelFirstLine);
     		table.setData("excelLastLine",  excelLastLine);
+    		
+            if ( excelSheet != null ) {
+                @SuppressWarnings("unchecked")
+                HashSet<String> excelSheets = (HashSet<String>)table.getShell().getData("excel sheets");
+                excelSheets.add(excelSheet);
+            }
     	}
     }
     
