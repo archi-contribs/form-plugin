@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Form plugin for Archimate Tool
 Bundle-SymbolicName: org.archicontribs.form;singleton:=true
-Bundle-Version: 1.6.4
+Bundle-Version: 1.6.5
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.archimatetool.editor,
  com.archimatetool.canvas,
@@ -23,3 +23,4 @@ Bundle-ClassPath: .,
  lib/poi-ooxml-schemas-3.15.jar
 Bundle-Activator: org.archicontribs.form.FormPlugin
 Bundle-Vendor: Herve Jouin
+Export-Package: org.archicontribs.form
