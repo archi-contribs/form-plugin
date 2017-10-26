@@ -863,29 +863,43 @@ public class FormJsonParser {
         while (filterIterator.hasNext()) {
             JSONObject filter = filterIterator.next();
             String attribute = getString(filter, "attribute");
-            String operation = getString(filter, "operation");
+            String attributeValue = null;
+            String operationRequested = getString(filter, "operation");
+            String operation = null;
             String value;
             String[] values;
-
-            String attributeValue = FormVariable.expand(attribute, eObject);
             boolean negate = false;
             
-            if ( operation.toLowerCase().startsWith("not ") ) {
-                operation=operation.substring(4);
+            if ( operationRequested.toLowerCase().startsWith("not ") ) {
+                operation=operationRequested.substring(4);
                 negate = true;
+            } else {
+                operation = operationRequested;
+                negate = false;
             }
 
             switch (operation.toLowerCase()) {
                 case "equals":
                     value = getString(filter, "value");
-
-                    result = attributeValue.equals(value);
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals \"" + value + "\" --> " + result);
+                        logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
+                    attributeValue = FormVariable.expand(attribute, eObject);
+                    if (logger.isTraceEnabled())
+                        logger.trace("      --> \""+attributeValue+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
+                    result = attributeValue.equals(value);
                     break;
 
                 case "in":
                     value = getString(filter, "value");
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
+                    attributeValue = FormVariable.expand(attribute, eObject);
+                    if (logger.isTraceEnabled())
+                        logger.trace("      --> \""+attributeValue+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
                     values = value.split(",");
                     result = false;
                     for (String str : values) {
@@ -894,26 +908,40 @@ public class FormJsonParser {
                             break;
                         }
                     }
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
                     break;
 
                 case "exists":
-                    result = attributeValue.isEmpty();
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") exists --> " + result);
+                        logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\"");
+                    
+                    attributeValue = FormVariable.expand(attribute, eObject);
+                    if (logger.isTraceEnabled())
+                        logger.trace("      --> \""+attributeValue+"\" \""+operationRequested+"\"");
+                    
+                    result = attributeValue.isEmpty();
                     break;
 
                 case "iequals":
                     value = getString(filter, "value");
-
-                    result = attributeValue.equalsIgnoreCase(value);
                     if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") equals (ignore case) \"" + value + "\" --> " + result);
+                        logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
+
+                    attributeValue = FormVariable.expand(attribute, eObject);
+                    if (logger.isTraceEnabled())
+                        logger.trace("      --> \""+attributeValue+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
+                    result = attributeValue.equalsIgnoreCase(value);
                     break;
 
                 case "iin":
                     value = getString(filter, "value");
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
+                    attributeValue = FormVariable.expand(attribute, eObject);
+                    if (logger.isTraceEnabled())
+                        logger.trace("      --> \""+attributeValue+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
                     values = value.split(",");
                     result = false;
                     for (String str : values) {
@@ -922,16 +950,18 @@ public class FormJsonParser {
                             break;
                         }
                     }
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") in \"" + value + "\" --> " + result);
                     break;
 
                 case "matches":
                     value = (String)getJSON(filter, "value");
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
+                    
+                    attributeValue = FormVariable.expand(attribute, eObject);
+                    if (logger.isTraceEnabled())
+                        logger.trace("      --> \""+attributeValue+"\" \""+operationRequested+"\" \""+value+"\"");
 
                     result = (attributeValue != null) && attributeValue.matches(value);
-                    if (logger.isTraceEnabled())
-                        logger.trace("   filter " + attribute + "(\"" + attributeValue + "\") matches \"" + value + "\" --> " + result);
                     break;
 
                 default:
@@ -941,6 +971,9 @@ public class FormJsonParser {
             // if the operation starts with "not ", then we negate the result
             if ( negate )
                 result = !result;
+            
+            if (logger.isTraceEnabled())
+                logger.trace("      --> "+result);
 
             // in AND mode, all the tests must return true, so if the current test is false, then the complete filter returns false
             if (result == false && type.equals("AND"))
