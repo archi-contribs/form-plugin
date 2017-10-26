@@ -123,6 +123,8 @@ import com.archimatetool.model.INameable;
  *                              Add "not" keyword in filter tests
  *                              Fix table columns sorting that did not work since the graphical editor
  * 
+ * v1.6.6 :     26/10/2017      Fix documentation variable
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
@@ -130,7 +132,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.6.5";
+	public static final String pluginVersion = "1.6.6";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
