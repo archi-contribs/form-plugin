@@ -65,8 +65,12 @@ public class FormVariable {
         	return null;
         
         // we check that the variable provided is a string enclosed between "${" and "}"
-        if ( !variable.startsWith("${") || !variable.endsWith("}") ) {
-        	if ( logger.isTraceEnabled() ) logger.trace("         --> not a variable");
+        if ( !variable.startsWith("${") ) {
+        	if ( logger.isTraceEnabled() ) logger.trace("         --> does not start with \"${\"");
+            return null;
+        }
+        if ( !variable.endsWith("}") ) {
+            if ( logger.isTraceEnabled() ) logger.trace("         --> does not end with \"}\"");
             return null;
         }
         
@@ -98,7 +102,7 @@ public class FormVariable {
                         return eObject;
                     }
                     else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                    	if ( logger.isTraceEnabled() ) logger.trace("         --> "+FormPlugin.getDebugName(((IDiagramModelArchimateObject)eObject).getDiagramModel()));
+                    	if ( logger.isTraceEnabled() ) logger.trace("            --> "+FormPlugin.getDebugName(((IDiagramModelArchimateObject)eObject).getDiagramModel()));
                         return ((IDiagramModelArchimateObject)eObject).getDiagramModel();
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
@@ -202,28 +206,48 @@ public class FormVariable {
         //TODO : add a preference to choose between silently ignore or raise an error
         switch ( variableName.toLowerCase() ) {
             case "class" :
-                if (eObject instanceof IDiagramModelArchimateObject)
+                if (eObject instanceof IDiagramModelArchimateObject) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateObject)eObject).getArchimateElement().getClass().getSimpleName() +"\"");
                     return ((IDiagramModelArchimateObject)eObject).getArchimateElement().getClass().getSimpleName();
-                if (eObject instanceof IDiagramModelArchimateConnection)
+                }
+                if (eObject instanceof IDiagramModelArchimateConnection) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getClass().getSimpleName() +"\"");
                     return ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getClass().getSimpleName();
+                }
+                if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ eObject.getClass().getSimpleName() +"\"");
                 return eObject.getClass().getSimpleName();
 
             case "id" :
-                if (eObject instanceof IIdentifier)
+                if (eObject instanceof IIdentifier) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IIdentifier)eObject).getId() +"\"");
                     return ((IIdentifier)eObject).getId();
+                }
                 new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not an ID ("+eObject.getClass().getSimpleName()+").");
 
             case "documentation" :
-                if (eObject instanceof IDocumentable)
+                if (eObject instanceof IDiagramModelArchimateObject) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateObject)eObject).getArchimateElement().getDocumentation() +"\"");
+                    return ((IDiagramModelArchimateObject)eObject).getArchimateElement().getDocumentation();
+                }
+                if (eObject instanceof IDiagramModelArchimateConnection) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getDocumentation() +"\"");
+                    return ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getDocumentation();
+                }
+                if (eObject instanceof IDocumentable) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDocumentable)eObject).getDocumentation() +"\"");
                     return ((IDocumentable)eObject).getDocumentation();
+                }
                 new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+eObject.getClass().getSimpleName()+").");
 
             case "void":
+                if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \"\"");
                 return "";
                 
             case "name" :
-                if (eObject instanceof INameable)
+                if (eObject instanceof INameable) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((INameable)eObject).getName() +"\"");
                     return ((INameable)eObject).getName();
+                }
                 new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a does not have a name' ("+eObject.getClass().getSimpleName()+").");
 
             default :
@@ -237,9 +261,11 @@ public class FormVariable {
                         String propertyName = variableName.substring(9);
                         for ( IProperty property: ((IProperties)eObject).getProperties() ) {
                             if ( FormPlugin.areEqual(property.getKey(),propertyName) ) {
+                                if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ property.getValue() +"\"");
                                 return property.getValue();
                             }
                         }
+                        if ( logger.isTraceEnabled() ) logger.trace("         ---> value is null");
                         return null;
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have properties ("+eObject.getClass().getSimpleName()+").");
@@ -333,8 +359,8 @@ public class FormVariable {
         String variableName = variable.substring(2, variable.length()-1);
 
         switch ( variableName.toLowerCase() ) {
-            case "class" :  // TODO: show error message
-                break;      // we refuse to change the class of an eObject
+            case "class" :  // we refuse to change the class of an eObject
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot change the class of an Archi object.");   
 
             case "id" :
                 if (eObject instanceof IIdentifier) {
@@ -348,6 +374,12 @@ public class FormVariable {
                 break;
 
             case "documentation" :
+                if (eObject instanceof IDiagramModelArchimateObject) {
+                    eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
+                }
+                if (eObject instanceof IDiagramModelArchimateConnection) {
+                    eObject = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
+                }
                 if (eObject instanceof IDocumentable) {
                     //((IDocumentable)eObject).setDocumentation(value == null ? "" : value);
                     eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value);
@@ -355,10 +387,7 @@ public class FormVariable {
                     	compoundCommand.add(eCommand);
                     return;
                 }
-                else {
-                    // TODO: show error message
-                }
-                break;
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the archi Object does not have a "+variable+" field.");
 
             case "name" :
                 if (eObject instanceof INameable) {
@@ -367,10 +396,8 @@ public class FormVariable {
                     if ( eCommand.canExecute() )
                     	compoundCommand.add(eCommand);
                     return;
-                } else {
-                    // TODO: show error message
                 }
-                break;
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the archi Object does not have a "+variable+" field.");
 
             case "void":
                 return;
@@ -390,9 +417,8 @@ public class FormVariable {
                         if ( fCommand.canExecute() )
                         	compoundCommand.add(fCommand);
                         return;
-                    } else {
-                        //TODO : show up an error
                     }
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the archi Object does not have properties.");
                 }
 
                     // check for ${view:xxx}
