@@ -125,6 +125,10 @@ import com.archimatetool.model.INameable;
  * 
  * v1.6.6 :     26/10/2017      Fix documentation variable
  * 
+ * v1.6.7 :     27/10/2017      Fix table export to Excel after column sort
+ *                              Fix table color and font after column sort
+ *                              Fix default value for the "refers" property  
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
@@ -132,7 +136,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.6.6";
+	public static final String pluginVersion = "1.6.7";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
