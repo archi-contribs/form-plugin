@@ -2096,6 +2096,10 @@ public class FormDialog extends Dialog {
                 newTable.setSize(oldTable.getSize());
                 newTable.setLayoutData(oldTable.getLayoutData());
                 newTable.setLayout(oldTable.getLayout());
+                newTable.setToolTipText(oldTable.getToolTipText());
+                newTable.setForeground(oldTable.getForeground());
+                newTable.setBackground(oldTable.getBackground());
+                newTable.setFont(oldTable.getFont());
                 newTable.setData("excelSheet", oldTable.getData("excelSheet"));
                 newTable.setData("excelFirstLine", oldTable.getData("excelFirstLine"));
                 newTable.setData("excelLastLine", oldTable.getData("excelLastLine"));
@@ -2106,6 +2110,7 @@ public class FormDialog extends Dialog {
                     newTableColumn.setAlignment(oldTableColumn.getAlignment());
                     newTableColumn.setWidth(oldTableColumn.getWidth());
                     newTableColumn.setResizable(oldTableColumn.getResizable());
+                    newTableColumn.setToolTipText(oldTable.getToolTipText());
                     newTableColumn.setData("class",oldTableColumn.getData("class"));
                     newTableColumn.setData("tooltip",oldTableColumn.getData("tooltip"));
                     newTableColumn.setData("values",oldTableColumn.getData("values"));
@@ -2212,7 +2217,9 @@ public class FormDialog extends Dialog {
                     newTableItem.setData("editors",newEditors);
                 }
 
-                logger.debug("Replacing old table with new table");newTable.setVisible(true);oldTable.dispose();}
+                logger.debug("Replacing old table with new table");newTable.setVisible(true);oldTable.dispose();
+                newTable.layout();
+            }
         }
     };
     
