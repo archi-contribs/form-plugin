@@ -1275,6 +1275,11 @@ public class FormDialog extends Dialog {
 
                                                 String excelCellType = (String) tableColumn.getData("excelCellType");
                                                 String excelDefault = (String) tableColumn.getData("excelDefault");
+                                                
+                                                if ( excelCellType == null )
+                                                    excelCellType = "string";
+                                                if ( excelDefault == null )
+                                                    excelDefault = "zero";
 
                                                 if ( value.isEmpty() ) {
                                                     switch (excelDefault) {
@@ -1358,6 +1363,11 @@ public class FormDialog extends Dialog {
                                             String excelCellType = (String) tableColumn.getData("excelCellType");
                                             String excelDefault = (String) tableColumn.getData("excelDefault");
                                             String excelColumn = (String) tableColumn.getData("excelColumn");
+                                            
+                                            if ( excelCellType == null )
+                                                excelCellType = "string";
+                                            if (excelDefault == null )
+                                                excelDefault = "zero";
                                             
                                             if (excelColumn != null) {
                                                 CellReference ref = new CellReference(excelColumn);
@@ -2086,6 +2096,9 @@ public class FormDialog extends Dialog {
                 newTable.setSize(oldTable.getSize());
                 newTable.setLayoutData(oldTable.getLayoutData());
                 newTable.setLayout(oldTable.getLayout());
+                newTable.setData("excelSheet", oldTable.getData("excelSheet"));
+                newTable.setData("excelFirstLine", oldTable.getData("excelFirstLine"));
+                newTable.setData("excelLastLine", oldTable.getData("excelLastLine"));
 
                 for(TableColumn oldTableColumn: oldTable.getColumns()) {
                     TableColumn newTableColumn = new TableColumn(newTable,SWT.NONE);
