@@ -1,9 +1,13 @@
-# v1.6.6: 26/10/2017
-* Fix documentation variable
+## v1.6.7: 27/10/2017
+* Fix table export to Excel after column sort
+* Fix table color and font after column sort
+* Fix default value for the "refers" property
 
 * TODO list
   * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
 
+## v1.6.6: 26/10/2017
+* Fix documentation variable
 
 ## v1.6.5: 25/10/2017
 * Fix Export to Excel button that was not shown when required
