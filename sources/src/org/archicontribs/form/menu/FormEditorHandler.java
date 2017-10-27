@@ -50,7 +50,7 @@ public class FormEditorHandler extends AbstractHandler {
 			EObject selectedObject = FormMenu.getSelectedObject(selection[selectionRank]);
 			
 			String refers = jsonParser.getString(form,"refers");
-			if ( FormPlugin.isEmpty("refers") )
+			if ( FormPlugin.isEmpty(refers) )
 				refers = FormDialog.validRefers[0];
 			switch ( refers.toLowerCase() ) {
 				case "view":   selectedObject = FormMenu.getContainer(selectedObject); break;
