@@ -135,6 +135,7 @@ import com.archimatetool.model.INameable;
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
+ * 								Add the sum or average of column values
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
  */
 public class FormPlugin extends AbstractUIPlugin {
