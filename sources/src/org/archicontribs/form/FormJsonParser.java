@@ -15,6 +15,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.TableEditor;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
@@ -331,6 +332,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("label");
         
         getWidth(jsonObject, tableColumn, treeItem);
+        getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
@@ -346,13 +348,21 @@ public class FormJsonParser {
             int newCol = 0;
             for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
                 if ( oldCol == index ) {
-                    TableEditor editor= new TableEditor(parent);
+                	TableEditor editor= new TableEditor(parent);
                     newEditors[index] = editor;
                     
                     newCells[index] = "";
                     logger.trace("      adding label cell with value \"" + newCells[index] + "\"");
                     Label label = new Label(parent, SWT.WRAP | SWT.NONE);
                     label.setText(newCells[index]);
+                    if ( tableColumn.getData("background color") != null )
+                    	label.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	label.setBackground(parent.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	label.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	label.setForeground(parent.getForeground());
                     editor.setEditor(label, tableItem, index);
                     editor.grabHorizontal = true;
                              
@@ -470,6 +480,14 @@ public class FormJsonParser {
                     logger.trace("      adding text cell with value \"" + newCells[index] + "\"");
                     text.setText(newCells[index]);
                     editor.setEditor(text, tableItem, index);
+                    if ( tableColumn.getData("background color") != null )
+                    	text.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	text.setBackground(parent.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	text.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	text.setForeground(parent.getForeground());
                     editor.grabHorizontal = true;
                              
                     ++newCol;
@@ -560,6 +578,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("combo");
         
         getValues(jsonObject, tableColumn, treeItem);
+        getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getWidth(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
@@ -582,6 +601,14 @@ public class FormJsonParser {
                     CCombo combo = new CCombo(parent, SWT.NONE);
                     logger.trace("      adding combo cell with value \"" + newCells[index] + "\"");
                     combo.setText(newCells[index]);
+                    if ( tableColumn.getData("background color") != null )
+                    	combo.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	combo.setBackground(parent.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	combo.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	combo.setForeground(parent.getForeground());
                     String[] values = (String[])parent.getColumn(index).getData("values");
                     if ( values != null ) combo.setItems(values);
                     editor.setEditor(combo, tableItem, index);
@@ -676,6 +703,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("check");
         
  	   	getValues(jsonObject, tableColumn, treeItem);
+ 	    getForegroundAndBackground(jsonObject, tableColumn, treeItem);
    		getWidth(jsonObject, tableColumn, treeItem);
    		getAlignment(jsonObject, tableColumn, treeItem);
  	   	getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
@@ -698,6 +726,14 @@ public class FormJsonParser {
                     newCells[index] = "${void}";
                     Button check = new Button(parent, SWT.CHECK);
                     check.pack();
+                    if ( tableColumn.getData("background color") != null )
+                    	check.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	check.setBackground(parent.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	check.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	check.setForeground(parent.getForeground());
                     logger.trace("      adding check cell with value \"" + newCells[index] + "\"");
                     editor.minimumWidth = check.getSize().x;
                     editor.horizontalAlignment = SWT.CENTER;
@@ -1068,6 +1104,7 @@ public class FormJsonParser {
     	// we get the cells variables, completing if some are missing and ignoring if too many are present
     	for ( int columnNumber = 0; columnNumber < table.getColumnCount(); ++columnNumber ) {
     		// for each cell, we create the corresponding table editor
+    		TableColumn tableColumn = table.getColumn(columnNumber);
     		TableEditor editor= new TableEditor(table);
             editors[columnNumber] = editor;
             String[] values;
@@ -1084,6 +1121,14 @@ public class FormJsonParser {
                     	label.setText(cells[columnNumber]);
                     else
                     	label.setText(FormVariable.expand(cells[columnNumber], selectedObject));
+                    if ( tableColumn.getData("background color") != null )
+                    	label.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	label.setBackground(table.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	label.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	label.setForeground(table.getForeground());
                     editor.setEditor(label, tableItem, columnNumber);
                     editor.grabHorizontal = true;
                     break;
@@ -1110,6 +1155,14 @@ public class FormJsonParser {
                     	
                     	text.addModifyListener(FormDialog.textModifyListener);
                     }
+                    if ( tableColumn.getData("background color") != null )
+                    	text.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	text.setBackground(table.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	text.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	text.setForeground(table.getForeground());
                     editor.setEditor(text, tableItem, columnNumber);
                     editor.grabHorizontal = true;
                     break;
@@ -1146,6 +1199,14 @@ public class FormJsonParser {
                     	
                     	combo.addModifyListener(FormDialog.textModifyListener);
                     }
+                    if ( tableColumn.getData("background color") != null )
+                    	combo.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	combo.setBackground(table.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	combo.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	combo.setForeground(table.getForeground());
                     if ( values != null ) combo.setItems(values);
                     editor.setEditor(combo, tableItem, columnNumber);
                     editor.grabHorizontal = true;
@@ -1185,6 +1246,14 @@ public class FormJsonParser {
                     	
                     	check.addSelectionListener(FormDialog.checkButtonSelectionListener);
                     }
+                    if ( tableColumn.getData("background color") != null )
+                    	check.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                    	check.setBackground(table.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                    	check.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                    	check.setForeground(table.getForeground());
                     editor.minimumWidth = check.getSize().x;
                     editor.horizontalAlignment = SWT.CENTER;
                     editor.setEditor(check, tableItem, columnNumber);
@@ -1463,9 +1532,14 @@ public class FormJsonParser {
     	}
 
     	// we set the control color
-    	if ( widget != null && widget instanceof Control ) {
-			FormPlugin.setColor((Control)widget, foreground, SWT.FOREGROUND);
-			FormPlugin.setColor((Control)widget, background, SWT.BACKGROUND);
+    	if ( widget != null ) {
+    		if ( widget instanceof TableColumn ) {
+    			FormPlugin.setColor((TableColumn)widget, foreground, SWT.FOREGROUND);
+    			FormPlugin.setColor((TableColumn)widget, background, SWT.BACKGROUND);
+    		} else if ( widget instanceof Control ) {
+    			FormPlugin.setColor((Control)widget, foreground, SWT.FOREGROUND);
+    			FormPlugin.setColor((Control)widget, background, SWT.BACKGROUND);
+    		}
     	}
     }
     

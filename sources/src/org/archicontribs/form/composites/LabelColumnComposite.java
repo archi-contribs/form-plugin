@@ -1,6 +1,7 @@
 package org.archicontribs.form.composites;
 
 import org.archicontribs.form.editors.AlignmentEditor;
+import org.archicontribs.form.editors.ColorEditor;
 import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
@@ -11,6 +12,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 	private StringEditor            nameEditor;          // name
     private StringEditor            textEditor;			 // text
 	private SizeEditor              sizeEditor;          // width
+	private ColorEditor             colorEditor;         // foreground, background
 	private StringEditor            tooltipEditor;       // tooltip
 	private AlignmentEditor         alignmentEditor;    // alignment
     private StringEditor            excelColumnEditor;   // excelColumn
@@ -35,6 +37,10 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		textEditor = new StringEditor(this, "text", "Text:");
 		textEditor.setPosition(nameEditor.getControl());
 		textEditor.mustSetControlText(true);
+		
+		// Background
+		colorEditor = new ColorEditor(this, "Color:");
+		colorEditor.setPosition(textEditor.getControl());
 						
 		// width
 		sizeEditor = new SizeEditor(this);
@@ -85,6 +91,8 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
     		case "y":    		  sizeEditor.setY((Integer)value); break;
     		case "width":    	  sizeEditor.setWidth((Integer)value); break;
     		case "height":    	  sizeEditor.setHeight((Integer)value); break;
+    		case "foreground":	  colorEditor.setForeground((String)value); break;
+    		case "background":	  colorEditor.setBackground((String)value); break;
     		case "name":    	  nameEditor.setText((String)value); break;
     		case "text":    	  textEditor.setText((String)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;

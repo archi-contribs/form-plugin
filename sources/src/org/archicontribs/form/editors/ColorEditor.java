@@ -3,6 +3,7 @@ package org.archicontribs.form.editors;
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TableEditor;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -15,6 +16,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
@@ -97,15 +101,8 @@ public class ColorEditor {
 				color = new Color(FormDialog.display, rgb);
 				
 				if ( event.getSource() == btnSelectForeground ) {
-					lblSample.setForeground(color);
-					
-					if ( widget != null ) {
-						if ( widget instanceof Shell )
-							((Shell)widget).setForeground(color);
-						else
-							((Control)widget).setForeground(color);
-					}
-					
+					setForeground(color);
+					widget.setData("foreground", getForeground());
 					if ( treeItem != null ) {
 	    				treeItem.setData("foreground", getForeground());
 	    				
@@ -114,15 +111,8 @@ public class ColorEditor {
 	    					setColor(childTreeItem, color, SWT.FOREGROUND);
 					}
 				} else {
-					lblSample.setBackground(color);
-					
-					if ( widget != null ) {
-						if ( widget instanceof Shell )
-							((Shell)widget).setBackground(color);
-						else
-							((Control)widget).setBackground(color);
-						widget.setData("background", getBackground());
-					}
+					setBackground(color);
+					widget.setData("background", getBackground());
 					if ( treeItem != null ) {
 						treeItem.setData("background", getBackground());
 	    				
@@ -178,7 +168,7 @@ public class ColorEditor {
 				if ( widget instanceof Shell ) {
 					((Shell)widget).setBackground(((Shell)widget).getParent().getBackground());
 					((Shell)widget).setForeground(((Shell)widget).getParent().getForeground());
-				} else {
+				} else if ( ! (widget instanceof TableColumn) ) {
 					((Control)widget).setBackground(((Control)widget).getParent().getBackground());
 					((Control)widget).setForeground(((Control)widget).getParent().getForeground());
 				}
@@ -209,30 +199,93 @@ public class ColorEditor {
 		return lblSample;
 	}
     
-    public void setBackround(String rgbString) {
-    	Color color = null;
-
-    	if ( !FormPlugin.isEmpty(rgbString) ) {
-    		String rgb[] = rgbString.split(",");
-    		
-    		if ( rgb.length == 3 ) {
-    			color = lblSample.getBackground();
-    			if ( color != null )
-    				color.dispose();
-			
-    			color = new Color(FormDialog.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
-    		}
-    	} else {
-            Widget widget = (Widget)parent.getData("widget");
-            if ( widget != null ) {
-                if ( widget instanceof Shell )
-                    color = ((Shell)widget).getParent().getBackground();
-                else
-                    color = ((Control)widget).getParent().getBackground();
-            }
+	public void setBackground(Color color) {
+    	if ( color != null )
+    		lblSample.setBackground(color);
+    	else
+    		lblSample.setBackground(lblSample.getParent().getBackground());
+    	
+    	Widget widget = (Widget)parent.getData("widget");
+    	if ( widget != null ) {
+    		if ( widget instanceof Shell ) {
+    	    	if ( color != null )
+    	    		((Shell)widget).setBackground(color);
+    	    	else
+    	    		((Shell)widget).setBackground(((Shell)widget).getParent().getBackground());
+	    	} else if ( widget instanceof TableColumn ) {
+	        	widget.setData("background color", color);
+	        	// we change the color of all elements in this column
+	        	Table table = ((TableColumn)widget).getParent();
+	        	int columnIndex = table.indexOf((TableColumn)widget);
+	        	for ( TableItem tableItem: table.getItems() ) {
+	        		TableEditor[] editors = (TableEditor[])tableItem.getData("editors");
+	        		if ( editors[columnIndex] != null ) {
+	        			if ( color == null )
+	        				editors[columnIndex].getEditor().setBackground(table.getBackground());
+	        			else
+	        				editors[columnIndex].getEditor().setBackground(color);
+	        		}
+	        	}
+	    	} else {
+	    		if ( color == null )
+	    			((Control)widget).setBackground(((Control)widget).getParent().getBackground());
+				else
+					((Control)widget).setBackground(color);
+	    	}
     	}
-		
-    	lblSample.setBackground(color);
+    }
+    
+    public void setBackground(String rgbString) {
+    	Color color = null;
+    	
+    	if ( !FormPlugin.isEmpty(rgbString) ) {
+	    	String rgb[] = rgbString.split(",");
+	    	if ( rgb.length == 3 ) {
+	    		color = lblSample.getBackground();
+				if ( color != null )
+					color.dispose();
+				
+				color = new Color(FormDialog.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
+	    	}
+    	}
+    	
+    	setBackground(color);
+    }
+    
+    public void setForeground(Color color) {
+    	if ( color != null )
+    		lblSample.setForeground(color);
+    	else
+    		lblSample.setForeground(lblSample.getParent().getForeground());
+    	
+    	Widget widget = (Widget)parent.getData("widget");
+    	if ( widget != null ) {
+    		if ( widget instanceof Shell ) {
+    	    	if ( color != null )
+    	    		((Shell)widget).setForeground(color);
+    	    	else
+    	    		((Shell)widget).setForeground(((Shell)widget).getParent().getForeground());
+	    	} else if ( widget instanceof TableColumn ) {
+	        	widget.setData("foreground color", color);
+	        	// we change the color of all elements in this column
+	        	Table table = ((TableColumn)widget).getParent();
+	        	int columnIndex = table.indexOf((TableColumn)widget);
+	        	for ( TableItem tableItem: table.getItems() ) {
+	        		TableEditor[] editors = (TableEditor[])tableItem.getData("editors");
+	        		if ( editors[columnIndex] != null ) {
+	        			if ( color == null )
+	        				editors[columnIndex].getEditor().setForeground(table.getForeground());
+	        			else
+	        				editors[columnIndex].getEditor().setForeground(color);
+	        		}
+	        	}
+	    	} else {
+	    		if ( color == null )
+	    			((Control)widget).setForeground(((Control)widget).getParent().getForeground());
+				else
+					((Control)widget).setForeground(color);
+	    	}
+    	}
     }
     
     public void setForeground(String rgbString) {
@@ -247,17 +300,9 @@ public class ColorEditor {
 				
 				color = new Color(FormDialog.display, Integer.valueOf(rgb[0].trim()),Integer.valueOf(rgb[1].trim()),Integer.valueOf(rgb[2].trim()));
 	    	}
-    	} else {
-            Widget widget = (Widget)parent.getData("widget");
-            if ( widget != null ) {
-                if ( widget instanceof Shell )
-                    color = ((Shell)widget).getParent().getForeground();
-                else
-                    color = ((Control)widget).getParent().getForeground();
-            }
-        }
+    	}
     	
-		lblSample.setForeground(color);
+    	setForeground(color);
     }
     
     public String getBackground() {

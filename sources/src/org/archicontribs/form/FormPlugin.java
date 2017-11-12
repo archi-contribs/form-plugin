@@ -129,7 +129,8 @@ import com.archimatetool.model.INameable;
  *                              Fix table color and font after column sort
  *                              Fix default value for the "refers" property
  *                              
- * v1.7 :       12/11/2017		Fix the excelType value was not taken in account for all objects 
+ * v1.7 :       12/11/2017		Fix excelType for objects outside of tables
+ * 								Fix table columns foreground and background were not set correctly 
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
@@ -323,7 +324,7 @@ public class FormPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Sets the control's foreground color according to the RGB values encoded in the foreground parameter, or to its parent's foreground in case of error 
+	 * Sets the control's foreground and color according to the RGB values encoded in the foreground parameter, or to its parent's foreground in case of error 
 	 */
 	public static void setColor(Control control, String color, int colorType) {
 		assert (colorType==SWT.FOREGROUND || colorType==SWT.BACKGROUND);
@@ -350,6 +351,29 @@ public class FormPlugin extends AbstractUIPlugin {
 					control.setBackground(control.getParent().getBackground());
 			} catch (Exception e) {
 				error(FormPosition.getPosition(colorTypeString) + "\n\nFailed to set "+colorTypeString+" from parent's one.", e);
+			}
+		}
+	}
+	
+	/**
+	 * Sets the tableColumn's foreground and background color according to the RGB values encoded in the foreground parameter 
+	 */
+	public static void setColor(TableColumn tableColumn, String color, int colorType) {
+		assert (colorType==SWT.FOREGROUND || colorType==SWT.BACKGROUND);
+
+		String colorTypeString = colorType==SWT.FOREGROUND ? "foreground" : "background";
+
+		if ( !FormPlugin.isEmpty(color) ) {
+			String[] colorArray = color.split(",");
+			if ( colorArray.length != 3 ) {
+				error(FormPosition.getPosition(colorTypeString) + "\n\nCannot set "+colorTypeString+" as it is not under the \"R,G,B\" form (where R, G and B are numeric values between 0 and 255).");
+			} else try {
+				if ( colorType == SWT.FOREGROUND )
+					tableColumn.setData("foreground color", new Color(tableColumn.getDisplay(), Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+				else
+					tableColumn.setData("background color", new Color(tableColumn.getDisplay(), Integer.parseInt(colorArray[0].trim()), Integer.parseInt(colorArray[1].trim()), Integer.parseInt(colorArray[2].trim())));
+			} catch (Exception e) {
+				error(FormPosition.getPosition(colorTypeString) + "\n\nFailed to set "+colorTypeString, e);
 			}
 		}
 	}
