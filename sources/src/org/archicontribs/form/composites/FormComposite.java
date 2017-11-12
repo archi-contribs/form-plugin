@@ -1,5 +1,8 @@
 package org.archicontribs.form.composites;
 
+import java.util.List;
+import java.util.Map;
+
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.editors.ColorEditor;
 import org.archicontribs.form.editors.ComboEditor;
@@ -57,7 +60,7 @@ public class FormComposite extends Composite implements CompositeInterface {
                 );
 		
 	    // filter
-		filterEditor = new FilterEditor(this);
+		filterEditor = new FilterEditor(this, false);
 		filterEditor.setPosition(refersEditor.getControl());
 		
 	    // variableSeparator
@@ -103,7 +106,8 @@ public class FormComposite extends Composite implements CompositeInterface {
                 );
 	}
     
-    public void set(String key, Object value) throws RuntimeException {
+    @SuppressWarnings("unchecked")
+	public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
     		case "name":		      nameEditor.setText((String)value); break;
     		case "foreground":	      colorEditor.setForeground((String)value); break;
@@ -119,6 +123,8 @@ public class FormComposite extends Composite implements CompositeInterface {
     		case "spacing":		      formSizeEditor.setSpacing((Integer)value); break;
     		case "buttonwidth":	      formSizeEditor.setButtonWidth((Integer)value); break;
     		case "buttonheight":      formSizeEditor.setButtonHeight((Integer)value); break;
+            case "tests":             filterEditor.setTests((List<Map<String, String>>)value); break;
+            case "genre":             filterEditor.setGenre((String)value); break;
     		default:
     			throw new RuntimeException("does not know key "+key);
     	}

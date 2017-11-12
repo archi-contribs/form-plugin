@@ -131,6 +131,7 @@ import com.archimatetool.model.INameable;
  *                              
  * v1.7 :       12/11/2017		Fix excelType for objects outside of tables
  * 								Fix table columns foreground and background were not set correctly 
+ * 								Fix graphical editor that did not edit filter on form
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)

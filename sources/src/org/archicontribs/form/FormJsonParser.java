@@ -103,6 +103,7 @@ public class FormJsonParser {
         String  whenEmpty         = getString(jsonObject, "whenEmpty");
         
         getForegroundAndBackground(jsonObject, form, treeItem);
+        getFilter(jsonObject, form, treeItem);
         
         String  buttonOkText          = getString(jsonObject, "buttonOk");
         String  buttonCancelText      = getString(jsonObject, "buttonCancel");
@@ -1026,7 +1027,7 @@ public class FormJsonParser {
     
     /***************************************************************/
     
-    private void getFilter(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
+    private void getFilter(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	JSONObject filter = getJSONObject(jsonObject, "filter");
     	List<Map<String, String>> tests = null;
     	
@@ -1038,8 +1039,8 @@ public class FormJsonParser {
     	}
     	
     	// required by the form
-    	if ( tableItem != null ) {
-    		tableItem.setData("genre", genre);
+    	if ( widget != null ) {
+    		widget.setData("genre", genre);
     	}
     	
     	JSONArray testsJson = getJSONArray(filter, "tests");
@@ -1068,8 +1069,8 @@ public class FormJsonParser {
     	}
     	
     	// required by the form
-    	if ( tableItem != null ) {
-    		tableItem.setData("tests", tests);
+    	if ( widget != null ) {
+    		widget.setData("tests", tests);
     	}
     }
     

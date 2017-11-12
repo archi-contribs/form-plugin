@@ -36,7 +36,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 			"You must have as many lines than the columns.");
 		
 	    // filter
-		filterEditor = new FilterEditor(this);
+		filterEditor = new FilterEditor(this, true);
 		filterEditor.setPosition(cellsEditor.getControl());
 	}
 	

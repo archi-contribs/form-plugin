@@ -39,29 +39,38 @@ public class FilterEditor {
 	private List<Button> btnAdd;
 	private List<Button> btnDelete;
 	
+	private boolean showGenerateCheckbox;
+	
 	private Composite    parent;
 	
-	public FilterEditor(Composite parent) {
+	public FilterEditor(Composite parent, boolean showGenerateCheckbox) {
 		this.parent = parent;
+		this.showGenerateCheckbox = showGenerateCheckbox;
+		FormData fd;
 		
-		lblGenerate = new Label(parent, SWT.NONE);
-        FormData fd = new FormData();
-        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
-        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblGenerate.setLayoutData(fd);
-        lblGenerate.setText("Generate lines:");
+		if ( showGenerateCheckbox) {
+			lblGenerate = new Label(parent, SWT.NONE);
+	        fd = new FormData();
+	        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
+	        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
+	        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
+	        lblGenerate.setLayoutData(fd);
+	        lblGenerate.setText("Generate lines:");
+	        
+	        btnGenerate = new Button(parent, SWT.CHECK);
+	        fd = new FormData();
+        	fd.top = new FormAttachment(lblGenerate, 0, SWT.TOP);
+	        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
+	        btnGenerate.setLayoutData(fd);
+	        btnGenerate.addSelectionListener(FilterSelectionListener);
+		}
         
-        btnGenerate = new Button(parent, SWT.CHECK);
-        fd = new FormData();
-        fd.top = new FormAttachment(lblGenerate, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        btnGenerate.setLayoutData(fd);
-        btnGenerate.addSelectionListener(FilterSelectionListener);
-		
 		lblFilter = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblGenerate, FormDialog.editorBorderMargin);
+        if ( showGenerateCheckbox )
+        	fd.top = new FormAttachment(lblGenerate, FormDialog.editorBorderMargin);
+        else
+        	fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         lblFilter.setLayoutData(fd);
@@ -413,7 +422,10 @@ public class FilterEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblGenerate.setLayoutData(fd);
+        if ( showGenerateCheckbox )
+        	lblGenerate.setLayoutData(fd);
+        else
+        	lblFilter.setLayoutData(fd);
 	}
 	
 	public Label getControl() {
@@ -421,12 +433,13 @@ public class FilterEditor {
 	}
 	
     public void setGenerate(Boolean checked) {
-    	btnGenerate.setSelection(checked!=null && checked);
+    	if ( !showGenerateCheckbox )
+    		btnGenerate.setSelection(checked!=null && checked);
     	redraw();
     }
 	
     public boolean getGenerate() {
-    	return btnGenerate.getSelection();
+    	return showGenerateCheckbox ? btnGenerate.getSelection() : true;
     }
     
     public boolean getFilter() {
