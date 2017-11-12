@@ -127,7 +127,9 @@ import com.archimatetool.model.INameable;
  * 
  * v1.6.7 :     27/10/2017      Fix table export to Excel after column sort
  *                              Fix table color and font after column sort
- *                              Fix default value for the "refers" property  
+ *                              Fix default value for the "refers" property
+ *                              
+ * v1.7 :       12/11/2017		Fix the excelType value was not taken in account for all objects 
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
@@ -136,7 +138,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.6.7";
+	public static final String pluginVersion = "1.7";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
