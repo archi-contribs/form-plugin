@@ -107,7 +107,7 @@ public class FormComposite extends Composite implements CompositeInterface {
     	switch ( key.toLowerCase() ) {
     		case "name":		      nameEditor.setText((String)value); break;
     		case "foreground":	      colorEditor.setForeground((String)value); break;
-    		case "background":	      colorEditor.setBackround((String)value); break;
+    		case "background":	      colorEditor.setBackground((String)value); break;
     		case "refers":		      refersEditor.setText((String)value); break;
     		case "variableseparator": variableSeparatorEditor.setText((String)value); break;
     		case "buttonok":	      buttonOkEditor.setText((String)value); break;

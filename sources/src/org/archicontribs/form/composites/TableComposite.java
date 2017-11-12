@@ -66,7 +66,7 @@ public class TableComposite extends Composite implements CompositeInterface {
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
     		case "height":		  sizeEditor.setHeight((Integer)value); break;
             case "foreground":	  colorEditor.setForeground((String)value); break;
-    		case "background":	  colorEditor.setBackround((String)value); break;
+    		case "background":	  colorEditor.setBackground((String)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "excelsheet":    excelSheetEditor.setText((String)value); break;
     		case "excelfirstline":excelFirstLineEditor.setInteger((Integer)value); break;

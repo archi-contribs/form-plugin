@@ -102,7 +102,7 @@ public class LabelComposite extends Composite implements CompositeInterface {
     	    case "alignment":     alignmentEditor.setText((String)value); break;
     		case "name":    	  nameEditor.setText((String)value); break;
     		case "foreground":	  colorEditor.setForeground((String)value); break;
-    		case "background":	  colorEditor.setBackround((String)value); break;
+    		case "background":	  colorEditor.setBackground((String)value); break;
     		case "text":    	  textEditor.setText((String)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "fontname":	  fontEditor.setFontName((String)value); break;

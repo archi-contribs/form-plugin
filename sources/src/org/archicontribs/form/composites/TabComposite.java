@@ -32,7 +32,7 @@ public class TabComposite extends Composite implements CompositeInterface {
     	switch ( key ) {
             case "name":		  nameEditor.setText((String)value); break;
             case "foreground":	  colorEditor.setForeground((String)value); break;
-    		case "background":	  colorEditor.setBackround((String)value); break;	
+    		case "background":	  colorEditor.setBackground((String)value); break;	
     		default:			  throw new RuntimeException("does not know key "+key);
     	}
     }

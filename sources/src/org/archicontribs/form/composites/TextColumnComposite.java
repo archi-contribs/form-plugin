@@ -131,7 +131,7 @@ public class TextColumnComposite extends Composite implements CompositeInterface
             case "editable":      editableEditor.setChecked((Boolean)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
     		case "foreground":	  colorEditor.setForeground((String)value); break;
-    		case "background":	  colorEditor.setBackround((String)value); break;
+    		case "background":	  colorEditor.setBackground((String)value); break;
             case "alignment":	  alignmentEditor.setText((String)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "regexp":    	  regexpEditor.setText((String)value); break;

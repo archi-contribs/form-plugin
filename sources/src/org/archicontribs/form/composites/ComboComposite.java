@@ -158,7 +158,7 @@ public class ComboComposite extends Composite implements CompositeInterface {
     		case "width":		  sizeEditor.setWidth((Integer)value); break;
     		case "height":		  sizeEditor.setHeight((Integer)value); break;
     		case "foreground":	  colorEditor.setForeground((String)value); break;
-    		case "background":	  colorEditor.setBackround((String)value); break;
+    		case "background":	  colorEditor.setBackground((String)value); break;
     		case "fontname":	  fontEditor.setFontName((String)value); break;
     		case "fontsize":	  fontEditor.setFontSize((Integer)value); break;
     		case "fontbold":	  fontEditor.setBold((Boolean)value); break;
