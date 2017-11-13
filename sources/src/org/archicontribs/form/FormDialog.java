@@ -1195,33 +1195,35 @@ public class FormDialog extends Dialog {
                                     || (control instanceof CCombo) || (control instanceof Button)) {
                                 String excelCell = (String) control.getData("excelCell");
 
-                                CellReference ref = new CellReference(excelCell);
-                                Row row = sheet.getRow(ref.getRow());
-                                if (row == null) {
-                                    row = sheet.createRow(ref.getRow());
+                                if ( excelCell != null ) {
+	                                CellReference ref = new CellReference(excelCell);
+	                                Row row = sheet.getRow(ref.getRow());
+	                                if (row == null) {
+	                                    row = sheet.createRow(ref.getRow());
+	                                }
+	
+	                                String value = "";
+	                                switch (control.getClass().getSimpleName()) {
+	                                    case "StyledText":
+	                                        value = ((StyledText) control).getText();
+	                                        break;
+	                                    case "Label":
+	                                        value = ((Label) control).getText();
+	                                        break;
+	                                    case "CCombo":
+	                                        value = ((CCombo) control).getText();
+	                                        break;
+	                                    case "Button":
+	                                        String[]values = (String[])control.getData("values");
+	                                        if ( values == null )
+	                                            value = String.valueOf(((Button)control).getSelection());
+	                                        else
+	                                            value = values[((Button)control).getSelection()?0:1];
+	                                        break;
+	                                }
+	                                
+	                                excelWriteCell(row, ref.getCol(), (String)control.getData("excelCellType"), value, (String)control.getData("excelDefault"));
                                 }
-
-                                String value = "";
-                                switch (control.getClass().getSimpleName()) {
-                                    case "StyledText":
-                                        value = ((StyledText) control).getText();
-                                        break;
-                                    case "Label":
-                                        value = ((Label) control).getText();
-                                        break;
-                                    case "CCombo":
-                                        value = ((CCombo) control).getText();
-                                        break;
-                                    case "Button":
-                                        String[]values = (String[])control.getData("values");
-                                        if ( values == null )
-                                            value = String.valueOf(((Button)control).getSelection());
-                                        else
-                                            value = values[((Button)control).getSelection()?0:1];
-                                        break;
-                                }
-                                
-                                excelWriteCell(row, ref.getCol(), (String)control.getData("excelCellType"), value, (String)control.getData("excelDefault"));
                             } else {
                                 if (control instanceof Table) {
                                     if (logger.isDebugEnabled())
