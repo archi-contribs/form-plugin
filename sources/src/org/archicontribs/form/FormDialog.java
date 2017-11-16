@@ -41,6 +41,8 @@ import org.archicontribs.form.composites.ComboColumnComposite;
 import org.archicontribs.form.composites.ComboComposite;
 import org.archicontribs.form.composites.CompositeInterface;
 import org.archicontribs.form.composites.FormComposite;
+import org.archicontribs.form.composites.ImageColumnComposite;
+import org.archicontribs.form.composites.ImageComposite;
 import org.archicontribs.form.composites.LabelColumnComposite;
 import org.archicontribs.form.composites.LabelComposite;
 import org.archicontribs.form.composites.LineComposite;
@@ -176,11 +178,13 @@ public class FormDialog extends Dialog {
     private FormComposite     	 formComposite     	  = null;
     private TabComposite      	 tabComposite      	  = null;
     private LabelComposite    	 labelComposite    	  = null;
+    private ImageComposite    	 imageComposite    	  = null;
     private TextComposite     	 textComposite     	  = null;
     private ComboComposite    	 comboComposite    	  = null;
     private CheckComposite    	 checkComposite   	  = null;
     private TableComposite    	 tableComposite    	  = null;
     private LabelColumnComposite labelColumnComposite = null;
+    private ImageColumnComposite imageColumnComposite = null;
     private TextColumnComposite  textColumnComposite  = null;
     private ComboColumnComposite comboColumnComposite = null;
     private CheckColumnComposite checkColumnComposite = null;
@@ -591,7 +595,7 @@ public class FormDialog extends Dialog {
             	
                 newItem = new MenuItem(subMenu, SWT.NONE);
                 newItem.setText("image");
-                newItem.setImage(FormJsonParser.LABEL_ICON);
+                newItem.setImage(FormJsonParser.IMAGE_ICON);
                 newItem.setData("position", position);
                 newItem.setData("class", "image");
                 newItem.addSelectionListener(addWidgetListener);
@@ -714,11 +718,13 @@ public class FormDialog extends Dialog {
         formComposite 		 = new FormComposite(scrolledcomposite, SWT.NONE);
         tabComposite 		 = new TabComposite(scrolledcomposite, SWT.NONE);
         labelComposite 		 = new LabelComposite(scrolledcomposite, SWT.NONE);
+        imageComposite 		 = new ImageComposite(scrolledcomposite, SWT.NONE);
         textComposite 		 = new TextComposite(scrolledcomposite, SWT.NONE);
         comboComposite 		 = new ComboComposite(scrolledcomposite, SWT.NONE);
         checkComposite 		 = new CheckComposite(scrolledcomposite, SWT.NONE);
         tableComposite 		 = new TableComposite(scrolledcomposite, SWT.NONE);
         labelColumnComposite = new LabelColumnComposite(scrolledcomposite, SWT.NONE);
+        imageColumnComposite = new ImageColumnComposite(scrolledcomposite, SWT.NONE);
         textColumnComposite  = new TextColumnComposite(scrolledcomposite, SWT.NONE);
         comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.NONE);
         checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.NONE);
@@ -766,6 +772,7 @@ public class FormDialog extends Dialog {
             		case "table":		composite = tableComposite; break;
             		case "columns":     return;				// TODO: create composite to show how many columns are defined
             		case "labelColumn":	composite = labelColumnComposite; break;
+            		case "imageColumn":	composite = imageColumnComposite; break;
             		case "textColumn":	composite = textColumnComposite; break;
             		case "comboColumn":	composite = comboColumnComposite; break;
             		case "checkColumn":	composite = checkColumnComposite; break;
@@ -791,12 +798,12 @@ public class FormDialog extends Dialog {
                     	for ( String key: keys)
                     		composite.set(key, selectedTreeItem.getData(key));
                     }
+                    
+                	// we adapt the widgets to their content and recalculate the composite size (for the scroll bars)
+                	scrolledcomposite.setExpandHorizontal(true);
+                	scrolledcomposite.setExpandVertical(true);
+                	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
             	}
-
-            	// we adapt the widgets to their content and recalculate the composite size (for the scroll bars)
-            	scrolledcomposite.setExpandHorizontal(true);
-            	scrolledcomposite.setExpandVertical(true);
-            	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
             }
         }
     };
@@ -1745,6 +1752,7 @@ public class FormDialog extends Dialog {
 				TableColumn column = null;
 				switch (widgetClass) {
 					case "label":  column = jsonParser.createLabelColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "image":  column = jsonParser.createImageColumn(null, table, newTreeItem, index, selectedObject); break;
 					case "text":   column = jsonParser.createTextColumn (null, table, newTreeItem, index, selectedObject); break;
 					case "combo":  column = jsonParser.createComboColumn(null, table, newTreeItem, index, selectedObject); break;
 					case "check":  column = jsonParser.createCheckColumn(null, table, newTreeItem, index, selectedObject); break;
@@ -1755,6 +1763,7 @@ public class FormDialog extends Dialog {
 			} else {
 				switch (widgetClass) {
 					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem, selectedObject); break;
+					case "image":  jsonParser.createImage(null, parentComposite, newTreeItem, selectedObject); break;
 					case "text":   jsonParser.createText (null, parentComposite, newTreeItem, selectedObject); break;
 					case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem, selectedObject); break;
 					case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem, selectedObject); break;

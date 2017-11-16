@@ -57,6 +57,7 @@ public class FormJsonParser {
     public static final Image FORM_ICON               = new Image(display, FormDialog.class.getResourceAsStream("/icons/form.png"));
     public static final Image TAB_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/tab.png"));
     public static final Image LABEL_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/label.png"));
+    public static final Image IMAGE_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/image.png"));
     public static final Image TEXT_ICON               = new Image(display, FormDialog.class.getResourceAsStream("/icons/text.png"));
     public static final Image CHECK_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/check.png"));
     public static final Image COMBO_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/combo.png"));
@@ -293,9 +294,9 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("label");
         
-        getXY(jsonObject, label, treeItem);
         getForegroundAndBackground(jsonObject, label, treeItem);
         getText(jsonObject, label, treeItem, selectedObject);
+        getXY(jsonObject, label, treeItem);
         getTooltip(jsonObject, label, treeItem, selectedObject);
         getFont(jsonObject, label, treeItem);
         getAlignment(jsonObject, label, treeItem);
@@ -415,17 +416,17 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("image");
         
-        getXY(jsonObject, label, treeItem);
         getForegroundAndBackground(jsonObject, label, treeItem);
+        getXY(jsonObject, label, treeItem);		// must be called before and after to scale the label and the image
         getImage(jsonObject, label, treeItem, selectedObject);
+        getXY(jsonObject, label, treeItem);
         getTooltip(jsonObject, label, treeItem, selectedObject);
-        getFont(jsonObject, label, treeItem);
         getAlignment(jsonObject, label, treeItem);
         getExcelCellOrColumn(jsonObject, label, treeItem);
         
         // used by graphical editor
         if ( treeItem != null ) {
-            treeItem.setImage(LABEL_ICON);
+            treeItem.setImage(IMAGE_ICON);
             treeItem.setData("class", "image");
             treeItem.setData("widget", label);
             label.setData("treeItem", treeItem);
@@ -508,7 +509,7 @@ public class FormJsonParser {
         
         // used by graphical editor
         if ( treeItem != null ) {
-            treeItem.setImage(LABEL_ICON);
+            treeItem.setImage(IMAGE_ICON);
             treeItem.setData("class", "imageColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
@@ -537,8 +538,8 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("text");
 
-        getXY(jsonObject, text, treeItem);
         getVariable(jsonObject, text, treeItem, selectedObject);
+        getXY(jsonObject, text, treeItem);
         getRegexp(jsonObject, text, treeItem);
         getForegroundAndBackground(jsonObject, text, treeItem);
         getTooltip(jsonObject, text, treeItem, selectedObject);
@@ -662,8 +663,8 @@ public class FormJsonParser {
         FormPosition.setControlClass("combo");
 
         getVariable(jsonObject, combo, treeItem, selectedObject);
-        getValues(jsonObject, combo, treeItem);
         getXY(jsonObject, combo, treeItem);
+        getValues(jsonObject, combo, treeItem);
         getForegroundAndBackground(jsonObject, combo, treeItem);
         getTooltip(jsonObject, combo, treeItem, selectedObject);
         getFont(jsonObject, combo, treeItem);
@@ -1987,14 +1988,20 @@ public class FormJsonParser {
 	
    private void getImage(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
         String imageName = getString(jsonObject, "image");
+        Boolean resize = getBoolean(jsonObject, "resize");
         
         if ( logger.isTraceEnabled() ) {
             logger.trace("      image = " + imageName);
+            logger.trace("      resize = " + resize);
         }
+        
+        if ( resize == null )
+        	resize = false;
         
         // required by the graphical editor
         if ( treeItem != null ) {
             setData(treeItem, "image", imageName);
+            setData(treeItem, "resize", resize);
         }
         
         // we set the label's image
@@ -2003,9 +2010,21 @@ public class FormJsonParser {
         
         if ( label != null && !FormPlugin.isEmpty(imageName) ) {
             //TODO : create a cache for the images.
-            Image image = new Image(display, imageName);
-            if( image != null )
-                label.setImage(image);
+            try {
+            	Image image = new Image(display, imageName);
+                if( image != null ) {
+                	if ( resize ) {
+                		int width = label.getBounds().width > 0 ? label.getBounds().width : image.getBounds().width;
+                		int height = label.getBounds().height > 0 ? label.getBounds().height : image.getBounds().height;
+                		Image scaledImage = new Image(display, image.getImageData().scaledTo(width, height));
+                		label.setImage(scaledImage);
+                		image.dispose();
+                	} else {
+                		label.setImage(image);
+                	}
+                }
+            } catch (Exception ign) {}
+
         }
     }
     

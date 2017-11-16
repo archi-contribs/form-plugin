@@ -8,6 +8,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -36,7 +37,7 @@ public class SizeEditor {
 		this.parent = parent;
 		
 		isTableColumn = parent.getClass().getSimpleName().endsWith("ColumnComposite");
-		
+	
         lblPosition = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
@@ -190,6 +191,13 @@ public class SizeEditor {
             			height = (height == 0) ? p.y : height;
             		}
             		((Control)widget).setBounds(x, y, width, height);
+            		
+            		if ( treeItem!=null && treeItem.getData("image")!=null && treeItem.getData("resize")!=null && (Boolean)treeItem.getData("resize") && ((Label)(Control)widget).getImage() != null ) {
+            			Image image = new Image(widget.getDisplay(), (String)treeItem.getData("image"));
+                		Image scaledImage = new Image(widget.getDisplay(), image.getImageData().scaledTo(width, height));
+                		((Label)widget).setImage(scaledImage);
+                		image.dispose();
+            		}
             	}
 		   	}
     	}
