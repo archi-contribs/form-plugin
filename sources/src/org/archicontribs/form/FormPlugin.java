@@ -133,6 +133,8 @@ import com.archimatetool.model.INameable;
  * 								Fix table columns foreground and background were not set correctly 
  * 								Fix graphical editor that did not edit filter on form
  * 
+ * v1.8 :       16/11/2017      Add class image
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add the sum or average of column values
@@ -142,7 +144,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.7";
+	public static final String pluginVersion = "1.8";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
