@@ -1,7 +1,7 @@
-## v1.7: 12/11/2017
-* Fix excelType for object outside of tables
-* Fix table columns foreground and background
-* Fix graphical editor that did not edit the filter on the whole form
+## v1.8: 16/11/2017
+* Add class image
+* Add ${username} variable
+* Add ${date:format} variable
 
 * TODO list
   * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
@@ -9,6 +9,11 @@
   * Add a "comment" field for all the controls
   * Add a "if" option on all controls that would work like "filter" but for individual controls ...
     * if the condition is met, then the control is created, else it is not created
+
+## v1.7: 12/11/2017
+* Fix excelType for object outside of tables
+* Fix table columns foreground and background
+* Fix graphical editor that did not edit the filter on the whole form
 
 ## v1.6.7: 27/10/2017
 * Fix table export to Excel after column sort
