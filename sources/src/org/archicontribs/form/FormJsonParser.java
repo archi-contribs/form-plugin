@@ -338,7 +338,7 @@ public class FormJsonParser {
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
-        // we update the editors and cells if necessary
+        // If the table already contains items, then we need to update the editors and cells
         for ( TableItem tableItem: parent.getItems() ) {
             TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
             TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
@@ -395,6 +395,128 @@ public class FormJsonParser {
         
         // used by form
         tableColumn.setData("class", "labelColumn");
+        
+        return tableColumn;
+    }
+    
+    /**
+     * Create a Label control with an image inside
+     * <br>
+     * @param jsonObject the JSON object to parse
+     * @param parent     the composite where the control will be created
+     */
+    public Label createImage(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException, ClassCastException {
+        if (logger.isDebugEnabled()) logger.debug("Creating image control");
+        
+        // we create the label
+        Label label = new Label(parent, SWT.WRAP);
+        
+        String  name = getName(jsonObject, label, treeItem);
+        FormPosition.setTabName(name);
+        FormPosition.setControlClass("image");
+        
+        getXY(jsonObject, label, treeItem);
+        getForegroundAndBackground(jsonObject, label, treeItem);
+        getImage(jsonObject, label, treeItem, selectedObject);
+        getTooltip(jsonObject, label, treeItem, selectedObject);
+        getFont(jsonObject, label, treeItem);
+        getAlignment(jsonObject, label, treeItem);
+        getExcelCellOrColumn(jsonObject, label, treeItem);
+        
+        // used by graphical editor
+        if ( treeItem != null ) {
+            treeItem.setImage(LABEL_ICON);
+            treeItem.setData("class", "image");
+            treeItem.setData("widget", label);
+            label.setData("treeItem", treeItem);
+        }
+
+        return label;
+    }
+    
+    /**
+     * Create a Label column with an image inside
+     * <br>
+     * @param jsonObject the JSON object to parse
+     * @param parent     the composite where the control will be created
+     */
+    public TableColumn createImageColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException, ClassCastException {
+        if (logger.isDebugEnabled()) logger.debug("Creating image control");
+        
+        // we create the label
+        TableColumn tableColumn;
+        if ( index == null )
+            index = parent.getColumnCount();
+
+        tableColumn = new TableColumn(parent, SWT.NONE, index);
+        
+        String  name = getName(jsonObject, tableColumn, treeItem);
+        FormPosition.setTabName(name);
+        FormPosition.setControlClass("image");
+        
+        getWidth(jsonObject, tableColumn, treeItem);
+        getForegroundAndBackground(jsonObject, tableColumn, treeItem);
+        getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
+        getAlignment(jsonObject, tableColumn, treeItem);
+        getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
+        
+        // If the table already contains items, then we need to update the editors and cells
+        for ( TableItem tableItem: parent.getItems() ) {
+            TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
+            TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
+            
+            String[] oldCells = (String[])tableItem.getData("cells");
+            String[] newCells = new String[parent.getColumnCount()];
+            
+            int newCol = 0;
+            for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
+                if ( oldCol == index ) {
+                    TableEditor editor= new TableEditor(parent);
+                    newEditors[index] = editor;
+                    
+                    newCells[index] = "image.jpg";
+                    logger.trace("      adding image cell with value \"" + newCells[index] + "\"");
+                    Label label = new Label(parent, SWT.WRAP | SWT.NONE);
+                    label.setText(newCells[index]);
+                    if ( tableColumn.getData("background color") != null )
+                        label.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                        label.setBackground(parent.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                        label.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                        label.setForeground(parent.getForeground());
+                    editor.setEditor(label, tableItem, index);
+                    editor.grabHorizontal = true;
+                             
+                    ++newCol;
+                }
+                
+                if ( oldCol < parent.getColumnCount()-1 ) {
+                    newEditors[newCol] = oldEditors[oldCol];
+                    newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
+                    newCells[newCol] = oldCells[oldCol];
+                }
+                ++newCol;
+            }
+            tableItem.setData("editors", newEditors);
+            tableItem.setData("cells", newCells);
+            TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
+            if ( lineTreeItem != null )
+                lineTreeItem.setData("cells", newCells);
+        }
+        
+        // used by graphical editor
+        if ( treeItem != null ) {
+            treeItem.setImage(LABEL_ICON);
+            treeItem.setData("class", "imageColumn");
+            treeItem.setData("widget", tableColumn);
+            tableColumn.setData("treeItem", treeItem);
+            tableColumn.setData("class", treeItem.getData("class"));
+        }
+        
+        // used by form
+        tableColumn.setData("class", "imageColumn");
         
         return tableColumn;
     }
@@ -462,7 +584,7 @@ public class FormJsonParser {
         getAlignment(jsonObject, tableColumn, treeItem);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
-        // we update the editors and cells if necessary
+        // If the table already contains items, then we need to update the editors and cells
         for ( TableItem tableItem: parent.getItems() ) {
             TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
             TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
@@ -584,7 +706,7 @@ public class FormJsonParser {
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
-        // we update the editors and cells if necessary
+        // If the table already contains items, then we need to update the editors and cells
         for ( TableItem tableItem: parent.getItems() ) {
             TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
             TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
@@ -710,7 +832,7 @@ public class FormJsonParser {
  	   	getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
  	   	getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
  	   	
-        // we update the editors and cells if necessary
+        // If the table already contains items, then we need to update the editors and cells
         for ( TableItem tableItem: parent.getItems() ) {
             TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
             TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
@@ -1131,6 +1253,40 @@ public class FormJsonParser {
                     else
                     	label.setForeground(table.getForeground());
                     editor.setEditor(label, tableItem, columnNumber);
+                    editor.grabHorizontal = true;
+                    break;
+                    
+                case "imageColumn":
+                    if ( columnNumber < nbJsonCells )
+                        cells[columnNumber] = (String)jsonCells.get(columnNumber);
+                    else
+                        cells[columnNumber] = "image";
+                    logger.trace("      adding image cell with value \"" + cells[columnNumber] + "\"");
+                    Label labelImage = new Label(table, SWT.WRAP | SWT.NONE);
+                    
+                    // we set the label's image
+                    String imageName;
+                    if ( selectedObject == null )
+                        imageName = cells[columnNumber];
+                    else
+                        imageName = FormVariable.expand(cells[columnNumber], selectedObject);
+                    
+                    if ( !FormPlugin.isEmpty(imageName) ) {
+                        //TODO : create a cache for the images.
+                        Image image = new Image(display, imageName);
+                        if( image != null )
+                            labelImage.setImage(image);
+                    }
+                    
+                    if ( tableColumn.getData("background color") != null )
+                        labelImage.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                        labelImage.setBackground(table.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                        labelImage.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                        labelImage.setForeground(table.getForeground());
+                    editor.setEditor(labelImage, tableItem, columnNumber);
                     editor.grabHorizontal = true;
                     break;
                     
@@ -1828,6 +1984,30 @@ public class FormJsonParser {
 	    	else
 	    		label.setText(FormVariable.expand(text, selectedObject));
 	}
+	
+   private void getImage(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
+        String imageName = getString(jsonObject, "image");
+        
+        if ( logger.isTraceEnabled() ) {
+            logger.trace("      image = " + imageName);
+        }
+        
+        // required by the graphical editor
+        if ( treeItem != null ) {
+            setData(treeItem, "image", imageName);
+        }
+        
+        // we set the label's image
+        if ( selectedObject != null )
+            imageName = FormVariable.expand(imageName, selectedObject);
+        
+        if ( label != null && !FormPlugin.isEmpty(imageName) ) {
+            //TODO : create a cache for the images.
+            Image image = new Image(display, imageName);
+            if( image != null )
+                label.setImage(image);
+        }
+    }
     
     private void getFont(JSONObject jsonObject, Control control, TreeItem treeItem) {
     	String  fontName = getString(jsonObject, "fontName");

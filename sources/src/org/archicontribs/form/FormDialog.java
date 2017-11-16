@@ -25,6 +25,10 @@ import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -585,6 +589,13 @@ public class FormDialog extends Dialog {
             	newItem.setData("class", "label");
             	newItem.addSelectionListener(addWidgetListener);
             	
+                newItem = new MenuItem(subMenu, SWT.NONE);
+                newItem.setText("image");
+                newItem.setImage(FormJsonParser.LABEL_ICON);
+                newItem.setData("position", position);
+                newItem.setData("class", "image");
+                newItem.addSelectionListener(addWidgetListener);
+            	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("text");
             	newItem.setImage(FormJsonParser.TEXT_ICON);
@@ -632,6 +643,7 @@ public class FormDialog extends Dialog {
                     	break;
                     	
             		case "label":
+            		case "image":
             		case "text":
             		case "combo":
             		case "check":
@@ -644,6 +656,7 @@ public class FormDialog extends Dialog {
             			break;
             			
             		case "labelColumn":
+            		case "imageColumn":
             		case "textColumn":
             		case "comboColumn":
             		case "checkColumn":
@@ -746,6 +759,7 @@ public class FormDialog extends Dialog {
             		case "form":		composite = formComposite; break;
             		case "tab":			composite = tabComposite; break;
             		case "label":		composite = labelComposite; break;
+            		case "image":       composite = imageComposite; break;
             		case "text":		composite = textComposite; break;
             		case "combo":		composite = comboComposite; break;
             		case "check":		composite = checkComposite; break;
@@ -857,6 +871,10 @@ public class FormDialog extends Dialog {
 	                	control = jsonParser.createLabel(jsonControl, parent, treeItem, selectedObject);
 	                	break;
 	                	
+                    case "image":
+                        control = jsonParser.createImage(jsonControl, parent, treeItem, selectedObject);
+                        break;
+	                	
 	                case "table":
 	                	Table table = jsonParser.createTable(jsonControl, parent, treeItem, selectedObject);
     	            	TreeItem tableTreeItem = treeItem;
@@ -898,6 +916,9 @@ public class FormDialog extends Dialog {
     	            	                case "label":
     	            	                    tableColumn = jsonParser.createLabelColumn(jsonColumn, table, treeItem, null, selectedObject);
     	            	                	break;
+                                        case "image":
+                                            tableColumn = jsonParser.createImageColumn(jsonColumn, table, treeItem, null, selectedObject);
+                                            break;
     	            	                case "text":
     	            	                    tableColumn = jsonParser.createTextColumn(jsonColumn, table, treeItem, null, selectedObject);
     	            	                	break;
@@ -1202,13 +1223,17 @@ public class FormDialog extends Dialog {
 	                                    row = sheet.createRow(ref.getRow());
 	                                }
 	
-	                                String value = "";
+	                                String value = null;
+	                                Image image = null;
 	                                switch (control.getClass().getSimpleName()) {
 	                                    case "StyledText":
 	                                        value = ((StyledText) control).getText();
 	                                        break;
 	                                    case "Label":
-	                                        value = ((Label) control).getText();
+	                                        if ( ((Label) control).getImage() != null )
+	                                            image = ((Label) control).getImage();
+	                                        else
+	                                            value = ((Label) control).getText();
 	                                        break;
 	                                    case "CCombo":
 	                                        value = ((CCombo) control).getText();
@@ -1220,9 +1245,14 @@ public class FormDialog extends Dialog {
 	                                        else
 	                                            value = values[((Button)control).getSelection()?0:1];
 	                                        break;
+	                                    default:
+                                            throw new RuntimeException("ExportToExcel : Do not know how to export controls of class " + control.getClass().getSimpleName());
 	                                }
 	                                
-	                                excelWriteCell(row, ref.getCol(), (String)control.getData("excelCellType"), value, (String)control.getData("excelDefault"));
+	                                if( image != null )
+	                                    excelWriteImage(row, ref.getCol(), image);
+	                                else
+	                                    excelWriteCell(row, ref.getCol(), (String)control.getData("excelCellType"), value, (String)control.getData("excelDefault"));
                                 }
                             } else {
                                 if (control instanceof Table) {
@@ -1245,9 +1275,11 @@ public class FormDialog extends Dialog {
                                                 TableEditor editor = ((TableEditor[]) tableItem.getData("editors"))[col];
 
                                                 String value = null;
+                                                Image image = null;
+                                                
                                                 if (editor == null)
                                                     value = tableItem.getText(col);
-                                                else
+                                                else {
                                                     switch (editor.getEditor().getClass().getSimpleName()) {
                                                         case "StyledText":
                                                             value = ((StyledText)editor.getEditor()).getText();
@@ -1263,12 +1295,19 @@ public class FormDialog extends Dialog {
                                                             value = ((CCombo)editor.getEditor()).getText();
                                                             break;
                                                         case "Label":
-                                                            value = ((Label)editor.getEditor()).getText();
+                                                            if ( ((Label)editor.getEditor()).getImage() != null )
+                                                                image = ((Label)editor.getEditor()).getImage();
+                                                            else
+                                                                value = ((Label)editor.getEditor()).getText();
                                                             break;
                                                         default:
                                                             throw new RuntimeException("ExportToExcel : Do not know how to export columns of class " + editor.getEditor().getClass().getSimpleName());
                                                     }
+                                                }
                                                 
+                                                if( image != null )
+                                                    excelWriteImage(row, ref.getCol(), image);
+                                                else
                                                 excelWriteCell(row, ref.getCol(), (String)tableColumn.getData("excelCellType"), value, (String)tableColumn.getData("excelDefault"));
                                             }
                                         }
@@ -1468,6 +1507,22 @@ public class FormDialog extends Dialog {
             default:
                 throw new RuntimeException("ExportToExcel : cell " + cell.getAddress().formatAsString() + " : don't know to deal with excell cell type \"" + excelCellType + "\".\n\nSupported values are blank, boolean, formula, numeric and string.");
         }
+    }
+    
+    private void excelWriteImage(Row row, short column, Image image) throws RuntimeException {
+        Sheet sheet = row.getSheet();
+        Workbook wb = sheet.getWorkbook();
+        int imageIndex = wb.addPicture(image.getImageData().data, Workbook.PICTURE_TYPE_PNG);
+        
+        CreationHelper helper = wb.getCreationHelper();
+        Drawing drawing = sheet.createDrawingPatriarch();
+        ClientAnchor anchor = helper.createClientAnchor();
+        anchor.setRow1(row.getRowNum());
+        anchor.setCol1(column);
+        
+        Picture pict = drawing.createPicture(anchor, imageIndex);
+        //Reset the image to the original size
+        pict.resize();
     }
     
     private void cancel() {
