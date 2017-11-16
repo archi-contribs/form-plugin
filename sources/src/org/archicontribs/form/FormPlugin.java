@@ -134,6 +134,8 @@ import com.archimatetool.model.INameable;
  * 								Fix graphical editor that did not edit filter on form
  * 
  * v1.8 :       16/11/2017      Add class image
+ * 								Add ${username} variable
+ *                              Add ${date:format} variable
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)

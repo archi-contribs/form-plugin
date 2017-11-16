@@ -1,5 +1,10 @@
 package org.archicontribs.form;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.gef.commands.CompoundCommand;
 
@@ -86,6 +91,7 @@ public class FormVariable {
                 return eObject;
 
             case "void":
+            case "username":
                 return null;
 
             default :
@@ -250,9 +256,20 @@ public class FormVariable {
                 }
                 new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a does not have a name' ("+eObject.getClass().getSimpleName()+").");
 
+            case "username":
+            	return System.getProperty("user.name");
+            	
             default :
+            		// check for ${date:format}
+            	if ( variableName.toLowerCase().startsWith("date"+variableSeparator)) {
+            		String format = variableName.substring(5);
+            		DateFormat df = new SimpleDateFormat(format);
+            		Date now = Calendar.getInstance().getTime();
+            		return df.format(now);
+            	}
+            	
                     // check for ${property:xxx}
-                if ( variableName.toLowerCase().startsWith("property"+variableSeparator) ) {
+            	else if ( variableName.toLowerCase().startsWith("property"+variableSeparator) ) {
                     if ( eObject instanceof IDiagramModelArchimateObject )
                         eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
                     if ( eObject instanceof IDiagramModelArchimateConnection )
