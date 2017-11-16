@@ -95,6 +95,7 @@ public class ImageColumnComposite extends Composite implements CompositeInterfac
     		case "background":	  colorEditor.setBackground((String)value); break;
     		case "name":    	  nameEditor.setText((String)value); break;
     		case "image":    	  imageEditor.setImage((String)value); break;
+    		case "scale":         imageEditor.setScale((Boolean)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     	    case "alignment":     alignmentEditor.setText((String)value); break;
     		case "excelcolumn":	  excelColumnEditor.setText((String)value); break;

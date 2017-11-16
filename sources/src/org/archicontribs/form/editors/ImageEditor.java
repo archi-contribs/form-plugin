@@ -23,8 +23,8 @@ import org.eclipse.swt.widgets.Widget;
 public class ImageEditor {
 	private Label      lblImage;
 	private StyledText txtImage;
-	private Label      lblResize;
-	private Button     btnResize;
+	private Label      lblScale;
+	private Button     btnScale;
 	private Composite  parent;
 	private String     property = null;
 		
@@ -51,19 +51,19 @@ public class ImageEditor {
         txtImage.setLeftMargin(2);
         txtImage.addModifyListener(stringModifyListener);
         
-		lblResize = new Label(parent, SWT.NONE);
+		lblScale = new Label(parent, SWT.NONE);
 		fd = new FormData();
         fd.top = new FormAttachment(lblImage, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
-        lblResize.setLayoutData(fd);
-        lblResize.setText("Resize:");
+        lblScale.setLayoutData(fd);
+        lblScale.setText("Scale:");
         
-        btnResize = new Button(parent, SWT.CHECK);
+        btnScale = new Button(parent, SWT.CHECK);
         fd = new FormData();
     	fd.top = new FormAttachment(lblImage, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        btnResize.setLayoutData(fd);
-        btnResize.addSelectionListener(resizeSelectionListener);
+        btnScale.setLayoutData(fd);
+        btnScale.addSelectionListener(scaleSelectionListener);
         
         //TODO: add a browse icon
         
@@ -106,7 +106,7 @@ public class ImageEditor {
         		try {
         			image = new Image(Display.getCurrent(), getText());
             		if ( image != null ) {
-                    	if ( btnResize.getSelection() ) {
+                    	if ( btnScale.getSelection() ) {
                     		int width = ((Label)widget).getBounds().width > 0 ? ((Label)widget).getBounds().width : image.getBounds().width;
                     		int height = ((Label)widget).getBounds().height > 0 ? ((Label)widget).getBounds().height : image.getBounds().height;
                     		Image scaledImage = new Image(Display.getCurrent(), image.getImageData().scaledTo(width, height));
@@ -126,13 +126,13 @@ public class ImageEditor {
         }
     };
     
-	private SelectionListener resizeSelectionListener = new SelectionListener() {
+	private SelectionListener scaleSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
 	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
 	    	
 	    	if ( treeItem != null ) {
-	    	    treeItem.setData("resize", btnResize.getSelection());
+	    	    treeItem.setData("scale", btnScale.getSelection());
 	    	}
 	    	
 	    	txtImage.notifyListeners(SWT.Modify, new Event());		// calls the stringModifyListener() method
@@ -161,7 +161,7 @@ public class ImageEditor {
 	}
 	
 	public Button getControl() {
-		return btnResize;
+		return btnScale;
 	}
     
     public void setImage(String string) {
@@ -172,8 +172,8 @@ public class ImageEditor {
 		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
-    public void setResize(Boolean resize) {
-    	btnResize.setSelection(resize);
+    public void setScale(Boolean scale) {
+    	btnScale.setSelection(scale);
     }
     
     public String getText() {

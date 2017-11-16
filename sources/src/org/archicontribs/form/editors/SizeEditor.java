@@ -192,7 +192,7 @@ public class SizeEditor {
             		}
             		((Control)widget).setBounds(x, y, width, height);
             		
-            		if ( treeItem!=null && treeItem.getData("image")!=null && treeItem.getData("resize")!=null && (Boolean)treeItem.getData("resize") && ((Label)(Control)widget).getImage() != null ) {
+            		if ( treeItem!=null && treeItem.getData("image")!=null && treeItem.getData("scale")!=null && (Boolean)treeItem.getData("scale") && ((Label)(Control)widget).getImage() != null ) {
             			Image image = new Image(widget.getDisplay(), (String)treeItem.getData("image"));
                 		Image scaledImage = new Image(widget.getDisplay(), image.getImageData().scaledTo(width, height));
                 		((Label)widget).setImage(scaledImage);

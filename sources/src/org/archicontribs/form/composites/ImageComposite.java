@@ -13,7 +13,6 @@ public class ImageComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
     private ImageEditor             imageEditor;		 // image
 	private SizeEditor              sizeEditor;          // x, y, width, height
-	//TODO add a resize=true/false option
 	private ColorEditor             colorEditor;         // foreground, background
 	private StringEditor            tooltipEditor;       // tooltip
 	private AlignmentEditor         alignmentEditor;     // alignment
@@ -99,7 +98,7 @@ public class ImageComposite extends Composite implements CompositeInterface {
     		case "foreground":	  colorEditor.setForeground((String)value); break;
     		case "background":	  colorEditor.setBackground((String)value); break;
     		case "image":    	  imageEditor.setImage((String)value); break;
-    		case "resize":        imageEditor.setResize((Boolean)value); break;
+    		case "scale":         imageEditor.setScale((Boolean)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "excelsheet":    excelSheetEditor.setText((String)value); break;
     		case "excelcell":	  excelCellEditor.setText((String)value); break;

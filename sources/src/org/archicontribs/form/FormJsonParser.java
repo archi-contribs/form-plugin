@@ -1988,20 +1988,20 @@ public class FormJsonParser {
 	
    private void getImage(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
         String imageName = getString(jsonObject, "image");
-        Boolean resize = getBoolean(jsonObject, "resize");
+        Boolean scale = getBoolean(jsonObject, "scale");
         
         if ( logger.isTraceEnabled() ) {
             logger.trace("      image = " + imageName);
-            logger.trace("      resize = " + resize);
+            logger.trace("      scale = " + scale);
         }
         
-        if ( resize == null )
-        	resize = false;
+        if ( scale == null )
+        	scale = false;
         
         // required by the graphical editor
         if ( treeItem != null ) {
             setData(treeItem, "image", imageName);
-            setData(treeItem, "resize", resize);
+            setData(treeItem, "scale", scale);
         }
         
         // we set the label's image
@@ -2013,7 +2013,7 @@ public class FormJsonParser {
             try {
             	Image image = new Image(display, imageName);
                 if( image != null ) {
-                	if ( resize ) {
+                	if ( scale ) {
                 		int width = label.getBounds().width > 0 ? label.getBounds().width : image.getBounds().width;
                 		int height = label.getBounds().height > 0 ? label.getBounds().height : image.getBounds().height;
                 		Image scaledImage = new Image(display, image.getImageData().scaledTo(width, height));
