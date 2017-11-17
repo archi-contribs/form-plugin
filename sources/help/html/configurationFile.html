@@ -25,423 +25,16 @@ Please note than the plugin is able to handle several configuration files. As ea
 	</ul>
 </div>
 <br>
-<ul>
-	<li><b><u>File content validation</u></b></li>
-</ul>
-<div style="margin-left:40px">
-</div>
-	The library used to parse the configuration file does not allow to always retrieve the line numbers that hold errors. To help find errors, it is possible to use online JSON validators providing your JSON file and the following schema:
-	<pre><code>
-	{
-	  "$schema": "http://json-schema.org/draft-04/schema#",
-	  "description": "Schema for the Archi form plugin's configuration file",
-	  "properties": {
-	    "version": {
-	      "description": "Version of the file structure",
-	      "type": "integer"
-	    },
-	    "org.archicontribs.form": {
-	      "description": "List of the forms",
-	      "items": {
-	        "properties": {
-	          "name": {
-	            "description": "Name of the form",
-	            "type": "string"
-	          },
-	          "refers": {
-	            "description": "Archi object the forms refers to",
-	            "enum": [
-	              "selected",
-	              "view",
-	              "model"
-	            ],
-	            "type": "string"
-	          },
-	          "filter": {
-	            "properties": {
-	              "genre": {
-	                 "description": "genre of the filter",
-	                 "enum": [
-	                   "OR",
-	                   "AND"
-	                 ],
-	                 "default": "AND",
-	                 "type": "string"
-	               },
-	               "tests": {
-	                 "items": {
-	                    "properties": {
-	                       "attibute": {
-	                         "description": "value to test (can be a variable)",
-	                           "type": "string"
-	                       },
-	                       "operation": {
-	                         "description": "Operation of the test",
-	                           "enum": [
-	                             "exists",
-	                             "equals",
-	                             "iequals",
-	                             "matches"
-	                           ],
-	                           "type": "string"
-	                       },
-	                       "value": {
-	                         "type": "string"
-	                       }
-	                    },
-	                    "required": [
-	                      "attribute",
-	                      "operation"
-	                    ],
-	                    "type": "object"
-	                 },
-	                 "type": "array"
-	              },
-	            },
-	          },
-	          "background": {
-	            "description": "RGB values to define the background color of the form window",
-	            "pattern": "\\d{1,3}, *\\d{1,3}, *\\d{1,3}",
-	            "type": "string"
-	          },
-	          "height": {
-	            "default": 600,
-	            "description": "Height of the form window in pixels",
-	            "type": "integer",
-	            "minimum": 0
-	          },
-	          "width": {
-	            "default": 850,
-	            "description": "Width of the form window in pixels",
-	            "type": "integer",
-	            "minimum": 0
-	          },
-	          "spacing": {
-	            "default": 4,
-	            "description": "Spacing between graphical objects in the form window in pixels",
-	            "type": "integer",
-	            "minimum": 0
-	          },
-	          "buttonWidth": {
-	            "default": 90,
-	            "description": "Width of the Ok, Cancel and Export buttons",
-	            "type": "integer",
-	            "minimum": 0
-	          },
-	          "buttonHeight": {
-	            "default": 25,
-	            "description": "Height of the Ok, Cancel and Export buttons",
-	            "type": "integer",
-	            "minimum": 0
-	          },
-	          "buttonOk": {
-	            "default": "Ok",
-	            "description": "Label of the Ok button",
-	            "type": "string"
-	          },
-	          "buttonCancel": {
-	            "default": "Cancel",
-	            "description": "Label of the Cancel button",
-	            "type": "string"
-	          },
-	          "buttonExport": {
-	            "default": "Export to Excel",
-	            "description": "Label of the Export button",
-	            "type": "string"
-	          },
-	          "tabs": {
-	            "description": "List of tabs to create in the form window",
-	            "items": {
-	              "type": "object",
-	              "properties": {
-	                "name": {
-	                  "description": "Name of the tab",
-	                  "default": "(no name)",
-	                  "type": "string"
-	                },
-	                "background": {
-	                  "description": "RGB values to define the background color of the tab",
-	                  "pattern": "\\d{1,3}, *\\d{1,3}, *\\d{1,3}",
-	                  "default": "240, 240, 240",
-	                  "type": "string"
-	                },
-	                "controls": {
-	                  "description": "List of the controls to create in the tab",
-	                  "items": {
-	                    "properties": {
-	                      "class": {
-	                        "description": "Class of the control",
-	                        "enum": [
-	                          "check",
-	                          "combo",
-	                          "label",
-	                          "table",
-	                          "text"
-	                        ],
-	                        "type": "string"
-	                      },
-	                      "background": {
-	                        "description": "RGB values to define the background color of the control",
-	                        "pattern": "\\d{1,3}, *\\d{1,3}, *\\d{1,3}",
-	                        "default": "240, 240, 240",
-	                        "type": "string"
-	                      },
-	                      "foreground": {
-	                        "description": "RGB values to define the foreground color of the control",
-	                        "pattern": "\\d{1,3}, *\\d{1,3}, *\\d{1,3}",
-	                        "default": "0, 0, 0",
-	                        "type": "string"
-	                      },
-	                      "tooltip": {
-	                        "description": "Tooltip when the mouse stands above the control",
-	                        "type": "string"
-	                      },
-	                      "regexp": {
-	                        "description": "Regexp to validate data entered =&gt; in text controls only",
-	                        "type": "string"
-	                      },
-	                      "x": {
-	                        "default": 0,
-	                        "description": "The horizontal location of the control on the tab in pixels",
-	                        "type": "integer",
-	                        "minimum": 0
-	                      },
-	                      "y": {
-	                        "default": 0,
-	                        "description": "The vertical location of the control on the tab in pixels",
-	                        "type": "integer",
-	                        "minimum": 0
-	                      },
-	                      "width": {
-	                        "description": "Width of the control in pixels",
-	                        "type": "integer",
-	                        "minimum": 0
-	                      },
-	                      "height": {
-	                        "description": "Height of the control in pixels",
-	                        "type": "integer",
-	                        "minimum": 0
-	                      },
-	                      "text": {
-	                        "description": "The text content of the control =&gt; when class is label only &lt;= can contain variables",
-	                        "default": "",
-	                        "type": "string"
-	                      },
-	                      "variable": {
-	                        "description": "the variable to get the content from and to save the content to =&gt; when class is check, combo, or text",
-	                        "type": "string"
-	                      },
-	                      "default": {
-	                        "description": "default value to set in the control's text =&gt; when class is check, combo, or text",
-	                        "type": "string"
-	                      },
-	                      "whenEmpty": {
-	                        "description": "Action to do when the value is empty =&gt; when class is check, combo,  or text",
-	                        "enum": [
-	                          "ignore",
-	                          "create",
-	                          "delete"
-	                        ]
-	                      },
-	                      "excelSheet": {
-	                        "description": "Name of the Excel sheet where the content should be exported",
-	                        "type": "string"
-	                      },
-	                      "excelCell": {
-	                        "description": "Name of the Excel cell where the content should be exported",
-	                        "type": "string"
-	                      },
-	                      "excelCellType": {
-	                        "description": "Type of the Excel cell where the content should be exported",
-	                        "enum": [
-	                          "numeric",
-	                          "string",
-	                          "boolean",
-	                          "formula",
-	                          "blank"
-	                        ]
-	                      },
-	                      "excelCellType": {
-	                        "description": "Type of cell in case the value is empty (blank means an existing blank cell, zero means that we delete the cell if one exists)",
-	                        "enum": [
-	                          "blank",
-	                          "zero"
-	                        ]
-	                      },
-	                      "columns": {
-	                        "description": "List of the columns of the control when the class is table",
-	                        "items": {
-	                          "properties": {
-	                            "class": {
-	                              "description": "Class of the cells in table column",
-	                              "enum": [
-	                                "check",
-	                                "combo",
-	                                "label",
-	                                "text"
-	                              ],
-	                              "type": "string"
-	                            },
-	                            "tooltip": {
-	                              "description": "Tooltip when the mouse stands above the table column",
-	                              "type": "string"
-	                            },
-	                            "regexp": {
-	                              "description": "Regexp to validate data entered in table columns of class text",
-	                              "type": "string"
-	                            },
-	                            "width": {
-	                              "description": "Width of the table column in pixels",
-	                              "type": "integer",
-	                              "minimum": 0
-	                            },
-	                            "excelcellcolumn": {
-	                              "description": "Excel column where to export table column content",
-	                              "type": "string"
-	                            },
-	                            "excelcelltype": {
-	                              "description": "Type of the Excel cells when data is exported",
-	                              "enum": [
-	                                "blank",
-	                                "boolean",
-	                                "formula",
-	                                "numeric",
-	                                "string"
-	                              ],
-	                              "type": "string"
-	                            },
-	                            "exceldefault": {
-	                              "description": "Type of cell in case the value is empty (blank means an existing blank cell, zero means that we delete the cell if one exists)",
-	                              "enum": [
-	                                "blank",
-	                                "zero"
-	                              ],
-	                              "type": "string"
-	                            }
-	                          }
-	                        },
-	                        "required": [
-	                          "class"
-	                        ],
-	                        "type": "array"
-	                      },
-	                      "lines": {
-	                        "items": {
-	                          "properties": {
-	                            "generate": {
-	                              "description": "Indicates if lines must be generated using the object children",
-	                              "type": "boolean",
-	                              "default": false
-	                            },
-	                            "cells": {
-	                              "description": "Values of each cell, can contain variables",
-	                              "type": "array"
-	                            },
-	                            "filter": {
-	                              "properties": {
-	                                "genre": {
-	                                  "description": "genre of the filter",
-	                                  "enum": [
-	                                    "OR",
-	                                    "AND"
-	                                  ],
-	                                  "default": "AND",
-	                                  "type": "string"
-	                                },
-	                                "tests": {
-	                                  "items": {
-	                                    "properties": {
-	                                      "attibute": {
-	                                        "description": "value to test (can be a variable)",
-	                                        "type": "string"
-	                                      },
-	                                      "operation": {
-	                                        "description": "Operation of the test",
-	                                        "enum": [
-	                                          "exists",
-	                                          "equals",
-	                                          "iequals",
-	                                          "matches"
-	                                        ],
-	                                        "type": "string"
-	                                      },
-	                                      "value": {
-	                                        "type": "string"
-	                                      }
-	                                    },
-	                                    "required": [
-	                                      "attribute",
-	                                      "operation"
-	                                    ],
-	                                    "type": "object"
-	                                  },
-	                                  "type": "array"
-	                                }
-	                              },
-	                              "type": "object"
-	                            }
-	                          }
-	                        },
-	                        "type": "array",
-	                        "required": [
-	                          "category",
-	                          "values"
-	                        ]
-	                      },
-	                      "excelsheet": {
-	                        "description": "Name of the Excel sheet to export to",
-	                        "type": "string"
-	                      },
-	                      "excelcell": {
-	                        "description": "Excell Cell reference when the class is label or text",
-	                        "default": 0,
-	                        "type": "integer",
-	                        "minimum": 0
-	                      },
-	                      "excelfirstline": {
-	                        "description": "Number of the first Excel row when the class is table",
-	                        "default": 0,
-	                        "type": "integer",
-	                        "minimum": 0
-	                      }
-	                    },
-	                    "type": "object",
-	                    "required": [
-	                      "class"
-	                    ]
-	                  },
-	                  "type": "array"
-	                }
-	              }
-	            },
-	            "type": "array"
-	          }
-	        },
-	        "type": "object",
-	        "required": [
-	          "name"
-	        ]
-	      },
-	      "type": "array"
-	    }
-	  },
-	  "required": [
-	    "version",
-	    "org.archicontribs.form"
-	  ],
-	  "type": "object"
-	}
-	</code></pre>
 <h3 id="content"><u>The file content</u></h3>
 The configuration file contains a JSON object (so begins and ends with curly braces) that contain (case insensitive):
 <ul>
-	<li><b>version</b>: [integer] must be 2 </li>
-	<li><b>org.archicontribs.form</b>: [array] contains one JSON Object per form to create</li>
+	<li><b>version</b>: [integer] must be 3 </li>
+	<li><b>org.archicontribs.form</b>: contains the form description</li>
 </ul>
 
-<h4 id="forms">The forms</h4>
+<h4 id="forms">The form description</h4>
 <div style="margin-left:40px">
-	Each form can be parameterized using the following properties (case insensitive, mandatory mones are underlined):
+	A form can be parameterized using the following properties (case insensitive, mandatory ones are underlined):
 	<ul>
 		<li><b><u>Name</u></b>: [string] name of the form. This property is mandatory and can include variables.</li>
 		<li><b>width</b>: [integer] width (in pixels) of the form window (default: 850)</li>
@@ -482,30 +75,19 @@ The configuration file contains a JSON object (so begins and ends with curly bra
 		<li><b><u>Example</u></b></li>
 	</ul>
 	<div style="margin-left:40px">
-		As an example, the following file creates two empty forms with the same name. The first one will apply to the view where the right-click took place, and the second one will apply to the selected objects in the view (if any):
+		As an example, the following file creates a form that applies to the view where the right-click took place:
 		<pre><code>
 {
-    "version": 2,
-    "org.archicontribs.form": [
-        {
-            "name": "Form test for ${class) \"${name}\"",
-            "width": 900,
-            "height": 400,
-            "spacing": 4,
-            "background": "250, 250, 250",
-            "refers": "view",
-            "tabs": []
-        },
-        {
-            "name": "Form test for ${class) \"${name}\"",
-            "width": 800,
-            "height": 600,
-            "spacing": 4,
-            "background": "255, 255, 255",
-            "refers": "selected",
-            "tabs": []
-        }
-    ]
+    "version": 3,
+    "org.archicontribs.form": {
+	    "name": "Form test for ${class) \"${name}\"",
+	    "width": 900,
+	    "height": 400,
+	    "spacing": 4,
+	    "background": "250, 250, 250",
+	    "refers": "view",
+	    "tabs": []
+	}
 }
 		</code></pre>
 	</div>
@@ -513,7 +95,7 @@ The configuration file contains a JSON object (so begins and ends with curly bra
 
 <h4 id="tabs">The tabs</h4>
 <div style="margin-left:40px">
-	Each form is compound of tabs (at lease one) that will show up the <a href="#controls">controls</a>.
+	A form is compound of tabs (at lease one) that will show up the <a href="#controls">controls</a>.
 
 	Each tab might have the following properties (case insensitive, mandatory ones are underlined):
 	<ul>
@@ -529,34 +111,33 @@ The configuration file contains a JSON object (so begins and ends with curly bra
 		The following file creates a form that applies to the view where the right-click take"s place, and in this form, creates 3 tabs:
 		<pre><code>
 {
-    "org.archicontribs.form": [
-        {
-            "name": "Form test for ${class} \"${name}\"",
-	    "refers": "view",
-            "width": 900,
-            "height": 400,
-            "spacing": 4,
-            "background": "250, 250, 250",
-            "whenEmpty": "ignore",
-            "tabs": [
-                {
-                    "name": "View information",
-                    "background": "225, 225, 225",
-                    "controls": []
-                },
-                {
-                    "name": "Elements in the view",
-                    "background": "200, 200, 200",
-                    "controls": []
-                },
-                {
-                    "name": "Relationships in the view",
-                    "background": "200, 200, 200",
-                    "controls": []
-                }
-            ]
-        }
-    ]
+	"version": 3,
+    "org.archicontribs.form": {
+        "name": "Form test for ${class} \"${name}\"",
+        "refers": "view",
+        "width": 900,
+        "height": 400,
+        "spacing": 4,
+        "background": "250, 250, 250",
+        "whenEmpty": "ignore",
+        "tabs": [
+            {
+                "name": "View information",
+                "background": "225, 225, 225",
+                "controls": []
+            },
+            {
+                "name": "Elements in the view",
+                "background": "200, 200, 200",
+                "controls": []
+            },
+            {
+                "name": "Relationships in the view",
+                "background": "200, 200, 200",
+                "controls": []
+            }
+        ]
+    }
 }
 		</code></pre>
 	</div>
@@ -571,6 +152,7 @@ The configuration file contains a JSON object (so begins and ends with curly bra
 		<li><b><u>class</u></b>: [string] class of the graphical object (mandatory). It must be one of:
 		<ul>
 		  <li><b>label</b>: read only text string</li>
+		  <li><b>image</b>: image</li>
 		  <li><b>text</b>: update-able text string</li>
 		  <li><b>combo</b>: list of acceptable values</li>
 		  <li><b>check</b>: check button to specify binary values (like true/false, yes/no, ...)</li>
@@ -585,6 +167,8 @@ The configuration file contains a JSON object (so begins and ends with curly bra
 		<li><b>tooltip</b>: [string] text shown up when you hover the object with your mouse (default is no tooltip if regexp is not specified, default to the regexp if specified)</li>
 		<li><b>regexp</b>: [string] (for text controls only) allow to specify a regexp that will change the foreground color of the text: red if the regexp is not matched, green if the regexp is matched.</li>
 		<li><b>text</b>: [string] (for label controls only)<a href="#variables">literal</a> string to print in the control</li>
+		<li><b>image</b>: [string] (for image controls only)<a href="#variables">filename</a> of the image to draw in the control</li>
+		<li><b>content</b>: [string] (for image controls only)<a href="#variables">data</a> of the image (byte array) to draw in the control</li>
 		<li><b>values</b>: [array] list of valid values for combo and check objects.</li>
 		<li><b><u>variable</u></b>: [string] (for text, combo and check controls) <a href="#variables">variable</a> to link to to the object</li>
 		<li><b>default</b> [string] (in conjunction with "variable" only) specifies the default value if the <a href="#variables">variable</a> has got an empty value</li>
@@ -605,200 +189,203 @@ The configuration file contains a JSON object (so begins and ends with curly bra
 		The following file fills the tabs with label, text and combo controls:<br>
 		<pre><code>
 {
-    "version": 2,
-    "org.archicontribs.form": [
-        {
-            "name": "Form test for ${class} \"${name}\"",
-            "refers": "view",
-            "width": 900,
-            "height": 400,
-            "spacing": 4,
-            "background": "250, 250, 250",
-            "whenEmpty": "ignore",
-            "tabs": [
-                {
-                    "name": "View information",
-                    "background": "225, 225, 225",
-                    "controls": [
-                        {
-                            "class": "label",
-                            "x": 10,
-                            "y": 10,
-                            "width": 100,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "0, 0, 0",
-                            "tooltip": "Name of the Archi component",
-                            "fontName": "Arial",
-                            "fontSize": 12,
-                            "fontBold": false,
-                            "fontItalic": false,
-                            "text": "Name"
-                        },
-                        {
-                            "class": "label",
-                            "x": 120,
-                            "y": 10,
-                            "width": 300,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "250, 56, 56",
-                            "tooltip": "Name of the Archi component",
-                            "fontName": "Times New Roman",
-                            "fontSize": 12,
-                            "fontBold": true,
-                            "fontItalic": false,
-                            "text": "${name}"
-                        },
-                        {
-                            "class": "label",
-                            "x": 10,
-                            "y": 40,
-                            "width": 100,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "0, 0, 0",
-                            "tooltip": "Class of the Archi component",
-                            "fontName": "Arial",
-                            "fontSize": 12,
-                            "fontBold": false,
-                            "fontItalic": false,
-                            "text": "Class"
-                        },
-                        {
-                            "class": "label",
-                            "x": 120,
-                            "y": 40,
-                            "width": 300,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "250, 56, 56",
-                            "tooltip": "Class of the Archi component",
-                            "fontName": "Times New Roman",
-                            "fontSize": 12,
-                            "fontBold": true,
-                            "fontItalic": false,
-                            "text": "${class}"
-                        },
-                        {
-                            "class": "label",
-                            "x": 10,
-                            "y": 70,
-                            "width": 100,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "0, 0, 0",
-                            "tooltip": "What the view describes",
-                            "fontName": "Arial",
-                            "fontSize": 12,
-                            "fontBold": false,
-                            "fontItalic": false,
-                            "text": "Describes"
-                        },
-                        {
-                            "class": "combo",
-                            "x": 120,
-                            "y": 70,
-                            "width": 200,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "250, 56, 56",
-                            "tooltip": "What the view describes",
-                            "fontName": "Times New Roman",
-                            "fontSize": 12,
-                            "fontBold": true,
-                            "fontItalic": false,
-                            "values": ["the past", "the present", "the future"],
-                            "variable": "${property:describes}",
-                            "default": "the present",
-                            "editable": true,
-                            "whenEmpty": "delete"
-                        },
-                        {
-                            "class": "label",
-                            "x": 10,
-                            "y": 100,
-                            "width": 100,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "0, 0, 0",
-                            "tooltip": "Language",
-                            "fontName": "Arial",
-                            "fontSize": 12,
-                            "fontBold": false,
-                            "fontItalic": false,
-                            "text": "Language",
-                        },
-                        {
-                            "class": "combo",
-                            "x": 120,
-                            "y": 100,
-                            "width": 200,
-                            "height": 20,
-                            "background": "225, 225, 225",
-                            "foreground": "250, 56, 56",
-                            "tooltip": "Language",
-                            "fontName": "Times New Roman",
-                            "fontSize": 12,
-                            "fontBold": true,
-                            "fontItalic": false,
-                            "values": ["_fr", "_en"],
-                            "variable": "${property:language}",
-                            "default": "fr",
-                            "tag": "language",
-                            "editable": false,
-                            "whenEmpty": "delete"
-                        },
-                        {
-                            "class": "label",
-                            "x": 10,
-                            "y": 135,
-                            "width": 100,
-                            "height": 20,
-                            "background": "0, 0, 0",
-                            "foreground": "255, 255, 255",
-                            "tooltip": "Comment",
-                            "fontName": "Arial",
-                            "fontSize": 12,
-                            "fontBold": false,
-                            "fontItalic": false,
-                            "text": "Comment"
-                        },
-                        {
-                            "class": "text",
-                            "x": 120,
-                            "y": 130,
-                            "width": 750,
-                            "height": 100,
-                            "background": "225, 225, 225",
-                            "foreground": "250, 56, 56",
-                            "tooltip": "Please specify a comment",
-                            "fontName": "Times New Roman",
-                            "fontSize": 12,
-                            "fontBold": true,
-                            "fontItalic": false,
-                            "variable": "${property:comment}",
-                            "default": "$property:comment$[language]}",
-                            "forceDefault": true,
-                            "editable": false,
-                            "regexp": ".*",
-                            "whenEmpty": "delete"
-                        }
-                    ]
-                },
-                {
-                    "name": "Elements in the view",
-                    "background": "200, 200, 200",
-                    "controls": []
-                },
-                {
-                    "name": "Relationships in the view",
-                    "background": "200, 200, 200",
-                    "controls": []
-                }
-            ]
-        }
-    ]
+    "version": 3,
+    "org.archicontribs.form": {
+        "name": "Form test for ${class} \"${name}\"",
+        "refers": "view",
+        "width": 900,
+        "height": 400,
+        "spacing": 4,
+        "background": "250, 250, 250",
+        "whenEmpty": "ignore",
+        "tabs": [
+            {
+                "name": "View information",
+                "background": "225, 225, 225",
+                "controls": [
+                    {
+                        "class": "image",
+                        "x": 400,
+                        "y": 10,
+						"content": "${screenshot}"
+                    },
+                    {
+                        "class": "label",
+                        "x": 10,
+                        "y": 10,
+                        "width": 100,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "0, 0, 0",
+                        "tooltip": "Name of the Archi component",
+                        "fontName": "Arial",
+                        "fontSize": 12,
+                        "fontBold": false,
+                        "fontItalic": false,
+                        "text": "Name"
+                    },
+                    {
+                        "class": "label",
+                        "x": 120,
+                        "y": 10,
+                        "width": 300,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "250, 56, 56",
+                        "tooltip": "Name of the Archi component",
+                        "fontName": "Times New Roman",
+                        "fontSize": 12,
+                        "fontBold": true,
+                        "fontItalic": false,
+                        "text": "${name}"
+                    },
+                    {
+                        "class": "label",
+                        "x": 10,
+                        "y": 40,
+                        "width": 100,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "0, 0, 0",
+                        "tooltip": "Class of the Archi component",
+                        "fontName": "Arial",
+                        "fontSize": 12,
+                        "fontBold": false,
+                        "fontItalic": false,
+                        "text": "Class"
+                    },
+                    {
+                        "class": "label",
+                        "x": 120,
+                        "y": 40,
+                        "width": 300,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "250, 56, 56",
+                        "tooltip": "Class of the Archi component",
+                        "fontName": "Times New Roman",
+                        "fontSize": 12,
+                        "fontBold": true,
+                        "fontItalic": false,
+                        "text": "${class}"
+                    },
+                    {
+                        "class": "label",
+                        "x": 10,
+                        "y": 70,
+                        "width": 100,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "0, 0, 0",
+                        "tooltip": "What the view describes",
+                        "fontName": "Arial",
+                        "fontSize": 12,
+                        "fontBold": false,
+                        "fontItalic": false,
+                        "text": "Describes"
+                    },
+                    {
+                        "class": "combo",
+                        "x": 120,
+                        "y": 70,
+                        "width": 200,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "250, 56, 56",
+                        "tooltip": "What the view describes",
+                        "fontName": "Times New Roman",
+                        "fontSize": 12,
+                        "fontBold": true,
+                        "fontItalic": false,
+                        "values": ["the past", "the present", "the future"],
+                        "variable": "${property:describes}",
+                        "default": "the present",
+                        "editable": true,
+                        "whenEmpty": "delete"
+                    },
+                    {
+                        "class": "label",
+                        "x": 10,
+                        "y": 100,
+                        "width": 100,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "0, 0, 0",
+                        "tooltip": "Language",
+                        "fontName": "Arial",
+                        "fontSize": 12,
+                        "fontBold": false,
+                        "fontItalic": false,
+                        "text": "Language",
+                    },
+                    {
+                        "class": "combo",
+                        "x": 120,
+                        "y": 100,
+                        "width": 200,
+                        "height": 20,
+                        "background": "225, 225, 225",
+                        "foreground": "250, 56, 56",
+                        "tooltip": "Language",
+                        "fontName": "Times New Roman",
+                        "fontSize": 12,
+                        "fontBold": true,
+                        "fontItalic": false,
+                        "values": ["_fr", "_en"],
+                        "variable": "${property:language}",
+                        "default": "fr",
+                        "tag": "language",
+                        "editable": false,
+                        "whenEmpty": "delete"
+                    },
+                    {
+                        "class": "label",
+                        "x": 10,
+                        "y": 135,
+                        "width": 100,
+                        "height": 20,
+                        "background": "0, 0, 0",
+                        "foreground": "255, 255, 255",
+                        "tooltip": "Comment",
+                        "fontName": "Arial",
+                        "fontSize": 12,
+                        "fontBold": false,
+                        "fontItalic": false,
+                        "text": "Comment"
+                    },
+                    {
+                        "class": "text",
+                        "x": 120,
+                        "y": 130,
+                        "width": 750,
+                        "height": 100,
+                        "background": "225, 225, 225",
+                        "foreground": "250, 56, 56",
+                        "tooltip": "Please specify a comment",
+                        "fontName": "Times New Roman",
+                        "fontSize": 12,
+                        "fontBold": true,
+                        "fontItalic": false,
+                        "variable": "${property:comment}",
+                        "forceDefault": true,
+                        "editable": false,
+                        "regexp": ".*",
+                        "whenEmpty": "delete"
+                    }
+                ]
+            },
+            {
+                "name": "Elements in the view",
+                "background": "200, 200, 200",
+                "controls": []
+            },
+            {
+                "name": "Relationships in the view",
+                "background": "200, 200, 200",
+                "controls": []
+            }
+        ]
+    }
 }
 		</code></pre>
 	</div>
@@ -1002,9 +589,12 @@ The configuration file contains a JSON object (so begins and ends with curly bra
 		Variables can be used in all the controls (label, text, combo, check, table) to access information about the Archi component that the form refers to. The following variables can be used:
 		<ul>
 			<li><b>${class}</b> [read only] class of the component</li>
+			<li><b>${id}</b> [read/write] internal id of the component</li>
 			<li><b>${name}</b> [read/write] name of the component</li>
+			<li><b>${screenshot}</b> [read only] encoded string that represent a screenshot of the component (in case of view only)</li>
 			<li><b>${documentation}</b> [read/write] documentation of the component</li>
 			<li><b>${property:xxxxx}</b> [read/write] property xxxxx of the component</li>
+			<li><b>${date:format}</b> [read only] current date in the format specified (like dd/MM/YYYY HH:mm:SS)</li>
 		</ul>
 	</div>
 	
