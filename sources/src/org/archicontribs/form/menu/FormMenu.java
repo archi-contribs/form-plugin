@@ -68,7 +68,7 @@ public class FormMenu extends ExtensionContributionFactory {
 	public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
 	    if ( logger.isDebugEnabled() ) logger.debug("Form plugin : creating menu entries.");
         Object[] selection = ((IStructuredSelection) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection()).toArray();
-        ImageDescriptor formMenuIcon = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle(FormPlugin.PLUGIN_ID), new Path("icons/form.jpg"), null));	    
+        ImageDescriptor formMenuIcon = ImageDescriptor.createFromURL(FileLocator.find(Platform.getBundle(FormPlugin.PLUGIN_ID), new Path("icons/menu.jpg"), null));	    
 	    IPreferenceStore store = FormPlugin.INSTANCE.getPreferenceStore();
         boolean addSeparator = true;
         int menuEntriesLimit = 5;       // TODO: add a preference entry
