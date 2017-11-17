@@ -1,12 +1,18 @@
 package org.archicontribs.form;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.util.Base64;
+
 import org.apache.log4j.Level;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.emf.ecore.EObject;
@@ -16,6 +22,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -136,12 +145,15 @@ import com.archimatetool.model.INameable;
  * v1.8 :       16/11/2017      Add class image
  * 								Add ${username} variable
  *                              Add ${date:format} variable
+ *                              
+ * v1.8.1 :     18/11/2017      Add ${screenshot} variable to get a view screenshot
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add the sum or average of column values
  * 								Add a "comment" field for all the controls 
  *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
+ *                              Add a variable to create an image from the current view
  */
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
@@ -453,4 +465,38 @@ public class FormPlugin extends AbstractUIPlugin {
 		
 		return sb.toString();
 	}
+	
+	public static String imageToString(Image image) {
+		try {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			DataOutputStream writeOut = new DataOutputStream(out);
+			ImageLoader saver = new ImageLoader();
+			
+			saver.data = new ImageData[] { image.getImageData() };
+			
+			saver.save(writeOut, SWT.IMAGE_PNG);
+			image.dispose();
+			try {
+				writeOut.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return Base64.getEncoder().encodeToString(out.toByteArray());
+		} catch (Exception ign) {}
+		return null;
+    }
+	
+	public static Image stringToImage(String string) {
+		try {
+			byte[] bytes = Base64.getDecoder().decode(string);
+			ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+			DataInputStream reader = new DataInputStream(in);
+			ImageLoader loader = new ImageLoader();
+			ImageData[] imageData = loader.load(reader);
+		
+			return new Image(Display.getCurrent(), imageData[0]);
+		} catch (Exception ign) {}
+		return null;
+    }
 }

@@ -1988,10 +1988,12 @@ public class FormJsonParser {
 	
    private void getImage(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
         String imageName = getString(jsonObject, "image");
+        String imageContent = getString(jsonObject, "content");
         Boolean scale = getBoolean(jsonObject, "scale");
         
         if ( logger.isTraceEnabled() ) {
             logger.trace("      image = " + imageName);
+            logger.trace("      content = " + ((imageContent==null||imageContent.length()<20) ? imageContent : (imageContent.substring(0,20)+"...")) );
             logger.trace("      scale = " + scale);
         }
         
@@ -2001,30 +2003,39 @@ public class FormJsonParser {
         // required by the graphical editor
         if ( treeItem != null ) {
             setData(treeItem, "image", imageName);
+            setData(treeItem, "content", imageContent);
             setData(treeItem, "scale", scale);
         }
         
         // we set the label's image
-        if ( selectedObject != null )
+        if ( selectedObject != null ) {
             imageName = FormVariable.expand(imageName, selectedObject);
+            imageContent = FormVariable.expand(imageContent, selectedObject);
+        }
         
-        if ( label != null && !FormPlugin.isEmpty(imageName) ) {
+        if ( label != null ) {
             //TODO : create a cache for the images.
-            try {
-            	Image image = new Image(display, imageName);
-                if( image != null ) {
+        	Image image = null;
+    		
+        	if ( !FormPlugin.isEmpty(imageContent) ) {
+        		image = FormPlugin.stringToImage(imageContent);
+        	} else if ( !FormPlugin.isEmpty(imageName) ) {
+            	image = new Image(display, imageName);
+        	}
+        	
+            if( image != null ) {
+	            try {
+	        		int width = label.getBounds().width > 0 ? label.getBounds().width : image.getBounds().width;
+	        		int height = label.getBounds().height > 0 ? label.getBounds().height : image.getBounds().height;
                 	if ( scale ) {
-                		int width = label.getBounds().width > 0 ? label.getBounds().width : image.getBounds().width;
-                		int height = label.getBounds().height > 0 ? label.getBounds().height : image.getBounds().height;
                 		Image scaledImage = new Image(display, image.getImageData().scaledTo(width, height));
                 		label.setImage(scaledImage);
                 		image.dispose();
                 	} else {
                 		label.setImage(image);
                 	}
-                }
-            } catch (Exception ign) {}
-
+	            } catch (Exception ign) {}
+        	}
         }
     }
     

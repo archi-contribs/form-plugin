@@ -7,7 +7,7 @@ import java.util.Date;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.gef.commands.CompoundCommand;
-
+import com.archimatetool.editor.diagram.util.DiagramUtils;
 import com.archimatetool.editor.model.commands.EObjectFeatureCommand;
 import com.archimatetool.model.IArchimateDiagramModel;
 import com.archimatetool.model.IArchimateModel;
@@ -254,10 +254,16 @@ public class FormVariable {
                     if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((INameable)eObject).getName() +"\"");
                     return ((INameable)eObject).getName();
                 }
-                new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a does not have a name' ("+eObject.getClass().getSimpleName()+").");
+                new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object does not have a name ("+eObject.getClass().getSimpleName()+").");
 
             case "username":
             	return System.getProperty("user.name");
+            	
+            case "screenshot":
+            	if ( eObject instanceof IDiagramModel ) {
+            		return FormPlugin.imageToString(DiagramUtils.createImage((IDiagramModel)eObject, 1.0, 2));
+            	}
+            	new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a view ("+eObject.getClass().getSimpleName()+").");
             	
             default :
             		// check for ${date:format}
