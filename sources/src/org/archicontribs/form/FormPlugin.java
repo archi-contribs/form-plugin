@@ -147,18 +147,20 @@ import com.archimatetool.model.INameable;
  *                              Add ${date:format} variable
  *                              
  * v1.8.1 :     18/11/2017      Add ${screenshot} variable to get a view screenshot
+ * 								Add the "content" property to image class
+ * 								Add "comment" property this is not used by form but allow to keep some comment on every controls
+ * 								Update the inline help pages
+ * 								fix menus' icon
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
- * 								Add the sum or average of column values
- * 								Add a "comment" field for all the controls 
- *                              Add "if" that works like "filter" but for individual controls ... if the condition is met, the control is created, else it is not created.
- *                              Add a variable to create an image from the current view
+ * 								Add a special line that calculates the sum or the average of column values
+ *                              Add a "filter" for individual controls ... if the condition is met, the control is created, else it is not created.
  */
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.8";
+	public static final String pluginVersion = "1.8.1";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
