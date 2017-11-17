@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class TableComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;             // name
+	private StringEditor            commentEditor;          // comment
 	private SizeEditor              sizeEditor;             // x, y, width, height
 	private ColorEditor             colorEditor;            // foreground, background
 	private StringEditor            tooltipEditor;          // tooltip
@@ -29,9 +30,14 @@ public class TableComposite extends Composite implements CompositeInterface {
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
+		// comment
+		commentEditor = new StringEditor(this, "comment", "Comment:");
+		commentEditor.setPosition(nameEditor.getControl());
+		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(nameEditor.getControl());
+		sizeEditor.setPosition(commentEditor.getControl());
 		
 		// foreground, background
 		colorEditor = new ColorEditor(this, "Color:");
@@ -61,6 +67,7 @@ public class TableComposite extends Composite implements CompositeInterface {
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":		  nameEditor.setText((String)value); break;
+    		case "comment":       commentEditor.setText((String)value); break;
     		case "x":			  sizeEditor.setX((Integer)value); break;
     		case "y":			  sizeEditor.setY((Integer)value); break;
     		case "width":		  sizeEditor.setWidth((Integer)value); break;

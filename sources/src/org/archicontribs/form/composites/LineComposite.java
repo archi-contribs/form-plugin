@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class LineComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
+	private StringEditor            commentEditor;       // comment
     private StringEditor            cellsEditor;         // cells
     private FilterEditor            filterEditor;        // filter
     
@@ -27,9 +28,14 @@ public class LineComposite extends Composite implements CompositeInterface {
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
+		// comment
+		commentEditor = new StringEditor(this, "comment", "Comment:");
+		commentEditor.setPosition(nameEditor.getControl());
+		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		
 		// cells
 		cellsEditor = new StringEditor(this, "cells", "Cells:");
-		cellsEditor.setPosition(nameEditor.getControl());
+		cellsEditor.setPosition(commentEditor.getControl());
 		cellsEditor.mustSetControlText(true);
 		cellsEditor.setTooltipText("Please enter the variables corresponding to the table columns, one line per variable.\n"+
 			"\n"+
@@ -44,6 +50,7 @@ public class LineComposite extends Composite implements CompositeInterface {
 	public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
+    		case "comment":       commentEditor.setText((String)value); break;
             case "cells":         cellsEditor.setText((String[])value);break;
             case "generate":      filterEditor.setGenerate((Boolean)value); break;
             case "tests":         filterEditor.setTests((List<Map<String, String>>)value); break;

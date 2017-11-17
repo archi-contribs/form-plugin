@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class TextColumnComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
+	private StringEditor            commentEditor;       // comment
     private StringEditor            defaultTextEditor;   // defaultText
     private CheckEditor             forceDefaultEditor;  // forceDefault
     private CheckEditor             editableEditor;  	 // editable
@@ -40,9 +41,14 @@ public class TextColumnComposite extends Composite implements CompositeInterface
 		nameEditor.mustSetControlText(true);
 		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
+		// comment
+		commentEditor = new StringEditor(this, "comment", "Comment:");
+		commentEditor.setPosition(nameEditor.getControl());
+		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		
 	    // defaultText
         defaultTextEditor = new StringEditor(this, "default", "Default text:");
-        defaultTextEditor.setPosition(nameEditor.getControl());
+        defaultTextEditor.setPosition(commentEditor.getControl());
         defaultTextEditor.setTooltipText("Default value when the one corresponding to the variable value is empty.");
         
         // defaultText
@@ -126,6 +132,7 @@ public class TextColumnComposite extends Composite implements CompositeInterface
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
+            case "comment":       commentEditor.setText((String)value); break;
             case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
             case "editable":      editableEditor.setChecked((Boolean)value); break;

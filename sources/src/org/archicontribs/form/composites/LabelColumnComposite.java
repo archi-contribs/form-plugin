@@ -10,11 +10,12 @@ import org.eclipse.swt.widgets.Composite;
 
 public class LabelColumnComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
+	private StringEditor            commentEditor;       // comment
     private StringEditor            textEditor;			 // text
 	private SizeEditor              sizeEditor;          // width
 	private ColorEditor             colorEditor;         // foreground, background
 	private StringEditor            tooltipEditor;       // tooltip
-	private AlignmentEditor         alignmentEditor;    // alignment
+	private AlignmentEditor         alignmentEditor;     // alignment
     private StringEditor            excelColumnEditor;   // excelColumn
     private ComboEditor             excelCellTypeEditor; // excelCellType
     private ComboEditor             excelDefaultEditor;  // excelDefault
@@ -33,9 +34,14 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		nameEditor.mustSetControlText(true);
 		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
+		// comment
+		commentEditor = new StringEditor(this, "comment", "Comment:");
+		commentEditor.setPosition(nameEditor.getControl());
+		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		
 		// text
 		textEditor = new StringEditor(this, "text", "Text:");
-		textEditor.setPosition(nameEditor.getControl());
+		textEditor.setPosition(commentEditor.getControl());
 		textEditor.mustSetControlText(true);
 		
 		// Background
@@ -87,13 +93,14 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 	
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
+    		case "name":    	  nameEditor.setText((String)value); break;
+            case "comment":       commentEditor.setText((String)value); break;
     		case "x":    		  sizeEditor.setX((Integer)value); break;
     		case "y":    		  sizeEditor.setY((Integer)value); break;
     		case "width":    	  sizeEditor.setWidth((Integer)value); break;
     		case "height":    	  sizeEditor.setHeight((Integer)value); break;
     		case "foreground":	  colorEditor.setForeground((String)value); break;
     		case "background":	  colorEditor.setBackground((String)value); break;
-    		case "name":    	  nameEditor.setText((String)value); break;
     		case "text":    	  textEditor.setText((String)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     	    case "alignment":     alignmentEditor.setText((String)value); break;

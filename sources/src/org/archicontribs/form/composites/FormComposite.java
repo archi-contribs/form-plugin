@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Widget;
 
 public class FormComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;         		// name
+	private StringEditor            commentEditor;         		// comment
 	private FormSizeEditor          formSizeEditor;    			// width, height, spacing, buttonWidth, buttonHeight						//TODO : rename spacing to margin
 	private ColorEditor             colorEditor;        		// foreground, background
     private ComboEditor             refersEditor; 				// refers
@@ -37,10 +38,15 @@ public class FormComposite extends Composite implements CompositeInterface {
 		nameEditor.setPosition(0);
 		nameEditor.mustSetControlText(true);
 		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
+		
+		// comment
+		commentEditor = new StringEditor(this, "comment", "Comment:");
+		commentEditor.setPosition(nameEditor.getControl());
+		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
 				
         // width, height, spacing, buttonWidth, buttonHeight
 		formSizeEditor = new FormSizeEditor(this);
-		formSizeEditor.setPosition(nameEditor.getControl());
+		formSizeEditor.setPosition(commentEditor.getControl());
         
         // Background
 		colorEditor = new ColorEditor(this, "Color:");
@@ -110,6 +116,7 @@ public class FormComposite extends Composite implements CompositeInterface {
 	public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
     		case "name":		      nameEditor.setText((String)value); break;
+    		case "comment":		      commentEditor.setText((String)value); break;
     		case "foreground":	      colorEditor.setForeground((String)value); break;
     		case "background":	      colorEditor.setBackground((String)value); break;
     		case "refers":		      refersEditor.setText((String)value); break;

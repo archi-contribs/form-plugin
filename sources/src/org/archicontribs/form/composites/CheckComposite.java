@@ -13,6 +13,7 @@ import org.eclipse.swt.widgets.Composite;
 
 public class CheckComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
+	private StringEditor            commentEditor;       // comment
     private StringEditor            variableEditor;	     // variable
     private StringEditor            defaultTextEditor;   // defaultText
     private CheckEditor             forceDefaultEditor;  // forceDefault
@@ -22,7 +23,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
 	private ColorEditor             colorEditor;         // foreground, background
 	private FontEditor				fontEditor;			 // font, fontBold, fontItalic
 	private StringEditor		    tooltipEditor;       // tooltip
-	private AlignmentEditor         alignmentEditor;    // alignment
+	private AlignmentEditor         alignmentEditor;     // alignment
 	private ComboEditor             whenEmptyEditor;  	 // whenEmpty
 	private StringEditor            excelSheetEditor;    // excelSheet
 	private StringEditor            excelCellEditor;     // excelCell
@@ -43,9 +44,14 @@ public class CheckComposite extends Composite implements CompositeInterface {
 		nameEditor.mustSetTreeItemText(true);
 		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
+		// comment
+		commentEditor = new StringEditor(this, "comment", "Comment:");
+		commentEditor.setPosition(nameEditor.getControl());
+		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		
 		// variable
 		variableEditor = new StringEditor(this, "variable", "Variable:");
-		variableEditor.setPosition(nameEditor.getControl());
+		variableEditor.setPosition(commentEditor.getControl());
 		variableEditor.setTooltipText("The variable field must start with '${' and ends with '}'.\n"+
 				"\n"+
 				"It allows to retreive and to set Archi components properties:\n"+
@@ -155,6 +161,7 @@ public class CheckComposite extends Composite implements CompositeInterface {
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
             case "name":          nameEditor.setText((String)value); break;
+            case "comment":       commentEditor.setText((String)value); break;
             case "variable":      variableEditor.setText((String)value); break;
             case "default":       defaultTextEditor.setText((String)value); break;
             case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
