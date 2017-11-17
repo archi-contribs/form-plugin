@@ -1945,14 +1945,17 @@ public class FormJsonParser {
     
     private String getName(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String name = getString(jsonObject, "name");
+    	String comment = getString(jsonObject, "comment");
     	
         if ( logger.isTraceEnabled() ) {
         	logger.trace("      name = " + name);
+        	logger.trace("      comment = " + comment);
         }
         
     	// required by the graphical editor
         if ( treeItem != null ) {
         	setData(treeItem, "name", name);
+        	setData(treeItem, "comment", comment);
         	if ( name != null ) 
         		treeItem.setText(name);
         }
