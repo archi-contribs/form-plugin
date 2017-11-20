@@ -1142,12 +1142,20 @@ public class FormJsonParser {
     	
     	// required by the graphical editor
     	if ( treeItem != null ) {
-    		setData(treeItem, "tests", tests);
+    		if ( tests == null || tests.size() == 0 ) {
+    			setData(treeItem, "genre", null);
+    			setData(treeItem, "tests", null);
+    		} else
+    			setData(treeItem, "tests", tests);
     	}
     	
     	// required by the form
     	if ( widget != null ) {
-    		widget.setData("tests", tests);
+    		if ( tests == null || tests.size() == 0 ) {
+    			widget.setData("genre", null);
+    			widget.setData("tests", null);
+    		} else
+    			widget.setData("tests", tests);
     	}
     }
     
