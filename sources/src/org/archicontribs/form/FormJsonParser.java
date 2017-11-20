@@ -896,7 +896,7 @@ public class FormJsonParser {
     	
     	TableItem tableItem = null;
     	boolean mustCreateLine = true;
-    	Boolean generate = getBoolean(jsonObject, "generate", false);
+    	Boolean generate = getGenerate(jsonObject, null, treeItem);
     	
     	// if the selectedObject is provided AND if the lines are generated
     	//    then we check the selectedObject against the filter
@@ -911,8 +911,7 @@ public class FormJsonParser {
 	        FormPosition.setControlClass("lines");
 	        
 	        getCells(jsonObject, tableItem, treeItem, selectedObject);
-	        getGenerate(jsonObject, tableItem, treeItem);
-	        getFilter(jsonObject, tableItem, treeItem);
+	        //getFilter(jsonObject, tableItem, treeItem);
 	        
 	        // used by graphical editor
 	        if ( treeItem != null ) {
@@ -920,6 +919,7 @@ public class FormJsonParser {
 	        	treeItem.setData("class", "line");
 	        	treeItem.setData("widget", tableItem);
 	            tableItem.setData("treeItem", treeItem);
+	            tableItem.setData("generate", generate);
 	        }
     	}
 		
