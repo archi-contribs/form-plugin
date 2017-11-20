@@ -455,7 +455,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 JSONObject jsonFile;
                 try {
                     jsonFile = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-                    Integer version = jsonParser.getInt(jsonFile, "version");
+                    Integer version = jsonParser.getInt(jsonFile, "version", 0, true);
                     if ( version != null && version != 3 ) {
                         FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 3).");
                         return;
