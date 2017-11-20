@@ -249,7 +249,7 @@ public class FilterEditor {
 	        btnDelete.add(index+1, del);
 	        
             if ( treeItem != null ) {
-                treeItem.setData("tests", getTests());
+                treeItem.setData("tests", getFilter() ? getTests() : null);
             }
 
 	        redraw();
@@ -283,7 +283,7 @@ public class FilterEditor {
 	    	txtValue.get(index).setVisible(!FormPlugin.areEqualIgnoreCase(comboOperation.get(index).getText(), "exists"));
 	    	
             if ( treeItem != null ) {
-                treeItem.setData("tests", getTests());
+                treeItem.setData("tests", getFilter() ? getTests() : null);
             }
 	    }
 		
@@ -319,8 +319,8 @@ public class FilterEditor {
 	        btnDelete.remove(index).dispose();
 	        
             if ( treeItem != null ) {
-           		treeItem.setData("genre", getGenre());
-                treeItem.setData("tests", getTests());
+           		treeItem.setData("genre", getFilter() ? getGenre() : null);
+                treeItem.setData("tests", getFilter() ? getTests() : null);
             }
 	    	
 	        redraw();
@@ -453,8 +453,7 @@ public class FilterEditor {
     }
 	
     public String getGenre() {
-    	List<Map<String, String>> tests = getTests();
-    	if ( tests==null || tests.size()==0)
+    	if ( getTests() == null )
     		return null;
     	return btnAnd.getSelection() ? "AND" : "OR";
     }
@@ -500,7 +499,7 @@ public class FilterEditor {
             TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
             
             if ( treeItem != null )
-                treeItem.setData("tests", getTests());;
+                treeItem.setData("tests", getFilter() ? getTests() : null);
     	}
         redraw();
     }
@@ -521,6 +520,8 @@ public class FilterEditor {
     		}
     	}
     	
+    	if ( list.size() == 0 )
+    		return null;
     	return list;
     }
 }
