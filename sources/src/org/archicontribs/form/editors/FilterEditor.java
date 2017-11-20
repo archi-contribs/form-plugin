@@ -319,6 +319,7 @@ public class FilterEditor {
 	        btnDelete.remove(index).dispose();
 	        
             if ( treeItem != null ) {
+           		treeItem.setData("genre", getGenre());
                 treeItem.setData("tests", getTests());
             }
 	    	
@@ -337,10 +338,7 @@ public class FilterEditor {
             TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
             
             if ( treeItem != null ) {
-            	if ( txtAttribute.size() > 0 && txtAttribute.get(0).getText().length() > 0 )
-            		treeItem.setData("genre", getGenre());
-            	else
-            		treeItem.setData("genre", null);
+            	treeItem.setData("genre", getGenre());
             }
         }
         
@@ -455,6 +453,9 @@ public class FilterEditor {
     }
 	
     public String getGenre() {
+    	List<Map<String, String>> tests = getTests();
+    	if ( tests==null || tests.size()==0)
+    		return null;
     	return btnAnd.getSelection() ? "AND" : "OR";
     }
     
@@ -508,14 +509,16 @@ public class FilterEditor {
     	List<Map<String, String>> list = new ArrayList<Map<String, String>>();
     	
     	for ( int i = 0; i < txtAttribute.size(); ++i ) {
-    		Map<String, String> map = new HashMap<String, String>();
+    		if ( !FormPlugin.isEmpty(txtAttribute.get(i).getText()) || !FormPlugin.isEmpty(comboOperation.get(i).getText()) || !FormPlugin.isEmpty(txtValue.get(i).getText()) ) {
+    			Map<String, String> map = new HashMap<String, String>();
     		
-    		map.put("attribute", txtAttribute.get(i).getText());
-    		map.put("operation", comboOperation.get(i).getText());
-    		if ( !FormPlugin.areEqualIgnoreCase(comboOperation.get(i).getText(), "exists") )
-    			map.put("value", txtValue.get(i).getText());
-    		
-    		list.add(map);
+	    		map.put("attribute", txtAttribute.get(i).getText());
+	    		map.put("operation", comboOperation.get(i).getText());
+	    		if ( !FormPlugin.areEqualIgnoreCase(comboOperation.get(i).getText(), "exists") )
+	    			map.put("value", txtValue.get(i).getText());
+	    		
+	    		list.add(map);
+    		}
     	}
     	
     	return list;
