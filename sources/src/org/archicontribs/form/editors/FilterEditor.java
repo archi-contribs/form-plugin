@@ -337,7 +337,10 @@ public class FilterEditor {
             TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
             
             if ( treeItem != null ) {
-                treeItem.setData("genre", getGenre());
+            	if ( txtAttribute.size() > 0 && txtAttribute.get(0).getText().length() > 0 )
+            		treeItem.setData("genre", getGenre());
+            	else
+            		treeItem.setData("genre", null);
             }
         }
         
