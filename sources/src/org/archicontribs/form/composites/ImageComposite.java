@@ -43,6 +43,7 @@ public class ImageComposite extends Composite implements CompositeInterface {
 		// text
 		imageEditor = new ImageEditor(this, "image", "Image:");
 		imageEditor.setPosition(commentEditor.getControl());
+		imageEditor.setTooltipText("You may enter an image filename or its content (but not both). If you specify both, the content will take precedence over the filename.");
 						
 		// x, y, width, height
 		sizeEditor = new SizeEditor(this);
@@ -105,6 +106,7 @@ public class ImageComposite extends Composite implements CompositeInterface {
     		case "foreground":	  colorEditor.setForeground((String)value); break;
     		case "background":	  colorEditor.setBackground((String)value); break;
     		case "image":    	  imageEditor.setImage((String)value); break;
+    		case "content":    	  imageEditor.setContent((String)value); break;
     		case "scale":         imageEditor.setScale((Boolean)value); break;
     		case "tooltip":    	  tooltipEditor.setText((String)value); break;
     		case "excelsheet":    excelSheetEditor.setText((String)value); break;
