@@ -1078,7 +1078,7 @@ public class FormJsonParser {
                     break;
 
                 default:
-                    throw new RuntimeException("Unknown operation type \"" + operation + "\" in filter.\n\nValid operations are \"equals\"/\"not equals\", \"iequals\"/\"not iquals\", \"exists\"/\"not exists\" and \"matches\"/\"not matches\".");
+                    throw new RuntimeException("Unknown operation type \"" + operation + "\" in filter.\n\nValid operations are \"equals\"/\"not equals\", \"iequals\"/\"not iequals\", \"exists\"/\"not exists\" and \"matches\"/\"not matches\".");
             }
             
             // if the operation starts with "not ", then we negate the result
