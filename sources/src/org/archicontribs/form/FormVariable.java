@@ -236,7 +236,7 @@ public class FormVariable {
                     if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IIdentifier)eObject).getId() +"\"");
                     return ((IIdentifier)eObject).getId();
                 }
-                new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not an ID ("+eObject.getClass().getSimpleName()+").");
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not an ID ("+eObject.getClass().getSimpleName()+").");
 
             case "documentation" :
                 if (eObject instanceof IDiagramModelArchimateObject) {
@@ -251,7 +251,7 @@ public class FormVariable {
                     if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDocumentable)eObject).getDocumentation() +"\"");
                     return ((IDocumentable)eObject).getDocumentation();
                 }
-                new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+eObject.getClass().getSimpleName()+").");
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+eObject.getClass().getSimpleName()+").");
 
             case "void":
                 if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \"\"");
@@ -262,7 +262,7 @@ public class FormVariable {
                     if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((INameable)eObject).getName() +"\"");
                     return ((INameable)eObject).getName();
                 }
-                new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object does not have a name ("+eObject.getClass().getSimpleName()+").");
+                throw new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object does not have a name ("+eObject.getClass().getSimpleName()+").");
 
             case "username":
             	return System.getProperty("user.name");
@@ -271,7 +271,7 @@ public class FormVariable {
             	if ( eObject instanceof IDiagramModel ) {
             		return FormPlugin.imageToString(DiagramUtils.createImage((IDiagramModel)eObject, 1.0, 2));
             	}
-            	new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a view ("+eObject.getClass().getSimpleName()+").");
+            	throw new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a view ("+eObject.getClass().getSimpleName()+").");
             	
             default :
             		// check for ${date:format}
