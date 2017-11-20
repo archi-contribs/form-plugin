@@ -93,7 +93,15 @@ public class FormVariable {
             case "void":
             case "username":
                 return null;
-
+                
+            case "screenshot":
+            	// at the moment, screenshots are allowed on views only
+            	if ( eObject instanceof IDiagramModel ) {
+                	if ( logger.isTraceEnabled() ) logger.trace("         --> itself");
+                    return eObject;
+                }
+            	throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not a DiagramModel ("+eObject.getClass().getSimpleName()+").");
+            	
             default :
                     // check for ${property:xxx}
                 if ( variableName.toLowerCase().startsWith("property"+variableSeparator) ) {
@@ -382,8 +390,11 @@ public class FormVariable {
         String variableName = variable.substring(2, variable.length()-1);
 
         switch ( variableName.toLowerCase() ) {
-            case "class" :  // we refuse to change the class of an eObject
-                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot change the class of an Archi object.");   
+            case "class" :  	 // we refuse to change the class of an eObject
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot change the class of an Archi object.");
+                
+            case "screenshot" :  // we refuse to change a view's screenshot
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot change a view's screenshot.");
 
             case "id" :
                 if (eObject instanceof IIdentifier) {
