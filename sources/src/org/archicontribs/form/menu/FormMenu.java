@@ -84,17 +84,17 @@ public class FormMenu extends ExtensionContributionFactory {
 		    File f = new File(configFilename);
 		    
 		    if ( !f.exists() ) {
-               logger.error("Failed : does not exist");
+               logger.error(configFilename + " : does not exist");
                 continue;
             } 
 
 		    if( f.isDirectory() ) {
-			    logger.error("Failed : is a directory");
+			    logger.error(configFilename + " : is a directory");
 			    continue;
 		    }
 
     		if ( !f.canRead() ) {
-    			logger.error("Failed : permission denied");
+    			logger.error(configFilename + " : permission denied");
     			continue;
     		}
 
@@ -102,22 +102,22 @@ public class FormMenu extends ExtensionContributionFactory {
     			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
     			Integer version;
     			try {
-    			    version = formJsonParser.getInt(json, "version");
+    			    version = formJsonParser.getInt(json, "version", 0, true);
     	            if ( version == null || version != 3 ) {
-	                    logger.error("Ignored : not the right version (should be 3).");
+	                    logger.error(configFilename + " : not the right version (should be 3).");
 	                    continue loopOnConfigFiles;
 	                }
     			} catch (ClassCastException e) {
-                    logger.error("Ignored : the version specified is not an integer (should be 3).");
+                    logger.error(configFilename + " : the version specified is not an integer (should be 3).");
                     continue loopOnConfigFiles;
                 } catch (RuntimeException e) {
-    			    logger.error("Ignored : the version is not specified (should be 3).");
+    			    logger.error(configFilename + " : the version is not specified (should be 3).");
                     continue loopOnConfigFiles;
     			}
     
     			JSONObject form = formJsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
     				
-				formName = formJsonParser.getString(form,"name");
+				formName = formJsonParser.getString(form, "name", null);
 				if ( formName.isEmpty() ) {
 				    logger.error(getPosition("name")+" - cannot be empty");
 				    continue loopOnConfigFiles;
@@ -137,9 +137,7 @@ public class FormMenu extends ExtensionContributionFactory {
 					if ( ++menuEntries <= menuEntriesLimit ) {
 						EObject selectedObject = getSelectedObject(selection[selectionRank]);
 
-	                    String refers = formJsonParser.getString(form,"refers");
-	                    if ( FormPlugin.isEmpty((String)refers) )
-	                    	refers = FormDialog.validRefers[0];
+	                    String refers = formJsonParser.getString(form, "refers", FormDialog.validRefers[0]);
 	                    
 	                    switch ( refers.toLowerCase() ) {
 	                        case "selected" :

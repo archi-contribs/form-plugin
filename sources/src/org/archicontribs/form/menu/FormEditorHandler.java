@@ -49,9 +49,7 @@ public class FormEditorHandler extends AbstractHandler {
 			JSONObject form = jsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
 			EObject selectedObject = FormMenu.getSelectedObject(selection[selectionRank]);
 			
-			String refers = jsonParser.getString(form,"refers");
-			if ( FormPlugin.isEmpty(refers) )
-				refers = FormDialog.validRefers[0];
+			String refers = jsonParser.getString(form, "refers", FormDialog.validRefers[0], FormDialog.validRefers);
 			switch ( refers.toLowerCase() ) {
 				case "view":   selectedObject = FormMenu.getContainer(selectedObject); break;
 				case "folder": selectedObject = FormMenu.getContainer(selectedObject); break;

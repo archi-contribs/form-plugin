@@ -152,6 +152,9 @@ import com.archimatetool.model.INameable;
  * 								Update the inline help pages
  * 								fix menus' icon
  * 
+ * v1.8.2 :		20/11/2017		Add more default values to configuration's file keywords
+ * 								fix an error message on ${screenshot}
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add a special line that calculates the sum or the average of column values

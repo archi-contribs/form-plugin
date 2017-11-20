@@ -94,35 +94,21 @@ public class FormJsonParser {
         String  name              = getName(jsonObject, form, treeItem);
         FormPosition.setFormName(name);
         
-        Integer width             = getInt(jsonObject, "width");
-        Integer height            = getInt(jsonObject, "height");
-        Integer spacing           = getInt(jsonObject, "spacing");
-        Integer buttonWidth       = getInt(jsonObject, "buttonWidth");
-        Integer buttonHeight      = getInt(jsonObject, "buttonHeight");
-        String  refers            = getString(jsonObject, "refers");
-        String  variableSeparator = getString(jsonObject, "variableSeparator");
-        String  whenEmpty         = getString(jsonObject, "whenEmpty");
+        Integer width             = getInt(jsonObject, "width", FormDialog.defaultDialogWidth, false);
+        Integer height            = getInt(jsonObject, "height", FormDialog.defaultDialogHeight, false);
+        Integer spacing           = getInt(jsonObject, "spacing", FormDialog.defaultDialogSpacing, false);
+        Integer buttonWidth       = getInt(jsonObject, "buttonWidth", FormDialog.defaultButtonWidth, false);
+        Integer buttonHeight      = getInt(jsonObject, "buttonHeight", FormDialog.defaultButtonHeight, false);
+        String  refers            = getString(jsonObject, "refers", FormDialog.validRefers[0]).toLowerCase();
+        String  variableSeparator = getString(jsonObject, "variableSeparator", FormDialog.defaultVariableSeparator);
+        String  whenEmpty         = getString(jsonObject, "whenEmpty", FormDialog.validWhenEmpty[0]).toLowerCase();
         
         getForegroundAndBackground(jsonObject, form, treeItem);
         getFilter(jsonObject, form, treeItem);
         
-        String  buttonOkText          = getString(jsonObject, "buttonOk");
-        String  buttonCancelText      = getString(jsonObject, "buttonCancel");
-        String  buttonExportText      = getString(jsonObject, "buttonExport");
-    	
-        if (logger.isTraceEnabled()) {
-            logger.trace("      variableSeparator = " + variableSeparator);
-            logger.trace("      width = " + width);
-            logger.trace("      height = " + height);
-            logger.trace("      spacing = " + spacing);
-            logger.trace("      buttonWidth = " + buttonWidth);
-            logger.trace("      buttonHeight = " + buttonHeight);
-            logger.trace("      refers = " + refers);
-            logger.trace("      buttonOk = " + buttonOkText);
-            logger.trace("      buttonCancel = " + buttonCancelText);
-            logger.trace("      buttonExport = " + buttonExportText);
-            logger.trace("      whenEmpty = " + whenEmpty);
-        }
+        String  buttonOkText          = getString(jsonObject, "buttonOk", FormDialog.defaultButtonOkText);
+        String  buttonCancelText      = getString(jsonObject, "buttonCancel", FormDialog.defaultButtonCancelText);
+        String  buttonExportText      = getString(jsonObject, "buttonExport", FormDialog.defaultButtonExportText);
         
         // we register the values from the configuration file that are needed by the graphical editor
         if ( treeItem != null ) {
@@ -139,23 +125,6 @@ public class FormJsonParser {
         	setData(treeItem, "buttonExport",      buttonExportText);
         	setData(treeItem, "whenEmpty",         whenEmpty);
         }
-        
-        // width, height, spacing
-        if ( width == null || width < 0 )
-        	width = FormDialog.defaultDialogWidth;
-        
-        if ( height == null || height < 0 )
-        	height = FormDialog.defaultDialogHeight;
-        
-        if ( spacing == null || spacing < 0 )
-        	spacing = FormDialog.defaultDialogSpacing;
-        
-        // buttonWidth, buttonHeigh
-        if ( buttonWidth == null || buttonWidth < 0 )
-        	buttonWidth = FormDialog.defaultButtonWidth;
-        
-        if ( buttonHeight == null || buttonHeight < 0 )
-        	buttonHeight = FormDialog.defaultButtonHeight;
 
         // resizing the shell
         form.setBounds((display.getPrimaryMonitor().getBounds().width-width)/2, (display.getPrimaryMonitor().getBounds().height-height)/2, width, height);
@@ -167,40 +136,31 @@ public class FormJsonParser {
         
         // creating the buttons
         Button cancelButton = new Button(form, SWT.NONE);
+        cancelButton.setText(FormDialog.defaultButtonCancelText);
         FormData fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
         fd.left = new FormAttachment(100, -(buttonWidth+spacing));
         fd.right = new FormAttachment(100, -spacing);
         fd.bottom = new FormAttachment(100, -spacing);
         cancelButton.setLayoutData(fd);
-        if ( buttonCancelText != null )
-        	cancelButton.setText(buttonCancelText);
-        else
-        	cancelButton.setText(FormDialog.defaultButtonCancelText);
         
         Button okButton = new Button(form, SWT.NONE);
+        okButton.setText(FormDialog.defaultButtonOkText);
         fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
         fd.left = new FormAttachment(cancelButton, -(buttonWidth+spacing), SWT.LEFT);
         fd.right = new FormAttachment(cancelButton, -spacing);
         fd.bottom = new FormAttachment(100, -spacing);
         okButton.setLayoutData(fd);
-        if ( buttonOkText != null )
-        	okButton.setText(buttonOkText);
-        else
-        	okButton.setText(FormDialog.defaultButtonOkText);
         
         Button exportToExcelButton = new Button(form, SWT.NONE);
+        exportToExcelButton.setText(FormDialog.defaultButtonExportText);
         fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
         fd.left = new FormAttachment(okButton, -(buttonWidth+spacing), SWT.LEFT);
         fd.right = new FormAttachment(okButton, -spacing);
         fd.bottom = new FormAttachment(100, -spacing);
         exportToExcelButton.setLayoutData(fd);
-        if ( buttonExportText != null )
-        	exportToExcelButton.setText(buttonExportText);
-        else
-        	exportToExcelButton.setText(FormDialog.defaultButtonExportText);
         
         // we create the tab folder
         CTabFolder tabFolder = new CTabFolder(form, SWT.BORDER);
@@ -224,8 +184,6 @@ public class FormJsonParser {
         }
         
         // used by form
-        if ( variableSeparator == null )
-        	variableSeparator = FormDialog.defaultVariableSeparator;
         form.setData("variable separator", variableSeparator);			// we insert a space in the key name in order to guarantee that it will never conflict with a keyword in the configuration file
         form.setData("tab folder", tabFolder);
         form.setData("export button", exportToExcelButton);
@@ -264,8 +222,7 @@ public class FormJsonParser {
         getForegroundAndBackground(jsonObject, composite, treeItem);
 
     	// name
-        if ( name != null )
-        	tabItem.setText(name);						// may be replaced by FormVariable.expand(name, selectedObject) in calling method
+       	tabItem.setText(name);						// may be replaced by FormVariable.expand(name, selectedObject) in calling method
         
         // used by graphical editor
         if ( treeItem != null ) {
@@ -333,7 +290,7 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("label");
         
-        getWidth(jsonObject, tableColumn, treeItem);
+        getTableColumnWidth(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getAlignment(jsonObject, tableColumn, treeItem);
@@ -455,7 +412,7 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("image");
         
-        getWidth(jsonObject, tableColumn, treeItem);
+        getTableColumnWidth(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getAlignment(jsonObject, tableColumn, treeItem);
@@ -578,7 +535,7 @@ public class FormJsonParser {
         FormPosition.setTabName(name);
         FormPosition.setControlClass("text");
 
-        getWidth(jsonObject, tableColumn, treeItem);
+        getTableColumnWidth(jsonObject, tableColumn, treeItem);
         getRegexp(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
@@ -703,7 +660,7 @@ public class FormJsonParser {
         
         getValues(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
-        getWidth(jsonObject, tableColumn, treeItem);
+        getTableColumnWidth(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
         getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
         
@@ -828,7 +785,7 @@ public class FormJsonParser {
         
  	   	getValues(jsonObject, tableColumn, treeItem);
  	    getForegroundAndBackground(jsonObject, tableColumn, treeItem);
-   		getWidth(jsonObject, tableColumn, treeItem);
+   		getTableColumnWidth(jsonObject, tableColumn, treeItem);
    		getAlignment(jsonObject, tableColumn, treeItem);
  	   	getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
  	   	getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
@@ -939,7 +896,7 @@ public class FormJsonParser {
     	
     	TableItem tableItem = null;
     	boolean mustCreateLine = true;
-    	Boolean generate = getBoolean(jsonObject, "generate");
+    	Boolean generate = getBoolean(jsonObject, "generate", false);
     	
     	// if the selectedObject is provided AND if the lines are generated
     	//    then we check the selectedObject against the filter
@@ -998,7 +955,7 @@ public class FormJsonParser {
         return tableItem;
     }
     
-    /***************************************************************/
+    /* **************************************************************/
     /**
      * Checks whether the eObject fits in the filter rules
      */
@@ -1007,11 +964,7 @@ public class FormJsonParser {
             return true;
         }
 
-        String type = getString(filterObject, "genre");
-        if ( FormPlugin.isEmpty(type) )
-        	type = "AND";
-        else
-        	type = type.toUpperCase();
+        String type = getString(filterObject, "genre", "and").toUpperCase();
 
         if (!type.equals("AND") && !type.equals("OR"))
             throw new RuntimeException("Invalid filter genre. Supported genres are \"AND\" and \"OR\".");
@@ -1022,9 +975,9 @@ public class FormJsonParser {
         Iterator<JSONObject> filterIterator = getJSONArray(filterObject, "tests").iterator();
         while (filterIterator.hasNext()) {
             JSONObject filter = filterIterator.next();
-            String attribute = getString(filter, "attribute");
+            String attribute = getString(filter, "attribute", null);
             String attributeValue = null;
-            String operationRequested = getString(filter, "operation");
+            String operationRequested = getString(filter, "operation", null);
             String operation = null;
             String value;
             String[] values;
@@ -1040,7 +993,7 @@ public class FormJsonParser {
 
             switch (operation.toLowerCase()) {
                 case "equals":
-                    value = getString(filter, "value");
+                    value = getString(filter, "value", null);
                     if (logger.isTraceEnabled())
                         logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
                     
@@ -1052,7 +1005,7 @@ public class FormJsonParser {
                     break;
 
                 case "in":
-                    value = getString(filter, "value");
+                    value = getString(filter, "value", null);
                     if (logger.isTraceEnabled())
                         logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
                     
@@ -1082,7 +1035,7 @@ public class FormJsonParser {
                     break;
 
                 case "iequals":
-                    value = getString(filter, "value");
+                    value = getString(filter, "value", null);
                     if (logger.isTraceEnabled())
                         logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
 
@@ -1094,7 +1047,7 @@ public class FormJsonParser {
                     break;
 
                 case "iin":
-                    value = getString(filter, "value");
+                    value = getString(filter, "value", null);
                     if (logger.isTraceEnabled())
                         logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\" \""+value+"\"");
                     
@@ -1154,20 +1107,21 @@ public class FormJsonParser {
     	JSONObject filter = getJSONObject(jsonObject, "filter");
     	List<Map<String, String>> tests = null;
     	
-    	String genre = getString(filter, "genre");
-    	
-    	// required by the graphical editor
-    	if ( treeItem != null ) {
-    		setData(treeItem, "genre", genre);
-    	}
-    	
-    	// required by the form
-    	if ( widget != null ) {
-    		widget.setData("genre", genre);
-    	}
-    	
     	JSONArray testsJson = getJSONArray(filter, "tests");
+    	
     	if ( testsJson != null ) {
+        	String genre = getString(filter, "genre", "and").toUpperCase();
+        	
+        	// required by the graphical editor
+        	if ( treeItem != null ) {
+        		setData(treeItem, "genre", genre);
+        	}
+        	
+        	// required by the form
+        	if ( widget != null ) {
+        		widget.setData("genre", genre);
+        	}
+        	
     		tests = new ArrayList<Map<String, String>>();
     		
             @SuppressWarnings("unchecked")
@@ -1176,10 +1130,10 @@ public class FormJsonParser {
             	JSONObject test = testIterator.next();
             	
             	Map<String, String> t = new HashMap<String, String>();
-            	
-            	t.put("attribute", getString(test, "attribute"));
-            	t.put("operation", getString(test, "operation"));
-            	t.put("value",     getString(test, "value"));
+            	logger.trace("      adding test: ");
+            	t.put("attribute", getString(test, "attribute", null));
+            	t.put("operation", getString(test, "operation", null));
+            	t.put("value",     getString(test, "value", null));
             	
             	tests.add(t);
             }
@@ -1198,7 +1152,7 @@ public class FormJsonParser {
     }
     
     private Boolean getGenerate(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
-    	Boolean generate = getBoolean(jsonObject, "generate");
+    	Boolean generate = getBoolean(jsonObject, "generate", false);
     	
     	// required by the graphical editor
     	if ( treeItem != null ) {
@@ -1437,7 +1391,7 @@ public class FormJsonParser {
     	}
     }
     
-    /*********************************************************************************************************************************/
+    /* ********************************************************************************************************************************/
     
     /**
      * Gets the value corresponding to the key in the JSONObject
@@ -1479,7 +1433,7 @@ public class FormJsonParser {
         	return null;
         
         if ( !(result instanceof JSONObject) ) {
-            FormPlugin.error("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
+        	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be a JSONObject.");
             return null;
         }
         
@@ -1503,7 +1457,7 @@ public class FormJsonParser {
         	return null;
         
         if ( !(result instanceof JSONArray) ) {
-            FormPlugin.error("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a JSONarray.");
+        	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be a JSONArray.");
             return null;
         }
         
@@ -1517,21 +1471,63 @@ public class FormJsonParser {
      *            the JSONObject
      * @param key
      *            the key (case insensitive)
-     * @return the value if found, ClassCastException if the object found is not
-     *         a String
+     * @return the value if found, ClassCastException if the object found is not a String
      */
-    public String getString(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key);
+    public String getString(JSONObject obj, String key, String defaultValue) throws RuntimeException, ClassCastException {
+    	boolean mustSetDefaultValue = false;
+    	Object result = getJSON(obj, key);
         
         if ( result == null )
-        	return null;
+        	mustSetDefaultValue = defaultValue != null;
+        else {
+            if ( !(result instanceof String) ) {
+            	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be a String.");
+                mustSetDefaultValue = true;
+            }
+        }
 
-        if ( !(result instanceof String) ) {
-            FormPlugin.error("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a String.");
-            return null;
+    	String resultDbg = (result!=null && ((String)result).length() > 51) ? (((String)result).substring(0, 50)+"...") : (String)result;
+        if ( mustSetDefaultValue ) {
+            logger.trace("      "+key+" = "+resultDbg+" (defaulting to "+defaultValue+")");
+            result = defaultValue;
+        } else {
+    		logger.trace("      "+key+" = " + resultDbg);
         }
         
-        return (String) result;
+        return (String)result;
+    }
+    
+    /**
+     * Gets the value corresponding to the key in the JSONObject
+     * 
+     * @param obj
+     *            the JSONObject
+     * @param key
+     *            the key (case insensitive)
+     * @return the value if found, ClassCastException if the object found is not a String
+     */
+    public String getString(JSONObject obj, String key, String defaultValue, String[] validValues) throws RuntimeException, ClassCastException {
+        boolean mustSetDefaultValue = false;
+    	Object result = getJSON(obj, key);
+        
+        if ( result == null )
+        	mustSetDefaultValue = defaultValue != null;
+        else {
+            if ( result instanceof String )
+            	mustSetDefaultValue = !inArray(validValues, ((String)result).toLowerCase());
+            else {
+            	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be a String.");
+                mustSetDefaultValue = true;
+            }
+        }
+        
+        if ( mustSetDefaultValue ) {
+            logger.trace("      "+key+" = "+result+" (defaulting to "+defaultValue+")");
+            result = defaultValue;
+        } else
+    		logger.trace("      "+key+" = " + result);
+
+        return (String)result;
     }
 
     /**
@@ -1544,16 +1540,26 @@ public class FormJsonParser {
      * @return the value if found, ClassCastException if the object found is not
      *         an Integer
      */
-    public Integer getInt(JSONObject obj, String key) throws RuntimeException, ClassCastException {
-        Object result = getJSON(obj, key);
+    public Integer getInt(JSONObject obj, String key, Integer defaultValue, boolean canBeZero) throws RuntimeException, ClassCastException {
+        boolean mustSetDefaultValue = false;
+    	Object result = getJSON(obj, key);
         
         if ( result == null )
-        	return null;
-
-        if ( !(result instanceof Long) ) {
-            FormPlugin.error("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be an Integer.");
-            return null;
+        	mustSetDefaultValue = defaultValue != null;
+        else {
+            if ( result instanceof Long )
+            	mustSetDefaultValue = (Long)result <= 0L || (!canBeZero && (Long)result == 0L);
+            else {
+            	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be an Integer.");
+                mustSetDefaultValue = true;
+            }
         }
+
+        if ( mustSetDefaultValue ) {
+            logger.trace("      "+key+" = "+result+" (defaulting to "+defaultValue+")");
+            result = new Long(defaultValue);
+        } else
+    		logger.trace("      "+key+" = " + result);
         
         return ((Long)result).intValue();
     }
@@ -1569,16 +1575,24 @@ public class FormJsonParser {
      * @return the value if found, ClassCastException if the object found is not
      *         a boolean
      */
-    public Boolean getBoolean(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+    public Boolean getBoolean(JSONObject obj, String key, Boolean defaultValue) throws RuntimeException, ClassCastException {
+    	boolean mustSetDefaultValue = false;
         Object result = getJSON(obj, key);
         
         if ( result == null )
-        	return null;
-
-        if ( !(result instanceof Boolean) ) {
-            FormPlugin.error("Key \"" + key + "\" is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
-            return null;
+        	mustSetDefaultValue = defaultValue != null;
+        else {
+            if ( !(result instanceof Boolean) ) {
+            	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
+                mustSetDefaultValue = true;
+            }
         }
+
+        if ( mustSetDefaultValue ) {
+            logger.trace("      "+key+" = "+result+" (defaulting to "+defaultValue+")");
+            result = defaultValue;
+        } else
+    		logger.trace("      "+key+" = " + result);
         
         return (Boolean)result;
     }
@@ -1602,7 +1616,7 @@ public class FormJsonParser {
         return false;
     }
 
-    /***********************************************************************************************************/
+    /* **********************************************************************************************************/
     
     public boolean inArray(String[] stringArray, String string) {
     	if ( string == null )
@@ -1615,20 +1629,21 @@ public class FormJsonParser {
         return false;
     }
     
-    /***********************************************************************************************************/
+    /* **********************************************************************************************************/
     
     private void getXY(JSONObject jsonObject, Control control, TreeItem treeItem) {
-    	Integer x      = getInt(jsonObject, "x");
-    	Integer y      = getInt(jsonObject, "y");
-    	Integer width  = getInt(jsonObject, "width");
-    	Integer height = getInt(jsonObject, "height");
-    	
-        if ( logger.isTraceEnabled() ) {
-            logger.trace("      x = "      + x);
-            logger.trace("      y = " 	   + y);
-            logger.trace("      width = "  + width);
-            logger.trace("      height = " + height);
+    	int defaultWidth = 0;
+    	int defaultHeight = 0;
+        if ( control != null ) {
+	    	Point p = control.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+	    	defaultWidth = p.x;
+	    	defaultHeight = p.y;
         }
+        
+    	Integer x      = getInt(jsonObject, "x", 0, true);
+    	Integer y      = getInt(jsonObject, "y", 0, true);
+    	Integer width  = getInt(jsonObject, "width", defaultWidth, true);
+    	Integer height = getInt(jsonObject, "height", defaultHeight, true);
     	
         // required by graphical editor
         if ( treeItem != null ) {
@@ -1639,18 +1654,16 @@ public class FormJsonParser {
         }
 
         // we set the widget position
-        if ( control != null ) {
-	    	Point p = control.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-	    	if ( x == null      || x < 0 )       x = 0;
-	    	if ( y == null      || y < 0 )       y = 0;
-	    	if ( width == null  || width <= 0  ) width = p.x;
-	    	if ( height == null || height <= 0 ) height = p.y;
+        if ( control != null )
 	    	control.setBounds(x, y, width, height);
-        }
     }
     
-    private void getWidth(JSONObject jsonObject, TableColumn tableColumn, TreeItem treeItem) {
-    	Integer width  = getInt(jsonObject, "width");
+    private void getTableColumnWidth(JSONObject jsonObject, TableColumn tableColumn, TreeItem treeItem) {
+    	int defaultWidth = 50;
+    	if ( tableColumn != null && tableColumn.getData("name") != null )
+    		defaultWidth = 10 + ((String)tableColumn.getData("name")).length()*8;
+    	
+    	Integer width  = getInt(jsonObject, "width", defaultWidth, false);
     	
         if ( logger.isTraceEnabled() ) {
             logger.trace("      width = "  + width);
@@ -1663,20 +1676,14 @@ public class FormJsonParser {
         
         // we set the tableColumn width
         if ( tableColumn != null ) {
-	    	if ( width == null  || width < 0  ) {
-	    		if ( tableColumn.getData("name") == null )
-	    			width = 50;
-	    		else
-	    			width = (10 + ((String)tableColumn.getData("name")).length() * 8);;
-	    	}
-	    	tableColumn.setWidth(width);
+        	tableColumn.setWidth(width);
 	    	tableColumn.setResizable(width != 0);
         }
     }
     
     private void getForegroundAndBackground(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
-    	String foreground = getString(jsonObject, "foreground");
-    	String background = getString(jsonObject, "background");
+    	String foreground = getString(jsonObject, "foreground", null);
+    	String background = getString(jsonObject, "background", null);
     	
         if ( logger.isTraceEnabled() ) {
 	        logger.trace("      foreground = "    + foreground);
@@ -1702,11 +1709,7 @@ public class FormJsonParser {
     }
     
     private void getAlignment(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
-    	String alignment = getString(jsonObject, "alignment");
-    	
-    	if ( logger.isTraceEnabled() ) {
-    		logger.trace("      alignment = " + alignment);
-    	}
+    	String alignment = getString(jsonObject, "alignment", FormDialog.validAlignment[0]).toLowerCase();
     	
     	// required by the graphical editor
     	if ( treeItem != null ) {
@@ -1720,11 +1723,7 @@ public class FormJsonParser {
     }
     
     private void getRegexp(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
-    	String regexp = getString(jsonObject, "regexp");
-    	
-    	if ( logger.isTraceEnabled() ) {
-    		logger.trace("      regexp = " + regexp);
-    	}
+    	String regexp = getString(jsonObject, "regexp", null);
     	
     	// required by the graphical editor
     	if ( treeItem != null ) {
@@ -1738,24 +1737,13 @@ public class FormJsonParser {
     }
     
     private void getVariable(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
-    	String  variable      = getString(jsonObject, "variable");
-    	String  defaultText   = getString(jsonObject, "default");
-    	Boolean forceDefault  = getBoolean(jsonObject, "forceDefault");
-    	String  whenEmpty     = getString(jsonObject, "whenEmpty");
-        Boolean editable      = getBoolean(jsonObject, "editable");
-        
-		if ( logger.isTraceEnabled() ) {
-			logger.trace("      variable = "	  + variable);
-			logger.trace("      default = " 	  + defaultText);
-			logger.trace("      forceDefault = "  + forceDefault);
-			logger.trace("      whenEmpty = "     + whenEmpty);
-			if ( widget != null && (widget instanceof StyledText || widget instanceof CCombo) )
-				logger.trace("      editable = "  + editable);
-		}
-		
-        // check whenEmpty value
-        if ( !inArray(FormDialog.validWhenEmpty, whenEmpty))
-        	FormPlugin.error(FormPosition.getPosition("whenEmpty") + "\n\nInvalid value \""+whenEmpty+"\" (valid values are "+FormPlugin.concat(FormDialog.validWhenEmpty, "\"", ",")+").");
+    	String  variable      = getString(jsonObject, "variable", null);
+    	String  defaultText   = getString(jsonObject, "default", null);
+    	Boolean forceDefault  = getBoolean(jsonObject, "forceDefault", false);
+    	String  whenEmpty     = getString(jsonObject, "whenEmpty", FormDialog.validWhenEmpty[0], FormDialog.validWhenEmpty);
+        Boolean editable = null;
+        if ( widget != null && (widget instanceof StyledText || widget instanceof CCombo) )
+        	editable = getBoolean(jsonObject, "editable", true);
 
         // required by the graphical editor
     	if ( treeItem != null ) {
@@ -1800,30 +1788,11 @@ public class FormJsonParser {
     }
     
     private void getExcelCellOrColumn(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
-    	String excelSheet    = getString(jsonObject, "excelSheet");
-    	String excelCell     = getString(jsonObject, "excelCell");
-    	String excelColumn   = getString(jsonObject, "excelColumn");
-    	String excelCellType = getString(jsonObject, "excelCellType");
-    	String excelDefault  = getString(jsonObject, "excelDefault");
-    	
-        if ( logger.isTraceEnabled() ) {
-        	if ( widget != null && widget instanceof TableColumn )			// when TableColumn (excelSheet is referenced in the Table)
-        		logger.trace("      excelColumn = " + excelCell);
-        	else {															// when Text, CCombo or Button
-            	logger.trace("      excelSheet = "  + excelSheet);
-        		logger.trace("      excelCell = " 	+ excelCell);
-        	}
-        	logger.trace("      excelCellType = "   + excelCellType);
-        	logger.trace("      excelDefault = "    + excelDefault);
-        }
-        
-        // checking excelCellType value
-        if ( !inArray(FormDialog.validExcelCellType, excelCellType))
-       		FormPlugin.error(FormPosition.getPosition("excelCellType") + "\n\nInvalid excelCellType value \""+excelCellType+"\" (valid values are "+FormPlugin.concat(FormDialog.validExcelCellType, "\"", ",")+").");
-        
-        // checking excelDefault value
-        if ( !inArray(FormDialog.validExcelDefault, excelDefault))
-        	FormPlugin.error(FormPosition.getPosition("excelDefault") + "\n\nInvalid excelDefault value \""+excelDefault+"\" (valid values are "+FormPlugin.concat(FormDialog.validExcelDefault, "\"", ",")+").");
+    	String excelSheet    = getString(jsonObject, "excelSheet", null);
+    	String excelCell     = getString(jsonObject, "excelCell", null);
+    	String excelColumn   = (widget != null && widget instanceof TableColumn) ? getString(jsonObject, "excelColumn", null) : null;		// excelColumn is used only when TableColumn (excelSheet is referenced in the Table)
+    	String excelCellType = getString(jsonObject, "excelCellType", FormDialog.validExcelCellType[0], FormDialog.validExcelCellType);
+    	String excelDefault  = getString(jsonObject, "excelDefault", FormDialog.validExcelDefault[0], FormDialog.validExcelDefault);
         
         // required by the graphical editor
         if ( treeItem != null ) {
@@ -1858,15 +1827,9 @@ public class FormJsonParser {
     }
     
     private void getExcelLines(JSONObject jsonObject, Table table, TreeItem treeItem) {
-    	String  excelSheet     = getString(jsonObject, "excelSheet");
-    	Integer excelFirstLine = getInt(jsonObject, "excelFirstLine");
-    	Integer excelLastLine  = getInt(jsonObject, "excelLastLine");
-    	
-    	if ( logger.isTraceEnabled() ) {
-    		logger.trace("      excelSheet = "     + excelSheet);
-    		logger.trace("      excelFirstLine = " + excelFirstLine);
-    		logger.trace("      excelLastLine = "  + excelLastLine);
-    	}
+    	String  excelSheet     = getString(jsonObject, "excelSheet", null);
+    	Integer excelFirstLine = getInt(jsonObject, "excelFirstLine", 1, false);
+    	Integer excelLastLine  = getInt(jsonObject, "excelLastLine", 0, true);
     	
     	// required by the graphical editor
     	if ( treeItem != null ) {
@@ -1919,11 +1882,7 @@ public class FormJsonParser {
     }
     
     private void getTooltip(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
-    	String tooltip = getString(jsonObject, "tooltip");
-    	
-        if ( logger.isTraceEnabled() ) {
-        	logger.trace("      tooltip = " + tooltip);
-        }
+    	String tooltip = getString(jsonObject, "tooltip", null);
         
     	// required by the graphical editor
         if ( treeItem != null ) {
@@ -1944,37 +1903,25 @@ public class FormJsonParser {
     }
     
     private String getName(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
-    	String name = getString(jsonObject, "name");
-    	String comment = getString(jsonObject, "comment");
-    	
-        if ( logger.isTraceEnabled() ) {
-        	logger.trace("      name = " + name);
-        	logger.trace("      comment = " + comment);
-        }
+    	String name = getString(jsonObject, "name", "");
+    	String comment = getString(jsonObject, "comment", "");
         
     	// required by the graphical editor
         if ( treeItem != null ) {
         	setData(treeItem, "name", name);
         	setData(treeItem, "comment", comment);
-        	if ( name != null ) 
-        		treeItem.setText(name);
+      		treeItem.setText(name);
         }
     	
         // we set the column text to its name
-        if ( widget != null && name != null ) {
-	        if ( widget instanceof TableColumn )
-	        	((TableColumn)widget).setText(name);
-        }
+        if ( widget != null && widget instanceof TableColumn )
+	        ((TableColumn)widget).setText(name);
         
         return name;
     }
 
 	private void getText(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
-		String text = getString(jsonObject, "text");
-		
-	    if ( logger.isTraceEnabled() ) {
-	    	logger.trace("      text = " + text);
-	    }
+		String text = getString(jsonObject, "text", "");
 	    
 	    // required by the graphical editor
 		if ( treeItem != null ) {
@@ -1990,18 +1937,9 @@ public class FormJsonParser {
 	}
 	
    private void getImage(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
-        String imageName = getString(jsonObject, "image");
-        String imageContent = getString(jsonObject, "content");
-        Boolean scale = getBoolean(jsonObject, "scale");
-        
-        if ( logger.isTraceEnabled() ) {
-            logger.trace("      image = " + imageName);
-            logger.trace("      content = " + ((imageContent==null||imageContent.length()<20) ? imageContent : (imageContent.substring(0,20)+"...")) );
-            logger.trace("      scale = " + scale);
-        }
-        
-        if ( scale == null )
-        	scale = false;
+        String imageName = getString(jsonObject, "image", null);
+        String imageContent = getString(jsonObject, "content", null);
+        Boolean scale = getBoolean(jsonObject, "scale", false);
         
         // required by the graphical editor
         if ( treeItem != null ) {
@@ -2018,7 +1956,12 @@ public class FormJsonParser {
         
         if ( label != null ) {
             //TODO : create a cache for the images.
-        	Image image = null;
+        	Image image = label.getImage();
+        	
+        	if ( image != null ) {
+        		image.dispose();
+        		image = null;
+        	}
     		
         	if ( !FormPlugin.isEmpty(imageContent) ) {
         		image = FormPlugin.stringToImage(imageContent);
@@ -2043,17 +1986,10 @@ public class FormJsonParser {
     }
     
     private void getFont(JSONObject jsonObject, Control control, TreeItem treeItem) {
-    	String  fontName = getString(jsonObject, "fontName");
-    	Integer fontSize = getInt(jsonObject, "fontSize");
-    	Boolean fontBold = getBoolean(jsonObject, "fontBold");
-    	Boolean fontItalic = getBoolean(jsonObject, "fontItalic");
-    	
-    	if ( logger.isTraceEnabled() ) {
-	        logger.trace("      fontName = " + fontName);
-	        logger.trace("      fontSize = " + fontSize);
-	        logger.trace("      fontBold = " + fontBold);
-	        logger.trace("      fontItalic = " + fontItalic);
-    	}
+    	String  fontName = getString(jsonObject, "fontName", null);
+    	Integer fontSize = getInt(jsonObject, "fontSize", 0, true);
+    	Boolean fontBold = getBoolean(jsonObject, "fontBold", false);
+    	Boolean fontItalic = getBoolean(jsonObject, "fontItalic", false);
     	
     	// required by the graphical editor
     	if ( treeItem != null ) {
@@ -2088,7 +2024,7 @@ public class FormJsonParser {
         keys.add(key);
     }
     
-    /***********************************************************************************************************/
+    /* **********************************************************************************************************/
     @SuppressWarnings("unchecked")
 	public JSONObject generateJson(Tree tree) throws RuntimeException {
     	JSONObject json = new JSONObject();

@@ -165,6 +165,7 @@ public class FormDialog extends Dialog {
     public static final String[] validWhenEmpty           = new String[] {"ignore", "create", "delete" };					// default value is first one
     public static final String[] validExcelCellType       = new String[] {"string", "numeric", "boolean", "formula" };		// default value is first one
     public static final String[] validExcelDefault        = new String[] {"blank", "zero", "delete" };						// default value is first one
+    public static final String[] validFilterGenre         = new String[] {"and", "or"};										// default value is the first one
     
 	public static final Image    BIN_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/bin.png"));
 	public static final Image    BAS_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/flèche_bas.png"));
@@ -299,7 +300,7 @@ public class FormDialog extends Dialog {
                 // If there is at least one Excel sheet specified, then we show up the "export to Excel" button
                 @SuppressWarnings("unchecked")
 				HashSet<String> excelSheets = (HashSet<String>)formDialog.getData("excel sheets");
-                //TODO: must be filled in in FormJsonParser
+                //TODO: must be filled-in in FormJsonParser
                 exportButton.setVisible(!excelSheets.isEmpty());
             }
         } catch (ClassCastException e) {
@@ -827,8 +828,10 @@ public class FormDialog extends Dialog {
             FormJsonParser jsonParser = new FormJsonParser();
             TreeItem treeItem = null;
 
-            String clazz = jsonParser.getString(jsonControl, "class");
-            if ( clazz != null ) {
+            String clazz = jsonParser.getString(jsonControl, "class", null);
+            if ( clazz == null )
+            	FormPlugin.error(FormPosition.getPosition(null) + "\n\nMissing \"class\" keyword.");
+            else {
                 String variableValue;
                 Control control = null;
                 
@@ -906,8 +909,10 @@ public class FormDialog extends Dialog {
                             while (columnsIterator.hasNext()) {
                                 JSONObject jsonColumn = columnsIterator.next();
                                 
-                                clazz = jsonParser.getString(jsonColumn, "class");
-                                if ( clazz != null ) {
+                                clazz = jsonParser.getString(jsonColumn, "class", null);
+                                if ( clazz == null )
+                                	FormPlugin.error(FormPosition.getPosition(null) + "\n\nMissing \"class\" keyword.");
+                                else {
                                 	if ( editMode )
                                 		treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
                                 	
@@ -1016,15 +1021,6 @@ public class FormDialog extends Dialog {
     private void ok() {
         if (logger.isDebugEnabled())
             logger.debug("Ok button selected by user.");
-        CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
-        try {
-            for (Control control : formDialog.getChildren()) {
-                save(compoundCommand, control);
-            }
-        } catch (RuntimeException e) {
-            popup(Level.ERROR, "Failed to save variables.", e);
-            return;
-        }
 
         IArchimateModel model;
 
@@ -1047,6 +1043,16 @@ public class FormDialog extends Dialog {
             return;
         }
         
+        CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
+        try {
+            for (Control control : formDialog.getChildren()) {
+                save(compoundCommand, control);
+            }
+        } catch (RuntimeException e) {
+            popup(Level.ERROR, "Failed to save variables.", e);
+            return;
+        }
+        
         logger.trace("Executing "+compoundCommand.size()+" command ...");
 
         CommandStack stack = (CommandStack) model.getAdapter(CommandStack.class);
@@ -1056,6 +1062,7 @@ public class FormDialog extends Dialog {
     }
     
     private void save(CompoundCommand compoundCommand, Control control) throws RuntimeException {
+    	logger.trace("Saving "+control.getClass().getSimpleName()+" "+control.getData("name"));
         switch (control.getClass().getSimpleName()) {
             case "Label":
                 break;					// nothing to save here
