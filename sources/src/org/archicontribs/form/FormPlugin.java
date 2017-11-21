@@ -156,7 +156,7 @@ import com.archimatetool.model.INameable;
  *  							update graphical generator : remove filter when empty 
  * 								remove error message when using ${screenshot} variable
  * 								fix "generate" keyword in graphical editor
- * 								fix exort image to Excel spreadsheet
+ * 								fix export image to Excel spreadsheet
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
