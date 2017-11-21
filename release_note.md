@@ -1,16 +1,23 @@
+## v1.8.2: 21/11/2017
+* Add more default values to configuration's file keywords
+* Update graphical generator : remove filter when empty 
+* Remove error message when using ${screenshot} variable
+* Fix "generate" keyword in graphical editor
+* Fix epxort image to Excel spreadsheet
+
+* TODO list
+  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+  * Add the sum or average of column values
+  * Add a "if" option on all controls that would work like "filter" but for individual controls ...
+    * if the condition is met, then the control is created, else it is not created
+	
+	
 ## v1.8.1: 18/11/2017
 * Add ${screenshot} variable to get a view screenshot
 * Add the "content" property to image class
 * Add "comment" property this is not used by form but allow to keep some comment on every controls
 * Update the inline help pages
 * fix menus' icon
-
-* TODO list
-  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
-  * Add the sum or average of column values
-  * Add a "comment" field for all the controls
-  * Add a "if" option on all controls that would work like "filter" but for individual controls ...
-    * if the condition is met, then the control is created, else it is not created
 
 ## v1.8: 16/11/2017
 * Add class image
