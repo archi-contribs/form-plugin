@@ -2,6 +2,7 @@ package org.archicontribs.form;
 
 import java.awt.Desktop;
 import java.awt.Toolkit;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,11 +23,12 @@ import javax.script.ScriptException;
 
 import org.apache.log4j.Level;
 import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.hssf.usermodel.HSSFPatriarch;
+import org.apache.poi.hssf.usermodel.HSSFShape;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor;
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Drawing;
 import org.apache.poi.ss.usermodel.Picture;
 import org.apache.poi.ss.usermodel.Row;
@@ -35,6 +37,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.xssf.usermodel.XSSFDrawing;
+import org.apache.poi.xssf.usermodel.XSSFShape;
 import org.archicontribs.form.composites.CheckColumnComposite;
 import org.archicontribs.form.composites.CheckComposite;
 import org.archicontribs.form.composites.ComboColumnComposite;
@@ -74,6 +78,8 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -1187,6 +1193,12 @@ public class FormDialog extends Dialog {
             } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
                 closePopup();
                 popup(Level.ERROR, "The file " + excelFile + " seems not to be an Excel file!", e);
+                try {
+					file.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
                 // TODO: add an option to create an empty Excel file
                 return;
             }
@@ -1205,6 +1217,12 @@ public class FormDialog extends Dialog {
                     } catch (IOException ign) {
                         ign.printStackTrace();
                     }
+                    try {
+    					file.close();
+    				} catch (IOException e1) {
+    					// TODO Auto-generated catch block
+    					e1.printStackTrace();
+    				}
                     return;
                 }
             }
@@ -1413,7 +1431,7 @@ public class FormDialog extends Dialog {
                     FileOutputStream outFile = new FileOutputStream(excelFile);
                     workbook.write(outFile);
                     outFile.close();
-                } catch (IOException e) {
+                } catch (Exception e) {
                     closePopup();
                     popup(Level.ERROR, "Failed to export updates to Excel file.", e);
                     exportOk = false;
@@ -1425,6 +1443,12 @@ public class FormDialog extends Dialog {
             } catch (IOException ign) {
                 ign.printStackTrace();
             }
+            try {
+				file.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 
             closePopup();
 
@@ -1526,17 +1550,48 @@ public class FormDialog extends Dialog {
     private void excelWriteImage(Row row, short column, Image image) throws RuntimeException {
         Sheet sheet = row.getSheet();
         Workbook wb = sheet.getWorkbook();
-        int imageIndex = wb.addPicture(image.getImageData().data, Workbook.PICTURE_TYPE_PNG);
-        
-        CreationHelper helper = wb.getCreationHelper();
         Drawing drawing = sheet.createDrawingPatriarch();
-        ClientAnchor anchor = helper.createClientAnchor();
+        
+        // we first remove any image that is anchored to the same cell
+        if (drawing instanceof HSSFPatriarch) {
+            HSSFPatriarch hp = (HSSFPatriarch)drawing;
+            for (HSSFShape hs : hp.getChildren()) {
+                if (hs instanceof Picture)  {
+                    ClientAnchor anchor = ((Picture)hs).getClientAnchor();
+                    if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() )
+                    	hp.removeShape(hs);
+                }
+            }
+        } else {
+            XSSFDrawing xdrawing = (XSSFDrawing)drawing;
+            for (XSSFShape xs : xdrawing.getShapes()) {
+                if (xs instanceof Picture) {
+                    ClientAnchor anchor = ((Picture)xs).getClientAnchor();
+                    if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() ) {
+                    	logger.info("export of image cancelled as an image is already present in sheet \""+sheet.getSheetName()+"\" row="+anchor.getRow1()+" col="+anchor.getCol1());
+                    	return;
+                    }
+                }
+            }
+        }
+        
+
+        
+        // we create a PNG from the widget image
+        ImageLoader imageLoader = new ImageLoader();
+        imageLoader.data = new ImageData[] {image.getImageData()};
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageLoader.save(baos, SWT.IMAGE_PNG);
+        
+        // we add the PNG to Excel
+        int imageIndex = wb.addPicture(baos.toByteArray(), Workbook.PICTURE_TYPE_PNG);        
+        ClientAnchor anchor = wb.getCreationHelper().createClientAnchor();
         anchor.setRow1(row.getRowNum());
         anchor.setCol1(column);
         
+        logger.trace("exporting image ...");
         Picture pict = drawing.createPicture(anchor, imageIndex);
-        //Reset the image to the original size
-        pict.resize();
+        pict.resize();		//Reset the image to the original size
     }
     
     private void cancel() {
