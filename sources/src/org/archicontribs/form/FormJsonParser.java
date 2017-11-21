@@ -339,7 +339,7 @@ public class FormJsonParser {
             tableItem.setData("cells", newCells);
             TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
             if ( lineTreeItem != null )
-                lineTreeItem.setData("cells", newCells);
+                setData(lineTreeItem, "cells", newCells);
         }
         
         // used by graphical editor
@@ -461,7 +461,7 @@ public class FormJsonParser {
             tableItem.setData("cells", newCells);
             TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
             if ( lineTreeItem != null )
-                lineTreeItem.setData("cells", newCells);
+                setData(lineTreeItem, "cells", newCells);
         }
         
         // used by graphical editor
@@ -585,7 +585,7 @@ public class FormJsonParser {
             tableItem.setData("cells", newCells);
             TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
             if ( lineTreeItem != null )
-                lineTreeItem.setData("cells", newCells);
+                setData(lineTreeItem, "cells", newCells);
         }
         
         // used by graphical editor
@@ -709,7 +709,7 @@ public class FormJsonParser {
             tableItem.setData("cells", newCells);
             TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
             if ( lineTreeItem != null )
-                lineTreeItem.setData("cells", newCells);
+                setData(lineTreeItem, "cells", newCells);
         }
         
         // used by graphical editor
@@ -834,7 +834,7 @@ public class FormJsonParser {
             tableItem.setData("cells", newCells);
             TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
             if ( lineTreeItem != null )
-                lineTreeItem.setData("cells", newCells);
+                setData(lineTreeItem, "cells", newCells);
         }
  	   	
         // used by graphical editor
@@ -896,7 +896,9 @@ public class FormJsonParser {
     	
     	TableItem tableItem = null;
     	boolean mustCreateLine = true;
+    	String name = getName(jsonObject, null, treeItem);
     	Boolean generate = getGenerate(jsonObject, null, treeItem);
+    	getFilter(jsonObject, null, treeItem);
     	
     	// if the selectedObject is provided AND if the lines are generated
     	//    then we check the selectedObject against the filter
@@ -906,12 +908,10 @@ public class FormJsonParser {
     	if ( mustCreateLine ) {
 	        tableItem = new TableItem(parent, SWT.NONE);
 	        
-	        String name = getName(jsonObject, tableItem, treeItem);
 	        FormPosition.setControlName(name);
 	        FormPosition.setControlClass("lines");
 	        
 	        getCells(jsonObject, tableItem, treeItem, selectedObject);
-	        //getFilter(jsonObject, tableItem, treeItem);
 	        
 	        // used by graphical editor
 	        if ( treeItem != null ) {
@@ -919,13 +919,12 @@ public class FormJsonParser {
 	        	treeItem.setData("class", "line");
 	        	treeItem.setData("widget", tableItem);
 	            tableItem.setData("treeItem", treeItem);
-	            tableItem.setData("generate", generate);
 	        }
     	}
 		
     	// if the selected object is a container and if the lines are generated
     	//    then we create a line for every object's child
-		if ( generate != null && generate ) {
+		if ( selectedObject != null && generate != null && generate ) {
 			if (selectedObject instanceof IDiagramModelContainer) {
 				if (logger.isTraceEnabled()) logger.debug("is a DiagramModelContainer : getting children");
             	for ( IDiagramModelObject child: ((IDiagramModelContainer) selectedObject).getChildren()) {
@@ -1110,6 +1109,7 @@ public class FormJsonParser {
     	JSONArray testsJson = getJSONArray(filter, "tests");
     	
     	if ( testsJson != null ) {
+    		logger.trace("      filter:");
         	String genre = getString(filter, "genre", "and").toUpperCase();
         	
         	// required by the graphical editor
@@ -1130,7 +1130,7 @@ public class FormJsonParser {
             	JSONObject test = testIterator.next();
             	
             	Map<String, String> t = new HashMap<String, String>();
-            	logger.trace("      adding test: ");
+            	logger.trace("      test: ");
             	t.put("attribute", getString(test, "attribute", null));
             	t.put("operation", getString(test, "operation", null));
             	t.put("value",     getString(test, "value", null));
@@ -1186,6 +1186,8 @@ public class FormJsonParser {
 
     	cells = new String[table.getColumnCount()];
     	TableEditor[] editors = new TableEditor[table.getColumnCount()];
+    	
+		logger.trace("      new line:");
     	
     	// we get the cells variables, completing if some are missing and ignoring if too many are present
     	for ( int columnNumber = 0; columnNumber < table.getColumnCount(); ++columnNumber ) {

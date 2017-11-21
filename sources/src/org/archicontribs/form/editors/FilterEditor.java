@@ -194,7 +194,7 @@ public class FilterEditor {
 	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
 	    	
 	    	if ( treeItem != null ) {
-	    		treeItem.setData("generate", showGenerateCheckbox ? getGenerate() : null );
+	    		treeItem.setData("generate", btnGenerate.getSelection());
 	    		treeItem.setData("genre", getFilter() ? getGenre() : null);
 	    	    treeItem.setData("tests", getFilter() ? getTests() : null);
 	    	}
@@ -251,7 +251,6 @@ public class FilterEditor {
 	        btnDelete.add(index+1, del);
 	        
             if ( treeItem != null ) {
-            	treeItem.setData("generate", showGenerateCheckbox ? getGenerate() : null );
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
                 treeItem.setData("tests", getFilter() ? getTests() : null);
             }
@@ -287,7 +286,6 @@ public class FilterEditor {
 	    	txtValue.get(index).setVisible(!FormPlugin.areEqualIgnoreCase(comboOperation.get(index).getText(), "exists"));
 	    	
             if ( treeItem != null ) {
-            	treeItem.setData("generate", showGenerateCheckbox ? getGenerate() : null );
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
                 treeItem.setData("tests", getFilter() ? getTests() : null);
             }
@@ -325,7 +323,6 @@ public class FilterEditor {
 	        btnDelete.remove(index).dispose();
 	        
             if ( treeItem != null ) {
-            	treeItem.setData("generate", showGenerateCheckbox ? getGenerate() : null );
            		treeItem.setData("genre", getFilter() ? getGenre() : null);
                 treeItem.setData("tests", getFilter() ? getTests() : null);
             }
@@ -345,7 +342,6 @@ public class FilterEditor {
             TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
             
             if ( treeItem != null ) {
-            	treeItem.setData("generate", showGenerateCheckbox ? getGenerate() : null );
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
             }
         }
@@ -478,6 +474,7 @@ public class FilterEditor {
             comboOperation.get(0).setText("");
             txtValue.get(0).setText("");
     	} else {
+    		btnFilter.setSelection(true);
         	int nbTests = tests.size();
         	
         	// we add widgets if we miss some
@@ -507,7 +504,6 @@ public class FilterEditor {
             TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
             
             if ( treeItem != null ) {
-            	treeItem.setData("generate", showGenerateCheckbox ? getGenerate() : null );
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
                 treeItem.setData("tests", getFilter() ? getTests() : null);
             }
