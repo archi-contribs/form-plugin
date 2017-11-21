@@ -152,8 +152,11 @@ import com.archimatetool.model.INameable;
  * 								Update the inline help pages
  * 								fix menus' icon
  * 
- * v1.8.2 :		20/11/2017		Add more default values to configuration's file keywords
- * 								fix an error message on ${screenshot}
+ * v1.8.2 :		21/11/2017		Add more default values to configuration's file keywords
+ *  							update graphical generator : remove filter when empty 
+ * 								remove error message when using ${screenshot} variable
+ * 								fix "generate" keyword in graphical editor
+ * 								fix exort image to Excel spreadsheet
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
@@ -163,7 +166,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.8.1";
+	public static final String pluginVersion = "1.8.2";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
