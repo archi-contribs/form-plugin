@@ -1,9 +1,5 @@
-## v1.8.2: 21/11/2017
-* Add more default values to configuration's file keywords
-* Update graphical generator : remove filter when empty 
-* Remove error message when using ${screenshot} variable
-* Fix "generate" keyword in graphical editor
-* Fix epxort image to Excel spreadsheet
+## v1.8.3: 22/11/2017
+* Fix error messages on ${view:xxx} variables
 
 * TODO list
   * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
@@ -11,7 +7,13 @@
   * Add a "if" option on all controls that would work like "filter" but for individual controls ...
     * if the condition is met, then the control is created, else it is not created
 	
-	
+## v1.8.2: 21/11/2017
+* Add more default values to configuration's file keywords
+* Update graphical generator : remove filter when empty 
+* Remove error message when using ${screenshot} variable
+* Fix "generate" keyword in graphical editor
+* Fix epxort image to Excel spreadsheet
+
 ## v1.8.1: 18/11/2017
 * Add ${screenshot} variable to get a view screenshot
 * Add the "content" property to image class
