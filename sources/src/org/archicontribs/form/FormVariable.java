@@ -308,7 +308,7 @@ public class FormVariable {
                         return getVariable("${"+variableName.substring(5)+"}", eObject);
                     }
                     else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                        return getVariable(variableName.substring(5), ((IDiagramModelArchimateObject)eObject).getDiagramModel());
+                        return getVariable("${"+variableName.substring(5)+"}", ((IDiagramModelArchimateObject)eObject).getDiagramModel());
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
                 }
