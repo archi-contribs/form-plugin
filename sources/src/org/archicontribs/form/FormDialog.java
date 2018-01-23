@@ -50,6 +50,7 @@ import org.archicontribs.form.composites.ImageComposite;
 import org.archicontribs.form.composites.LabelColumnComposite;
 import org.archicontribs.form.composites.LabelComposite;
 import org.archicontribs.form.composites.LineComposite;
+import org.archicontribs.form.composites.RichTextComposite;
 import org.archicontribs.form.composites.TabComposite;
 import org.archicontribs.form.composites.TableComposite;
 import org.archicontribs.form.composites.TextColumnComposite;
@@ -58,6 +59,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.gef.commands.CompoundCommand;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.nebula.widgets.richtext.RichTextEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -174,8 +176,8 @@ public class FormDialog extends Dialog {
     public static final String[] validFilterGenre         = new String[] {"and", "or"};										// default value is the first one
     
 	public static final Image    BIN_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/bin.png"));
-	public static final Image    BAS_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/flÃ¨che_bas.png"));
-	public static final Image    HAUT_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/flÃ¨che_haut.png"));
+	public static final Image    BAS_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/flèche_bas.png"));
+	public static final Image    HAUT_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/flèche_haut.png"));
 	public static final Image    PLUS_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/plus.png"));
 	
 	
@@ -187,6 +189,7 @@ public class FormDialog extends Dialog {
     private LabelComposite    	 labelComposite    	  = null;
     private ImageComposite    	 imageComposite    	  = null;
     private TextComposite     	 textComposite     	  = null;
+    private RichTextComposite    richtextComposite    = null;
     private ComboComposite    	 comboComposite    	  = null;
     private CheckComposite    	 checkComposite   	  = null;
     private TableComposite    	 tableComposite    	  = null;
@@ -614,6 +617,13 @@ public class FormDialog extends Dialog {
             	newItem.setData("class", "text");
             	newItem.addSelectionListener(addWidgetListener);
             	
+                newItem = new MenuItem(subMenu, SWT.NONE);
+                newItem.setText("richtext");
+                newItem.setImage(FormJsonParser.TEXT_ICON);
+                newItem.setData("position", position);
+                newItem.setData("class", "richtext");
+                newItem.addSelectionListener(addWidgetListener);
+            	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("combo");
             	newItem.setImage(FormJsonParser.COMBO_ICON);
@@ -656,6 +666,7 @@ public class FormDialog extends Dialog {
             		case "label":
             		case "image":
             		case "text":
+            		case "richtext":
             		case "combo":
             		case "check":
             		case "table":
@@ -774,6 +785,7 @@ public class FormDialog extends Dialog {
             		case "label":		composite = labelComposite; break;
             		case "image":       composite = imageComposite; break;
             		case "text":		composite = textComposite; break;
+            		case "richtext":    composite = richtextComposite; break;
             		case "combo":		composite = comboComposite; break;
             		case "check":		composite = checkComposite; break;
             		case "table":		composite = tableComposite; break;
@@ -940,6 +952,9 @@ public class FormDialog extends Dialog {
     	            	                case "text":
     	            	                    tableColumn = jsonParser.createTextColumn(jsonColumn, table, treeItem, null, selectedObject);
     	            	                	break;
+                                        case "richtext":
+                                            tableColumn = jsonParser.createRichTextColumn(jsonColumn, table, treeItem, null, selectedObject);
+                                            break;
     	            	                default:
     	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
                     	            }
@@ -997,6 +1012,10 @@ public class FormDialog extends Dialog {
 		                    ((StyledText)control).addModifyListener(textModifyListener);
 	                	}
 	                	break;
+	                	
+	                  case "richtext":
+	                        control = jsonParser.createRichText(jsonControl, parent, treeItem, selectedObject);
+	                        break;
 	                default:
 	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
 	            }
@@ -1076,6 +1095,7 @@ public class FormDialog extends Dialog {
             case "Button":
             case "CCombo":
             case "StyledText":
+            case "RichTextEditor":
                 if (control.getData("variable") != null)
                     do_save(compoundCommand, control);
                 break;
@@ -1085,6 +1105,7 @@ public class FormDialog extends Dialog {
                     save(compoundCommand, child);
                 }
                 break;
+                
             case "Table":
                 for (TableItem item : ((Table) control).getItems()) {
                     for (TableEditor editor : (TableEditor[]) item.getData("editors")) {
@@ -1093,6 +1114,7 @@ public class FormDialog extends Dialog {
                     }
                 }
                 break;
+                
             case "Composite":
                 for (Control child : ((Composite) control).getChildren()) {
                     save(compoundCommand, child);
@@ -1126,6 +1148,9 @@ public class FormDialog extends Dialog {
                 break;
             case "StyledText":
                 value = ((StyledText) control).getText();
+                break;
+            case "RichTextEditor":
+                value = ((RichTextEditor) control).getText();
                 break;
             default:
                 throw new RuntimeException("Do_save : do not know how to save a " + control.getClass().getSimpleName());
@@ -1813,22 +1838,24 @@ public class FormDialog extends Dialog {
 				Table table = (Table)parentComposite;
 				TableColumn column = null;
 				switch (widgetClass) {
-					case "label":  column = jsonParser.createLabelColumn(null, table, newTreeItem, index, selectedObject); break;
-					case "image":  column = jsonParser.createImageColumn(null, table, newTreeItem, index, selectedObject); break;
-					case "text":   column = jsonParser.createTextColumn (null, table, newTreeItem, index, selectedObject); break;
-					case "combo":  column = jsonParser.createComboColumn(null, table, newTreeItem, index, selectedObject); break;
-					case "check":  column = jsonParser.createCheckColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "label":      column = jsonParser.createLabelColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "image":      column = jsonParser.createImageColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "text":       column = jsonParser.createTextColumn (null, table, newTreeItem, index, selectedObject); break;
+					case "richtext":   column = jsonParser.createRichTextColumn (null, table, newTreeItem, index, selectedObject); break;
+					case "combo":      column = jsonParser.createComboColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "check":      column = jsonParser.createCheckColumn(null, table, newTreeItem, index, selectedObject); break;
 				}
 				
 				column.setText("new "+widgetClass);
 				column.addListener(SWT.Selection, sortListener);
 			} else {
 				switch (widgetClass) {
-					case "label":  jsonParser.createLabel(null, parentComposite, newTreeItem, selectedObject); break;
-					case "image":  jsonParser.createImage(null, parentComposite, newTreeItem, selectedObject); break;
-					case "text":   jsonParser.createText (null, parentComposite, newTreeItem, selectedObject); break;
-					case "combo":  jsonParser.createCombo(null, parentComposite, newTreeItem, selectedObject); break;
-					case "check":  jsonParser.createCheck(null, parentComposite, newTreeItem, selectedObject); break;
+					case "label":      jsonParser.createLabel(null, parentComposite, newTreeItem, selectedObject); break;
+					case "image":      jsonParser.createImage(null, parentComposite, newTreeItem, selectedObject); break;
+					case "text":       jsonParser.createText (null, parentComposite, newTreeItem, selectedObject); break;
+					case "richtext":   jsonParser.createRichText (null, parentComposite, newTreeItem, selectedObject); break;
+					case "combo":      jsonParser.createCombo(null, parentComposite, newTreeItem, selectedObject); break;
+					case "check":      jsonParser.createCheck(null, parentComposite, newTreeItem, selectedObject); break;
 				}
 			}
 			

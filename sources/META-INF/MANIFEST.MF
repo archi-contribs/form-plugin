@@ -11,7 +11,8 @@ Require-Bundle: com.archimatetool.editor,
  org.eclipse.core.expressions,
  org.eclipse.emf.common,
  org.eclipse.help,
- org.eclipse.swt
+ org.eclipse.swt,
+ org.eclipse.nebula.widgets.richtext
 Bundle-ClassPath: .,
  lib/json-simple-1.1.1.jar,
  lib/log4j-1.2.17.jar,

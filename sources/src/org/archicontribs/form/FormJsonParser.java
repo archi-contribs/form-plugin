@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.nebula.widgets.richtext.RichTextEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -35,7 +36,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import com.archimatetool.model.FolderType;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IDiagramModelConnection;
@@ -516,13 +516,48 @@ public class FormJsonParser {
     }
     
     /**
+     * Create a rich text control<br>
+     * <br>
+     * @param jsonObject the JSON object to parse
+     * @param parent     the composite where the control will be created
+     */
+    public RichTextEditor createRichText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+        if (logger.isDebugEnabled()) logger.debug("Creating rich text control");
+        
+        // we create the rich text
+        RichTextEditor richText = new RichTextEditor(parent, SWT.NONE);
+                
+        String  name = getName(jsonObject, richText, treeItem);
+        FormPosition.setTabName(name);
+        FormPosition.setControlClass("text");
+
+        getVariable(jsonObject, richText, treeItem, selectedObject);
+        getXY(jsonObject, richText, treeItem);
+        getRegexp(jsonObject, richText, treeItem);
+        getForegroundAndBackground(jsonObject, richText, treeItem);
+        getTooltip(jsonObject, richText, treeItem, selectedObject);
+        getFont(jsonObject, richText, treeItem);
+        getExcelCellOrColumn(jsonObject, richText, treeItem);
+        
+        // used by graphical editor
+        if ( treeItem != null ) {
+            treeItem.setImage(TEXT_ICON);
+            treeItem.setData("class", "text");
+            treeItem.setData("widget", richText);
+            richText.setData("treeItem", treeItem);
+        }
+
+        return richText;
+    }
+    
+    /**
      * Create a text column<br>
      * <br>
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
     public TableColumn createTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
-        if (logger.isDebugEnabled()) logger.debug("Creating text control");
+        if (logger.isDebugEnabled()) logger.debug("Creating text column");
         
         // we create the text
         TableColumn tableColumn;
@@ -592,6 +627,93 @@ public class FormJsonParser {
         if ( treeItem != null ) {
             treeItem.setImage(TEXT_ICON);
         	treeItem.setData("class", "textColumn");
+            treeItem.setData("widget", tableColumn);
+            tableColumn.setData("treeItem", treeItem);
+            tableColumn.setData("class", treeItem.getData("class"));
+        }
+        
+        // used by form
+        tableColumn.setData("class", "textColumn");
+
+        return tableColumn;
+    }
+    
+    /**
+     * Create a rich text column<br>
+     * <br>
+     * @param jsonObject the JSON object to parse
+     * @param parent     the composite where the control will be created
+     */
+    public TableColumn createRichTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
+        if (logger.isDebugEnabled()) logger.debug("Creating rich text column");
+        
+        // we create the text
+        TableColumn tableColumn;
+        if ( index == null )
+            index = parent.getColumnCount();
+
+        tableColumn = new TableColumn(parent, SWT.NONE, index);
+        
+        String  name = getName(jsonObject, tableColumn, treeItem);
+        FormPosition.setTabName(name);
+        FormPosition.setControlClass("text");
+
+        getTableColumnWidth(jsonObject, tableColumn, treeItem);
+        getRegexp(jsonObject, tableColumn, treeItem);
+        getForegroundAndBackground(jsonObject, tableColumn, treeItem);
+        getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
+        getExcelCellOrColumn(jsonObject, tableColumn, treeItem);
+        
+        // If the table already contains items, then we need to update the editors and cells
+        for ( TableItem tableItem: parent.getItems() ) {
+            TableEditor[] oldEditors = (TableEditor[])tableItem.getData("editors");
+            TableEditor[] newEditors = new TableEditor[parent.getColumnCount()];
+            
+            String[] oldCells = (String[])tableItem.getData("cells");
+            String[] newCells = new String[parent.getColumnCount()];
+            
+            int newCol = 0;
+            for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
+                if ( oldCol == index ) {
+                    TableEditor editor= new TableEditor(parent);
+                    newEditors[index] = editor;
+                    
+                    newCells[index] = "${void}";
+                    RichTextEditor richText = new RichTextEditor(parent, SWT.WRAP | SWT.NONE);
+                    logger.trace("      adding text cell with value \"" + newCells[index] + "\"");
+                    richText.setText(newCells[index]);
+                    editor.setEditor(richText, tableItem, index);
+                    if ( tableColumn.getData("background color") != null )
+                        richText.setBackground((Color)tableColumn.getData("background color"));
+                    else
+                        richText.setBackground(parent.getBackground());
+                    if ( tableColumn.getData("foreground color") != null )
+                        richText.setForeground((Color)tableColumn.getData("foreground color"));
+                    else
+                        richText.setForeground(parent.getForeground());
+                    editor.grabHorizontal = true;
+                             
+                    ++newCol;
+                }
+                
+                if ( oldCol < parent.getColumnCount()-1 ) {
+                    newEditors[newCol] = oldEditors[oldCol];
+                    newEditors[newCol].setEditor(newEditors[newCol].getEditor(), tableItem, newCol);
+                    newCells[newCol] = oldCells[oldCol];
+                }
+                ++newCol;
+            }
+            tableItem.setData("editors", newEditors);
+            tableItem.setData("cells", newCells);
+            TreeItem lineTreeItem = (TreeItem)tableItem.getData("treeItem");
+            if ( lineTreeItem != null )
+                setData(lineTreeItem, "cells", newCells);
+        }
+        
+        // used by graphical editor
+        if ( treeItem != null ) {
+            treeItem.setImage(TEXT_ICON);
+            treeItem.setData("class", "textColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
             tableColumn.setData("class", treeItem.getData("class"));
@@ -1789,9 +1911,11 @@ public class FormJsonParser {
 			// we set a default text content for the graphical editor. Real form will replace this text with the variable content.
 			if ( variable != null ) {
 				switch ( widget.getClass().getSimpleName() ) {
-					case "StyledText": ((StyledText)widget).setText(variableValue); break;
-					case "CCombo":     ((CCombo)widget).setText(variableValue); break;
-					case "Button":     ((Button)widget).setText(variableValue); break;
+					case "StyledText":     ((StyledText)widget).setText(variableValue); break;
+					case "CCombo":         ((CCombo)widget).setText(variableValue); break;
+					case "Button":         ((Button)widget).setText(variableValue); break;
+					case "RichTextEditor": ((RichTextEditor)widget).setText(variableValue); break;
+					default: throw new RuntimeException("Do not know how to set text to a "+widget.getClass().getSimpleName());
 				}
 			}
 		}
