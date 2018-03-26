@@ -24,86 +24,86 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FontEditor {
-	private Label      lblFont;
-	private Label      lblSample;
-	private Button     btnSelectFont;
-	private Button     btnResetToDefault;
-	private Label      lblFontSize;
-	private StyledText txtFontSize;
-	private Button     btnBold;
-	private Button     btnItalic;
-	private Composite  parent;
+	Label      lblFont;
+	Button     btnSelectFont;
+	Button     btnResetToDefault;
+	Label      lblFontSize;
+    Label      lblSample;
+	StyledText txtFontSize;
+	Button     btnBold;
+	Button     btnItalic;
+	Composite  parent;
 	
 	public FontEditor(Composite parent, String labelText) {
 		this.parent = parent;
 		
-		lblFont = new Label(parent, SWT.NONE);
+		this.lblFont = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblFont.setLayoutData(fd);
-        lblFont.setText("Font:");
+        this.lblFont.setLayoutData(fd);
+        this.lblFont.setText(labelText);
         
-        btnResetToDefault = new Button(parent, SWT.NONE);
+        this.btnResetToDefault = new Button(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblFont, 0, SWT.CENTER);
+        fd.top = new FormAttachment(this.lblFont, 0, SWT.CENTER);
         fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
-        btnResetToDefault.setLayoutData(fd);
-        btnResetToDefault.setImage(FormDialog.binImage);
-        btnResetToDefault.addSelectionListener(fontReset);
-        btnResetToDefault.setToolTipText("Reset to the default font.");
+        this.btnResetToDefault.setLayoutData(fd);
+        this.btnResetToDefault.setImage(FormDialog.binImage);
+        this.btnResetToDefault.addSelectionListener(this.fontReset);
+        this.btnResetToDefault.setToolTipText("Reset to the default font.");
         
-        btnSelectFont = new Button(parent, SWT.NONE);
+        this.btnSelectFont = new Button(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblFont, 0, SWT.CENTER);
-        fd.right = new FormAttachment(btnResetToDefault, -5);
-        btnSelectFont.setLayoutData(fd);
-        btnSelectFont.setText("f");
-        btnSelectFont.addSelectionListener(fontChooser);
-        btnSelectFont.setToolTipText("Select the font.");
+        fd.top = new FormAttachment(this.lblFont, 0, SWT.CENTER);
+        fd.right = new FormAttachment(this.btnResetToDefault, -5);
+        this.btnSelectFont.setLayoutData(fd);
+        this.btnSelectFont.setText("f");
+        this.btnSelectFont.addSelectionListener(this.fontChooser);
+        this.btnSelectFont.setToolTipText("Select the font.");
         
-        lblSample = new Label(parent, SWT.BORDER);
+        this.lblSample = new Label(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblFont, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblFont, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(btnSelectFont, -5);
-        lblSample.setLayoutData(fd);
-        lblSample.setText("");
+        fd.right = new FormAttachment(this.btnSelectFont, -5);
+        this.lblSample.setLayoutData(fd);
+        this.lblSample.setText("");
         
-        lblFontSize = new Label(parent, SWT.NONE);
+        this.lblFontSize = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
+        fd.top = new FormAttachment(this.lblSample, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblFontSize.setLayoutData(fd);
-        lblFontSize.setText("Font size: ");
+        this.lblFontSize.setLayoutData(fd);
+        this.lblFontSize.setText("Font size: ");
         
-        txtFontSize = new StyledText(parent, SWT.BORDER);
+        this.txtFontSize = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
-        fd.left = new FormAttachment(lblFontSize, 5);
-        fd.right = new FormAttachment(txtFontSize, 25);
-        txtFontSize.setTextLimit(2);
-        txtFontSize.setLeftMargin(2);
-        txtFontSize.addVerifyListener(numericVerifyListener);
-        txtFontSize.addModifyListener(refreshFontModifyListener);
-        txtFontSize.setLayoutData(fd);
+        fd.top = new FormAttachment(this.lblSample, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(this.lblFontSize, 5);
+        fd.right = new FormAttachment(this.txtFontSize, 25);
+        this.txtFontSize.setTextLimit(2);
+        this.txtFontSize.setLeftMargin(2);
+        this.txtFontSize.addVerifyListener(this.numericVerifyListener);
+        this.txtFontSize.addModifyListener(this.refreshFontModifyListener);
+        this.txtFontSize.setLayoutData(fd);
         
-        btnBold = new Button(parent, SWT.CHECK);
+        this.btnBold = new Button(parent, SWT.CHECK);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
-        fd.left = new FormAttachment(txtFontSize, FormDialog.editorBorderMargin*2);
-        btnBold.setLayoutData(fd);
-        btnBold.addSelectionListener(refreshFontSelectionListener);
-        btnBold.setText("Bold");
+        fd.top = new FormAttachment(this.lblSample, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(this.txtFontSize, FormDialog.editorBorderMargin*2);
+        this.btnBold.setLayoutData(fd);
+        this.btnBold.addSelectionListener(this.refreshFontSelectionListener);
+        this.btnBold.setText("Bold");
         
-        btnItalic = new Button(parent, SWT.CHECK);
+        this.btnItalic = new Button(parent, SWT.CHECK);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSample, FormDialog.editorVerticalMargin);
-        fd.left = new FormAttachment(btnBold, FormDialog.editorBorderMargin*2);
-        btnItalic.setLayoutData(fd);
-        btnItalic.addSelectionListener(refreshFontSelectionListener);
-        btnItalic.setText("Italic");
+        fd.top = new FormAttachment(this.lblSample, FormDialog.editorVerticalMargin);
+        fd.left = new FormAttachment(this.btnBold, FormDialog.editorBorderMargin*2);
+        this.btnItalic.setLayoutData(fd);
+        this.btnItalic.addSelectionListener(this.refreshFontSelectionListener);
+        this.btnItalic.setText("Italic");
 	}
 	
 	VerifyListener numericVerifyListener = new VerifyListener() {
@@ -124,14 +124,14 @@ public class FontEditor {
     private SelectionAdapter fontChooser = new SelectionAdapter() {
         @Override
     	public void widgetSelected(SelectionEvent event) {
-            FontDialog dlg = new FontDialog((Shell)parent.getData("shell"));
+            FontDialog dlg = new FontDialog((Shell)FontEditor.this.parent.getData("shell"));
             dlg.setEffectsVisible(false);
             FontData fontData = dlg.open();
             if (fontData != null) {
-            	lblSample.setText(fontData.getName());
-            	txtFontSize.setText(String.valueOf(fontData.getHeight()));
-            	btnBold.setSelection((fontData.getStyle()&SWT.BOLD) != 0);
-            	btnItalic.setSelection((fontData.getStyle()&SWT.ITALIC) != 0);
+            	FontEditor.this.lblSample.setText(fontData.getName());
+            	FontEditor.this.txtFontSize.setText(String.valueOf(fontData.getHeight()));
+            	FontEditor.this.btnBold.setSelection((fontData.getStyle()&SWT.BOLD) != 0);
+            	FontEditor.this.btnItalic.setSelection((fontData.getStyle()&SWT.ITALIC) != 0);
             	
 				setFont(true);
     		}
@@ -160,24 +160,24 @@ public class FontEditor {
     private SelectionAdapter fontReset = new SelectionAdapter() {
         @Override
     	public void widgetSelected(SelectionEvent event) {
-        	lblSample.setText("");
-        	txtFontSize.setText("");
-        	btnBold.setSelection(false);
-        	btnItalic.setSelection(false);
+        	FontEditor.this.lblSample.setText("");
+        	FontEditor.this.txtFontSize.setText("");
+        	FontEditor.this.btnBold.setSelection(false);
+        	FontEditor.this.btnItalic.setSelection(false);
         	
         	setFont(true);
         }
     };
     
-    private void setFont(boolean updateControl) {
-    	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
-    	Control   control  = (Control)parent.getData("widget");
+    void setFont(boolean updateControl) {
+    	TreeItem  treeItem = (TreeItem)this.parent.getData("treeItem");
+    	Control   control  = (Control)this.parent.getData("widget");
     	Font      font;
     	
-    	if ( FormPlugin.isEmpty(lblSample.getText()) && getFontSize()==0 && !getBold() && !getItalic() )
+    	if ( FormPlugin.isEmpty(this.lblSample.getText()) && getFontSize()==0 && !getBold() && !getItalic() )
     		font = null;
     	else {
-    		lblSample.setFont(null);
+    		this.lblSample.setFont(null);
     		
 			int fontSize = getFontSize();
 			if ( fontSize == 0 ) fontSize = 10;
@@ -188,7 +188,7 @@ public class FontEditor {
 	    	
 	    	font = new Font(FormDialog.display, getFontName(), getFontSize(), style);
     	}
-		lblSample.setFont(font);
+		this.lblSample.setFont(font);
 		
 		if ( treeItem != null ) {
 			treeItem.setData("fontName", getFontName());
@@ -224,7 +224,7 @@ public class FontEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblFont.setLayoutData(fd);
+        this.lblFont.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -232,48 +232,48 @@ public class FontEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblFont.setLayoutData(fd);
+        this.lblFont.setLayoutData(fd);
 	}
 	
 	public StyledText getControl() {
-		return txtFontSize;
+		return this.txtFontSize;
 	}
     
     public void setFontName(String fontName) {
-    	lblSample.setText(fontName==null ? "" : fontName);
+    	this.lblSample.setText(fontName==null ? "" : fontName);
     	setFont(false);
     }
     
     public void setFontSize(Integer fontSize) {
-  	    txtFontSize.setText(fontSize==null ? "" : String.valueOf(fontSize));
+  	    this.txtFontSize.setText(fontSize==null ? "" : String.valueOf(fontSize));
     	setFont(false);
     }
     
     public void setBold(Boolean isBold) {
-    	btnBold.setSelection(isBold==null ? false : isBold);
+    	this.btnBold.setSelection(isBold==null ? false : isBold);
     	setFont(false);
     }
     
     public void setItalic(Boolean isItalic) {
-    	btnItalic.setSelection(isItalic==null ? false : isItalic);
+    	this.btnItalic.setSelection(isItalic==null ? false : isItalic);
     	setFont(false);
     }
     
     public String getFontName() {
-    	return lblSample.getText();
+    	return this.lblSample.getText();
     }
     
     public int getFontSize() {
-    	if ( FormPlugin.isEmpty(txtFontSize.getText()) )
+    	if ( FormPlugin.isEmpty(this.txtFontSize.getText()) )
     		return 0;
-    	return Integer.valueOf(txtFontSize.getText());
+    	return Integer.valueOf(this.txtFontSize.getText());
     }
     
     public boolean getBold() {
-    	return btnBold.getSelection();
+    	return this.btnBold.getSelection();
     }
     
     public boolean getItalic() {
-    	return btnItalic.getSelection();
+    	return this.btnItalic.getSelection();
     }
 }

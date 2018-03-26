@@ -18,28 +18,29 @@ public class TabComposite extends Composite implements CompositeInterface {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "name", "Name:");
-		nameEditor.setPosition(0);
-		nameEditor.mustSetTreeItemText(true);
-		nameEditor.mustSetControlText(true);
-		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
+		this.nameEditor = new StringEditor(this, "name", "Name:");
+		this.nameEditor.setPosition(0);
+		this.nameEditor.mustSetTreeItemText(true);
+		this.nameEditor.mustSetControlText(true);
+		this.nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 		// comment
-		commentEditor = new StringEditor(this, "comment", "Comment:");
-		commentEditor.setPosition(nameEditor.getControl());
-		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		this.commentEditor = new StringEditor(this, "comment", "Comment:");
+		this.commentEditor.setPosition(this.nameEditor.getControl());
+		this.commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
         
 		// Background
-		colorEditor = new ColorEditor(this, "Color:");
-		colorEditor.setPosition(commentEditor.getControl());
+		this.colorEditor = new ColorEditor(this, "Color:");
+		this.colorEditor.setPosition(this.commentEditor.getControl());
 	}
 	
+    @Override
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key ) {
-            case "name":		  nameEditor.setText((String)value); break;
-    		case "comment":       commentEditor.setText((String)value); break;
-            case "foreground":	  colorEditor.setForeground((String)value); break;
-    		case "background":	  colorEditor.setBackground((String)value); break;	
+            case "name":		  this.nameEditor.setText((String)value); break;
+    		case "comment":       this.commentEditor.setText((String)value); break;
+            case "foreground":	  this.colorEditor.setForeground((String)value); break;
+    		case "background":	  this.colorEditor.setBackground((String)value); break;	
     		default:			  throw new RuntimeException("does not know key "+key);
     	}
     }

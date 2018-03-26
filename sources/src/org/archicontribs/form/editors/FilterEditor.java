@@ -23,25 +23,25 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FilterEditor {
-	private Label        lblGenerate;
-	private Button       btnGenerate;
-    private Label        lblFilter;
-    private Button       btnFilter;
-	private Label        lblGenre;
-	private Button       btnAnd;
-	private Button       btnOr;
-	private Label        lblAttribute;
-	private List<Text>   txtAttribute;
-	private Label        lblOperation;
-	private List<CCombo> comboOperation;
-	private Label        lblValue;
-	private List<Text>   txtValue;
-	private List<Button> btnAdd;
-	private List<Button> btnDelete;
+	Label        lblGenerate;
+	Button       btnGenerate;
+    Label        lblFilter;
+    Button       btnFilter;
+	Label        lblGenre;
+	Button       btnAnd;
+	Button       btnOr;
+	Label        lblAttribute;
+	List<Text>   txtAttribute;
+	Label        lblOperation;
+	List<CCombo> comboOperation;
+	Label        lblValue;
+	List<Text>   txtValue;
+	List<Button> btnAdd;
+	List<Button> btnDelete;
 	
-	private boolean showGenerateCheckbox;
+	boolean showGenerateCheckbox;
 	
-	private Composite    parent;
+	Composite    parent;
 	
 	public FilterEditor(Composite parent, boolean showGenerateCheckbox) {
 		this.parent = parent;
@@ -49,95 +49,95 @@ public class FilterEditor {
 		FormData fd;
 		
 		if ( showGenerateCheckbox) {
-			lblGenerate = new Label(parent, SWT.NONE);
+			this.lblGenerate = new Label(parent, SWT.NONE);
 	        fd = new FormData();
 	        fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
 	        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
 	        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-	        lblGenerate.setLayoutData(fd);
-	        lblGenerate.setText("Generate lines:");
+	        this.lblGenerate.setLayoutData(fd);
+	        this.lblGenerate.setText("Generate lines:");
 	        
-	        btnGenerate = new Button(parent, SWT.CHECK);
+	        this.btnGenerate = new Button(parent, SWT.CHECK);
 	        fd = new FormData();
-        	fd.top = new FormAttachment(lblGenerate, 0, SWT.TOP);
+        	fd.top = new FormAttachment(this.lblGenerate, 0, SWT.TOP);
 	        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-	        btnGenerate.setLayoutData(fd);
-	        btnGenerate.addSelectionListener(FilterSelectionListener);
+	        this.btnGenerate.setLayoutData(fd);
+	        this.btnGenerate.addSelectionListener(this.FilterSelectionListener);
 		}
         
-		lblFilter = new Label(parent, SWT.NONE);
+		this.lblFilter = new Label(parent, SWT.NONE);
         fd = new FormData();
         if ( showGenerateCheckbox )
-        	fd.top = new FormAttachment(lblGenerate, FormDialog.editorBorderMargin);
+        	fd.top = new FormAttachment(this.lblGenerate, FormDialog.editorBorderMargin);
         else
         	fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblFilter.setLayoutData(fd);
-        lblFilter.setText("Filter:");
+        this.lblFilter.setLayoutData(fd);
+        this.lblFilter.setText("Filter:");
         
-        btnFilter = new Button(parent, SWT.CHECK);
+        this.btnFilter = new Button(parent, SWT.CHECK);
         fd = new FormData();
-        fd.top = new FormAttachment(lblFilter, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblFilter, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        btnFilter.setLayoutData(fd);
-        btnFilter.addSelectionListener(FilterSelectionListener);
+        this.btnFilter.setLayoutData(fd);
+        this.btnFilter.addSelectionListener(this.FilterSelectionListener);
         
-		lblAttribute = new Label(parent, SWT.CENTER);
+		this.lblAttribute = new Label(parent, SWT.CENTER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblFilter, 0, SWT.CENTER);
-        fd.left = new FormAttachment(btnFilter, 0);
+        fd.top = new FormAttachment(this.lblFilter, 0, SWT.CENTER);
+        fd.left = new FormAttachment(this.btnFilter, 0);
         fd.right = new FormAttachment(50);
-        lblAttribute.setLayoutData(fd);
-        lblAttribute.setText("Attribute");
+        this.lblAttribute.setLayoutData(fd);
+        this.lblAttribute.setText("Attribute");
         
         Text attr = new Text(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblAttribute, (int)(FormDialog.editorVerticalMargin/2));
+        fd.top = new FormAttachment(this.lblAttribute, FormDialog.editorVerticalMargin/2);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(lblAttribute, 0, SWT.RIGHT);
+        fd.right = new FormAttachment(this.lblAttribute, 0, SWT.RIGHT);
         attr.setLayoutData(fd);
         
-        txtAttribute = new ArrayList<Text>();
-        txtAttribute.add(attr);
+        this.txtAttribute = new ArrayList<Text>();
+        this.txtAttribute.add(attr);
         
-		lblOperation = new Label(parent, SWT.CENTER);
+		this.lblOperation = new Label(parent, SWT.CENTER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblFilter, 0, SWT.CENTER);
+        fd.top = new FormAttachment(this.lblFilter, 0, SWT.CENTER);
         fd.left = new FormAttachment(50, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(65, -FormDialog.editorBorderMargin);
-        lblOperation.setLayoutData(fd);
-        lblOperation.setText("Operation");
+        this.lblOperation.setLayoutData(fd);
+        this.lblOperation.setText("Operation");
         
         CCombo cmb = new CCombo(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(attr, 0 , SWT.CENTER);
-        fd.left = new FormAttachment(lblOperation, 0, SWT.LEFT);
-        fd.right = new FormAttachment(lblOperation, 0, SWT.RIGHT);
+        fd.left = new FormAttachment(this.lblOperation, 0, SWT.LEFT);
+        fd.right = new FormAttachment(this.lblOperation, 0, SWT.RIGHT);
         cmb.setLayoutData(fd);
         cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches"});
-        cmb.addSelectionListener(operationSelectionListener);
+        cmb.addSelectionListener(this.operationSelectionListener);
         
-        comboOperation = new ArrayList<CCombo>();
-        comboOperation.add(cmb);
+        this.comboOperation = new ArrayList<CCombo>();
+        this.comboOperation.add(cmb);
         
-		lblValue = new Label(parent, SWT.CENTER);
+		this.lblValue = new Label(parent, SWT.CENTER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblFilter, 0, SWT.CENTER);
+        fd.top = new FormAttachment(this.lblFilter, 0, SWT.CENTER);
         fd.left = new FormAttachment(65);
         fd.right = new FormAttachment(100, -40);
-        lblValue.setLayoutData(fd);
-        lblValue.setText("Value");
+        this.lblValue.setLayoutData(fd);
+        this.lblValue.setText("Value");
         
         Text val = new Text(parent, SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(attr, 0, SWT.CENTER);
-        fd.left = new FormAttachment(lblValue, 0, SWT.LEFT);
-        fd.right = new FormAttachment(lblValue, 0, SWT.RIGHT);
+        fd.left = new FormAttachment(this.lblValue, 0, SWT.LEFT);
+        fd.right = new FormAttachment(this.lblValue, 0, SWT.RIGHT);
         val.setLayoutData(fd);
         
-        txtValue = new ArrayList<Text>();
-        txtValue.add(val);
+        this.txtValue = new ArrayList<Text>();
+        this.txtValue.add(val);
         
         Button add = new Button(parent, SWT.NONE);
         fd = new FormData();
@@ -146,10 +146,10 @@ public class FilterEditor {
         fd.right = new FormAttachment(100);
         add.setLayoutData(fd);
         add.setImage(FormDialog.PLUS_ICON);
-        add.addSelectionListener(addSelectionListener);
+        add.addSelectionListener(this.addSelectionListener);
         
-        btnAdd = new ArrayList<Button>();
-        btnAdd.add(add);
+        this.btnAdd = new ArrayList<Button>();
+        this.btnAdd.add(add);
         
         Button del = new Button(parent, SWT.NONE);
         fd = new FormData();
@@ -160,41 +160,41 @@ public class FilterEditor {
         del.setImage(FormDialog.BIN_ICON);
         del.setVisible(false);
         
-        btnDelete = new ArrayList<Button>();
-        btnDelete.add(del);
+        this.btnDelete = new ArrayList<Button>();
+        this.btnDelete.add(del);
         
-		lblGenre = new Label(parent, SWT.NONE);
+		this.lblGenre = new Label(parent, SWT.NONE);
         fd = new FormData();
         fd.top = new FormAttachment(attr, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
-        lblGenre.setLayoutData(fd);
-        lblGenre.setText("Genre:");
+        this.lblGenre.setLayoutData(fd);
+        this.lblGenre.setText("Genre:");
 		
-        btnAnd = new Button(parent, SWT.RADIO);
+        this.btnAnd = new Button(parent, SWT.RADIO);
 		fd = new FormData();
-        fd.top = new FormAttachment(lblGenre, FormDialog.editorVerticalMargin, SWT.CENTER);
+        fd.top = new FormAttachment(this.lblGenre, FormDialog.editorVerticalMargin, SWT.CENTER);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        btnAnd.setLayoutData(fd);
-        btnAnd.setSelection(true);
-        btnAnd.setText("AND");
-        btnAnd.addSelectionListener(genreSelectionListener);
+        this.btnAnd.setLayoutData(fd);
+        this.btnAnd.setSelection(true);
+        this.btnAnd.setText("AND");
+        this.btnAnd.addSelectionListener(this.genreSelectionListener);
         
-        btnOr = new Button(parent, SWT.RADIO);
+        this.btnOr = new Button(parent, SWT.RADIO);
 		fd = new FormData();
-        fd.top = new FormAttachment(lblGenre, FormDialog.editorVerticalMargin, SWT.CENTER);
-        fd.left = new FormAttachment(btnAnd, FormDialog.editorBorderMargin*2);
-        btnOr.setLayoutData(fd);
-        btnOr.setText("OR");
-        btnOr.addSelectionListener(genreSelectionListener);
+        fd.top = new FormAttachment(this.lblGenre, FormDialog.editorVerticalMargin, SWT.CENTER);
+        fd.left = new FormAttachment(this.btnAnd, FormDialog.editorBorderMargin*2);
+        this.btnOr.setLayoutData(fd);
+        this.btnOr.setText("OR");
+        this.btnOr.addSelectionListener(this.genreSelectionListener);
 	}
 
 	private SelectionListener FilterSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
-	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	        TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
 	    	
 	    	if ( treeItem != null ) {
-	    		treeItem.setData("generate", btnGenerate.getSelection());
+	    		treeItem.setData("generate", FilterEditor.this.btnGenerate.getSelection());
 	    		treeItem.setData("genre", getFilter() ? getGenre() : null);
 	    	    treeItem.setData("tests", getFilter() ? getTests() : null);
 	    	}
@@ -209,16 +209,16 @@ public class FilterEditor {
 	};
 	
 	
-	private SelectionListener addSelectionListener = new SelectionListener() {
+	SelectionListener addSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
-	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	        TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
 	        
 	    	// we get the index of the add button that has been selected
 	    	int index = -1;
 	    	
-	    	for ( int i = 0; i < btnAdd.size(); ++i ) {
-	    		if ( btnAdd.get(i) == e.getSource() ) {
+	    	for ( int i = 0; i < FilterEditor.this.btnAdd.size(); ++i ) {
+	    		if ( FilterEditor.this.btnAdd.get(i) == e.getSource() ) {
 	    			index = i;
 	    			break;
 	    		}
@@ -226,29 +226,29 @@ public class FilterEditor {
 	    	
 	    	// if we failed to get the index, then we add at the end
 	    	if ( index == -1 )
-	    		index = btnAdd.size()-1;
+	    		index = FilterEditor.this.btnAdd.size()-1;
 	    	
 	    	// we insert new widgets after the corresponding index
-	    	Text attr = new Text(parent, SWT.BORDER);
-	        txtAttribute.add(index+1, attr);
+	    	Text attr = new Text(FilterEditor.this.parent, SWT.BORDER);
+	        FilterEditor.this.txtAttribute.add(index+1, attr);
 	        
-	        CCombo cmb = new CCombo(parent, SWT.BORDER);
+	        CCombo cmb = new CCombo(FilterEditor.this.parent, SWT.BORDER);
 	        cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches"});
-	        cmb.addSelectionListener(operationSelectionListener);
-	        comboOperation.add(index+1, cmb);
+	        cmb.addSelectionListener(FilterEditor.this.operationSelectionListener);
+	        FilterEditor.this.comboOperation.add(index+1, cmb);
 
-	        Text val = new Text(parent, SWT.BORDER);
-	        txtValue.add(index+1, val);
+	        Text val = new Text(FilterEditor.this.parent, SWT.BORDER);
+	        FilterEditor.this.txtValue.add(index+1, val);
 	        
-	        Button add = new Button(parent, SWT.NONE);
+	        Button add = new Button(FilterEditor.this.parent, SWT.NONE);
 	        add.setImage(FormDialog.PLUS_ICON);
-	        add.addSelectionListener(addSelectionListener);
-	        btnAdd.add(index+1, add);
+	        add.addSelectionListener(FilterEditor.this.addSelectionListener);
+	        FilterEditor.this.btnAdd.add(index+1, add);
 	        
-	        Button del = new Button(parent, SWT.NONE);
+	        Button del = new Button(FilterEditor.this.parent, SWT.NONE);
 	        del.setImage(FormDialog.BIN_ICON);
-	        del.addSelectionListener(delSelectionListener);
-	        btnDelete.add(index+1, del);
+	        del.addSelectionListener(FilterEditor.this.delSelectionListener);
+	        FilterEditor.this.btnDelete.add(index+1, del);
 	        
             if ( treeItem != null ) {
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
@@ -264,16 +264,16 @@ public class FilterEditor {
 	    }
 	};
 	
-	private SelectionListener operationSelectionListener = new SelectionListener() {
+	SelectionListener operationSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
-	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	        TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
 	        
 	    	// we get the index of the add button that has been selected
 	    	int index = -1;
 	    	
-	    	for ( int i = 0; i < comboOperation.size(); ++i ) {
-	    		if ( comboOperation.get(i) == e.getSource() ) {
+	    	for ( int i = 0; i < FilterEditor.this.comboOperation.size(); ++i ) {
+	    		if ( FilterEditor.this.comboOperation.get(i) == e.getSource() ) {
 	    			index = i;
 	    			break;
 	    		}
@@ -281,9 +281,9 @@ public class FilterEditor {
 	    	
 	    	// if we failed to get the index, then we update the last one
 	    	if ( index == -1 )
-	    		index = comboOperation.size()-1;
+	    		index = FilterEditor.this.comboOperation.size()-1;
 	    	
-	    	txtValue.get(index).setVisible(!FormPlugin.areEqualIgnoreCase(comboOperation.get(index).getText(), "exists"));
+	    	FilterEditor.this.txtValue.get(index).setVisible(!FormPlugin.areEqualIgnoreCase(FilterEditor.this.comboOperation.get(index).getText(), "exists"));
 	    	
             if ( treeItem != null ) {
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
@@ -297,15 +297,15 @@ public class FilterEditor {
 	    }
 	};
 	
-	private SelectionListener delSelectionListener = new SelectionListener() {
+	SelectionListener delSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
-            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+            TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
             
 	    	// we get the index of the add button that has been selected
 	    	int index = -1;
-	    	for ( int i = 0; i < btnDelete.size(); ++i ) {
-	    		if ( btnDelete.get(i) == e.getSource() ) {
+	    	for ( int i = 0; i < FilterEditor.this.btnDelete.size(); ++i ) {
+	    		if ( FilterEditor.this.btnDelete.get(i) == e.getSource() ) {
 	    			index = i;
 	    			break;
 	    		}
@@ -313,14 +313,14 @@ public class FilterEditor {
 	    	
 	    	// if we failed to get the index, then we delete the last one
 	    	if ( index == -1 )
-	    		index = btnDelete.size()-1;
+	    		index = FilterEditor.this.btnDelete.size()-1;
 	    	
 	    	// we delete the widgets at the corresponding index
-	        txtAttribute.remove(index).dispose();
-	        comboOperation.remove(index).dispose();
-	        txtValue.remove(index).dispose();
-	        btnAdd.remove(index).dispose();
-	        btnDelete.remove(index).dispose();
+	        FilterEditor.this.txtAttribute.remove(index).dispose();
+	        FilterEditor.this.comboOperation.remove(index).dispose();
+	        FilterEditor.this.txtValue.remove(index).dispose();
+	        FilterEditor.this.btnAdd.remove(index).dispose();
+	        FilterEditor.this.btnDelete.remove(index).dispose();
 	        
             if ( treeItem != null ) {
            		treeItem.setData("genre", getFilter() ? getGenre() : null);
@@ -339,7 +339,7 @@ public class FilterEditor {
 	private SelectionListener genreSelectionListener = new SelectionListener() {
         @Override
         public void widgetSelected(SelectionEvent e) {
-            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+            TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
             
             if ( treeItem != null ) {
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
@@ -348,70 +348,71 @@ public class FilterEditor {
         
         @Override
         public void widgetDefaultSelected(SelectionEvent e) {
+            widgetSelected(e);
         }
 	};
 	
-	private void redraw() {
+	void redraw() {
         // we reorganize the widgets
         FormData fd;
-    	for ( int i = 0; i < btnAdd.size(); ++i ) {
+    	for ( int i = 0; i < this.btnAdd.size(); ++i ) {
             fd = new FormData();
-            fd.top = new FormAttachment(i==0 ? lblAttribute : txtAttribute.get(i-1), (int)(FormDialog.editorVerticalMargin/2));
+            fd.top = new FormAttachment(i==0 ? this.lblAttribute : this.txtAttribute.get(i-1), FormDialog.editorVerticalMargin/2);
             fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-            fd.right = new FormAttachment(lblAttribute, 0, SWT.RIGHT);
-            txtAttribute.get(i).setLayoutData(fd);
+            fd.right = new FormAttachment(this.lblAttribute, 0, SWT.RIGHT);
+            this.txtAttribute.get(i).setLayoutData(fd);
             
             fd = new FormData();
-            fd.top = new FormAttachment(txtAttribute.get(i), 0, SWT.CENTER);
-            fd.left = new FormAttachment(lblOperation, 0, SWT.LEFT);
-            fd.right = new FormAttachment(lblOperation, 0, SWT.RIGHT);
-            comboOperation.get(i).setLayoutData(fd);
+            fd.top = new FormAttachment(this.txtAttribute.get(i), 0, SWT.CENTER);
+            fd.left = new FormAttachment(this.lblOperation, 0, SWT.LEFT);
+            fd.right = new FormAttachment(this.lblOperation, 0, SWT.RIGHT);
+            this.comboOperation.get(i).setLayoutData(fd);
             
             fd = new FormData();
-            fd.top = new FormAttachment(txtAttribute.get(i), 0, SWT.CENTER);
-            fd.left = new FormAttachment(lblValue, 0, SWT.LEFT);
-            fd.right = new FormAttachment(lblValue, 0, SWT.RIGHT);
-            txtValue.get(i).setLayoutData(fd);
+            fd.top = new FormAttachment(this.txtAttribute.get(i), 0, SWT.CENTER);
+            fd.left = new FormAttachment(this.lblValue, 0, SWT.LEFT);
+            fd.right = new FormAttachment(this.lblValue, 0, SWT.RIGHT);
+            this.txtValue.get(i).setLayoutData(fd);
             
             fd = new FormData();
-            fd.top = new FormAttachment(txtAttribute.get(i), 0, SWT.CENTER);
+            fd.top = new FormAttachment(this.txtAttribute.get(i), 0, SWT.CENTER);
             fd.left = new FormAttachment(100, -16);
             fd.right = new FormAttachment(100);
-            btnAdd.get(i).setLayoutData(fd);
+            this.btnAdd.get(i).setLayoutData(fd);
             
             fd = new FormData();
-            fd.top = new FormAttachment(txtAttribute.get(i), 0, SWT.CENTER);
+            fd.top = new FormAttachment(this.txtAttribute.get(i), 0, SWT.CENTER);
             fd.left = new FormAttachment(100, -35);
             fd.right = new FormAttachment(100, -19);
-            btnDelete.get(i).setLayoutData(fd);
-            if ( i == 0 ) btnDelete.get(i).setVisible(false);
+            this.btnDelete.get(i).setLayoutData(fd);
+            if ( i == 0 ) this.btnDelete.get(i).setVisible(false);
         }
     	
         fd = new FormData();
-        fd.top = new FormAttachment(txtAttribute.get(txtAttribute.size()-1), FormDialog.editorVerticalMargin);
+        fd.top = new FormAttachment(this.txtAttribute.get(this.txtAttribute.size()-1), FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
-        lblGenre.setLayoutData(fd);
+        this.lblGenre.setLayoutData(fd);
         
         boolean   isGenerated = getGenerate();
         boolean   showFilter = getFilter();
         
-        lblFilter.setVisible(isGenerated);
-        btnFilter.setVisible(isGenerated);
+        this.lblFilter.setVisible(isGenerated);
+        this.btnFilter.setVisible(isGenerated);
         
-        lblGenre.setVisible(isGenerated && showFilter);
-        btnAnd.setVisible(isGenerated && showFilter);
-        btnOr.setVisible(isGenerated && showFilter);
-        lblAttribute.setVisible(isGenerated && showFilter);
-        lblOperation.setVisible(isGenerated && showFilter);
-        lblValue.setVisible(isGenerated && showFilter);
-        for ( Text txt:   txtAttribute   ) txt.setVisible(isGenerated && showFilter);
-        for ( CCombo cmb: comboOperation ) cmb.setVisible(isGenerated && showFilter);
-        for ( Text txt:   txtValue       ) txt.setVisible(isGenerated && showFilter);
-        for ( Button add: btnAdd         ) add.setVisible(isGenerated && showFilter);
-        for ( Button del: btnDelete      ) if ( (isGenerated == false && showFilter == false) || del!=btnDelete.get(0) ) del.setVisible(isGenerated && showFilter);
+        this.lblGenre.setVisible(isGenerated && showFilter);
+        this.btnAnd.setVisible(isGenerated && showFilter);
+        this.btnOr.setVisible(isGenerated && showFilter);
+        this.lblAttribute.setVisible(isGenerated && showFilter);
+        this.lblOperation.setVisible(isGenerated && showFilter);
+        this.lblValue.setVisible(isGenerated && showFilter);
+        for ( Text txt:   this.txtAttribute   ) txt.setVisible(isGenerated && showFilter);
+        for ( CCombo cmb: this.comboOperation ) cmb.setVisible(isGenerated && showFilter);
+        for ( Text txt:   this.txtValue       ) txt.setVisible(isGenerated && showFilter);
+        for ( Button add: this.btnAdd         ) add.setVisible(isGenerated && showFilter);
+        for ( Button del: this.btnDelete      ) if ( (isGenerated == false && showFilter == false) || del!=this.btnDelete.get(0) ) del.setVisible(isGenerated && showFilter);
         
-        parent.layout();
-        ((ScrolledComposite)parent.getParent()).setMinSize(parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        this.parent.layout();
+        ((ScrolledComposite)this.parent.getParent()).setMinSize(this.parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 	
 	public void setPosition(int position) {
@@ -419,7 +420,7 @@ public class FilterEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblGenerate.setLayoutData(fd);
+        this.lblGenerate.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -427,81 +428,81 @@ public class FilterEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        if ( showGenerateCheckbox )
-        	lblGenerate.setLayoutData(fd);
+        if ( this.showGenerateCheckbox )
+        	this.lblGenerate.setLayoutData(fd);
         else
-        	lblFilter.setLayoutData(fd);
+        	this.lblFilter.setLayoutData(fd);
 	}
 	
 	public Label getControl() {
-		return lblGenre;
+		return this.lblGenre;
 	}
 	
     public void setGenerate(Boolean checked) {
-    	if ( showGenerateCheckbox )
-    		btnGenerate.setSelection(checked!=null && checked);
+    	if ( this.showGenerateCheckbox )
+    		this.btnGenerate.setSelection(checked!=null && checked);
     	redraw();
     }
 	
     public boolean getGenerate() {
-    	return showGenerateCheckbox ? btnGenerate.getSelection() : true;
+    	return this.showGenerateCheckbox ? this.btnGenerate.getSelection() : true;
     }
     
     public boolean getFilter() {
-        return btnFilter.getSelection();
+        return this.btnFilter.getSelection();
     }
     
     public void setGenre(String genre) {
-   		btnAnd.setSelection(FormPlugin.areEqualIgnoreCase(genre, "and"));
-   		btnOr.setSelection(!FormPlugin.areEqualIgnoreCase(genre, "and"));
+   		this.btnAnd.setSelection(FormPlugin.areEqualIgnoreCase(genre, "and"));
+   		this.btnOr.setSelection(!FormPlugin.areEqualIgnoreCase(genre, "and"));
     }
 	
     public String getGenre() {
     	if ( getTests() == null )
     		return null;
-    	return btnAnd.getSelection() ? "AND" : "OR";
+    	return this.btnAnd.getSelection() ? "AND" : "OR";
     }
     
     public void setTests(List<Map<String, String>> tests) {
         if ( tests == null || tests.size() == 0 ) {
-    	    btnFilter.setSelection(false);
+    	    this.btnFilter.setSelection(false);
             
             // we remove all the widgets
-            for ( int i = txtAttribute.size(); i > 0; --i ) {
-                btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
+            for ( int i = this.txtAttribute.size(); i > 0; --i ) {
+                this.btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
             }
-            txtAttribute.get(0).setText("");
-            comboOperation.get(0).setText("");
-            txtValue.get(0).setText("");
+            this.txtAttribute.get(0).setText("");
+            this.comboOperation.get(0).setText("");
+            this.txtValue.get(0).setText("");
     	} else {
-    		btnFilter.setSelection(true);
+    		this.btnFilter.setSelection(true);
         	int nbTests = tests.size();
         	
         	// we add widgets if we miss some
-        	for ( int i = txtAttribute.size(); i < nbTests; ++i ) {
-        		btnAdd.get(i-1).notifyListeners(SWT.Selection, new Event());
+        	for ( int i = this.txtAttribute.size(); i < nbTests; ++i ) {
+        		this.btnAdd.get(i-1).notifyListeners(SWT.Selection, new Event());
         	}
         	
         	// we remove widgets if we've got too much of them
-        	for ( int i = txtAttribute.size(); i > nbTests; --i ) {
-        		btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
+        	for ( int i = this.txtAttribute.size(); i > nbTests; --i ) {
+        		this.btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
         	}
         	
         	// we fill the widgets' text
         	for ( int i = 0; i < nbTests; ++i ) {
         		String value = tests.get(i).get("attribute");
-        	    txtAttribute.get(i).setText(value==null ? "" : value);
+        	    this.txtAttribute.get(i).setText(value==null ? "" : value);
         	    
         	    value = tests.get(i).get("operation");
-        		comboOperation.get(i).setText(value==null ? "" : value);
+        		this.comboOperation.get(i).setText(value==null ? "" : value);
         		
         		value = tests.get(i).get("value");
-        		txtValue.get(i).setText(value==null ? "" : value);
+        		this.txtValue.get(i).setText(value==null ? "" : value);
         	}
         	
-            btnFilter.setSelection(true);
+            this.btnFilter.setSelection(true);
             
-            TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+            TreeItem  treeItem = (TreeItem)this.parent.getData("treeItem");
             
             if ( treeItem != null ) {
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
@@ -515,14 +516,14 @@ public class FilterEditor {
     public List<Map<String, String>> getTests() {
     	List<Map<String, String>> list = new ArrayList<Map<String, String>>();
     	
-    	for ( int i = 0; i < txtAttribute.size(); ++i ) {
-    		if ( !FormPlugin.isEmpty(txtAttribute.get(i).getText()) || !FormPlugin.isEmpty(comboOperation.get(i).getText()) || !FormPlugin.isEmpty(txtValue.get(i).getText()) ) {
+    	for ( int i = 0; i < this.txtAttribute.size(); ++i ) {
+    		if ( !FormPlugin.isEmpty(this.txtAttribute.get(i).getText()) || !FormPlugin.isEmpty(this.comboOperation.get(i).getText()) || !FormPlugin.isEmpty(this.txtValue.get(i).getText()) ) {
     			Map<String, String> map = new HashMap<String, String>();
     		
-	    		map.put("attribute", txtAttribute.get(i).getText());
-	    		map.put("operation", comboOperation.get(i).getText());
-	    		if ( !FormPlugin.areEqualIgnoreCase(comboOperation.get(i).getText(), "exists") )
-	    			map.put("value", txtValue.get(i).getText());
+	    		map.put("attribute", this.txtAttribute.get(i).getText());
+	    		map.put("operation", this.comboOperation.get(i).getText());
+	    		if ( !FormPlugin.areEqualIgnoreCase(this.comboOperation.get(i).getText(), "exists") )
+	    			map.put("value", this.txtValue.get(i).getText());
 	    		
 	    		list.add(map);
     		}

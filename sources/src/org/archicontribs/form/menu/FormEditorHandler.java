@@ -29,8 +29,6 @@ import org.json.simple.parser.ParseException;
 public class FormEditorHandler extends AbstractHandler {
     public static final Cursor CURSOR_WAIT = new Cursor(null, SWT.CURSOR_WAIT);
     public static final Cursor CURSOR_ARROW = new Cursor(null, SWT.CURSOR_ARROW);
-    
-    private static final FormJsonParser jsonParser = new FormJsonParser();
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -44,20 +42,22 @@ public class FormEditorHandler extends AbstractHandler {
         }
 		
 		// We do not redo all the testing as the file has just been parsed by the FormMenu class
-		try {
-			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-			JSONObject form = jsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
+		try ( FileReader reader = new FileReader(configFilename) ){
+			JSONObject json = (JSONObject) new JSONParser().parse(reader);
+			JSONObject form = FormJsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
 			EObject selectedObject = FormMenu.getSelectedObject(selection[selectionRank]);
 			
-			String refers = jsonParser.getString(form, "refers", FormDialog.validRefers[0], FormDialog.validRefers);
+			String refers = FormJsonParser.getString(form, "refers", FormDialog.validRefers[0], FormDialog.validRefers);
 			switch ( refers.toLowerCase() ) {
 				case "view":   selectedObject = FormMenu.getContainer(selectedObject); break;
 				case "folder": selectedObject = FormMenu.getContainer(selectedObject); break;
 				case "model":  selectedObject = FormMenu.getModel(selectedObject);     break;
-				//case "selected": selectedObject remains the same
+				default:
+				    // selectedObject remains the same
 			}
 			
-			new FormDialog(configFilename, form, selectedObject);
+			@SuppressWarnings("unused")
+            FormDialog formdialog = new FormDialog(configFilename, form, selectedObject);
 			
 		} catch (IOException e) {
 			FormDialog.popup(Level.ERROR, "I/O Error while reading configuration file:\n"+configFilename,e);

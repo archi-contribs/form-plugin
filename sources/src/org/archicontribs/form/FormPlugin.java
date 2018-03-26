@@ -243,14 +243,14 @@ public class FormPlugin extends AbstractUIPlugin {
 						Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.ERROR, "The form plugin has been correctly downloaded to \""+installedPluginsFilename+"\" but you are still using the form plugin version "+pluginVersion+".\n\nPlease check the plugin files located in the \""+pluginsFolder+"\" folder."); }});
 					
 					reader.close();
-				} catch (IOException e1) {
+				} catch (@SuppressWarnings("unused") IOException ign) {
 					Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.WARN, "A new version of the form plugin has been downloaded but we failed to check if you are using the latest version.\n\nPlease check the plugin files located in the \""+pluginsFolder+"\" folder."); }});
 				}
 
 				try {
 					if ( logger.isDebugEnabled() ) logger.debug("deleting file "+pluginsFolder+File.separator+"formPlugin.new");
 					Files.delete(FileSystems.getDefault().getPath(pluginsFolder+File.separator+"formPlugin.new"));
-				} catch ( IOException e ) {
+				} catch ( @SuppressWarnings("unused") IOException ign ) {
 					Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.ERROR, "Failed to delete file \""+pluginsFolder+File.separator+"formPlugin.new\"\n\nYou need to delete it manually."); }});
 				}
 			} else if ( preferenceStore.getBoolean("checkForUpdateAtStartup") ) {
@@ -421,12 +421,11 @@ public class FormPlugin extends AbstractUIPlugin {
             int style = SWT.NORMAL;
             if ( fontBold != null && fontBold )   style |= SWT.BOLD;
             if ( fontItalic != null && fontItalic ) style |= SWT.ITALIC;
-            if ( fontSize == null ) fontSize = 0;
             try {
 	            if ( FormPlugin.isEmpty(fontName) )
-	            	control.setFont(FontDescriptor.createFrom(control.getFont()).setHeight(fontSize).setStyle(style).createFont(control.getDisplay()));
+	            	control.setFont(FontDescriptor.createFrom(control.getFont()).setHeight(fontSize==null ? 0 : fontSize).setStyle(style).createFont(control.getDisplay()));
 	            else
-	            	control.setFont(new Font(control.getDisplay(), fontName, fontSize, style));
+	            	control.setFont(new Font(control.getDisplay(), fontName, fontSize==null ? 0 : fontSize, style));
             } catch (Exception e) {
 				error(FormPosition.getPosition("font") + "\n\nFailed to set font.", e);
             }
@@ -458,11 +457,10 @@ public class FormPlugin extends AbstractUIPlugin {
         }
 	}
 	
-	public static String concat(String[] array, String quote, String separator) {
+	public static String concat(String[] array, String quoteChar, String separator) {
 		StringBuilder sb = new StringBuilder();
 		
-		if ( quote == null )
-			quote = "";
+		String quote = quoteChar==null ? "" : quoteChar;
 		
 		boolean isFirst = true;
 		
@@ -493,7 +491,9 @@ public class FormPlugin extends AbstractUIPlugin {
 				e.printStackTrace();
 			}
 			return Base64.getEncoder().encodeToString(out.toByteArray());
-		} catch (Exception ign) {}
+		} catch (@SuppressWarnings("unused") Exception ign) {
+		    // nothing to do
+		}
 		return null;
     }
 	
@@ -506,7 +506,9 @@ public class FormPlugin extends AbstractUIPlugin {
 			ImageData[] imageData = loader.load(reader);
 		
 			return new Image(Display.getCurrent(), imageData[0]);
-		} catch (Exception ign) {}
+		} catch (@SuppressWarnings("unused") Exception ign) {
+		    // nothing to do
+		}
 		return null;
     }
 }

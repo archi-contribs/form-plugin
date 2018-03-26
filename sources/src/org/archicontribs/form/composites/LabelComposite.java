@@ -31,64 +31,64 @@ public class LabelComposite extends Composite implements CompositeInterface {
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "name", "Name:");
-		nameEditor.setPosition(0);
-		nameEditor.mustSetTreeItemText(true);
-		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
+		this.nameEditor = new StringEditor(this, "name", "Name:");
+		this.nameEditor.setPosition(0);
+		this.nameEditor.mustSetTreeItemText(true);
+		this.nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 		// comment
-		commentEditor = new StringEditor(this, "comment", "Comment:");
-		commentEditor.setPosition(nameEditor.getControl());
-		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		this.commentEditor = new StringEditor(this, "comment", "Comment:");
+		this.commentEditor.setPosition(this.nameEditor.getControl());
+		this.commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
 		
 		// text
-		textEditor = new StringEditor(this, "text", "Text:");
-		textEditor.setPosition(commentEditor.getControl());
-		textEditor.mustSetControlText(true);
+		this.textEditor = new StringEditor(this, "text", "Text:");
+		this.textEditor.setPosition(this.commentEditor.getControl());
+		this.textEditor.mustSetControlText(true);
 						
 		// x, y, width, height
-		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(textEditor.getControl());
+		this.sizeEditor = new SizeEditor(this);
+		this.sizeEditor.setPosition(this.textEditor.getControl());
 		        
 		// foreground, background
-		colorEditor = new ColorEditor(this, "Color:");
-		colorEditor.setPosition(sizeEditor.getControl());
+		this.colorEditor = new ColorEditor(this, "Color:");
+		this.colorEditor.setPosition(this.sizeEditor.getControl());
 		
 		// font, fontBold, fontItalic
-		fontEditor = new FontEditor(this, "Font:");
-		fontEditor.setPosition(colorEditor.getControl());
+		this.fontEditor = new FontEditor(this, "Font:");
+		this.fontEditor.setPosition(this.colorEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
-		tooltipEditor.setPosition(fontEditor.getControl());
-		tooltipEditor.mustSetControlTolltip(true);
-		tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
+		this.tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
+		this.tooltipEditor.setPosition(this.fontEditor.getControl());
+		this.tooltipEditor.mustSetControlTolltip(true);
+		this.tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
 		
 	      // alignement
-        alignmentEditor = new AlignmentEditor(this, "Alignment:");
-        alignmentEditor.setPosition(tooltipEditor.getControl());
+        this.alignmentEditor = new AlignmentEditor(this, "Alignment:");
+        this.alignmentEditor.setPosition(this.tooltipEditor.getControl());
         
         // excelSheet
-        excelSheetEditor = new StringEditor(this, "excelSheet", "Excel sheet:");
-        excelSheetEditor.setPosition(alignmentEditor.getControl());
-        excelSheetEditor.setTooltipText("Name of the Excel sheet where the text should be exported to.\n\nIf this field is left blank, then the variable will not be exported to Excel, even if the others Excel related field are set.");
+        this.excelSheetEditor = new StringEditor(this, "excelSheet", "Excel sheet:");
+        this.excelSheetEditor.setPosition(this.alignmentEditor.getControl());
+        this.excelSheetEditor.setTooltipText("Name of the Excel sheet where the text should be exported to.\n\nIf this field is left blank, then the variable will not be exported to Excel, even if the others Excel related field are set.");
         
         // excelCell
-        excelCellEditor = new StringEditor(this, "excelCell", "Excel cell:");
-        excelCellEditor.setPosition(excelSheetEditor.getControl());
-        excelCellEditor.setTooltipText("Adress of the Excel cell where the text should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
+        this.excelCellEditor = new StringEditor(this, "excelCell", "Excel cell:");
+        this.excelCellEditor.setPosition(this.excelSheetEditor.getControl());
+        this.excelCellEditor.setTooltipText("Adress of the Excel cell where the text should be exported to (like A3 or D14).\n\nIf the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set.");
         
         // excelCellType
-        excelCellTypeEditor = new ComboEditor(this, "excelType", "Excel type:");
-        excelCellTypeEditor.setPosition(excelCellEditor.getControl());
-        excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
-        excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
+        this.excelCellTypeEditor = new ComboEditor(this, "excelType", "Excel type:");
+        this.excelCellTypeEditor.setPosition(this.excelCellEditor.getControl());
+        this.excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
+        this.excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
         
         // excelDefault
-        excelDefaultEditor = new ComboEditor(this, "excelDefault", "Excel default:");
-        excelDefaultEditor.setPosition(excelCellTypeEditor.getControl());
-        excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
-        excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
+        this.excelDefaultEditor = new ComboEditor(this, "excelDefault", "Excel default:");
+        this.excelDefaultEditor.setPosition(this.excelCellTypeEditor.getControl());
+        this.excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
+        this.excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
                 "   - blank : a blank cell will be created (ie a cell with no content)\n"+
                 "   - zero : a cell with a zero value in it:\n"+
                 "                - 0 for numeric cells\n"+
@@ -99,27 +99,28 @@ public class LabelComposite extends Composite implements CompositeInterface {
                 "Default: blank");
 	}
 	
+    @Override
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
-    		case "name":    	  nameEditor.setText((String)value); break;
-    		case "comment":       commentEditor.setText((String)value); break;
-    		case "x":    		  sizeEditor.setX((Integer)value); break;
-    		case "y":    		  sizeEditor.setY((Integer)value); break;
-    		case "width":    	  sizeEditor.setWidth((Integer)value); break;
-    		case "height":    	  sizeEditor.setHeight((Integer)value); break;
-    	    case "alignment":     alignmentEditor.setText((String)value); break;
-    		case "foreground":	  colorEditor.setForeground((String)value); break;
-    		case "background":	  colorEditor.setBackground((String)value); break;
-    		case "text":    	  textEditor.setText((String)value); break;
-    		case "tooltip":    	  tooltipEditor.setText((String)value); break;
-    		case "fontname":	  fontEditor.setFontName((String)value); break;
-    		case "fontsize":	  fontEditor.setFontSize((Integer)value); break;
-    		case "fontbold":	  fontEditor.setBold((Boolean)value); break;
-    		case "fontitalic":	  fontEditor.setItalic((Boolean)value); break;
-    		case "excelsheet":    excelSheetEditor.setText((String)value); break;
-    		case "excelcell":	  excelCellEditor.setText((String)value); break;
-    		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
-    		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
+    		case "name":    	  this.nameEditor.setText((String)value); break;
+    		case "comment":       this.commentEditor.setText((String)value); break;
+    		case "x":    		  this.sizeEditor.setX((Integer)value); break;
+    		case "y":    		  this.sizeEditor.setY((Integer)value); break;
+    		case "width":    	  this.sizeEditor.setWidth((Integer)value); break;
+    		case "height":    	  this.sizeEditor.setHeight((Integer)value); break;
+    	    case "alignment":     this.alignmentEditor.setText((String)value); break;
+    		case "foreground":	  this.colorEditor.setForeground((String)value); break;
+    		case "background":	  this.colorEditor.setBackground((String)value); break;
+    		case "text":    	  this.textEditor.setText((String)value); break;
+    		case "tooltip":    	  this.tooltipEditor.setText((String)value); break;
+    		case "fontname":	  this.fontEditor.setFontName((String)value); break;
+    		case "fontsize":	  this.fontEditor.setFontSize((Integer)value); break;
+    		case "fontbold":	  this.fontEditor.setBold((Boolean)value); break;
+    		case "fontitalic":	  this.fontEditor.setItalic((Boolean)value); break;
+    		case "excelsheet":    this.excelSheetEditor.setText((String)value); break;
+    		case "excelcell":	  this.excelCellEditor.setText((String)value); break;
+    		case "excelcelltype": this.excelCellTypeEditor.setText((String)value); break;
+    		case "exceldefault":  this.excelDefaultEditor.setText((String)value); break;
     		default:			throw new RuntimeException("does not know key "+key);
     	}
     	

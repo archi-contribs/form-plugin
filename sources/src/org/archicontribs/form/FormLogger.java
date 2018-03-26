@@ -33,14 +33,14 @@ public class FormLogger {
 				FormDialog.popup(Level.ERROR, "Failed to configure logger", e);
 			}
 		}
-		logger = Logger.getLogger(clazz);
+		this.logger = Logger.getLogger(clazz);
 	}
 	
 	/**
 	 * Gets the logger
 	 */
 	public Logger getLogger() {
-		return logger;
+		return this.logger;
 	}
 	
 	/**
@@ -52,46 +52,43 @@ public class FormLogger {
 		if ( properties != null ) {
 			PropertyConfigurator.configure(properties);
 			initialised = true;
+			
+	        Logger oldLogger = this.logger;
+            this.logger = Logger.getLogger(FormLogger.class);
+            if ( isDebugEnabled() ) debug("Logger initialised.");
+            if ( isTraceEnabled() ) {
+                StringBuilder param = new StringBuilder();
+                String eol = "";
+                for ( Object oKey: properties.orderedKeys() ) {
+                    param.append((String)oKey+" = "+properties.getProperty((String)oKey)+eol);
+                    eol = "\n";
+                }
+                trace(param.toString());
+            }
+            this.logger = oldLogger;
 		} else {
 			LogManager.shutdown();
 			initialised = false;
-		}
-		
-		if ( initialised ) {
-			Logger oldLogger = logger;
-			logger = Logger.getLogger(FormLogger.class);
-			if ( isDebugEnabled() ) debug("Logger initialised.");
-			if ( isTraceEnabled() ) {
-				StringBuilder param = new StringBuilder();
-				String eol = "";
-				for ( Object oKey: properties.orderedKeys() ) {
-					param.append((String)oKey+" = "+properties.getProperty((String)oKey)+eol);
-					eol = "\n";
-				}
-				trace(param.toString());
-			}
-			logger = oldLogger;
 		}
     }
 
 	/**
 	 * Logs a message
 	 */
-	public <T> void log(Class<T> clazz, Level level, String message, Throwable t) {
+	public <T> void log(Class<T> clazz, Level level, String msg, Throwable t) {
 		String className = clazz.getName();
 		
 		if ( initialised ) {
-		    if ( message == null )
-		        message = "An error occured.";
+		    String message = msg==null ? "An error occured." : msg;
 			String[] lines = message.split("\n");
 			if ( lines.length == 1 ) {
-				logger.log(className, level, "- "+message.replace("\r",""), t);
+				this.logger.log(className, level, "- "+message.replace("\r",""), t);
 			} else {
-				logger.log(className, level, "┌ "+lines[0].replace("\r",""), null);
+				this.logger.log(className, level, "┌ "+lines[0].replace("\r",""), null);
 				for ( int i=1 ; i < lines.length-2 ; ++i) {
-					logger.log(className, level, "│ "+lines[i].replace("\r",""), null);
+					this.logger.log(className, level, "│ "+lines[i].replace("\r",""), null);
 				}
-				logger.log(className, level, "└ "+lines[lines.length-1].replace("\r",""), t);
+				this.logger.log(className, level, "└ "+lines[lines.length-1].replace("\r",""), t);
 			}
 		}
 	}
@@ -210,7 +207,7 @@ public class FormLogger {
 	/**
 	 * Get the initialised state of the logger
 	 */
-    public boolean isInitialised() {
+    public static boolean isInitialised() {
     	return initialised;
     }
     
@@ -234,35 +231,39 @@ public class FormLogger {
 		debug("getting logger preferences from store");
 		
 		switch (loggerMode) {
-		case "disabled" :
-			return null;
-			
-		case "simple" :
-    		properties.setProperty("log4j.rootLogger",									FormPlugin.INSTANCE.getPreferenceStore().getString("loggerLevel").toUpperCase()+", stdout, file");
-    		
-    		properties.setProperty("log4j.appender.stdout",								"org.apache.log4j.ConsoleAppender");
-    		properties.setProperty("log4j.appender.stdout.Target",						"System.out");
-    		properties.setProperty("log4j.appender.stdout.layout",						"org.apache.log4j.PatternLayout");
-    		properties.setProperty("log4j.appender.stdout.layout.ConversionPattern",	"%d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n");
-    		
-    		properties.setProperty("log4j.appender.file",								"org.apache.log4j.FileAppender");
-    		properties.setProperty("log4j.appender.file.ImmediateFlush",				"true");
-    		properties.setProperty("log4j.appender.file.Append",						"false");
-    		properties.setProperty("log4j.appender.file.Encoding",						"UTF-8");
-    		properties.setProperty("log4j.appender.file.File",							FormPlugin.INSTANCE.getPreferenceStore().getString("loggerFilename"));
-    		properties.setProperty("log4j.appender.file.layout", 						"org.apache.log4j.PatternLayout");
-    		properties.setProperty("log4j.appender.file.layout.ConversionPattern",		"%d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n");
-    		break;
-    		
-		case "expert" :
-    		String loggerExpert = FormPlugin.INSTANCE.getPreferenceStore().getString("loggerExpert");
-    		if ( loggerExpert == null ) FormPlugin.INSTANCE.getPreferenceStore().getDefaultString("loggerExpert");
-    		
-    		try {
-				properties.load(new StringReader(loggerExpert));
-			} catch (IOException err) {
-				throw new Exception("Error while parsing \"loggerExpert\" properties from the preference store");
-			}
+    		case "disabled" :
+    			return null;
+    			
+    		case "simple" :
+        		properties.setProperty("log4j.rootLogger",									FormPlugin.INSTANCE.getPreferenceStore().getString("loggerLevel").toUpperCase()+", stdout, file");
+        		
+        		properties.setProperty("log4j.appender.stdout",								"org.apache.log4j.ConsoleAppender");
+        		properties.setProperty("log4j.appender.stdout.Target",						"System.out");
+        		properties.setProperty("log4j.appender.stdout.layout",						"org.apache.log4j.PatternLayout");
+        		properties.setProperty("log4j.appender.stdout.layout.ConversionPattern",	"%d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n");
+        		
+        		properties.setProperty("log4j.appender.file",								"org.apache.log4j.FileAppender");
+        		properties.setProperty("log4j.appender.file.ImmediateFlush",				"true");
+        		properties.setProperty("log4j.appender.file.Append",						"false");
+        		properties.setProperty("log4j.appender.file.Encoding",						"UTF-8");
+        		properties.setProperty("log4j.appender.file.File",							FormPlugin.INSTANCE.getPreferenceStore().getString("loggerFilename"));
+        		properties.setProperty("log4j.appender.file.layout", 						"org.apache.log4j.PatternLayout");
+        		properties.setProperty("log4j.appender.file.layout.ConversionPattern",		"%d{yyyy-MM-dd HH:mm:ss} %-5p %4L:%-30.30C{1} %m%n");
+        		break;
+        		
+    		case "expert" :
+        		String loggerExpert = FormPlugin.INSTANCE.getPreferenceStore().getString("loggerExpert");
+        		if ( loggerExpert == null ) FormPlugin.INSTANCE.getPreferenceStore().getDefaultString("loggerExpert");
+        		
+        		try {
+    				properties.load(new StringReader(loggerExpert));
+    			} catch (IOException err) {
+    				throw new Exception("Error while parsing \"loggerExpert\" properties from the preference store", err);
+    			}
+        		break;
+        		
+            default:
+                // unknown value
 		}
 		
 		return properties;
@@ -283,12 +284,14 @@ public class FormLogger {
 	        return Collections.list(keys());
 	    }
 
-	    public Enumeration<Object> keys() {
-	        return Collections.<Object>enumeration(keys);
+	    @Override
+        public synchronized Enumeration<Object> keys() {
+	        return Collections.<Object>enumeration(this.keys);
 	    }
 
-	    public Object put(Object key, Object value) {
-	        keys.add(key);
+	    @Override
+        public synchronized Object put(Object key, Object value) {
+	        this.keys.add(key);
 	        return super.put(key, value);
 	    }
 	}
@@ -297,13 +300,13 @@ public class FormLogger {
 	 * Returns true if the logger is configured to print trace messages
 	 */
 	public boolean isTraceEnabled() {
-		return logger.isTraceEnabled();
+		return this.logger.isTraceEnabled();
 	}
 	
 	/**
 	 * Returns true if the logger is configured to print debug messages
 	 */
 	public boolean isDebugEnabled() {
-		return logger.isDebugEnabled();
+		return this.logger.isDebugEnabled();
 	}
 }

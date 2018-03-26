@@ -16,32 +16,32 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class IntegerEditor {
-	private Label      lblInteger;
-	private StyledText txtInteger;
-	private Composite  parent;
-	private String     property = null;
+	Label      lblInteger;
+	StyledText txtInteger;
+	Composite  parent;
+	String     property = null;
 	
 	public IntegerEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
 		this.property = property;
 		
-		lblInteger = new Label(parent, SWT.NONE);
+		this.lblInteger = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblInteger.setLayoutData(fd);
-        lblInteger.setText(labelText);
+        this.lblInteger.setLayoutData(fd);
+        this.lblInteger.setText(labelText);
         
-        txtInteger = new StyledText(parent, SWT.BORDER);
+        this.txtInteger = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblInteger, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblInteger, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
-        txtInteger.setLayoutData(fd);
-        txtInteger.setLeftMargin(2);
-        txtInteger.addVerifyListener(numericVerifyListener);
-        txtInteger.addModifyListener(stringModifyListener);
+        this.txtInteger.setLayoutData(fd);
+        this.txtInteger.setLeftMargin(2);
+        this.txtInteger.addVerifyListener(this.numericVerifyListener);
+        this.txtInteger.addModifyListener(this.stringModifyListener);
         
 		TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
     	if ( treeItem != null && property != null) {
@@ -65,16 +65,16 @@ public class IntegerEditor {
     };
 	
 	public void setTooltipText(String tooltip) {
-		txtInteger.setToolTipText(tooltip);
+		this.txtInteger.setToolTipText(tooltip);
 	}
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
+        	TreeItem   treeItem = (TreeItem)IntegerEditor.this.parent.getData("treeItem");
         	
-        	if ( treeItem != null && property != null ) {
-        		treeItem.setData(property, getInteger());
+        	if ( treeItem != null && IntegerEditor.this.property != null ) {
+        		treeItem.setData(IntegerEditor.this.property, getInteger());
         	}
         }
     };
@@ -84,7 +84,7 @@ public class IntegerEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblInteger.setLayoutData(fd);
+        this.lblInteger.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -92,22 +92,22 @@ public class IntegerEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblInteger.setLayoutData(fd);
+        this.lblInteger.setLayoutData(fd);
 	}
 	
 	public StyledText getControl() {
-		return txtInteger;
+		return this.txtInteger;
 	}
     
     public void setInteger(Integer value) {
-		txtInteger.removeModifyListener(stringModifyListener);
-		txtInteger.setText(value==null ? "" : String.valueOf(value));
-		txtInteger.addModifyListener(stringModifyListener);
+		this.txtInteger.removeModifyListener(this.stringModifyListener);
+		this.txtInteger.setText(value==null ? "" : String.valueOf(value));
+		this.txtInteger.addModifyListener(this.stringModifyListener);
     }
     
     public int getInteger() {
-    	if ( FormPlugin.isEmpty(txtInteger.getText()) )
+    	if ( FormPlugin.isEmpty(this.txtInteger.getText()) )
     		return 0;
-    	return Integer.valueOf(txtInteger.getText());
+    	return Integer.valueOf(this.txtInteger.getText());
     }
 }

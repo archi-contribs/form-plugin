@@ -61,8 +61,6 @@ public class FormMenu extends ExtensionContributionFactory {
     private static String controlName = null;
     private static String controlClass = null;
     private static String columnName = null;
-    
-    private static FormJsonParser formJsonParser = new FormJsonParser();
 
 	@Override
 	public void createContributionItems(IServiceLocator serviceLocator, IContributionRoot additions) {
@@ -98,26 +96,26 @@ public class FormMenu extends ExtensionContributionFactory {
     			continue;
     		}
 
-    		try {
-    			JSONObject json = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
+    		try ( FileReader reader = new FileReader(configFilename) ) {
+    			JSONObject json = (JSONObject) new JSONParser().parse(reader);
     			Integer version;
     			try {
-    			    version = formJsonParser.getInt(json, "version", 0, true);
+    			    version = FormJsonParser.getInt(json, "version", 0, true);
     	            if ( version == null || version != 3 ) {
 	                    logger.error(configFilename + " : not the right version (should be 3).");
 	                    continue loopOnConfigFiles;
 	                }
-    			} catch (ClassCastException e) {
+    			} catch (@SuppressWarnings("unused") ClassCastException ign) {
                     logger.error(configFilename + " : the version specified is not an integer (should be 3).");
                     continue loopOnConfigFiles;
-                } catch (RuntimeException e) {
+                } catch (@SuppressWarnings("unused") RuntimeException ign) {
     			    logger.error(configFilename + " : the version is not specified (should be 3).");
                     continue loopOnConfigFiles;
     			}
     
-    			JSONObject form = formJsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
+    			JSONObject form = FormJsonParser.getJSONObject(json, FormPlugin.PLUGIN_ID);
     				
-				formName = formJsonParser.getString(form, "name", null);
+				formName = FormJsonParser.getString(form, "name", null);
 				if ( formName.isEmpty() ) {
 				    logger.error(getPosition("name")+" - cannot be empty");
 				    continue loopOnConfigFiles;
@@ -127,7 +125,7 @@ public class FormMenu extends ExtensionContributionFactory {
                 
                 HashSet<EObject>selected = new HashSet<EObject>();
                 
-                JSONObject filter = formJsonParser.getJSONObject(form, "filter");
+                JSONObject filter = FormJsonParser.getJSONObject(form, "filter");
 				if ( (filter != null) && logger.isDebugEnabled() ) logger.debug("Applying filter to selected components");
 
 				//we loop over the selected components
@@ -137,7 +135,7 @@ public class FormMenu extends ExtensionContributionFactory {
 					if ( ++menuEntries <= menuEntriesLimit ) {
 						EObject selectedObject = getSelectedObject(selection[selectionRank]);
 
-	                    String refers = formJsonParser.getString(form, "refers", FormDialog.validRefers[0]);
+	                    String refers = FormJsonParser.getString(form, "refers", FormDialog.validRefers[0]);
 	                    
 	                    switch ( refers.toLowerCase() ) {
 	                        case "selected" :
@@ -185,7 +183,7 @@ public class FormMenu extends ExtensionContributionFactory {
 	                    }
 
 						// we guarantee than an object is not included in the same menu several times
-						if ( !selected.contains(selectedObject) && ((filter == null) || formJsonParser.checkFilter(selectedObject, filter)) ) {
+						if ( !selected.contains(selectedObject) && ((filter == null) || FormJsonParser.checkFilter(selectedObject, filter)) ) {
 							String menuLabel = FormVariable.expand(formName, selectedObject);
 							if ( logger.isDebugEnabled() ) logger.debug("Adding menu entry \""+menuLabel+"\"");
 							
@@ -278,7 +276,7 @@ public class FormMenu extends ExtensionContributionFactory {
     
     public static EObject getModel(EObject obj) {
         if ( obj instanceof IArchimateModel )
-            return (IArchimateModel)obj;
+            return obj;
         
         if ( obj instanceof IArchimateModelObject )
             return ((IArchimateModelObject)obj).getArchimateModel();

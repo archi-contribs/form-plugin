@@ -13,34 +13,34 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class CheckEditor {
-	private Label      lblCheck;
-	private Button     check;
-	private Composite  parent;
-	private String     property = null;
-	private Boolean    inverse = false;
+	Label      lblCheck;
+	Button     check;
+	Composite  parent;
+	String     property = null;
+	Boolean    inverse = false;
 	
 	public CheckEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
 		this.property = property;
 		
-		lblCheck = new Label(parent, SWT.NONE);
+		this.lblCheck = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblCheck.setLayoutData(fd);
-        lblCheck.setText(labelText);
+        this.lblCheck.setLayoutData(fd);
+        this.lblCheck.setText(labelText);
         
-        check = new Button(parent, SWT.CHECK);
+        this.check = new Button(parent, SWT.CHECK);
         fd = new FormData();
-        fd.top = new FormAttachment(lblCheck, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblCheck, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        check.setLayoutData(fd);
-        check.addSelectionListener(checkSelectionListener);
+        this.check.setLayoutData(fd);
+        this.check.addSelectionListener(this.checkSelectionListener);
 	}
 	
 	public void setTooltipText(String tooltip) {
-	    check.setToolTipText(tooltip);
+	    this.check.setToolTipText(tooltip);
 	}
 	
 	public void setInverse(boolean inverse) {
@@ -50,10 +50,10 @@ public class CheckEditor {
 	private SelectionListener checkSelectionListener = new SelectionListener() {
 	    @Override
         public void widgetSelected(SelectionEvent e) {
-	    	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	    	TreeItem  treeItem = (TreeItem)CheckEditor.this.parent.getData("treeItem");
         	
-        	if ( treeItem != null && property != null ) {
-        		treeItem.setData(property, getChecked());
+        	if ( treeItem != null && CheckEditor.this.property != null ) {
+        		treeItem.setData(CheckEditor.this.property, getChecked());
         	}
         }
 
@@ -69,7 +69,7 @@ public class CheckEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblCheck.setLayoutData(fd);
+        this.lblCheck.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -77,20 +77,20 @@ public class CheckEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblCheck.setLayoutData(fd);
+        this.lblCheck.setLayoutData(fd);
 	}
 	
 	public Button getControl() {
-		return check;
+		return this.check;
 	}
     
     public void setChecked(Boolean checked) {
-        check.removeSelectionListener(checkSelectionListener);
-        check.setSelection(checked!=null && (inverse ? !checked : checked));
-        check.removeSelectionListener(checkSelectionListener);
+        this.check.removeSelectionListener(this.checkSelectionListener);
+        this.check.setSelection(checked!=null && (this.inverse ? !checked : checked));
+        this.check.removeSelectionListener(this.checkSelectionListener);
     }
     
     public boolean getChecked() {
-    	return inverse ? !check.getSelection() : check.getSelection();
+    	return this.inverse ? !this.check.getSelection() : this.check.getSelection();
     }
 }

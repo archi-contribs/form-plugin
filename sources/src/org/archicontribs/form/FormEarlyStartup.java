@@ -4,7 +4,8 @@ import org.eclipse.ui.IStartup;
 
 public class FormEarlyStartup implements IStartup {
 
-	@Override
+	@SuppressWarnings("unused")
+    @Override
 	public void earlyStartup() {
 		// nothing to do. The FormPlugin class will do all the requested work.
 		new FormPlugin();

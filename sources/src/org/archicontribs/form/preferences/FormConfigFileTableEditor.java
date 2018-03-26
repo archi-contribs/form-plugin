@@ -48,7 +48,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 
 	private Group grpConfigFiles;
 
-	private Table tblConfigFiles;
+	Table tblConfigFiles;
 	private Label lblFile;
 	private Button btnBrowse;
 	private Text txtFile;
@@ -64,8 +64,6 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private Button btnSave;
 	
 	private static final IPreferenceStore store = FormPlugin.INSTANCE.getPreferenceStore();
-	
-	private static final FormJsonParser jsonParser = new FormJsonParser();
 
 	/**
 	 * Creates a table field editor.
@@ -81,252 +79,282 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	 * 
 	 * called by createControl(parent)
 	 */
-	protected void doFillIntoGrid(Composite parent, int numColumns) {
+	@Override
+    protected void doFillIntoGrid(Composite parent, int numColumns) {
 		if ( logger.isTraceEnabled() ) logger.trace("doFillIntoGrid()");
 
 		// we create a composite with layout as FormLayout
-		grpConfigFiles = new Group(parent, SWT.NONE);
-		grpConfigFiles.setFont(parent.getFont());
-		grpConfigFiles.setLayout(new FormLayout());
-		grpConfigFiles.setBackground(FormPreferencePage.COMPO_BACKGROUND_COLOR);
-		grpConfigFiles.setText("Configuration files : ");
+		this.grpConfigFiles = new Group(parent, SWT.NONE);
+		this.grpConfigFiles.setFont(parent.getFont());
+		this.grpConfigFiles.setLayout(new FormLayout());
+		this.grpConfigFiles.setBackground(FormPreferencePage.COMPO_BACKGROUND_COLOR);
+		this.grpConfigFiles.setText("Configuration files : ");
 
-		btnUp = new Button(grpConfigFiles, SWT.NONE);
-		btnUp.setText("^");
+		this.btnUp = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnUp.setText("^");
 		FormData fd = new FormData();
 		fd.top = new FormAttachment(0, 5);
 		fd.left = new FormAttachment(100, -70);
 		fd.right = new FormAttachment(100, -40);
-		btnUp.setLayoutData(fd);
-		btnUp.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { swapConfigFileEntries(-1); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		this.btnUp.setLayoutData(fd);
+		this.btnUp.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { swapConfigFileEntries(-1); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnUp.setEnabled(false);
+		this.btnUp.setEnabled(false);
 
-		btnDown = new Button(grpConfigFiles, SWT.NONE);
-		btnDown.setText("v");
+		this.btnDown = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnDown.setText("v");
 		fd = new FormData();
 		fd.top = new FormAttachment(0, 5);
 		fd.left = new FormAttachment(100, -35);
 		fd.right = new FormAttachment(100, -5);
-		btnDown.setLayoutData(fd);
-		btnDown.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { swapConfigFileEntries(1); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		this.btnDown.setLayoutData(fd);
+		this.btnDown.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { swapConfigFileEntries(1); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnDown.setEnabled(false);
+		this.btnDown.setEnabled(false);
 
-		btnNew = new Button(grpConfigFiles, SWT.NONE);
-		btnNew.setText("New");
+		this.btnNew = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnNew.setText("New");
 		fd = new FormData();
-		fd.top = new FormAttachment(btnUp, 5);
+		fd.top = new FormAttachment(this.btnUp, 5);
 		fd.left = new FormAttachment(100, -70);
 		fd.right = new FormAttachment(100, -5);
-		btnNew.setLayoutData(fd);
-		btnNew.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { newCallback(); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		this.btnNew.setLayoutData(fd);
+		this.btnNew.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { newCallback(); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
 
-		btnProperties = new Button(grpConfigFiles, SWT.NONE);
-		btnProperties.setText("Properties");
+		this.btnProperties = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnProperties.setText("Properties");
 		fd = new FormData();
-		fd.top = new FormAttachment(btnNew, 5);
-		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
-		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
-		btnProperties.setLayoutData(fd);
-		btnProperties.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { propertiesCallback(true); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		fd.top = new FormAttachment(this.btnNew, 5);
+		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
+		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
+		this.btnProperties.setLayoutData(fd);
+		this.btnProperties.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { propertiesCallback(true); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnProperties.setEnabled(false);
+		this.btnProperties.setEnabled(false);
 
-		btnGraphicalEditor = new Button(grpConfigFiles, SWT.WRAP);
-		btnGraphicalEditor.setText("Graphical editor");
+		this.btnGraphicalEditor = new Button(this.grpConfigFiles, SWT.WRAP);
+		this.btnGraphicalEditor.setText("Graphical editor");
 		fd = new FormData();
-		fd.top = new FormAttachment(btnProperties, 5);
-		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
-		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
-		btnGraphicalEditor.setLayoutData(fd);
-		btnGraphicalEditor.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { generateCallback(); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		fd.top = new FormAttachment(this.btnProperties, 5);
+		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
+		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
+		this.btnGraphicalEditor.setLayoutData(fd);
+		this.btnGraphicalEditor.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { generateCallback(); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnGraphicalEditor.setEnabled(false);
+		this.btnGraphicalEditor.setEnabled(false);
 
-		btnRemove = new Button(grpConfigFiles, SWT.NONE);
-		btnRemove.setText("Remove");
+		this.btnRemove = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnRemove.setText("Remove");
 		fd = new FormData();
-		fd.top = new FormAttachment(btnGraphicalEditor, 5);
-		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
-		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
-		btnRemove.setLayoutData(fd);
-		btnRemove.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { removeCallback(); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		fd.top = new FormAttachment(this.btnGraphicalEditor, 5);
+		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
+		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
+		this.btnRemove.setLayoutData(fd);
+		this.btnRemove.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { removeCallback(); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnRemove.setEnabled(false);
+		this.btnRemove.setEnabled(false);
 
 
-		tblConfigFiles = new Table(grpConfigFiles, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.SINGLE);
-		tblConfigFiles.setLinesVisible(true);
+		this.tblConfigFiles = new Table(this.grpConfigFiles, SWT.BORDER | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.SINGLE);
+		this.tblConfigFiles.setLinesVisible(true);
 		fd = new FormData();
-		fd.top = new FormAttachment(btnUp, 0, SWT.TOP);
+		fd.top = new FormAttachment(this.btnUp, 0, SWT.TOP);
 		fd.left = new FormAttachment(0, 10);
-		fd.right = new FormAttachment(btnNew, -10, SWT.LEFT);
-		fd.bottom = new FormAttachment(btnRemove, 0, SWT.BOTTOM);
-		tblConfigFiles.setLayoutData(fd);
-		tblConfigFiles.addListener(SWT.Resize, new Listener() {
+		fd.right = new FormAttachment(this.btnNew, -10, SWT.LEFT);
+		fd.bottom = new FormAttachment(this.btnRemove, 0, SWT.BOTTOM);
+		this.tblConfigFiles.setLayoutData(fd);
+		this.tblConfigFiles.addListener(SWT.Resize, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				tblConfigFiles.getColumns()[0].setWidth(tblConfigFiles.getClientArea().width);
+				FormConfigFileTableEditor.this.tblConfigFiles.getColumns()[0].setWidth(FormConfigFileTableEditor.this.tblConfigFiles.getClientArea().width);
 			}
 		});
-		tblConfigFiles.addListener(SWT.Selection, new Listener() {
-			public void handleEvent(Event e) {
+		this.tblConfigFiles.addListener(SWT.Selection, new Listener() {
+			@Override
+            public void handleEvent(Event e) {
 				propertiesCallback(false);
 			}
 		});
-		new TableColumn(tblConfigFiles, SWT.NONE);
+		
+		@SuppressWarnings("unused")
+        TableColumn tableColumn = new TableColumn(this.tblConfigFiles, SWT.NONE);
 
-		lblFile = new Label(grpConfigFiles, SWT.NONE);
-		lblFile.setText("File :");
-		lblFile.setBackground(FormPreferencePage.COMPO_BACKGROUND_COLOR);
+		this.lblFile = new Label(this.grpConfigFiles, SWT.NONE);
+		this.lblFile.setText("File :");
+		this.lblFile.setBackground(FormPreferencePage.COMPO_BACKGROUND_COLOR);
 		fd = new FormData();
-		fd.top = new FormAttachment(tblConfigFiles, 40);
-		fd.left = new FormAttachment(tblConfigFiles, 0 , SWT.LEFT);
-		lblFile.setLayoutData(fd);
-		lblFile.setVisible(false);
+		fd.top = new FormAttachment(this.tblConfigFiles, 40);
+		fd.left = new FormAttachment(this.tblConfigFiles, 0 , SWT.LEFT);
+		this.lblFile.setLayoutData(fd);
+		this.lblFile.setVisible(false);
 
-		btnBrowse = new Button(grpConfigFiles, SWT.NONE);
-		btnBrowse.setText("Browse");
+		this.btnBrowse = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnBrowse.setText("Browse");
 		fd = new FormData();
-		fd.top = new FormAttachment(lblFile, 0, SWT.CENTER);
-		fd.right = new FormAttachment(tblConfigFiles, -30, SWT.RIGHT);
-		btnBrowse.setLayoutData(fd);
-		btnBrowse.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { browseCallback(); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		fd.top = new FormAttachment(this.lblFile, 0, SWT.CENTER);
+		fd.right = new FormAttachment(this.tblConfigFiles, -30, SWT.RIGHT);
+		this.btnBrowse.setLayoutData(fd);
+		this.btnBrowse.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { browseCallback(); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnBrowse.setVisible(false);
+		this.btnBrowse.setVisible(false);
 
-		txtFile = new Text(grpConfigFiles, SWT.BORDER);
+		this.txtFile = new Text(this.grpConfigFiles, SWT.BORDER);
 		fd = new FormData();
-		fd.top = new FormAttachment(lblFile, 0, SWT.CENTER);
-		fd.left = new FormAttachment(lblFile, 5);
-		fd.right = new FormAttachment(btnBrowse, -10);
-		txtFile.setLayoutData(fd);
-		txtFile.setVisible(false);
+		fd.top = new FormAttachment(this.lblFile, 0, SWT.CENTER);
+		fd.left = new FormAttachment(this.lblFile, 5);
+		fd.right = new FormAttachment(this.btnBrowse, -10);
+		this.txtFile.setLayoutData(fd);
+		this.txtFile.setVisible(false);
 
-		btnSave = new Button(grpConfigFiles, SWT.NONE);
-		btnSave.setText("Save");
+		this.btnSave = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnSave.setText("Save");
 		fd = new FormData();
-		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
-		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
+		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
+		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
 		fd.bottom = new FormAttachment(100, -7);
-		btnSave.setLayoutData(fd);
-		btnSave.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { saveCallback(); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		this.btnSave.setLayoutData(fd);
+		this.btnSave.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { saveCallback(); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnSave.setVisible(false);
+		this.btnSave.setVisible(false);
 
-		btnDiscard = new Button(grpConfigFiles, SWT.NONE);
-		btnDiscard.setText("Discard");
+		this.btnDiscard = new Button(this.grpConfigFiles, SWT.NONE);
+		this.btnDiscard.setText("Discard");
 		fd = new FormData();
-		fd.left = new FormAttachment(btnNew, 0, SWT.LEFT);
-		fd.right = new FormAttachment(btnNew, 0, SWT.RIGHT);
-		fd.bottom = new FormAttachment(btnSave, -5, SWT.TOP);
-		btnDiscard.setLayoutData(fd);
-		btnDiscard.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) { propertiesCallback(false); }
-			public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
+		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
+		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
+		fd.bottom = new FormAttachment(this.btnSave, -5, SWT.TOP);
+		this.btnDiscard.setLayoutData(fd);
+		this.btnDiscard.addSelectionListener(new SelectionListener() {
+			@Override
+            public void widgetSelected(SelectionEvent e) { propertiesCallback(false); }
+			@Override
+            public void widgetDefaultSelected(SelectionEvent e) { widgetSelected(e); }
 		});
-		btnDiscard.setVisible(false);
+		this.btnDiscard.setVisible(false);
 
 
-		grpConfigFiles.setTabList(new Control[] {txtFile, btnBrowse, btnDiscard, btnSave});
+		this.grpConfigFiles.setTabList(new Control[] {this.txtFile, this.btnBrowse, this.btnDiscard, this.btnSave});
 
-		grpConfigFiles.layout();
+		this.grpConfigFiles.layout();
 
 		GridData gd = new GridData();
-		gd.heightHint = txtFile.getLocation().y + 10;
+		gd.heightHint = this.txtFile.getLocation().y + 10;
 		gd.horizontalAlignment = GridData.FILL;
 		gd.grabExcessHorizontalSpace = true;
-		grpConfigFiles.setLayoutData(gd);
+		this.grpConfigFiles.setLayoutData(gd);
 	}
 
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
-	protected void adjustForNumColumns(int numColumns) {
+	@Override
+    protected void adjustForNumColumns(int numColumns) {
+	    // nothing to do
 	}
 
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
-	protected void doLoadDefault() {
+	@Override
+    protected void doLoadDefault() {
+	    // nothing to do
 	}
 
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
-	protected void doLoad() {
+	@Override
+    protected void doLoad() {
 		if ( logger.isTraceEnabled() ) logger.trace("doLoad()");
 
-		tblConfigFiles.removeAll();
+		this.tblConfigFiles.removeAll();
 		
 		int lines = store.getInt(FormPlugin.storeConfigFilesPrefix+"_#");
 		
 		for (int line = 0; line <lines; line++) {
-			TableItem tableItem = new TableItem(tblConfigFiles, SWT.NONE);
+			TableItem tableItem = new TableItem(this.tblConfigFiles, SWT.NONE);
 			tableItem.setText(store.getString(FormPlugin.storeConfigFilesPrefix+"_"+String.valueOf(line)));
 		}
 			
-		if ( tblConfigFiles.getItemCount() != 0 ) {
-			tblConfigFiles.setSelection(0);
-			tblConfigFiles.notifyListeners(SWT.Selection, new Event());
+		if ( this.tblConfigFiles.getItemCount() != 0 ) {
+			this.tblConfigFiles.setSelection(0);
+			this.tblConfigFiles.notifyListeners(SWT.Selection, new Event());
 		}
 	}
 
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
-	protected void doStore() {
+	@Override
+    protected void doStore() {
 		if ( logger.isTraceEnabled() ) logger.trace("doStore()");
 		
-		int lines = tblConfigFiles.getItemCount();
+		int lines = this.tblConfigFiles.getItemCount();
 		store.setValue(FormPlugin.storeConfigFilesPrefix+"_#", lines);
 
 		for (int line = 0; line < lines; line++) {
-			store.setValue(FormPlugin.storeConfigFilesPrefix+"_"+String.valueOf(line), tblConfigFiles.getItem(line).getText());
+			store.setValue(FormPlugin.storeConfigFilesPrefix+"_"+String.valueOf(line), this.tblConfigFiles.getItem(line).getText());
 		}
 	}
 
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
-	public int getNumberOfControls() {
+	@Override
+    public int getNumberOfControls() {
 		return 1;
 	}
 
 	/*
 	 * (non-Javadoc) Method declared on FieldEditor.
 	 */
-	public void setFocus() {
-		if ( tblConfigFiles != null )
-			tblConfigFiles.setFocus();
+	@Override
+    public void setFocus() {
+		if ( this.tblConfigFiles != null )
+			this.tblConfigFiles.setFocus();
 	}
 
 	/**
 	 * Called when the "new" button has been pressed
 	 */
-	private void newCallback() {
+	void newCallback() {
 		if ( logger.isTraceEnabled() ) logger.trace("newCallback()");
 
 		// we unselect all the lines of the tblDatabases table
-		tblConfigFiles.deselectAll();
+		this.tblConfigFiles.deselectAll();
 		
 		// we show up the edition widgets
 		propertiesCallback(true);
@@ -335,18 +363,18 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	/**
 	 * Called when the "save" button has been pressed
 	 */
-	private void saveCallback() {
+	void saveCallback() {
 		if ( logger.isTraceEnabled() ) logger.trace("saveCallback()");
 
-		if ( txtFile.getText().isEmpty() ) {
+		if ( this.txtFile.getText().isEmpty() ) {
 		    // TODO : disable the save button when the txtFile field is empty, and enable it when not empty ... may be activate only when valid file with tooltip with error message
 		    return;		    
 		}
 		
 		// We check if the configuration file already exists in the table
-		for (int line = 0; line < tblConfigFiles.getItemCount(); ++line) {
-		    if ( line != tblConfigFiles.getSelectionIndex() ) {
-                if ( Paths.get(txtFile.getText()).equals(Paths.get(tblConfigFiles.getItem(line).getText())) ) {
+		for (int line = 0; line < this.tblConfigFiles.getItemCount(); ++line) {
+		    if ( line != this.tblConfigFiles.getSelectionIndex() ) {
+                if ( Paths.get(this.txtFile.getText()).equals(Paths.get(this.tblConfigFiles.getItem(line).getText())) ) {
                     FormDialog.popup(Level.ERROR, "The file is already selected, please choose another one.");
                     return;
                 }
@@ -355,56 +383,55 @@ public class FormConfigFileTableEditor extends FieldEditor {
 
 		// if a tableItem is selected in the tblconfigFiles table, we replace it. Else, we add a new one
 		TableItem tableItem;
-		if ( tblConfigFiles.getSelectionIndex() >= 0 ) {
-			tableItem = tblConfigFiles.getSelection()[0];
+		if ( this.tblConfigFiles.getSelectionIndex() >= 0 ) {
+			tableItem = this.tblConfigFiles.getSelection()[0];
 		} else {
 			try {
-			    tableItem = new TableItem(tblConfigFiles, SWT.NONE);
+			    tableItem = new TableItem(this.tblConfigFiles, SWT.NONE);
 			} catch (Exception e) {
 	            FormDialog.popup(Level.ERROR, "Cannot create new tableItem !", e);
 	            return;
 	        }
 		}
-		tableItem.setText(txtFile.getText());
+		tableItem.setText(this.txtFile.getText());
 
 		propertiesCallback(false);
 
-		tblConfigFiles.setSelection(tableItem);
-		tblConfigFiles.notifyListeners(SWT.Selection, new Event());
+		this.tblConfigFiles.setSelection(tableItem);
+		this.tblConfigFiles.notifyListeners(SWT.Selection, new Event());
 	}
 
-	private void propertiesCallback(boolean editMode) {
+	void propertiesCallback(boolean editMode) {
 		String filename = "";
 
-		if ( tblConfigFiles.getSelectionIndex() != -1 )
-			filename = tblConfigFiles.getItem(tblConfigFiles.getSelectionIndex()).getText();
+		if ( this.tblConfigFiles.getSelectionIndex() != -1 )
+			filename = this.tblConfigFiles.getItem(this.tblConfigFiles.getSelectionIndex()).getText();
 
-		lblFile.setVisible(editMode);
-		txtFile.setVisible(editMode);					txtFile.setText(filename);
-		btnBrowse.setVisible(editMode);
-		btnSave.setVisible(editMode);
-		btnDiscard.setVisible(editMode);
+		this.lblFile.setVisible(editMode);
+		this.txtFile.setVisible(editMode);					this.txtFile.setText(filename);
+		this.btnBrowse.setVisible(editMode);
+		this.btnSave.setVisible(editMode);
+		this.btnDiscard.setVisible(editMode);
 
-		btnNew.setEnabled(!editMode);
-		btnProperties.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
-		btnRemove.setEnabled(!editMode && (tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0));
-		btnGraphicalEditor.setEnabled(editMode || ((tblConfigFiles.getSelection()!=null) && (tblConfigFiles.getSelection().length!=0)));
-		btnUp.setEnabled(!editMode && (tblConfigFiles.getSelectionIndex() > 0));
-		btnDown.setEnabled(!editMode && (tblConfigFiles.getSelectionIndex() < tblConfigFiles.getItemCount()-1));
-		tblConfigFiles.setEnabled(!editMode);
+		this.btnNew.setEnabled(!editMode);
+		this.btnProperties.setEnabled(!editMode && (this.tblConfigFiles.getSelection()!=null) && (this.tblConfigFiles.getSelection().length!=0));
+		this.btnRemove.setEnabled(!editMode && (this.tblConfigFiles.getSelection()!=null) && (this.tblConfigFiles.getSelection().length!=0));
+		this.btnGraphicalEditor.setEnabled(editMode || ((this.tblConfigFiles.getSelection()!=null) && (this.tblConfigFiles.getSelection().length!=0)));
+		this.btnUp.setEnabled(!editMode && (this.tblConfigFiles.getSelectionIndex() > 0));
+		this.btnDown.setEnabled(!editMode && (this.tblConfigFiles.getSelectionIndex() < this.tblConfigFiles.getItemCount()-1));
+		this.tblConfigFiles.setEnabled(!editMode);
 
-		grpConfigFiles.layout();
+		this.grpConfigFiles.layout();
 	}
 
 	/**
 	 * Called when the "generate" button has been pressed
 	 */
-	@SuppressWarnings("unchecked")
-    private void generateCallback() {
+	@SuppressWarnings("unchecked") void generateCallback() {
 		if ( logger.isTraceEnabled() ) logger.trace("generateCallback()");
 		
-		if ( tblConfigFiles.getSelectionIndex() != -1 ) {
-    		String configFilename = tblConfigFiles.getItem(tblConfigFiles.getSelectionIndex()).getText();
+		if ( this.tblConfigFiles.getSelectionIndex() != -1 ) {
+    		String configFilename = this.tblConfigFiles.getItem(this.tblConfigFiles.getSelectionIndex()).getText();
             
     		if ( logger.isDebugEnabled() ) logger.debug("Opening configuration file \""+configFilename+"\" ...");
     
@@ -453,20 +480,20 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 
             } else {
                 JSONObject jsonFile;
-                try {
-                    jsonFile = (JSONObject) new JSONParser().parse(new FileReader(configFilename));
-                    Integer version = jsonParser.getInt(jsonFile, "version", 0, true);
+                try ( FileReader reader = new FileReader(configFilename) ){
+                    jsonFile = (JSONObject) new JSONParser().parse(reader);
+                    Integer version = FormJsonParser.getInt(jsonFile, "version", 0, true);
                     if ( version != null && version != 3 ) {
                         FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 3).");
                         return;
                     }
                     
-                    form = jsonParser.getJSONObject(jsonFile, FormPlugin.PLUGIN_ID);
+                    form = FormJsonParser.getJSONObject(jsonFile, FormPlugin.PLUGIN_ID);
                     
-                } catch (ClassCastException e) {
+                } catch (@SuppressWarnings("unused") ClassCastException ign) {
                     FormDialog.popup(Level.ERROR, "Failed : the version specified is not an integer (should be 3).");
                     return;
-                } catch (RuntimeException e) {
+                } catch (@SuppressWarnings("unused") RuntimeException ign) {
                     FormDialog.popup(Level.ERROR, "Failed : the version is not specified (should be 3).");
                     return;
                 } catch (IOException e) {
@@ -480,61 +507,62 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 }
             }
             
-            new FormDialog(configFilename, form, null);
+            @SuppressWarnings("unused")
+            FormDialog formDialog = new FormDialog(configFilename, form, null);
 		}
 	}
 
 	/**
 	 * Called when the "remove" button has been pressed
 	 */
-	private void removeCallback() {
+	void removeCallback() {
 		if ( logger.isTraceEnabled() ) logger.trace("removeCallback()");
 		// setPresentsDefaultValue(false);
-		int index = tblConfigFiles.getSelectionIndex();
+		int index = this.tblConfigFiles.getSelectionIndex();
 
-		tblConfigFiles.remove(index);
+		this.tblConfigFiles.remove(index);
 
-		if ( tblConfigFiles.getItemCount() > 0 ) {
-			if ( index < tblConfigFiles.getItemCount() )
-				tblConfigFiles.setSelection(index);
+		if ( this.tblConfigFiles.getItemCount() > 0 ) {
+			if ( index < this.tblConfigFiles.getItemCount() )
+				this.tblConfigFiles.setSelection(index);
 			else {
 				if ( index > 0 )
-					tblConfigFiles.setSelection(index-1);
+					this.tblConfigFiles.setSelection(index-1);
 			}
 			propertiesCallback(false);
 		} else {
-			lblFile.setVisible(false);
-			txtFile.setVisible(false);		
-			btnBrowse.setVisible(false);
+			this.lblFile.setVisible(false);
+			this.txtFile.setVisible(false);		
+			this.btnBrowse.setVisible(false);
 
-			btnSave.setVisible(false);
-			btnDiscard.setVisible(false);
+			this.btnSave.setVisible(false);
+			this.btnDiscard.setVisible(false);
 
-			btnNew.setEnabled(true);
-			btnProperties.setEnabled(false);
-			btnRemove.setEnabled(false);
-			btnGraphicalEditor.setEnabled(false);
-			btnUp.setEnabled(false);
-			btnDown.setEnabled(false);
-			tblConfigFiles.setEnabled(true);
+			this.btnNew.setEnabled(true);
+			this.btnProperties.setEnabled(false);
+			this.btnRemove.setEnabled(false);
+			this.btnGraphicalEditor.setEnabled(false);
+			this.btnUp.setEnabled(false);
+			this.btnDown.setEnabled(false);
+			this.tblConfigFiles.setEnabled(true);
 
-			grpConfigFiles.layout();
+			this.grpConfigFiles.layout();
 		}
 	}
 
 	/**
 	 * Called when the "browse" button has been pressed
 	 */
-	private void browseCallback() {
+	void browseCallback() {
 		FileDialog dlg = new FileDialog(Display.getDefault().getActiveShell(), SWT.SINGLE);
-		dlg.setFileName(txtFile.getText());
+		dlg.setFileName(this.txtFile.getText());
 		dlg.setFilterExtensions(new String[]{"*.conf;*.config", "*.*"});
 		if (dlg.open() != null) {
 			StringBuffer buf = new StringBuffer(dlg.getFilterPath());
 			if (buf.charAt(buf.length() - 1) != File.separatorChar)
 				buf.append(File.separatorChar);
 			buf.append(dlg.getFileName());
-			txtFile.setText(buf.toString());
+			this.txtFile.setText(buf.toString());
 		}
 	}
 
@@ -545,31 +573,31 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	 *            <code>true</code> if the item should move up, and
 	 *            <code>false</code> if it should move down
 	 */
-	private void swapConfigFileEntries(int direction) {
+	void swapConfigFileEntries(int direction) {
 		if ( logger.isTraceEnabled() ) logger.trace("swap("+direction+")");
 
-		int source = tblConfigFiles.getSelectionIndex();
-		int target = tblConfigFiles.getSelectionIndex()+direction;
+		int source = this.tblConfigFiles.getSelectionIndex();
+		int target = this.tblConfigFiles.getSelectionIndex()+direction;
 
 		if ( logger.isTraceEnabled() ) logger.trace("swapping entrie "+source+" and "+target+".");
-		TableItem sourceItem = tblConfigFiles.getItem(source);
+		TableItem sourceItem = this.tblConfigFiles.getItem(source);
 		String sourceText = sourceItem.getText();
 
-		TableItem targetItem = tblConfigFiles.getItem(target);
+		TableItem targetItem = this.tblConfigFiles.getItem(target);
 		String targetText = targetItem.getText();
 
 		sourceItem.setText(targetText);
 		targetItem.setText(sourceText);
 
-		tblConfigFiles.setSelection(target);
-		tblConfigFiles.notifyListeners(SWT.Selection, new Event());
+		this.tblConfigFiles.setSelection(target);
+		this.tblConfigFiles.notifyListeners(SWT.Selection, new Event());
 	}
 
 	/**
 	 * If we are in edit mode, then ask the user is if wants to save or discard
 	 */
 	public void close() {
-		if ( txtFile.isVisible() && txtFile.isEnabled() ) {
+		if ( this.txtFile.isVisible() && this.txtFile.isEnabled() ) {
 			if ( FormDialog.question("Do you wish to save or discard your currents updates ?", new String[] {"save", "discard"}) == 0 ) {
 				saveCallback();
 			}			

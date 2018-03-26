@@ -20,137 +20,137 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class FormSizeEditor {
-	private Label      lblWidth;
-	private StyledText txtWidth;
-	private Label      lblHeight;
-	private StyledText txtHeight;
-	private Label      lblSpacing;
-	private StyledText txtSpacing;
-	private Label      lblButtonWidth;
-	private StyledText txtButtonWidth;
-	private Label      lblButtonHeight;
-	private StyledText txtButtonHeight;
-	private Composite  parent;
+	Label      lblWidth;
+	StyledText txtWidth;
+	Label      lblHeight;
+	StyledText txtHeight;
+	Label      lblSpacing;
+	StyledText txtSpacing;
+	Label      lblButtonWidth;
+	StyledText txtButtonWidth;
+	Label      lblButtonHeight;
+	StyledText txtButtonHeight;
+	Composite  parent;
 	
 	public FormSizeEditor(Composite parent) {
 		this.parent = parent;
 		
 		// width
-		lblWidth = new Label(parent, SWT.NONE);
+		this.lblWidth = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblWidth.setLayoutData(fd);
-        lblWidth.setText("Width:");
+        this.lblWidth.setLayoutData(fd);
+        this.lblWidth.setText("Width:");
         
-        txtWidth = new StyledText(parent, SWT.BORDER);
+        this.txtWidth = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblWidth, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblWidth, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(txtWidth, 40);
-        txtWidth.setLayoutData(fd);
-        txtWidth.setTextLimit(4);
-        txtWidth.setLeftMargin(2);
-        txtWidth.addVerifyListener(numericVerifyListener);
-        txtWidth.addModifyListener(sizeModifyListener);
-        txtWidth.setToolTipText("Width of the form dialog.\n"+
+        fd.right = new FormAttachment(this.txtWidth, 40);
+        this.txtWidth.setLayoutData(fd);
+        this.txtWidth.setTextLimit(4);
+        this.txtWidth.setLeftMargin(2);
+        this.txtWidth.addVerifyListener(this.numericVerifyListener);
+        this.txtWidth.addModifyListener(this.sizeModifyListener);
+        this.txtWidth.setToolTipText("Width of the form dialog.\n"+
         		"\n"+
         		"Default: "+FormDialog.defaultDialogWidth+"."
         		);
         
         // height
-        lblHeight = new Label(parent, SWT.NONE);
+        this.lblHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtWidth, FormDialog.editorVerticalMargin);
+        fd.top = new FormAttachment(this.txtWidth, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblHeight.setLayoutData(fd);
-        lblHeight.setText("Height:");
+        this.lblHeight.setLayoutData(fd);
+        this.lblHeight.setText("Height:");
         
-        txtHeight = new StyledText(parent, SWT.BORDER);
+        this.txtHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblHeight, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblHeight, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(txtHeight, 40);
-        txtHeight.setLayoutData(fd);
-        txtHeight.setTextLimit(4);
-        txtHeight.setLeftMargin(2);
-        txtHeight.addVerifyListener(numericVerifyListener);
-        txtHeight.addModifyListener(sizeModifyListener);
-        txtHeight.setToolTipText("Height of the form dialog.\n"+
+        fd.right = new FormAttachment(this.txtHeight, 40);
+        this.txtHeight.setLayoutData(fd);
+        this.txtHeight.setTextLimit(4);
+        this.txtHeight.setLeftMargin(2);
+        this.txtHeight.addVerifyListener(this.numericVerifyListener);
+        this.txtHeight.addModifyListener(this.sizeModifyListener);
+        this.txtHeight.setToolTipText("Height of the form dialog.\n"+
         		"\n"+
         		"Default: "+FormDialog.defaultDialogHeight+"."
         		);
         
         // spacing
-        lblSpacing = new Label(parent, SWT.NONE);
+        this.lblSpacing = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtHeight, FormDialog.editorVerticalMargin);
+        fd.top = new FormAttachment(this.txtHeight, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblSpacing.setLayoutData(fd);
-        lblSpacing.setText("Spacing:");
+        this.lblSpacing.setLayoutData(fd);
+        this.lblSpacing.setText("Spacing:");
         
-        txtSpacing = new StyledText(parent, SWT.BORDER);
+        this.txtSpacing = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblSpacing, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblSpacing, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(txtSpacing, 40);
-        txtSpacing.setLayoutData(fd);
-        txtSpacing.setTextLimit(2);
-        txtSpacing.setLeftMargin(2);
-        txtSpacing.addVerifyListener(numericVerifyListener);
-        txtSpacing.addModifyListener(sizeModifyListener);
-        txtSpacing.setToolTipText("Space to leave bewteen the form border and the tab in the form dialog.\n"+
+        fd.right = new FormAttachment(this.txtSpacing, 40);
+        this.txtSpacing.setLayoutData(fd);
+        this.txtSpacing.setTextLimit(2);
+        this.txtSpacing.setLeftMargin(2);
+        this.txtSpacing.addVerifyListener(this.numericVerifyListener);
+        this.txtSpacing.addModifyListener(this.sizeModifyListener);
+        this.txtSpacing.setToolTipText("Space to leave bewteen the form border and the tab in the form dialog.\n"+
         		"\n"+
         		"Default: "+FormDialog.defaultDialogSpacing+"."
         		);
         
         // buttonWidth
-        lblButtonWidth = new Label(parent, SWT.NONE);
+        this.lblButtonWidth = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtSpacing, FormDialog.editorVerticalMargin);
+        fd.top = new FormAttachment(this.txtSpacing, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblButtonWidth.setLayoutData(fd);
-        lblButtonWidth.setText("Buttons width:");
+        this.lblButtonWidth.setLayoutData(fd);
+        this.lblButtonWidth.setText("Buttons width:");
         
-        txtButtonWidth = new StyledText(parent, SWT.BORDER);
+        this.txtButtonWidth = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblButtonWidth, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblButtonWidth, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(txtButtonWidth, 40);
-        txtButtonWidth.setLayoutData(fd);
-        txtButtonWidth.setTextLimit(3);
-        txtButtonWidth.setLeftMargin(2);
-        txtButtonWidth.addVerifyListener(numericVerifyListener);
-        txtButtonWidth.addModifyListener(sizeModifyListener);
-        txtButtonWidth.setToolTipText("Width of the Ok, Cancel and Export to Excel buttons\n"+
+        fd.right = new FormAttachment(this.txtButtonWidth, 40);
+        this.txtButtonWidth.setLayoutData(fd);
+        this.txtButtonWidth.setTextLimit(3);
+        this.txtButtonWidth.setLeftMargin(2);
+        this.txtButtonWidth.addVerifyListener(this.numericVerifyListener);
+        this.txtButtonWidth.addModifyListener(this.sizeModifyListener);
+        this.txtButtonWidth.setToolTipText("Width of the Ok, Cancel and Export to Excel buttons\n"+
         		"\n"+
         		"Default: "+FormDialog.defaultButtonWidth+"."
         		);
         
         // buttonHeight
-        lblButtonHeight = new Label(parent, SWT.NONE);
+        this.lblButtonHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(txtButtonWidth, FormDialog.editorVerticalMargin);
+        fd.top = new FormAttachment(this.txtButtonWidth, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblButtonHeight.setLayoutData(fd);
-        lblButtonHeight.setText("Buttons height:");
+        this.lblButtonHeight.setLayoutData(fd);
+        this.lblButtonHeight.setText("Buttons height:");
         
-        txtButtonHeight = new StyledText(parent, SWT.BORDER);
+        this.txtButtonHeight = new StyledText(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblButtonHeight, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblButtonHeight, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(txtButtonHeight, 40);
-        txtButtonHeight.setLayoutData(fd);
-        txtButtonHeight.setTextLimit(2);
-        txtButtonHeight.setLeftMargin(2);
-        txtButtonHeight.addVerifyListener(numericVerifyListener);
-        txtButtonHeight.addModifyListener(sizeModifyListener);
-        txtButtonHeight.setToolTipText("Height of the Ok, Cancel and Export to Excel buttons\n"+
+        fd.right = new FormAttachment(this.txtButtonHeight, 40);
+        this.txtButtonHeight.setLayoutData(fd);
+        this.txtButtonHeight.setTextLimit(2);
+        this.txtButtonHeight.setLeftMargin(2);
+        this.txtButtonHeight.addVerifyListener(this.numericVerifyListener);
+        this.txtButtonHeight.addModifyListener(this.sizeModifyListener);
+        this.txtButtonHeight.setToolTipText("Height of the Ok, Cancel and Export to Excel buttons\n"+
         		"\n"+
         		"Default: "+FormDialog.defaultButtonHeight+"."
         		);
@@ -174,8 +174,8 @@ public class FormSizeEditor {
 	private ModifyListener sizeModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Shell     form = (Shell)parent.getData("widget");
-        	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+        	Shell     form = (Shell)FormSizeEditor.this.parent.getData("widget");
+        	TreeItem  treeItem = (TreeItem)FormSizeEditor.this.parent.getData("treeItem");
         	
         	int formWidth = getWidth();
         	int formHeight = getHeight();
@@ -233,7 +233,7 @@ public class FormSizeEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblWidth.setLayoutData(fd);
+        this.lblWidth.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -241,74 +241,74 @@ public class FormSizeEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblWidth.setLayoutData(fd);
+        this.lblWidth.setLayoutData(fd);
 	}
 	
 	public StyledText getControl() {
-		return txtButtonHeight;
+		return this.txtButtonHeight;
 	}
     
     public void setWidth(Integer width) {
-		txtWidth.removeModifyListener(sizeModifyListener);
-		txtWidth.setText(width==null ? "" : String.valueOf(width));
-		txtWidth.addModifyListener(sizeModifyListener);
+		this.txtWidth.removeModifyListener(this.sizeModifyListener);
+		this.txtWidth.setText(width==null ? "" : String.valueOf(width));
+		this.txtWidth.addModifyListener(this.sizeModifyListener);
     }
     
     public void setHeight(Integer height) {
-		txtHeight.removeModifyListener(sizeModifyListener);
-		txtHeight.setText(height==null ? "" : String.valueOf(height));
-		txtHeight.addModifyListener(sizeModifyListener);
+		this.txtHeight.removeModifyListener(this.sizeModifyListener);
+		this.txtHeight.setText(height==null ? "" : String.valueOf(height));
+		this.txtHeight.addModifyListener(this.sizeModifyListener);
     }
     
     public void setButtonWidth(Integer buttonWidth) {
-		txtButtonWidth.removeModifyListener(sizeModifyListener);
-		txtButtonWidth.setText(buttonWidth==null ? "" : String.valueOf(buttonWidth));
-		txtButtonWidth.addModifyListener(sizeModifyListener);
+		this.txtButtonWidth.removeModifyListener(this.sizeModifyListener);
+		this.txtButtonWidth.setText(buttonWidth==null ? "" : String.valueOf(buttonWidth));
+		this.txtButtonWidth.addModifyListener(this.sizeModifyListener);
     }
     
     public void setButtonHeight(Integer buttonHeight) {
-		txtButtonHeight.removeModifyListener(sizeModifyListener);
-		txtButtonHeight.setText(buttonHeight==null ? "" : String.valueOf(buttonHeight));
-		txtButtonHeight.addModifyListener(sizeModifyListener);
+		this.txtButtonHeight.removeModifyListener(this.sizeModifyListener);
+		this.txtButtonHeight.setText(buttonHeight==null ? "" : String.valueOf(buttonHeight));
+		this.txtButtonHeight.addModifyListener(this.sizeModifyListener);
     }
     
     public void setSpacing(Integer spacing) {
-		txtSpacing.removeModifyListener(sizeModifyListener);
-		txtSpacing.setText(spacing==null ? "" : String.valueOf(spacing));
-		txtSpacing.addModifyListener(sizeModifyListener);
+		this.txtSpacing.removeModifyListener(this.sizeModifyListener);
+		this.txtSpacing.setText(spacing==null ? "" : String.valueOf(spacing));
+		this.txtSpacing.addModifyListener(this.sizeModifyListener);
     }
     
     public int getWidth() {
-		if ( FormPlugin.isEmpty(txtWidth.getText()) )
+		if ( FormPlugin.isEmpty(this.txtWidth.getText()) )
 			return FormDialog.defaultDialogWidth;
-		if ( Integer.valueOf(txtWidth.getText()) < 50 )
+		if ( Integer.valueOf(this.txtWidth.getText()) < 50 )
 			return 50;
-		return Integer.valueOf(txtWidth.getText());
+		return Integer.valueOf(this.txtWidth.getText());
     }
     
     public int getHeight() {
-		if ( FormPlugin.isEmpty(txtHeight.getText()) )
+		if ( FormPlugin.isEmpty(this.txtHeight.getText()) )
 			return FormDialog.defaultDialogHeight;
-		if ( Integer.valueOf(txtHeight.getText()) < 50 )
+		if ( Integer.valueOf(this.txtHeight.getText()) < 50 )
 			return 50;
-		return Integer.valueOf(txtHeight.getText());
+		return Integer.valueOf(this.txtHeight.getText());
     }
     
     public int getSpacing() {
-		if ( FormPlugin.isEmpty(txtSpacing.getText()) )
+		if ( FormPlugin.isEmpty(this.txtSpacing.getText()) )
 			return FormDialog.defaultDialogSpacing;
-		return Integer.valueOf(txtSpacing.getText());
+		return Integer.valueOf(this.txtSpacing.getText());
     }
     
     public int getButtonWidth() {
-		if ( FormPlugin.isEmpty(txtButtonWidth.getText()) )
+		if ( FormPlugin.isEmpty(this.txtButtonWidth.getText()) )
 			return FormDialog.defaultButtonWidth;
-		return Integer.valueOf(txtButtonWidth.getText());
+		return Integer.valueOf(this.txtButtonWidth.getText());
     }
     
     public int getButtonHeight() {
-		if ( FormPlugin.isEmpty(txtButtonHeight.getText()) )
+		if ( FormPlugin.isEmpty(this.txtButtonHeight.getText()) )
 			return FormDialog.defaultButtonHeight;
-		return Integer.valueOf(txtButtonHeight.getText());
+		return Integer.valueOf(this.txtButtonHeight.getText());
     }
 }

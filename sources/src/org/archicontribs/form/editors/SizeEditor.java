@@ -20,120 +20,120 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 public class SizeEditor {
-    private Label      lblPosition;
-	private Label      lblX;
-	private StyledText txtX;
-	private Label      lblY;
-	private StyledText txtY;
-	private Label      lblWidth;
-	private StyledText txtWidth;
-	private Label      lblHeight;
-	private StyledText txtHeight;
-	private Composite  parent;
+    Label      lblPosition;
+	Label      lblX;
+	StyledText txtX;
+	Label      lblY;
+	StyledText txtY;
+	Label      lblWidth;
+	StyledText txtWidth;
+	Label      lblHeight;
+	StyledText txtHeight;
+	Composite  parent;
 	
 	boolean isTableColumn;
 	
 	public SizeEditor(Composite parent) {
 		this.parent = parent;
 		
-		isTableColumn = parent.getClass().getSimpleName().endsWith("ColumnComposite");
+		this.isTableColumn = parent.getClass().getSimpleName().endsWith("ColumnComposite");
 	
-        lblPosition = new Label(parent, SWT.NONE);
+        this.lblPosition = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblPosition.setLayoutData(fd);
-        lblPosition.setText(isTableColumn ? "Width" : "Position:");
+        this.lblPosition.setLayoutData(fd);
+        this.lblPosition.setText(this.isTableColumn ? "Width" : "Position:");
 		
-		if ( !isTableColumn ) {
+		if ( !this.isTableColumn ) {
 				// x
-			lblX = new Label(parent, SWT.NONE);
+			this.lblX = new Label(parent, SWT.NONE);
 			fd = new FormData();
-	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
+	        fd.top = new FormAttachment(this.lblPosition, 0, SWT.CENTER);
 	        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-			lblX.setLayoutData(fd);
-			lblX.setText("X:");
+			this.lblX.setLayoutData(fd);
+			this.lblX.setText("X:");
 	
-			txtX = new StyledText(parent, SWT.BORDER);
+			this.txtX = new StyledText(parent, SWT.BORDER);
 			fd = new FormData();
-			fd.top = new FormAttachment(lblX, 0, SWT.CENTER);
-			fd.left = new FormAttachment(lblX, 0);
-			fd.right = new FormAttachment(txtX, 40);
-			txtX.setLayoutData(fd);
-			txtX.setTextLimit(4);
-			txtX.setLeftMargin(2);
-			txtX.addVerifyListener(numericVerifyListener);
-			txtX.addModifyListener(sizeModifyListener);
-			txtX.setToolTipText("Horizontal position, in pixels, starting from the left border.");
+			fd.top = new FormAttachment(this.lblX, 0, SWT.CENTER);
+			fd.left = new FormAttachment(this.lblX, 0);
+			fd.right = new FormAttachment(this.txtX, 40);
+			this.txtX.setLayoutData(fd);
+			this.txtX.setTextLimit(4);
+			this.txtX.setLeftMargin(2);
+			this.txtX.addVerifyListener(this.numericVerifyListener);
+			this.txtX.addModifyListener(this.sizeModifyListener);
+			this.txtX.setToolTipText("Horizontal position, in pixels, starting from the left border.");
 	
 			// y
-			lblY = new Label(parent, SWT.NONE);
+			this.lblY = new Label(parent, SWT.NONE);
 			fd = new FormData();
-	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(txtX, FormDialog.editorBorderMargin);
-			lblY.setLayoutData(fd);
-			lblY.setText("Y:");
+	        fd.top = new FormAttachment(this.lblPosition, 0, SWT.CENTER);
+	        fd.left = new FormAttachment(this.txtX, FormDialog.editorBorderMargin);
+			this.lblY.setLayoutData(fd);
+			this.lblY.setText("Y:");
 	
-			txtY = new StyledText(parent, SWT.BORDER);
+			this.txtY = new StyledText(parent, SWT.BORDER);
 			fd = new FormData();
-	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(lblY, 0);
-	        fd.right = new FormAttachment(txtY, 40);
-			txtY.setLayoutData(fd);
-			txtY.setTextLimit(4);
-			txtY.setLeftMargin(2);
-			txtY.addVerifyListener(numericVerifyListener);
-			txtY.addModifyListener(sizeModifyListener);
-			txtY.setToolTipText("Vertical position, in pixels, starting from the left border.");
+	        fd.top = new FormAttachment(this.lblPosition, 0, SWT.CENTER);
+	        fd.left = new FormAttachment(this.lblY, 0);
+	        fd.right = new FormAttachment(this.txtY, 40);
+			this.txtY.setLayoutData(fd);
+			this.txtY.setTextLimit(4);
+			this.txtY.setLeftMargin(2);
+			this.txtY.addVerifyListener(this.numericVerifyListener);
+			this.txtY.addModifyListener(this.sizeModifyListener);
+			this.txtY.setToolTipText("Vertical position, in pixels, starting from the left border.");
 		
 			// width
-			lblWidth = new Label(parent, SWT.NONE);
+			this.lblWidth = new Label(parent, SWT.NONE);
 			fd = new FormData();
-	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(txtY, FormDialog.editorBorderMargin);
-			lblWidth.setLayoutData(fd);
-			lblWidth.setText("Width:");
+	        fd.top = new FormAttachment(this.lblPosition, 0, SWT.CENTER);
+	        fd.left = new FormAttachment(this.txtY, FormDialog.editorBorderMargin);
+			this.lblWidth.setLayoutData(fd);
+			this.lblWidth.setText("Width:");
 		}
 		
-		txtWidth = new StyledText(parent, SWT.BORDER);
+		this.txtWidth = new StyledText(parent, SWT.BORDER);
 		fd = new FormData();
-        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-        if ( isTableColumn )
+        fd.top = new FormAttachment(this.lblPosition, 0, SWT.CENTER);
+        if ( this.isTableColumn )
         	fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         else
-        	fd.left = new FormAttachment(lblWidth, 0);
-        fd.right = new FormAttachment(txtWidth, 40);
-        txtWidth.setLayoutData(fd);
-        txtWidth.setTextLimit(4);
-        txtWidth.setLeftMargin(2);
-        txtWidth.addVerifyListener(numericVerifyListener);
-        txtWidth.addModifyListener(sizeModifyListener);
-        txtWidth.setToolTipText("Width, in pixels.\n"+
+        	fd.left = new FormAttachment(this.lblWidth, 0);
+        fd.right = new FormAttachment(this.txtWidth, 40);
+        this.txtWidth.setLayoutData(fd);
+        this.txtWidth.setTextLimit(4);
+        this.txtWidth.setLeftMargin(2);
+        this.txtWidth.addVerifyListener(this.numericVerifyListener);
+        this.txtWidth.addModifyListener(this.sizeModifyListener);
+        this.txtWidth.setToolTipText("Width, in pixels.\n"+
         		"\n"+
         		"If set to zero, then the width will be automatically adapted to the control's text."
         		);
         
-        if ( !isTableColumn ) {
+        if ( !this.isTableColumn ) {
 	        // height
-	        lblHeight = new Label(parent, SWT.NONE);
+	        this.lblHeight = new Label(parent, SWT.NONE);
 	        fd = new FormData();
-	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(txtWidth, FormDialog.editorBorderMargin);
-	        lblHeight.setLayoutData(fd);
-	        lblHeight.setText("Height:");
+	        fd.top = new FormAttachment(this.lblPosition, 0, SWT.CENTER);
+	        fd.left = new FormAttachment(this.txtWidth, FormDialog.editorBorderMargin);
+	        this.lblHeight.setLayoutData(fd);
+	        this.lblHeight.setText("Height:");
 	        
-	        txtHeight = new StyledText(parent, SWT.BORDER);
+	        this.txtHeight = new StyledText(parent, SWT.BORDER);
 	        fd = new FormData();
-	        fd.top = new FormAttachment(lblPosition, 0, SWT.CENTER);
-	        fd.left = new FormAttachment(lblHeight, 0);
-	        fd.right = new FormAttachment(txtHeight, 40);
-	        txtHeight.setLayoutData(fd);
-	        txtHeight.setTextLimit(4);
-	        txtHeight.setLeftMargin(2);
-	        txtHeight.addVerifyListener(numericVerifyListener);
-	        txtHeight.addModifyListener(sizeModifyListener);
-	        txtHeight.setToolTipText("Height, in pixels.\n"+
+	        fd.top = new FormAttachment(this.lblPosition, 0, SWT.CENTER);
+	        fd.left = new FormAttachment(this.lblHeight, 0);
+	        fd.right = new FormAttachment(this.txtHeight, 40);
+	        this.txtHeight.setLayoutData(fd);
+	        this.txtHeight.setTextLimit(4);
+	        this.txtHeight.setLeftMargin(2);
+	        this.txtHeight.addVerifyListener(this.numericVerifyListener);
+	        this.txtHeight.addModifyListener(this.sizeModifyListener);
+	        this.txtHeight.setToolTipText("Height, in pixels.\n"+
 	        		"\n"+
 	        		"If set to zero, then the height will be automatically adapted to the control's text."
 	        		);
@@ -158,12 +158,12 @@ public class SizeEditor {
 	private ModifyListener sizeModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	Widget    widget = (Widget)parent.getData("widget");
-        	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+        	Widget    widget = (Widget)SizeEditor.this.parent.getData("widget");
+        	TreeItem  treeItem = (TreeItem)SizeEditor.this.parent.getData("treeItem");
         	
         	int x=0, y=0, width=0, height=0;
         	
-        	if ( !isTableColumn ) {
+        	if ( !SizeEditor.this.isTableColumn ) {
 	        	x = getX();
 	        	y = getY();
 	        	width = getWidth();
@@ -182,7 +182,7 @@ public class SizeEditor {
 
         	
         	if ( widget != null ) {
-            	if ( isTableColumn )
+            	if ( SizeEditor.this.isTableColumn )
             		((TableColumn)widget).setWidth(width);
             	else {
             		if ( width == 0 || height == 0 ) {
@@ -208,7 +208,7 @@ public class SizeEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblPosition.setLayoutData(fd);
+        this.lblPosition.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -216,58 +216,58 @@ public class SizeEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblPosition.setLayoutData(fd);
+        this.lblPosition.setLayoutData(fd);
 	}
 	
 	public StyledText getControl() {
-		return txtWidth;				//this one always exists
+		return this.txtWidth;				//this one always exists
 	}
 	
     public void setX(Integer x) {
-    	txtX.removeModifyListener(sizeModifyListener);
-		txtX.setText(x==null ? "" : String.valueOf(x));
-		txtX.addModifyListener(sizeModifyListener);
+    	this.txtX.removeModifyListener(this.sizeModifyListener);
+		this.txtX.setText(x==null ? "" : String.valueOf(x));
+		this.txtX.addModifyListener(this.sizeModifyListener);
     }
     
     public void setY(Integer y) {
-    	txtY.removeModifyListener(sizeModifyListener);
-    	txtY.setText(y==null ? "" : String.valueOf(y));
-    	txtY.addModifyListener(sizeModifyListener);
+    	this.txtY.removeModifyListener(this.sizeModifyListener);
+    	this.txtY.setText(y==null ? "" : String.valueOf(y));
+    	this.txtY.addModifyListener(this.sizeModifyListener);
     }
     
     public void setWidth(Integer width) {
-		txtWidth.removeModifyListener(sizeModifyListener);
-		txtWidth.setText(width==null ? "" : String.valueOf(width));
-		txtWidth.addModifyListener(sizeModifyListener);
+		this.txtWidth.removeModifyListener(this.sizeModifyListener);
+		this.txtWidth.setText(width==null ? "" : String.valueOf(width));
+		this.txtWidth.addModifyListener(this.sizeModifyListener);
     }
     
     public void setHeight(Integer height) {
-		txtHeight.removeModifyListener(sizeModifyListener);
-		txtHeight.setText(height==null ? "" : String.valueOf(height));
-		txtHeight.addModifyListener(sizeModifyListener);
+		this.txtHeight.removeModifyListener(this.sizeModifyListener);
+		this.txtHeight.setText(height==null ? "" : String.valueOf(height));
+		this.txtHeight.addModifyListener(this.sizeModifyListener);
     }
     
     public int getX() {
-    	if ( txtX == null || FormPlugin.isEmpty(txtX.getText()) )
+    	if ( this.txtX == null || FormPlugin.isEmpty(this.txtX.getText()) )
     		return 0;
-    	return Integer.valueOf(txtX.getText());
+    	return Integer.valueOf(this.txtX.getText());
     }
     
     public int getY() {
-    	if ( txtY == null || FormPlugin.isEmpty(txtY.getText()) )
+    	if ( this.txtY == null || FormPlugin.isEmpty(this.txtY.getText()) )
     		return 0;
-    	return Integer.valueOf(txtY.getText());
+    	return Integer.valueOf(this.txtY.getText());
     }
     
     public int getWidth() {
-    	if ( txtWidth == null || FormPlugin.isEmpty(txtWidth.getText()) )
+    	if ( this.txtWidth == null || FormPlugin.isEmpty(this.txtWidth.getText()) )
     		return 0;
-		return Integer.valueOf(txtWidth.getText());
+		return Integer.valueOf(this.txtWidth.getText());
     }
     
     public int getHeight() {
-    	if ( txtHeight == null || FormPlugin.isEmpty(txtHeight.getText()) )
+    	if ( this.txtHeight == null || FormPlugin.isEmpty(this.txtHeight.getText()) )
     		return 0;
-		return Integer.valueOf(txtHeight.getText());
+		return Integer.valueOf(this.txtHeight.getText());
     }
 }

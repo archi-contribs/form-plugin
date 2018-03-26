@@ -22,68 +22,67 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 public class ImageEditor {
-	private Label      lblImage;
-	private StyledText txtImage;
-	private Label      lblContent;
-	private StyledText txtContent;
-	private Label      lblScale;
-	private Button     btnScale;
-	private Composite  parent;
-	private String     property = null;
-		
-	private Widget     referencedWidget = null;
+	Label      lblImage;
+	Label      lblContent;
+	StyledText txtContent;
+	Label      lblScale;
+	Button     btnScale;
+	Composite  parent;
+    StyledText txtImage;
+    String     property = null;
+	Widget     referencedWidget = null;
 
 	public ImageEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
    		this.property = property;
    		
-		lblImage = new Label(parent, SWT.NONE);
+		this.lblImage = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblImage.setLayoutData(fd);
-        lblImage.setText(labelText);
+        this.lblImage.setLayoutData(fd);
+        this.lblImage.setText(labelText);
         
-        txtImage = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
+        this.txtImage = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
         fd = new FormData();
-        fd.top = new FormAttachment(lblImage, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblImage, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
-        txtImage.setLayoutData(fd);
-        txtImage.setLeftMargin(2);
-        txtImage.addModifyListener(stringModifyListener);
+        this.txtImage.setLayoutData(fd);
+        this.txtImage.setLeftMargin(2);
+        this.txtImage.addModifyListener(this.stringModifyListener);
         
-		lblContent = new Label(parent, SWT.NONE);
+		this.lblContent = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(lblImage, FormDialog.editorBorderMargin);
+        fd.top = new FormAttachment(this.lblImage, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblContent.setLayoutData(fd);
-        lblContent.setText("Content:");
+        this.lblContent.setLayoutData(fd);
+        this.lblContent.setText("Content:");
         
-        txtContent = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
+        this.txtContent = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
         fd = new FormData();
-        fd.top = new FormAttachment(lblImage, FormDialog.editorBorderMargin);
+        fd.top = new FormAttachment(this.lblImage, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
-        txtContent.setLayoutData(fd);
-        txtContent.setLeftMargin(2);
-        txtContent.addModifyListener(stringModifyListener);
+        this.txtContent.setLayoutData(fd);
+        this.txtContent.setLeftMargin(2);
+        this.txtContent.addModifyListener(this.stringModifyListener);
         
-		lblScale = new Label(parent, SWT.NONE);
+		this.lblScale = new Label(parent, SWT.NONE);
 		fd = new FormData();
-        fd.top = new FormAttachment(lblContent, FormDialog.editorBorderMargin);
+        fd.top = new FormAttachment(this.lblContent, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
-        lblScale.setLayoutData(fd);
-        lblScale.setText("Scale:");
+        this.lblScale.setLayoutData(fd);
+        this.lblScale.setText("Scale:");
         
-        btnScale = new Button(parent, SWT.CHECK);
+        this.btnScale = new Button(parent, SWT.CHECK);
         fd = new FormData();
-    	fd.top = new FormAttachment(lblContent, FormDialog.editorBorderMargin);
+    	fd.top = new FormAttachment(this.lblContent, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        btnScale.setLayoutData(fd);
-        btnScale.addSelectionListener(scaleSelectionListener);
+        this.btnScale.setLayoutData(fd);
+        this.btnScale.addSelectionListener(this.scaleSelectionListener);
         
         //TODO: add a browse icon
         
@@ -95,28 +94,28 @@ public class ImageEditor {
 	}
 	
 	public void setTooltipText(String tooltip) {
-		txtImage.setToolTipText(tooltip);
-		txtContent.setToolTipText(tooltip);
+		this.txtImage.setToolTipText(tooltip);
+		this.txtContent.setToolTipText(tooltip);
 	}
 	
 	public void setWidth(int width) {
-		FormData fd = (FormData)txtImage.getLayoutData();
-		fd.right = new FormAttachment(txtImage, width);
-		txtImage.layout();
+		FormData fd = (FormData)this.txtImage.getLayoutData();
+		fd.right = new FormAttachment(this.txtImage, width);
+		this.txtImage.layout();
 	}
 	
 	public void setWidget(Widget widget) {
-		referencedWidget = widget;
+		this.referencedWidget = widget;
 	}
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
-        	Widget widget = referencedWidget;
+        	TreeItem   treeItem = (TreeItem)ImageEditor.this.parent.getData("treeItem");
+        	Widget widget = ImageEditor.this.referencedWidget;
         	
         	if ( widget == null )
-        		widget = (Widget)parent.getData("widget");
+        		widget = (Widget)ImageEditor.this.parent.getData("widget");
         	
         	if ( widget != null ) {
         		// widget is Label
@@ -139,36 +138,38 @@ public class ImageEditor {
     	            try {
     	        		int width = ((Label)widget).getBounds().width > 0 ? ((Label)widget).getBounds().width : image.getBounds().width;
     	        		int height = ((Label)widget).getBounds().height > 0 ? ((Label)widget).getBounds().height : image.getBounds().height;
-                    	if ( btnScale.getSelection() ) {
+                    	if ( ImageEditor.this.btnScale.getSelection() ) {
                     		Image scaledImage = new Image(Display.getCurrent(), image.getImageData().scaledTo(width, height));
                     		((Label)widget).setImage(scaledImage);
                     		image.dispose();
                     	} else {
                     		((Label)widget).setImage(image);
                     	}
-    	            } catch (Exception ign) {}
+    	            } catch (@SuppressWarnings("unused") Exception ign) {
+    	                // nothing to do
+    	            }
             	}
         	}
         	
-        	if ( treeItem != null && property != null ) {
-        		treeItem.setData(property, getText());
+        	if ( treeItem != null && ImageEditor.this.property != null ) {
+        		treeItem.setData(ImageEditor.this.property, getText());
         		treeItem.setData("content", getContent());
         	}
         	
-        	((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        	((ScrolledComposite)ImageEditor.this.parent.getParent()).setMinSize(ImageEditor.this.parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         }
     };
     
 	private SelectionListener scaleSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
-	        TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	        TreeItem  treeItem = (TreeItem)ImageEditor.this.parent.getData("treeItem");
 	    	
 	    	if ( treeItem != null ) {
-	    	    treeItem.setData("scale", btnScale.getSelection());
+	    	    treeItem.setData("scale", ImageEditor.this.btnScale.getSelection());
 	    	}
 	    	
-	    	txtImage.notifyListeners(SWT.Modify, new Event());		// calls the stringModifyListener() method
+	    	ImageEditor.this.txtImage.notifyListeners(SWT.Modify, new Event());		// calls the stringModifyListener() method
 	    }
 	
 	    @Override
@@ -182,7 +183,7 @@ public class ImageEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblImage.setLayoutData(fd);
+        this.lblImage.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -190,38 +191,38 @@ public class ImageEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblImage.setLayoutData(fd);
+        this.lblImage.setLayoutData(fd);
 	}
 	
 	public Button getControl() {
-		return btnScale;
+		return this.btnScale;
 	}
     
     public void setImage(String string) {
-		txtImage.removeModifyListener(stringModifyListener);
-		txtImage.setText(string==null ? "" : string);
-		txtImage.addModifyListener(stringModifyListener);
+		this.txtImage.removeModifyListener(this.stringModifyListener);
+		this.txtImage.setText(string==null ? "" : string);
+		this.txtImage.addModifyListener(this.stringModifyListener);
 		
-		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		((ScrolledComposite)this.parent.getParent()).setMinSize(this.parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
     public void setContent(String string) {
-		txtContent.removeModifyListener(stringModifyListener);
-		txtContent.setText(string==null ? "" : string);
-		txtContent.addModifyListener(stringModifyListener);
+		this.txtContent.removeModifyListener(this.stringModifyListener);
+		this.txtContent.setText(string==null ? "" : string);
+		this.txtContent.addModifyListener(this.stringModifyListener);
 		
-		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		((ScrolledComposite)this.parent.getParent()).setMinSize(this.parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
     public void setScale(Boolean scale) {
-    	btnScale.setSelection(scale);
+    	this.btnScale.setSelection(scale);
     }
     
     public String getText() {
-    	return txtImage.getText();
+    	return this.txtImage.getText();
     }
     
     public String getContent() {
-    	return txtContent.getText();
+    	return this.txtContent.getText();
     }
 }

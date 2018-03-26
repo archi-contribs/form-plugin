@@ -31,53 +31,53 @@ public class ComboColumnComposite extends Composite implements CompositeInterfac
 	
 	private void createContent() {
 		// name
-		nameEditor = new StringEditor(this, "name", "Name:");
-		nameEditor.setPosition(0);
-		nameEditor.mustSetTreeItemText(true);
-		nameEditor.mustSetControlText(true);
-		nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
+		this.nameEditor = new StringEditor(this, "name", "Name:");
+		this.nameEditor.setPosition(0);
+		this.nameEditor.mustSetTreeItemText(true);
+		this.nameEditor.mustSetControlText(true);
+		this.nameEditor.setTooltipText("Name of the object.\n\nThis can be any arbitrary text.");
 		
 		// comment
-		commentEditor = new StringEditor(this, "comment", "Comment:");
-		commentEditor.setPosition(nameEditor.getControl());
-		commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
+		this.commentEditor = new StringEditor(this, "comment", "Comment:");
+		this.commentEditor.setPosition(this.nameEditor.getControl());
+		this.commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
 		
 	    // defaultText
-        defaultTextEditor = new StringEditor(this, "default", "Default text:");
-        defaultTextEditor.setPosition(commentEditor.getControl());
-        defaultTextEditor.setTooltipText("Default value when the one corresponding to the variable value is empty.");
+        this.defaultTextEditor = new StringEditor(this, "default", "Default text:");
+        this.defaultTextEditor.setPosition(this.commentEditor.getControl());
+        this.defaultTextEditor.setTooltipText("Default value when the one corresponding to the variable value is empty.");
         
         // defaultText
-        forceDefaultEditor = new CheckEditor(this, "forceDefault", "Force default:");
-        forceDefaultEditor.setPosition(defaultTextEditor.getControl());
-        forceDefaultEditor.setTooltipText("Force the default value even if the the variable value is not empty.");
+        this.forceDefaultEditor = new CheckEditor(this, "forceDefault", "Force default:");
+        this.forceDefaultEditor.setPosition(this.defaultTextEditor.getControl());
+        this.forceDefaultEditor.setTooltipText("Force the default value even if the the variable value is not empty.");
         
         // values
-        valuesEditor = new StringEditor(this, "values", "Values:");
-        valuesEditor.setPosition(forceDefaultEditor.getControl());
-        valuesEditor.setTooltipText("List of the valid values, one per line.");
+        this.valuesEditor = new StringEditor(this, "values", "Values:");
+        this.valuesEditor.setPosition(this.forceDefaultEditor.getControl());
+        this.valuesEditor.setTooltipText("List of the valid values, one per line.");
         
         // editable
-        editableEditor = new CheckEditor(this, "editable", "Read only:");
-        editableEditor.setPosition(valuesEditor.getControl());
-        editableEditor.setInverse(true);
-        editableEditor.setTooltipText("Specifies if the variable is read only.\n\nDefault: false.");
+        this.editableEditor = new CheckEditor(this, "editable", "Read only:");
+        this.editableEditor.setPosition(this.valuesEditor.getControl());
+        this.editableEditor.setInverse(true);
+        this.editableEditor.setTooltipText("Specifies if the variable is read only.\n\nDefault: false.");
         
 		// x, y, width, height
-		sizeEditor = new SizeEditor(this);
-		sizeEditor.setPosition(editableEditor.getControl());
+		this.sizeEditor = new SizeEditor(this);
+		this.sizeEditor.setPosition(this.editableEditor.getControl());
 		
 		// tooltip
-		tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
-		tooltipEditor.setPosition(sizeEditor.getControl());
-		tooltipEditor.mustSetControlTolltip(true);
-		tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
+		this.tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
+		this.tooltipEditor.setPosition(this.sizeEditor.getControl());
+		this.tooltipEditor.mustSetControlTolltip(true);
+		this.tooltipEditor.setTooltipText("Specifies the tooltip to show when the mouse stands is over the control.\n\nDefault: none.");
 		
 		// whenempty
-		whenEmptyEditor = new ComboEditor(this, "whenEmpty", "When empty:");
-		whenEmptyEditor.setPosition(tooltipEditor.getControl());
-		whenEmptyEditor.setItems(new String[] {"", "ignore", "create", "delete"});
-        whenEmptyEditor.setTooltipText("Choose the plugin behaviour when a variable is left empty in the form:\n"+
+		this.whenEmptyEditor = new ComboEditor(this, "whenEmpty", "When empty:");
+		this.whenEmptyEditor.setPosition(this.tooltipEditor.getControl());
+		this.whenEmptyEditor.setItems(new String[] {"", "ignore", "create", "delete"});
+        this.whenEmptyEditor.setTooltipText("Choose the plugin behaviour when a variable is left empty in the form:\n"+
                 "   - ignore: do not change the property value:\n"+
                 "                 - if the property does not already exist, it will not be created,\n"+
                 "                 - if the propety does already exist, its value is left unmodified.\n"+
@@ -88,24 +88,24 @@ public class ComboColumnComposite extends Composite implements CompositeInterfac
                 );
         
         // excelColumn
-        excelColumnEditor = new StringEditor(this, "excelColumn", "Excel cell:");
-        excelColumnEditor.setPosition(whenEmptyEditor.getControl());
-        excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n"+
+        this.excelColumnEditor = new StringEditor(this, "excelColumn", "Excel cell:");
+        this.excelColumnEditor.setPosition(this.whenEmptyEditor.getControl());
+        this.excelColumnEditor.setTooltipText("Adress of the Excel cell where the variable should be exported to (like A3 or D14).\n"+
         		"\n"+
         		"If the \"Excel sheet\" field is not set, then the variable will not be exported to Excel even if this field is set."
         		);
         
         // excelCellType
-        excelCellTypeEditor = new ComboEditor(this, "excelType", "Excel type:");
-        excelCellTypeEditor.setPosition(excelColumnEditor.getControl());
-        excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
-        excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
+        this.excelCellTypeEditor = new ComboEditor(this, "excelType", "Excel type:");
+        this.excelCellTypeEditor.setPosition(this.excelColumnEditor.getControl());
+        this.excelCellTypeEditor.setItems(new String[] {"", "string", "boolean", "numeric", "formula"});
+        this.excelCellTypeEditor.setTooltipText("Type of the Excel cell.\n\nDefault: string");
         
         // excelDefault
-        excelDefaultEditor = new ComboEditor(this, "excelDefault", "Excel default:");
-        excelDefaultEditor.setPosition(excelCellTypeEditor.getControl());
-        excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
-        excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
+        this.excelDefaultEditor = new ComboEditor(this, "excelDefault", "Excel default:");
+        this.excelDefaultEditor.setPosition(this.excelCellTypeEditor.getControl());
+        this.excelDefaultEditor.setItems(new String[] {"", "blank", "zero", "delete"});
+        this.excelDefaultEditor.setTooltipText("Behaviour of the plugin when exporting an empty value:\n"+
                 "   - blank : a blank cell will be created (ie a cell with no content)\n"+
                 "   - zero : a cell with a zero value in it:\n"+
                 "                - 0 for numeric cells\n"+
@@ -116,23 +116,24 @@ public class ComboColumnComposite extends Composite implements CompositeInterfac
                 "Default: blank");
 	}
 	
+    @Override
     public void set(String key, Object value) throws RuntimeException {
     	switch ( key.toLowerCase() ) {
-            case "name":          nameEditor.setText((String)value); break;
-            case "comment":       commentEditor.setText((String)value); break;
-            case "default":       defaultTextEditor.setText((String)value); break;
-            case "forcedefault":  forceDefaultEditor.setChecked((Boolean)value); break;
-            case "editable":      editableEditor.setChecked((Boolean)value); break;
-            case "values":        valuesEditor.setText((String[])value); break;
-    		case "x":			  sizeEditor.setX((Integer)value); break;
-    		case "y":			  sizeEditor.setY((Integer)value); break;
-    		case "width":		  sizeEditor.setWidth((Integer)value); break;
-    		case "height":		  sizeEditor.setHeight((Integer)value); break;
-    		case "tooltip":    	  tooltipEditor.setText((String)value); break;
-    		case "whenempty":     whenEmptyEditor.setText((String)value); break;
-    		case "excelcolumn":	  excelColumnEditor.setText((String)value); break;
-    		case "excelcelltype": excelCellTypeEditor.setText((String)value); break;
-    		case "exceldefault":  excelDefaultEditor.setText((String)value); break;
+            case "name":          this.nameEditor.setText((String)value); break;
+            case "comment":       this.commentEditor.setText((String)value); break;
+            case "default":       this.defaultTextEditor.setText((String)value); break;
+            case "forcedefault":  this.forceDefaultEditor.setChecked((Boolean)value); break;
+            case "editable":      this.editableEditor.setChecked((Boolean)value); break;
+            case "values":        this.valuesEditor.setText((String[])value); break;
+    		case "x":			  this.sizeEditor.setX((Integer)value); break;
+    		case "y":			  this.sizeEditor.setY((Integer)value); break;
+    		case "width":		  this.sizeEditor.setWidth((Integer)value); break;
+    		case "height":		  this.sizeEditor.setHeight((Integer)value); break;
+    		case "tooltip":    	  this.tooltipEditor.setText((String)value); break;
+    		case "whenempty":     this.whenEmptyEditor.setText((String)value); break;
+    		case "excelcolumn":	  this.excelColumnEditor.setText((String)value); break;
+    		case "excelcelltype": this.excelCellTypeEditor.setText((String)value); break;
+    		case "exceldefault":  this.excelDefaultEditor.setText((String)value); break;
     		default:			  throw new RuntimeException("does not know key "+key);
     	}
     }

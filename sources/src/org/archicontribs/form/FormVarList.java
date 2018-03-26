@@ -15,7 +15,7 @@ public class FormVarList {
     }
     
     public void reset() {
-    	varList = new HashMap<EObject, HashMap<String, Set<Control>>>();
+    	this.varList = new HashMap<EObject, HashMap<String, Set<Control>>>();
     }
     
     public void set(EObject eObject, String variable, Control control) {
@@ -25,7 +25,7 @@ public class FormVarList {
         if ( variable == null || variable.isEmpty() || !(variable.startsWith("${") && variable.endsWith("}")) || variable.equals("${void}") )
             return;
         
-        HashMap<String, Set<Control>> map = varList.get(eObject);
+        HashMap<String, Set<Control>> map = this.varList.get(eObject);
         Set<Control> controls = null;
         
         if ( map == null ) {
@@ -41,14 +41,14 @@ public class FormVarList {
         
         map.put(variable, controls);
         
-        varList.put(eObject, map);
+        this.varList.put(eObject, map);
     }
     
     public void replaceControl(Control oldControl, Control newControl) {
         if ( oldControl == null || newControl == null )
             return;
         
-        for ( HashMap<String, Set<Control>> map: varList.values() ) {
+        for ( HashMap<String, Set<Control>> map: this.varList.values() ) {
             for ( Set<Control> controls: map.values() ) {
                 if( controls.contains(oldControl) ) {
                     controls.remove(oldControl);
@@ -62,7 +62,7 @@ public class FormVarList {
         if ( eObject == null )
             return null;
         
-        HashMap<String, Set<Control>> map = varList.get(eObject);
+        HashMap<String, Set<Control>> map = this.varList.get(eObject);
         
         if ( map == null )
             return null;

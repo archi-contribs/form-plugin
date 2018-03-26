@@ -44,13 +44,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 public class FormUpdate {
-    private static final FormLogger logger = new FormLogger(FormUpdate.class);
+    static final FormLogger logger = new FormLogger(FormUpdate.class);
     
     private Display  display        	      = Display.getDefault();    
     
-	private ProgressBar updateProgressbar = null;
-	private int updateDownloaded = 0;
-	private int answer;
+	ProgressBar updateProgressbar = null;
+	int updateDownloaded = 0;
+	int answer;
 	
 	public void checkUpdate(boolean verbose) {
 		if ( verbose )
@@ -94,9 +94,8 @@ public class FormUpdate {
 							// Seems to be OK.
 							logger.debug("Setting PasswordAuthenticator");
 							return new PasswordAuthentication(user, pass.toCharArray());
-						} else {
-							logger.debug("Not setting PasswordAuthenticator as the request does not come from the proxy (host + port)");
 						}
+						logger.debug("Not setting PasswordAuthenticator as the request does not come from the proxy (host + port)");
 					}
 					return null;
 				}  
@@ -157,7 +156,7 @@ public class FormUpdate {
 			// treemap is sorted in descending order, so first entry should have the "bigger" key value, i.e. the latest version
 			Entry<String, String> entry = versions.entrySet().iterator().next();
 
-			if ( FormPlugin.pluginVersion.compareTo((String)entry.getKey()) >= 0 ) {
+			if ( FormPlugin.pluginVersion.compareTo(entry.getKey()) >= 0 ) {
 				if ( verbose )
 					FormDialog.popup(Level.INFO, "You already have got the latest version : "+FormPlugin.pluginVersion);
 				else
@@ -167,25 +166,27 @@ public class FormUpdate {
 
 			if ( !FormPlugin.pluginsFilename.endsWith(".jar") ) {
 				if ( verbose )
-					FormDialog.popup(Level.ERROR,"A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+(String)entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
+					FormDialog.popup(Level.ERROR,"A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
 				else
-					logger.error("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+(String)entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
+					logger.error("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
 				return;
 			}
 
 			boolean ask = true;
 			while ( ask ) {
-				display.syncExec(new Runnable() { @Override public void run() { answer = FormDialog.question("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+(String)entry.getKey()+"\n\nDo you wish to download and install it ?", new String[] {"Yes", "No", "Check release note"}); }});
-				switch ( answer ) {
+				this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.answer = FormDialog.question("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+entry.getKey()+"\n\nDo you wish to download and install it ?", new String[] {"Yes", "No", "Check release note"}); }});
+				switch ( this.answer ) {
 					case 0 : ask = false ; break;  // Yes
 					case 1 : return ;              // No
 					case 2 : ask = true ;          // release note
-					Program.launch(RELEASENOTE_URL);
-					break;
+					         Program.launch(RELEASENOTE_URL);
+					         break;
+                    default:
+                        break;
 				}
 			}
 
-			display.syncExec(new Runnable() { @Override public void run() { updateProgressbar = progressbarPopup("Downloading new version of form plugin ..."); }});
+			this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.updateProgressbar = progressbarPopup("Downloading new version of form plugin ..."); }});
 
 			URLConnection conn = new URL(entry.getValue()).openConnection();
 			String FileType = conn.getContentType();
@@ -207,34 +208,34 @@ public class FormUpdate {
 				 Files.deleteIfExists(FileSystems.getDefault().getPath(tmpFilename));
 			} catch (Exception e) {
 				FormDialog.popup(Level.ERROR, "Failed to delete temporary file.", e);
-			};
+			}
 
 			if (fileLength == -1)
 				throw new IOException("Failed to get file size.");
-			else
-				display.syncExec(new Runnable() { @Override public void run() { updateProgressbar.setMaximum(fileLength); }});
+			
+			this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.updateProgressbar.setMaximum(fileLength); }});
 
-			InputStream in = conn.getInputStream();
-			FileOutputStream fos = new FileOutputStream(new File(tmpFilename));	                
-			byte[] buff = new byte[1024];
-			int n;
-			updateDownloaded = 0;
-
-			if ( logger.isDebugEnabled() ) logger.debug("downloading file ...");
-			while ((n=in.read(buff)) !=-1) {
-				fos.write(buff, 0, n);
-				updateDownloaded +=n;
-				display.syncExec(new Runnable() { @Override public void run() { updateProgressbar.setSelection(updateDownloaded); }});
-				//if ( logger.isTraceEnabled() ) logger.trace(updateDownloaded+"/"+fileLength);
+			try ( InputStream in = conn.getInputStream() ) {
+			    try ( FileOutputStream fos = new FileOutputStream(new File(tmpFilename)) ) {
+        			byte[] buff = new byte[1024];
+        			int n;
+        			this.updateDownloaded = 0;
+        
+        			if ( logger.isDebugEnabled() ) logger.debug("downloading file ...");
+        			while ((n=in.read(buff)) !=-1) {
+        				fos.write(buff, 0, n);
+        				this.updateDownloaded +=n;
+        				this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.updateProgressbar.setSelection(FormUpdate.this.updateDownloaded); }});
+        				//if ( logger.isTraceEnabled() ) logger.trace(updateDownloaded+"/"+fileLength);
+        			}
+			    }
 			}
-			fos.flush();
-			fos.close();
 
 			if ( logger.isDebugEnabled() ) logger.debug("download finished");
 
 		} catch (Exception e) {
 			logger.info("here");
-			if( updateProgressbar != null ) display.syncExec(new Runnable() { @Override public void run() { updateProgressbar.getShell().dispose(); updateProgressbar = null; }});
+			if( this.updateProgressbar != null ) this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.updateProgressbar.getShell().dispose(); FormUpdate.this.updateProgressbar = null; }});
 			try {
 				if ( tmpFilename != null ) Files.deleteIfExists(FileSystems.getDefault().getPath(tmpFilename));
 			} catch (IOException e1) {
@@ -247,7 +248,7 @@ public class FormUpdate {
 			return;
 		}
 
-		if( updateProgressbar != null ) display.syncExec(new Runnable() { @Override public void run() { updateProgressbar.getShell().dispose(); updateProgressbar = null;}});
+		if( this.updateProgressbar != null ) this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.updateProgressbar.getShell().dispose(); FormUpdate.this.updateProgressbar = null;}});
 
 		//install new plugin
 
@@ -255,7 +256,7 @@ public class FormUpdate {
 		if ( logger.isDebugEnabled() ) logger.debug("renaming \""+tmpFilename+"\" to \""+newPluginFilename+"\"");
 		try {
 			Files.move(FileSystems.getDefault().getPath(tmpFilename), FileSystems.getDefault().getPath(newPluginFilename), StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException e) {
+		} catch (@SuppressWarnings("unused") IOException ign) {
 			if ( verbose )
 				FormDialog.popup(Level.ERROR, "Failed to rename \""+tmpFilename+"\" to \""+newPluginFilename+"\"");
 			else
@@ -276,7 +277,7 @@ public class FormUpdate {
 		(new File(FormPlugin.pluginsFilename)).deleteOnExit();
 
 		if( FormDialog.question("A new version on the form plugin has been downloaded. Archi needs to be restarted to install it.\n\nDo you wish to restart Archi now ?") ) {
-			display.syncExec(new Runnable() { @Override public void run() { PlatformUI.getWorkbench().restart(); }});
+			this.display.syncExec(new Runnable() { @Override public void run() { PlatformUI.getWorkbench().restart(); }});
 		}
 	}
 	
@@ -284,15 +285,15 @@ public class FormUpdate {
      * shows up an on screen popup with a progressbar<br>
      * it is the responsibility of the caller to dismiss the popup
      */
-    private ProgressBar progressbarPopup(String msg) {
+    ProgressBar progressbarPopup(String msg) {
         if (logger.isDebugEnabled())
             logger.debug("new progressbarPopup(\"" + msg + "\")");
         
-		final FontData SYSTEM_FONT = display.getSystemFont().getFontData()[0];
-	    final Color    LIGHT_BLUE  = new Color(display, 240, 248, 255);
-	    final Font     TITLE_FONT  = new Font(display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight() + 2, SWT.BOLD);
+		final FontData SYSTEM_FONT = this.display.getSystemFont().getFontData()[0];
+	    final Color    LIGHT_BLUE  = new Color(this.display, 240, 248, 255);
+	    final Font     TITLE_FONT  = new Font(this.display, SYSTEM_FONT.getName(), SYSTEM_FONT.getHeight() + 2, SWT.BOLD);
         
-        Shell shell = new Shell(display, SWT.SHELL_TRIM);
+        Shell shell = new Shell(this.display, SWT.SHELL_TRIM);
         shell.setSize(600, 100);
         shell.setLocation((Toolkit.getDefaultToolkit().getScreenSize().width - shell.getSize().x) / 4, (Toolkit.getDefaultToolkit().getScreenSize().height - shell.getSize().y) / 4);
         shell.setLayout(new FormLayout());

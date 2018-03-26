@@ -22,6 +22,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.apache.log4j.Level;
+import org.apache.log4j.Priority;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFPatriarch;
 import org.apache.poi.hssf.usermodel.HSSFShape;
@@ -127,7 +128,7 @@ import com.archimatetool.model.IFolder;
  *
  */
 public class FormDialog extends Dialog {
-    private static final FormLogger logger     	          = new FormLogger(FormDialog.class);
+    static final FormLogger logger     	                  = new FormLogger(FormDialog.class);
     
     public final static Display  display        	      = Display.getDefault();
     
@@ -181,39 +182,37 @@ public class FormDialog extends Dialog {
 	public static final Image    PLUS_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/plus.png"));
 	
 	
-	private Shell             	 propertiesDialog  	  = null;
-    private Tree              	 tree              	  = null;
-    private ScrolledComposite 	 scrolledcomposite 	  = null;
-    private FormComposite     	 formComposite     	  = null;
-    private TabComposite      	 tabComposite      	  = null;
-    private LabelComposite    	 labelComposite    	  = null;
-    private ImageComposite    	 imageComposite    	  = null;
-    private TextComposite     	 textComposite     	  = null;
-    private RichTextComposite    richtextComposite    = null;
-    private ComboComposite    	 comboComposite    	  = null;
-    private CheckComposite    	 checkComposite   	  = null;
-    private TableComposite    	 tableComposite    	  = null;
-    private LabelColumnComposite labelColumnComposite = null;
-    private ImageColumnComposite imageColumnComposite = null;
-    private TextColumnComposite  textColumnComposite  = null;
-    private ComboColumnComposite comboColumnComposite = null;
-    private CheckColumnComposite checkColumnComposite = null;
-    private LineComposite        lineComposite        = null;
+	Shell             	 propertiesDialog  	  = null;
+    Tree              	 tree              	  = null;
+    ScrolledComposite 	 scrolledcomposite 	  = null;
+    FormComposite     	 formComposite     	  = null;
+    TabComposite      	 tabComposite      	  = null;
+    LabelComposite    	 labelComposite    	  = null;
+    ImageComposite    	 imageComposite    	  = null;
+    TextComposite     	 textComposite     	  = null;
+    RichTextComposite    richtextComposite    = null;
+    ComboComposite    	 comboComposite    	  = null;
+    CheckComposite    	 checkComposite   	  = null;
+    TableComposite    	 tableComposite    	  = null;
+    LabelColumnComposite labelColumnComposite = null;
+    ImageColumnComposite imageColumnComposite = null;
+    TextColumnComposite  textColumnComposite  = null;
+    ComboColumnComposite comboColumnComposite = null;
+    CheckColumnComposite checkColumnComposite = null;
+    LineComposite        lineComposite        = null;
     
-    private Shell                formDialog        	  = null;
-    private Button               btnUp                = null;
-    private Button               btnDown              = null;
+    Shell                formDialog        	  = null;
+    Button               btnUp                = null;
+    Button               btnDown              = null;
     
-    private enum                 Position {Before, After, Into, End};
+    enum                 Position {Before, After, Into, End}
     
-    private String               configFilename       = null;
-    private boolean              editMode             = false;
-    private EObject              selectedObject       = null;
+    private String       configFilename       = null;
+    private boolean      editMode             = false;
+    EObject              selectedObject       = null;
     
     
     public  final static FormVarList    formVarList   = new FormVarList();
-    private static final FormJsonParser jsonParser    = new FormJsonParser();
-    
     
     
     public FormDialog(String configFilename, JSONObject jsonForm, EObject selectedObject) {
@@ -227,27 +226,27 @@ public class FormDialog extends Dialog {
         formVarList.reset();
 
         try {
-        	formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        	this.formDialog = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         	
             TreeItem formTreeItem = null;
             // If the dialog is ran against no EObject, then we switch to edit mode 
-            editMode = ( selectedObject == null );
+            this.editMode = ( selectedObject == null );
             
-            if ( editMode ) {
+            if ( this.editMode ) {
             	// in edit mode, we show up the graphical editor
-            	formTreeItem = createPropertiesDialog(jsonForm);
+            	formTreeItem = createPropertiesDialog();
             }
             
-            jsonParser.createForm(jsonForm, formDialog, formTreeItem);
+            FormJsonParser.createForm(jsonForm, this.formDialog, formTreeItem);
             
             // if we are in form mode, then we expand the name of the form
-            if ( !editMode ) {
-            	formDialog.setText(FormVariable.expand(formDialog.getText(), selectedObject));
+            if ( !this.editMode ) {
+            	this.formDialog.setText(FormVariable.expand(this.formDialog.getText(), selectedObject));
             }
 
             // we create one CTabItem per tab array item
-            CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
-            JSONArray tabs = jsonParser.getJSONArray(jsonForm, "tabs");
+            CTabFolder tabFolder = (CTabFolder)this.formDialog.getData("tab folder");
+            JSONArray tabs = FormJsonParser.getJSONArray(jsonForm, "tabs");
             if ( tabs != null ) {
             	@SuppressWarnings("unchecked")
 				Iterator<JSONObject> tabsIterator = tabs.iterator();
@@ -255,17 +254,17 @@ public class FormDialog extends Dialog {
                     JSONObject jsonTab = tabsIterator.next();
 
                     TreeItem tabTreeItem = null;
-                    if ( editMode )
+                    if ( this.editMode )
                     	tabTreeItem = new TreeItem(formTreeItem, SWT.NONE);
                     
-                    CTabItem tabItem = jsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
+                    CTabItem tabItem = FormJsonParser.createTab(jsonTab, tabFolder, tabTreeItem);
                     
                     // if we are in form mode, then we expand the tab name in case it contains variables
-                    if ( !editMode ) {
+                    if ( !this.editMode ) {
                     	tabItem.setText(FormVariable.expand(tabItem.getText(), selectedObject));
                     }
                     
-                    JSONArray controls = jsonParser.getJSONArray(jsonTab, "controls");
+                    JSONArray controls = FormJsonParser.getJSONArray(jsonTab, "controls");
                     if ( controls != null ) {
                         Composite tabItemComposite = (Composite)tabItem.getControl();
                         @SuppressWarnings("unchecked")
@@ -279,69 +278,70 @@ public class FormDialog extends Dialog {
                 }
             }
             
-            if ( editMode ) {
+            if ( this.editMode ) {
             	// in edit mode, we expand the form in the tree and select it
-            	formTreeItem.setExpanded(true);
-            
-            	tree.setSelection(formTreeItem);
-            	tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties
+            	if ( formTreeItem != null ) {
+            	    formTreeItem.setExpanded(true);
+                    this.tree.setSelection(formTreeItem);
+                    this.tree.notifyListeners(SWT.Selection, new Event());        // shows up the form's properties
+            	}
             } else {
             	// in form mode, the graphical editor is not shown so we activate the form's OK and CANCEL buttons
-            	Button cancelButton = (Button)formDialog.getData("cancel button");
+            	Button cancelButton = (Button)this.formDialog.getData("cancel button");
             	cancelButton.addSelectionListener(new SelectionListener() {
                     @Override public void widgetSelected(SelectionEvent e) { cancel(); }
                     @Override public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
                 });
             	
-            	Button okButton = (Button)formDialog.getData("ok button");
+            	Button okButton = (Button)this.formDialog.getData("ok button");
             	okButton.addSelectionListener(new SelectionListener() {
-                    public void widgetSelected(SelectionEvent e) { ok(); }
-                    public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+                    @Override public void widgetSelected(SelectionEvent e) { ok(); }
+                    @Override public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
                 });
             	
-            	Button exportButton = (Button)formDialog.getData("export button");
+            	Button exportButton = (Button)this.formDialog.getData("export button");
             	exportButton.addSelectionListener(new SelectionListener() {
-                    public void widgetSelected(SelectionEvent e) { exportToExcel(); }
-                    public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
+                    @Override public void widgetSelected(SelectionEvent e) { exportToExcel(); }
+                    @Override public void widgetDefaultSelected(SelectionEvent e) { this.widgetDefaultSelected(e); }
                 });
             	
             	
                 // If there is at least one Excel sheet specified, then we show up the "export to Excel" button
                 @SuppressWarnings("unchecked")
-				HashSet<String> excelSheets = (HashSet<String>)formDialog.getData("excel sheets");
+				HashSet<String> excelSheets = (HashSet<String>)this.formDialog.getData("excel sheets");
                 //TODO: must be filled-in in FormJsonParser
                 exportButton.setVisible(!excelSheets.isEmpty());
             }
         } catch (ClassCastException e) {
             FormDialog.popup(Level.ERROR, "Wrong key type in the configuration file \"" + configFilename + "\"", e);
-            if (formDialog != null)
-            	formDialog.dispose();
+            if (this.formDialog != null)
+            	this.formDialog.dispose();
             return;
         } catch (RuntimeException e) {
             FormDialog.popup(Level.ERROR, "Please check your configuration file \"" + configFilename + "\"", e);
-            if (formDialog != null)
-            	formDialog.dispose();
+            if (this.formDialog != null)
+            	this.formDialog.dispose();
             return;
         }
 
-        formDialog.open();
-        formDialog.layout();
+        this.formDialog.open();
+        this.formDialog.layout();
         
         if ( selectedObject == null ) {
-        	propertiesDialog.open();
-            propertiesDialog.layout();
+        	this.propertiesDialog.open();
+            this.propertiesDialog.layout();
         }
     }
 
     /**
      * creates the propertiesDialog shell
      */
-    private TreeItem createPropertiesDialog(JSONObject json) {
-    	propertiesDialog = new Shell(formDialog, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE);
-    	propertiesDialog.setSize(750, 500);
-    	propertiesDialog.setLayout(new FormLayout());
+    private TreeItem createPropertiesDialog() {
+    	this.propertiesDialog = new Shell(this.formDialog, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.CLOSE);
+    	this.propertiesDialog.setSize(750, 500);
+    	this.propertiesDialog.setLayout(new FormLayout());
         
-        Button btnCancel = new Button(propertiesDialog, SWT.NONE);
+        Button btnCancel = new Button(this.propertiesDialog, SWT.NONE);
         FormData fd = new FormData();
         fd.right = new FormAttachment(100, -editorBorderMargin);
         fd.bottom = new FormAttachment(100, -editorBorderMargin);
@@ -352,7 +352,7 @@ public class FormDialog extends Dialog {
             @Override public void widgetDefaultSelected(SelectionEvent e) {widgetSelected(e);}
         });
         
-        Button btnSave = new Button(propertiesDialog, SWT.NONE);
+        Button btnSave = new Button(this.propertiesDialog, SWT.NONE);
         fd = new FormData();
         fd.right = new FormAttachment(btnCancel, -editorBorderMargin);
         fd.bottom = new FormAttachment(100, -editorBorderMargin);
@@ -363,60 +363,63 @@ public class FormDialog extends Dialog {
             @Override public void widgetDefaultSelected(SelectionEvent e) {widgetSelected(e);}
         });
         
-        Label horizontalBar = new Label(propertiesDialog, SWT.HORIZONTAL);
+        Label horizontalBar = new Label(this.propertiesDialog, SWT.HORIZONTAL);
         fd = new FormData();
         fd.bottom = new FormAttachment(btnSave, -editorBorderMargin, SWT.TOP);
         fd.left = new FormAttachment(0, 0);
         fd.right = new FormAttachment(0, 0);
         horizontalBar.setLayoutData(fd);
         
-        propertiesDialog.addListener(SWT.Close, new Listener() {
+        this.propertiesDialog.addListener(SWT.Close, new Listener() {
+            @Override
             public void handleEvent(Event event) {
               cancel();
             }
         });
         
-        Sash sash = new Sash(propertiesDialog, SWT.VERTICAL | SWT.BORDER);
+        Sash sash = new Sash(this.propertiesDialog, SWT.VERTICAL | SWT.BORDER);
         fd = new FormData();
         fd.top = new FormAttachment(40, -15);
         fd.bottom = new FormAttachment(40, 15);
         fd.left = new FormAttachment(0, 200);
         sash.setLayoutData(fd);
         sash.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
               ((FormData) sash.getLayoutData()).left = new FormAttachment(0, event.x);
               sash.getParent().layout();
             }
           });
         
-        btnUp = new Button(propertiesDialog, SWT.PUSH);
-        btnUp.setImage(HAUT_ICON);
-        btnUp.setSize(16,16);
-        btnUp.pack();
+        this.btnUp = new Button(this.propertiesDialog, SWT.PUSH);
+        this.btnUp.setImage(HAUT_ICON);
+        this.btnUp.setSize(16,16);
+        this.btnUp.pack();
         fd = new FormData();
         fd.left = new FormAttachment(sash, 0, SWT.CENTER);
         fd.top = new FormAttachment(sash, -17, SWT.TOP);
         fd.bottom = new FormAttachment(sash, -1, SWT.TOP);
-        btnUp.setLayoutData(fd);
-        btnUp.addSelectionListener(new SelectionAdapter() {
+        this.btnUp.setLayoutData(fd);
+        this.btnUp.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
-            	tree.setRedraw(false);
+            	FormDialog.this.tree.setRedraw(false);
 
-            	TreeItem selectedTreeItem = tree.getSelection()[0];
+            	TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
                 TreeItem parentTreeItem = selectedTreeItem.getParentItem();
                 int index = parentTreeItem.indexOf(selectedTreeItem);
                 
            		TreeItem newTreeItem = moveTreeItem(parentTreeItem, selectedTreeItem, index-1);
 
-           		tree.setSelection(newTreeItem);
-                tree.showSelection();
-                tree.setRedraw(true);
+           		FormDialog.this.tree.setSelection(newTreeItem);
+                FormDialog.this.tree.showSelection();
+                FormDialog.this.tree.setRedraw(true);
                 
                 Widget widget = (Widget)newTreeItem.getData("widget");
                 switch ( widget.getClass().getSimpleName() ) {
                 	case "Composite":
                 		// moving a tabItem
-                		CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
+                		CTabFolder tabFolder = (CTabFolder)FormDialog.this.formDialog.getData("tab folder");
                 		for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
                 			if ( tabFolder.getItem(i).getControl() == widget ) {
                         		CTabItem oldCTabItem = tabFolder.getItem(i);
@@ -452,37 +455,41 @@ public class FormDialog extends Dialog {
                 		newTreeItem.setData("widget", newTablecolumn);
                         oldTableColumn.dispose();
                         break;
+                        
+                    default:
+                        // unknown class
                 }
             }
         });
         
-        btnDown = new Button(propertiesDialog, SWT.PUSH);
-        btnDown.setImage(BAS_ICON);
-        btnDown.setSize(16,16);
-        btnDown.pack();
+        this.btnDown = new Button(this.propertiesDialog, SWT.PUSH);
+        this.btnDown.setImage(BAS_ICON);
+        this.btnDown.setSize(16,16);
+        this.btnDown.pack();
         fd = new FormData();
         fd.left = new FormAttachment(sash, 0, SWT.CENTER);
         fd.top = new FormAttachment(sash, 1, SWT.BOTTOM);
         fd.bottom = new FormAttachment(sash, 17, SWT.BOTTOM);
-        btnDown.setLayoutData(fd);
-        btnDown.addSelectionListener(new SelectionAdapter() {
+        this.btnDown.setLayoutData(fd);
+        this.btnDown.addSelectionListener(new SelectionAdapter() {
+            @Override
             public void widgetSelected(SelectionEvent event) {
-            	tree.setRedraw(false);
+            	FormDialog.this.tree.setRedraw(false);
 
-            	TreeItem selectedTreeItem = tree.getSelection()[0];
+            	TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
                 TreeItem parentTreeItem = selectedTreeItem.getParentItem();
                 int index = parentTreeItem.indexOf(selectedTreeItem);
            		TreeItem newTreeItem = moveTreeItem(parentTreeItem, selectedTreeItem, index+2);
            		
-                tree.setSelection(newTreeItem);
-                tree.showSelection();
-                tree.setRedraw(true);
+                FormDialog.this.tree.setSelection(newTreeItem);
+                FormDialog.this.tree.showSelection();
+                FormDialog.this.tree.setRedraw(true);
                 
                 Widget widget = (Widget)newTreeItem.getData("widget");
                 switch ( widget.getClass().getSimpleName() ) {
                 	case "Composite":
                 		// moving a tabItem
-                		CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
+                		CTabFolder tabFolder = (CTabFolder)FormDialog.this.formDialog.getData("tab folder");
                 		for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
                 			if ( tabFolder.getItem(i).getControl() == widget ) {
                         		CTabItem oldCTabItem = tabFolder.getItem(i);
@@ -518,27 +525,31 @@ public class FormDialog extends Dialog {
                 		newTreeItem.setData("widget", newTablecolumn);
                         oldTableColumn.dispose();
                         break;
+                        
+                    default:
+                        // unknown class
                 }
             }
         });
         
-        tree = new Tree(propertiesDialog, SWT.BORDER);
-        tree.setHeaderVisible(false);
-        tree.setLinesVisible(false);
+        this.tree = new Tree(this.propertiesDialog, SWT.BORDER);
+        this.tree.setHeaderVisible(false);
+        this.tree.setLinesVisible(false);
         
         fd = new FormData();
         fd.top = new FormAttachment(0, editorBorderMargin);
         fd.left = new FormAttachment(0, editorBorderMargin);
         fd.right = new FormAttachment(sash, -editorBorderMargin/2);
         fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
-        tree.setLayoutData(fd);
-        tree.addListener(SWT.Selection, treeSelectionListener);
+        this.tree.setLayoutData(fd);
+        this.tree.addListener(SWT.Selection, this.treeSelectionListener);
         
-        Menu treeMenu = new Menu(tree);
-        tree.setMenu(treeMenu);
+        Menu treeMenu = new Menu(this.tree);
+        this.tree.setMenu(treeMenu);
         treeMenu.addMenuListener(new MenuAdapter() {
+            @Override
             public void menuShown(MenuEvent e) {
-                TreeItem selectedTreeItem = tree.getSelection()[0];
+                TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
                 TreeItem parentTreeItem = selectedTreeItem.getParentItem();
                 
                 // we empty the previous menu
@@ -558,13 +569,13 @@ public class FormDialog extends Dialog {
                 	newItem.setText("Add new tab");
                 	newItem.setImage(FormJsonParser.TAB_ICON);
                 	newItem.setData("position", Position.End);
-                	newItem.addSelectionListener(addTabListener);
+                	newItem.addSelectionListener(FormDialog.this.addTabListener);
             	} else {
             		if ( !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines") ) {
 	                	newItem = new MenuItem(treeMenu, SWT.NONE);
 	                	newItem.setText("Delete "+selectedTreeItem.getData("class"));
 	                	newItem.setImage(BIN_ICON);
-	                	newItem.addSelectionListener(deleteListener);
+	                	newItem.addSelectionListener(FormDialog.this.deleteListener);
             		}
                 	
                 	addSubMenu(selectedTreeItem, "Insert", "before", Position.Before);
@@ -572,8 +583,8 @@ public class FormDialog extends Dialog {
                 } 
             }
             
-            private void addItemsToSubMenu(String prefix, String suffix, Menu treeMenu) {
-            	MenuItem newItem = new MenuItem(treeMenu, SWT.CASCADE);
+            private void addItemsToSubMenu(String prefix, String suffix, Menu treeSubMenu) {
+            	MenuItem newItem = new MenuItem(treeSubMenu, SWT.CASCADE);
             	newItem.setText(prefix + " " + suffix + "...");
             	Position position;
             	switch (suffix) {
@@ -585,7 +596,7 @@ public class FormDialog extends Dialog {
             		default:       position = Position.After;
             	}
             	
-            	Menu subMenu = new Menu(treeMenu);
+            	Menu subMenu = new Menu(treeSubMenu);
             	newItem.setMenu(subMenu);
             	
             	Boolean showTable = !( suffix.equals("column") || suffix.equals("line") || prefix.endsWith("column") || prefix.endsWith("line") );
@@ -601,49 +612,49 @@ public class FormDialog extends Dialog {
             	newItem.setImage(FormJsonParser.LABEL_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "label");
-            	newItem.addSelectionListener(addWidgetListener);
+            	newItem.addSelectionListener(FormDialog.this.addWidgetListener);
             	
                 newItem = new MenuItem(subMenu, SWT.NONE);
                 newItem.setText("image");
                 newItem.setImage(FormJsonParser.IMAGE_ICON);
                 newItem.setData("position", position);
                 newItem.setData("class", "image");
-                newItem.addSelectionListener(addWidgetListener);
+                newItem.addSelectionListener(FormDialog.this.addWidgetListener);
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("text");
             	newItem.setImage(FormJsonParser.TEXT_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "text");
-            	newItem.addSelectionListener(addWidgetListener);
+            	newItem.addSelectionListener(FormDialog.this.addWidgetListener);
             	
                 newItem = new MenuItem(subMenu, SWT.NONE);
                 newItem.setText("richtext");
                 newItem.setImage(FormJsonParser.TEXT_ICON);
                 newItem.setData("position", position);
                 newItem.setData("class", "richtext");
-                newItem.addSelectionListener(addWidgetListener);
+                newItem.addSelectionListener(FormDialog.this.addWidgetListener);
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("combo");
             	newItem.setImage(FormJsonParser.COMBO_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "combo");
-            	newItem.addSelectionListener(addWidgetListener);
+            	newItem.addSelectionListener(FormDialog.this.addWidgetListener);
             	
             	newItem = new MenuItem(subMenu, SWT.NONE);
             	newItem.setText("check box");
             	newItem.setImage(FormJsonParser.CHECK_ICON);
             	newItem.setData("position", position);
             	newItem.setData("class", "check");
-            	newItem.addSelectionListener(addWidgetListener);
+            	newItem.addSelectionListener(FormDialog.this.addWidgetListener);
             	
             	if ( showTable ) {
             		newItem = new MenuItem(subMenu, SWT.NONE);
                 	newItem.setText("table");
                 	newItem.setImage(FormJsonParser.TABLE_ICON);
                 	newItem.setData("position", position);
-                	newItem.addSelectionListener(addTableListener);
+                	newItem.addSelectionListener(FormDialog.this.addTableListener);
             	}
             }
             
@@ -656,7 +667,7 @@ public class FormDialog extends Dialog {
                     	newItem.setText(prefix+" tab "+suffix);
                     	newItem.setImage(FormJsonParser.TAB_ICON);
                     	newItem.setData("position", position);
-                    	newItem.addSelectionListener(addTabListener);
+                    	newItem.addSelectionListener(FormDialog.this.addTabListener);
                     	
                     	if ( position == Position.Before ) {
                         	addItemsToSubMenu("Add", "into", treeMenu);
@@ -703,7 +714,7 @@ public class FormDialog extends Dialog {
                         	newItem.setText("line");
                         	newItem.setImage(FormJsonParser.LINE_ICON);
                         	newItem.setData("position", Position.Into);
-                        	newItem.addSelectionListener(addLineListener);
+                        	newItem.addSelectionListener(FormDialog.this.addLineListener);
                     	}
             			break;
 
@@ -712,8 +723,11 @@ public class FormDialog extends Dialog {
                     	newItem.setText(prefix+" line "+suffix);
                     	newItem.setImage(FormJsonParser.LINE_ICON);
                     	newItem.setData("position", position);
-                    	newItem.addSelectionListener(addLineListener);
+                    	newItem.addSelectionListener(FormDialog.this.addLineListener);
                     	break;
+                    	
+                    default:
+                        // unknown class
             	}
             }
         });
@@ -721,32 +735,32 @@ public class FormDialog extends Dialog {
         
         
         
-        TreeItem formTreeItem = new TreeItem(tree, SWT.NONE);
+        TreeItem formTreeItem = new TreeItem(this.tree, SWT.NONE);
         
-        scrolledcomposite = new ScrolledComposite(propertiesDialog, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+        this.scrolledcomposite = new ScrolledComposite(this.propertiesDialog, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         fd = new FormData();
         fd.top = new FormAttachment(0, editorBorderMargin);
         fd.left = new FormAttachment(sash, editorBorderMargin/2);
         fd.right = new FormAttachment(100, -editorBorderMargin);
         fd.bottom = new FormAttachment(horizontalBar, -editorBorderMargin);
-        scrolledcomposite.setLayoutData(fd);
+        this.scrolledcomposite.setLayoutData(fd);
         
         
         // we create the composites
-        formComposite 		 = new FormComposite(scrolledcomposite, SWT.NONE);
-        tabComposite 		 = new TabComposite(scrolledcomposite, SWT.NONE);
-        labelComposite 		 = new LabelComposite(scrolledcomposite, SWT.NONE);
-        imageComposite 		 = new ImageComposite(scrolledcomposite, SWT.NONE);
-        textComposite 		 = new TextComposite(scrolledcomposite, SWT.NONE);
-        comboComposite 		 = new ComboComposite(scrolledcomposite, SWT.NONE);
-        checkComposite 		 = new CheckComposite(scrolledcomposite, SWT.NONE);
-        tableComposite 		 = new TableComposite(scrolledcomposite, SWT.NONE);
-        labelColumnComposite = new LabelColumnComposite(scrolledcomposite, SWT.NONE);
-        imageColumnComposite = new ImageColumnComposite(scrolledcomposite, SWT.NONE);
-        textColumnComposite  = new TextColumnComposite(scrolledcomposite, SWT.NONE);
-        comboColumnComposite = new ComboColumnComposite(scrolledcomposite, SWT.NONE);
-        checkColumnComposite = new CheckColumnComposite(scrolledcomposite, SWT.NONE);
-        lineComposite        = new LineComposite(scrolledcomposite, SWT.NONE);
+        this.formComposite 		 = new FormComposite(this.scrolledcomposite, SWT.NONE);
+        this.tabComposite 		 = new TabComposite(this.scrolledcomposite, SWT.NONE);
+        this.labelComposite 		 = new LabelComposite(this.scrolledcomposite, SWT.NONE);
+        this.imageComposite 		 = new ImageComposite(this.scrolledcomposite, SWT.NONE);
+        this.textComposite 		 = new TextComposite(this.scrolledcomposite, SWT.NONE);
+        this.comboComposite 		 = new ComboComposite(this.scrolledcomposite, SWT.NONE);
+        this.checkComposite 		 = new CheckComposite(this.scrolledcomposite, SWT.NONE);
+        this.tableComposite 		 = new TableComposite(this.scrolledcomposite, SWT.NONE);
+        this.labelColumnComposite = new LabelColumnComposite(this.scrolledcomposite, SWT.NONE);
+        this.imageColumnComposite = new ImageColumnComposite(this.scrolledcomposite, SWT.NONE);
+        this.textColumnComposite  = new TextColumnComposite(this.scrolledcomposite, SWT.NONE);
+        this.comboColumnComposite = new ComboColumnComposite(this.scrolledcomposite, SWT.NONE);
+        this.checkColumnComposite = new CheckColumnComposite(this.scrolledcomposite, SWT.NONE);
+        this.lineComposite        = new LineComposite(this.scrolledcomposite, SWT.NONE);
         
         return formTreeItem;
     }
@@ -755,21 +769,22 @@ public class FormDialog extends Dialog {
      * this listener is called each time a treeItem is selected in the tree
      */
     private Listener treeSelectionListener = new Listener() {
+        @Override
         public void handleEvent(Event event) {
-        	scrolledcomposite.setContent(null);
+        	FormDialog.this.scrolledcomposite.setContent(null);
             
-            if ( tree.getSelectionCount() != 0 ) {
-            	TreeItem selectedTreeItem = tree.getSelection()[0];
+            if ( FormDialog.this.tree.getSelectionCount() != 0 ) {
+            	TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
             	TreeItem parentTreeItem = selectedTreeItem.getParentItem();
             	
-            	btnUp.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=0 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
-	            btnDown.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=parentTreeItem.getItemCount()-1 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
+            	FormDialog.this.btnUp.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=0 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
+	            FormDialog.this.btnDown.setEnabled(parentTreeItem!=null && parentTreeItem.indexOf(selectedTreeItem)!=parentTreeItem.getItemCount()-1 && !selectedTreeItem.getData("class").equals("columns") && !selectedTreeItem.getData("class").equals("lines"));
 	            
 				TreeItem tabTreeItem = selectedTreeItem;
 				while ( tabTreeItem != null && !tabTreeItem.getData("class").equals("tab") )
 					tabTreeItem = tabTreeItem.getParentItem();
 				if ( tabTreeItem != null ) {
-					CTabFolder tabFolder = ((CTabFolder)formDialog.getData("tab folder"));
+					CTabFolder tabFolder = ((CTabFolder)FormDialog.this.formDialog.getData("tab folder"));
 					Widget tabWidget = (Widget)tabTreeItem.getData("widget");
 					for ( int i=0; i < tabFolder.getItemCount(); ++i ) {
 						if ( tabFolder.getItem(i).getControl() == tabWidget ) {
@@ -780,33 +795,33 @@ public class FormDialog extends Dialog {
             	
             	CompositeInterface composite;
             	switch ( (String)selectedTreeItem.getData("class") ) {
-            		case "form":		composite = formComposite; break;
-            		case "tab":			composite = tabComposite; break;
-            		case "label":		composite = labelComposite; break;
-            		case "image":       composite = imageComposite; break;
-            		case "text":		composite = textComposite; break;
-            		case "richtext":    composite = richtextComposite; break;
-            		case "combo":		composite = comboComposite; break;
-            		case "check":		composite = checkComposite; break;
-            		case "table":		composite = tableComposite; break;
+            		case "form":		composite = FormDialog.this.formComposite; break;
+            		case "tab":			composite = FormDialog.this.tabComposite; break;
+            		case "label":		composite = FormDialog.this.labelComposite; break;
+            		case "image":       composite = FormDialog.this.imageComposite; break;
+            		case "text":		composite = FormDialog.this.textComposite; break;
+            		case "richtext":    composite = FormDialog.this.richtextComposite; break;
+            		case "combo":		composite = FormDialog.this.comboComposite; break;
+            		case "check":		composite = FormDialog.this.checkComposite; break;
+            		case "table":		composite = FormDialog.this.tableComposite; break;
             		case "columns":     return;				// TODO: create composite to show how many columns are defined
-            		case "labelColumn":	composite = labelColumnComposite; break;
-            		case "imageColumn":	composite = imageColumnComposite; break;
-            		case "textColumn":	composite = textColumnComposite; break;
-            		case "comboColumn":	composite = comboColumnComposite; break;
-            		case "checkColumn":	composite = checkColumnComposite; break;
+            		case "labelColumn":	composite = FormDialog.this.labelColumnComposite; break;
+            		case "imageColumn":	composite = FormDialog.this.imageColumnComposite; break;
+            		case "textColumn":	composite = FormDialog.this.textColumnComposite; break;
+            		case "comboColumn":	composite = FormDialog.this.comboColumnComposite; break;
+            		case "checkColumn":	composite = FormDialog.this.checkColumnComposite; break;
             		case "lines":       return;				// TODO: create composite to show how many lines are defined
-            		case "line":        composite = lineComposite; break;
+            		case "line":        composite = FormDialog.this.lineComposite; break;
             		default:
             			throw new RuntimeException ("Do not know how to manage "+(String)selectedTreeItem.getData("class")+" objects.");
             	}
-            	scrolledcomposite.setContent((Composite)composite);
+            	FormDialog.this.scrolledcomposite.setContent((Composite)composite);
             	
             	if ( composite != null ) {
             		Widget widget = (Widget)selectedTreeItem.getData("widget");
             		
             		composite.setVisible(true);
-                    composite.setData("shell", propertiesDialog);
+                    composite.setData("shell", FormDialog.this.propertiesDialog);
                     composite.setData("treeItem", selectedTreeItem);
                     composite.setData("class", selectedTreeItem.getData("class"));
                     composite.setData("widget", widget);
@@ -819,9 +834,9 @@ public class FormDialog extends Dialog {
                     }
                     
                 	// we adapt the widgets to their content and recalculate the composite size (for the scroll bars)
-                	scrolledcomposite.setExpandHorizontal(true);
-                	scrolledcomposite.setExpandVertical(true);
-                	scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+                	FormDialog.this.scrolledcomposite.setExpandHorizontal(true);
+                	FormDialog.this.scrolledcomposite.setExpandVertical(true);
+                	FormDialog.this.scrolledcomposite.setMinSize(((Composite)composite).computeSize(SWT.DEFAULT, SWT.DEFAULT));
             	}
             }
         }
@@ -843,37 +858,36 @@ public class FormDialog extends Dialog {
      *            The composite where the control will be created
      */
     private void createControl(JSONObject jsonControl, Composite parent, TreeItem parentTreeItem) throws RuntimeException {
-            FormJsonParser jsonParser = new FormJsonParser();
             TreeItem treeItem = null;
 
-            String clazz = jsonParser.getString(jsonControl, "class", null);
+            String clazz = FormJsonParser.getString(jsonControl, "class", null);
             if ( clazz == null )
             	FormPlugin.error(FormPosition.getPosition(null) + "\n\nMissing \"class\" keyword.");
             else {
                 String variableValue;
                 Control control = null;
                 
-            	if ( editMode )
+            	if ( this.editMode )
             		treeItem = new TreeItem(parentTreeItem, SWT.NONE);
 
 	            switch ( clazz.toLowerCase() ) {
 	                case "check":
-	                	control = jsonParser.createCheck(jsonControl, parent, treeItem, selectedObject);
+	                	control = FormJsonParser.createCheck(jsonControl, parent, treeItem, this.selectedObject);
 	                	
 	                	// In form mode
-	                	if ( !editMode ) {
+	                	if ( !this.editMode ) {
 	                		// we expand the values 
 	                		String[] values = (String[])control.getData("values");
 		                    if ( values != null ) {
 		                    	for ( int i = 0; i < values.length; ++i ) {
-		                    		values[i] = FormVariable.expand(values[i], selectedObject);
+		                    		values[i] = FormVariable.expand(values[i], this.selectedObject);
 		                    	}
 		                    }
 		                    
 		                    // we expand the variable
-		                    variableValue = FormVariable.expand((String)control.getData("variable"), selectedObject); 
+		                    variableValue = FormVariable.expand((String)control.getData("variable"), this.selectedObject); 
 		                    if ( FormPlugin.isEmpty(variableValue) || (control.getData("forceDefault")!=null && (Boolean)control.getData("forceDefault")) )
-		                    	variableValue = FormVariable.expand((String)control.getData("default"), selectedObject);
+		                    	variableValue = FormVariable.expand((String)control.getData("default"), this.selectedObject);
 		                    
 		                    if ( values == null || values.length == 0 ) 										// should be "true" or "false"
 		                    	((Button)control).setSelection(FormPlugin.areEqualIgnoreCase(variableValue, "true"));
@@ -886,33 +900,33 @@ public class FormDialog extends Dialog {
 	                	break;
 	                	
 		            case "combo":
-	                	control = jsonParser.createCombo(jsonControl, parent, treeItem, selectedObject);
+	                	control = FormJsonParser.createCombo(jsonControl, parent, treeItem, this.selectedObject);
 	                	
 	                	// In form mode
-	                	if ( !editMode ) {
+	                	if ( !this.editMode ) {
 		                    // we update the widgets that refer to the same variable when the user changes its value
 		                    ((CCombo)control).addModifyListener(textModifyListener);
 	                	}
 	                	break;
 	                	
 	                case "label":
-	                	control = jsonParser.createLabel(jsonControl, parent, treeItem, selectedObject);
+	                	control = FormJsonParser.createLabel(jsonControl, parent, treeItem, this.selectedObject);
 	                	break;
 	                	
                     case "image":
-                        control = jsonParser.createImage(jsonControl, parent, treeItem, selectedObject);
+                        control = FormJsonParser.createImage(jsonControl, parent, treeItem, this.selectedObject);
                         break;
 	                	
 	                case "table":
-	                	Table table = jsonParser.createTable(jsonControl, parent, treeItem, selectedObject);
+	                	Table table = FormJsonParser.createTable(jsonControl, parent, treeItem, this.selectedObject);
     	            	TreeItem tableTreeItem = treeItem;
         	            TreeItem columnsTreeItem = null;
         	            
 	                	// if form mode, we replace the controls' tooltip by its expanded value in case it contains a variable
-	                	table.setToolTipText(FormVariable.expand(table.getToolTipText(), selectedObject));
+	                	table.setToolTipText(FormVariable.expand(table.getToolTipText(), this.selectedObject));
 
         	            // required by the graphical editor
-        	            if ( editMode ) {
+        	            if ( this.editMode ) {
         	            	columnsTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
             	            columnsTreeItem.setImage(FormJsonParser.COLUMN_ICON);
             	            columnsTreeItem.setText("columns");
@@ -920,52 +934,52 @@ public class FormDialog extends Dialog {
             	            columnsTreeItem.setData("widget", table);
         	            }
 
-                        JSONArray columns = jsonParser.getJSONArray(jsonControl, "columns");
+                        JSONArray columns = FormJsonParser.getJSONArray(jsonControl, "columns");
                         if ( columns != null ) {
                             @SuppressWarnings("unchecked")
     						Iterator<JSONObject> columnsIterator = columns.iterator();
                             while (columnsIterator.hasNext()) {
                                 JSONObject jsonColumn = columnsIterator.next();
                                 
-                                clazz = jsonParser.getString(jsonColumn, "class", null);
+                                clazz = FormJsonParser.getString(jsonColumn, "class", null);
                                 if ( clazz == null )
                                 	FormPlugin.error(FormPosition.getPosition(null) + "\n\nMissing \"class\" keyword.");
                                 else {
-                                	if ( editMode )
+                                	if ( this.editMode )
                                 		treeItem = new TreeItem(columnsTreeItem, SWT.NONE);
                                 	
                                 	TableColumn tableColumn = null;
 
                     	            switch ( clazz.toLowerCase() ) {
     	            	                case "check":
-    	            	                    tableColumn = jsonParser.createCheckColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                    tableColumn = FormJsonParser.createCheckColumn(jsonColumn, table, treeItem, null, this.selectedObject);
     	            	                	break;
     	            		            case "combo":
-    	            		                tableColumn = jsonParser.createComboColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            		                tableColumn = FormJsonParser.createComboColumn(jsonColumn, table, treeItem, null, this.selectedObject);
     	            	                	break;
     	            	                case "label":
-    	            	                    tableColumn = jsonParser.createLabelColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                    tableColumn = FormJsonParser.createLabelColumn(jsonColumn, table, treeItem, null, this.selectedObject);
     	            	                	break;
                                         case "image":
-                                            tableColumn = jsonParser.createImageColumn(jsonColumn, table, treeItem, null, selectedObject);
+                                            tableColumn = FormJsonParser.createImageColumn(jsonColumn, table, treeItem, null, this.selectedObject);
                                             break;
     	            	                case "text":
-    	            	                    tableColumn = jsonParser.createTextColumn(jsonColumn, table, treeItem, null, selectedObject);
+    	            	                    tableColumn = FormJsonParser.createTextColumn(jsonColumn, table, treeItem, null, this.selectedObject);
     	            	                	break;
                                         case "richtext":
-                                            tableColumn = jsonParser.createRichTextColumn(jsonColumn, table, treeItem, null, selectedObject);
+                                            tableColumn = FormJsonParser.createRichTextColumn(jsonColumn, table, treeItem, null, this.selectedObject);
                                             break;
     	            	                default:
     	            	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"text\").");
                     	            }
-                    	            tableColumn.addListener(SWT.Selection, sortListener);
+                    	            tableColumn.addListener(SWT.Selection, this.sortListener);
                                 }
                             }
                         }
         	            
         	            TreeItem linesTreeItem = null;
         	            
-        	            if ( editMode ) {
+        	            if ( this.editMode ) {
         	            	linesTreeItem = new TreeItem(tableTreeItem, SWT.NONE);
             	            linesTreeItem.setImage(FormJsonParser.LINE_ICON);
             	            linesTreeItem.setText("lines");
@@ -974,35 +988,30 @@ public class FormDialog extends Dialog {
         	            }
         	            
         	            
-        	            JSONArray lines = jsonParser.getJSONArray(jsonControl, "lines");
+        	            JSONArray lines = FormJsonParser.getJSONArray(jsonControl, "lines");
                         if ( lines != null ) {
                             @SuppressWarnings("unchecked")
     						Iterator<JSONObject> linesIterator = lines.iterator();
                             while (linesIterator.hasNext()) {
                                 JSONObject jsonLine = linesIterator.next();
                                 
-                	            if ( editMode )
+                	            if ( this.editMode ) {
                 	            	treeItem = new TreeItem(linesTreeItem, SWT.NONE);
-
-                                jsonParser.createLine(jsonLine, table, treeItem, selectedObject);
-                                
-                	            if ( editMode ) {
                 	            	if ( treeItem.getData("name")!=null ) treeItem.setText((String)treeItem.getData("name"));
-                	            } else {
-                	            	// we replace the line cells with the corresponding expanded values
-                	            	// if the lines are generated, then we caculate the 
                 	            }
+
+                                FormJsonParser.createLine(jsonLine, table, treeItem, this.selectedObject);
                             }
                         }
                         table.layout();
                         
-                        control = (Control)table;
+                        control = table;
 	                	break;
 	                	
 	                case "text":
-	                	control = jsonParser.createText(jsonControl, parent, treeItem, selectedObject);
+	                	control = FormJsonParser.createText(jsonControl, parent, treeItem, this.selectedObject);
 	                	
-	                	if ( !editMode ) {
+	                	if ( !this.editMode ) {
 	                		// if the tooltip is empty but a regexp is defined,then we add a tooltip with a little help message about the regexp
 	                		if (  FormPlugin.isEmpty(control.getToolTipText()) && !FormPlugin.isEmpty((String)control.getData("regexp") )) {
 	                			control.setData("pattern", Pattern.compile((String)control.getData("regexp")));
@@ -1014,20 +1023,20 @@ public class FormDialog extends Dialog {
 	                	break;
 	                	
 	                  case "richtext":
-	                        control = jsonParser.createRichText(jsonControl, parent, treeItem, selectedObject);
+	                        control = FormJsonParser.createRichText(jsonControl, parent, treeItem, this.selectedObject);
 	                        break;
 	                default:
 	                	throw new RuntimeException(FormPosition.getPosition("class") + "\n\nInvalid value \"" + clazz + "\" (valid values are \"check\", \"combo\", \"label\", \"table\", \"text\").");
 	            }
 	            
-	            if ( !editMode ) {
+	            if ( !this.editMode ) {
                     // We reference the variable and the control to the eObject that the variable refers to
                     if ( control.getData("variable") != null ) {
     	                EObject referedEObject;
     	                String unscoppedVariable;
     	                
-                    	referedEObject = FormVariable.getReferedEObject((String)control.getData("variable"), selectedObject);
-                    	unscoppedVariable = FormVariable.getUnscoppedVariable((String)control.getData("variable"), selectedObject);
+                    	referedEObject = FormVariable.getReferedEObject((String)control.getData("variable"), this.selectedObject);
+                    	unscoppedVariable = FormVariable.getUnscoppedVariable((String)control.getData("variable"), this.selectedObject);
                     	control.setData("variable", unscoppedVariable);
                     	control.setData("eObject", referedEObject);
                     	formVarList.set(referedEObject, unscoppedVariable, control);
@@ -1043,26 +1052,26 @@ public class FormDialog extends Dialog {
      * 
      * It creates a command to modify the objects properties in order to allow undo/redo.
      */
-    private void ok() {
+    void ok() {
         if (logger.isDebugEnabled())
             logger.debug("Ok button selected by user.");
 
         IArchimateModel model;
 
-        if (selectedObject instanceof IArchimateModel) {
-            model = ((IArchimateModel) selectedObject).getArchimateModel();
-        } else if (selectedObject instanceof IDiagramModel) {
-            model = ((IDiagramModel) selectedObject).getArchimateModel();
-        } else if (selectedObject instanceof IDiagramModelArchimateObject) {
-            model = ((IDiagramModelArchimateObject) selectedObject).getDiagramModel().getArchimateModel();
-        } else if (selectedObject instanceof IDiagramModelArchimateConnection) {
-            model = ((IDiagramModelArchimateConnection) selectedObject).getDiagramModel().getArchimateModel();
-        } else if (selectedObject instanceof IArchimateElement) {
-            model = ((IArchimateElement) selectedObject).getArchimateModel();
-        } else if (selectedObject instanceof IArchimateRelationship) {
-            model = ((IArchimateRelationship) selectedObject).getArchimateModel();
-        } else if (selectedObject instanceof IFolder) {
-            model = ((IFolder) selectedObject).getArchimateModel();
+        if (this.selectedObject instanceof IArchimateModel) {
+            model = ((IArchimateModel) this.selectedObject).getArchimateModel();
+        } else if (this.selectedObject instanceof IDiagramModel) {
+            model = ((IDiagramModel) this.selectedObject).getArchimateModel();
+        } else if (this.selectedObject instanceof IDiagramModelArchimateObject) {
+            model = ((IDiagramModelArchimateObject) this.selectedObject).getDiagramModel().getArchimateModel();
+        } else if (this.selectedObject instanceof IDiagramModelArchimateConnection) {
+            model = ((IDiagramModelArchimateConnection) this.selectedObject).getDiagramModel().getArchimateModel();
+        } else if (this.selectedObject instanceof IArchimateElement) {
+            model = ((IArchimateElement) this.selectedObject).getArchimateModel();
+        } else if (this.selectedObject instanceof IArchimateRelationship) {
+            model = ((IArchimateRelationship) this.selectedObject).getArchimateModel();
+        } else if (this.selectedObject instanceof IFolder) {
+            model = ((IFolder) this.selectedObject).getArchimateModel();
         } else {
             popup(Level.ERROR, "Failed to get the model.");
             return;
@@ -1070,7 +1079,7 @@ public class FormDialog extends Dialog {
         
         CompoundCommand compoundCommand = new NonNotifyingCompoundCommand();
         try {
-            for (Control control : formDialog.getChildren()) {
+            for (Control control : this.formDialog.getChildren()) {
                 save(compoundCommand, control);
             }
         } catch (RuntimeException e) {
@@ -1173,33 +1182,37 @@ public class FormDialog extends Dialog {
                 case "create":
                     if (logger.isTraceEnabled())
                         logger.trace("   value is empty : creating property.");
-                    FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)formDialog.getData("variable separator"), "", referedEObject);
+                    FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)this.formDialog.getData("variable separator"), "", referedEObject);
                     break;
                 case "delete":
                     if (logger.isTraceEnabled())
                         logger.trace("   value is empty : deleting property.");
-                    FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)formDialog.getData("variable separator"), null, referedEObject);
+                    FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)this.formDialog.getData("variable separator"), null, referedEObject);
                     break;
+                    
+                default:
+                    // unknown value
             }
         } else {
             if (logger.isTraceEnabled())
                 logger.trace("   value is not empty.");
-            FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)formDialog.getData("variable separator"), value, referedEObject);
+            FormVariable.setVariable(compoundCommand, unscoppedVariable, (String)this.formDialog.getData("variable separator"), value, referedEObject);
         }
     }
 
-	private void exportToExcel() {
+	void exportToExcel() {
         if (logger.isDebugEnabled())
             logger.debug("Export button selected by user.");
         
-        FileDialog fsd = new FileDialog(formDialog, SWT.SINGLE);
+        FileDialog fsd = new FileDialog(this.formDialog, SWT.SINGLE);
         fsd.setFilterExtensions(new String[] { "*.xls*" });
         fsd.setText("Select Excel File...");
         String excelFile = fsd.open();
 
         // we wait for the dialog disposal
-        while (display.readAndDispatch())
-            ;
+        while (display.readAndDispatch()) {
+            // nothing to do as the readAnddispatch() method does everything is needed 
+        }
 
         Workbook workbook;
         Sheet sheet;
@@ -1230,7 +1243,7 @@ public class FormDialog extends Dialog {
             
             // we check that all the sheets already exist
             @SuppressWarnings("unchecked")
-    		HashSet<String> excelSheets = (HashSet<String>)formDialog.getData("excel sheets");
+    		HashSet<String> excelSheets = (HashSet<String>)this.formDialog.getData("excel sheets");
             for (String sheetName : excelSheets) {
                 sheet = workbook.getSheet(sheetName);
                 if (sheet == null) {
@@ -1257,7 +1270,7 @@ public class FormDialog extends Dialog {
 
             try {
                 // we go through all the controls and export the corresponding excel cells
-            	CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder");
+            	CTabFolder tabFolder = (CTabFolder)this.formDialog.getData("tab folder");
                 for (CTabItem tabItem : tabFolder.getItems()) {
                     if (logger.isDebugEnabled())
                         logger.debug("Exporting tab " + tabItem.getText());
@@ -1399,6 +1412,7 @@ public class FormDialog extends Dialog {
                                                         cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
                                                         cell.setCellType(CellType.BLANK);
                                                         break;
+                                                        
                                                     case "zero":
                                                         if ( row == null ) {
                                                             row = sheet.createRow(line - 1);
@@ -1421,8 +1435,11 @@ public class FormDialog extends Dialog {
                                                                 cell.setCellType(CellType.FORMULA);
                                                                 cell.setCellValue("");
                                                                 break;
+                                                            default:
+                                                                // unknown value
                                                         }
                                                         break;
+                                                        
                                                     case "delete":
                                                         if ( row != null ) {
                                                             cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
@@ -1430,6 +1447,9 @@ public class FormDialog extends Dialog {
                                                                 row.removeCell(cell);
                                                         }
                                                         break;
+                                                        
+                                                    default:
+                                                        // unknown value
                                                         
                                                         //TODO: add an option to delete entire line
                                                 }
@@ -1441,7 +1461,7 @@ public class FormDialog extends Dialog {
                         }
                     }
                 }
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 closePopup();
                 popup(Level.ERROR, "Failed to update Excel file.", e);
                 exportOk = false;
@@ -1487,13 +1507,11 @@ public class FormDialog extends Dialog {
         }
     }
     
-    private void excelWriteCell(Row row, short column, String excelCellType, String value, String excelDefault) throws RuntimeException {
+    private static void excelWriteCell(Row row, short column, String cellType, String value, String whenEmpty) throws RuntimeException {
     	Cell cell = null;
     	
-    	if ( FormPlugin.isEmpty(excelCellType) )
-    		excelCellType = "string";
-    	if ( FormPlugin.isEmpty(excelDefault) )
-    		excelDefault = "blank";
+    	String excelCellType =  FormPlugin.isEmpty(cellType) ? "string" : cellType;
+    	String excelDefault  =  FormPlugin.isEmpty(whenEmpty) ? "blank" : whenEmpty;
     	
     	if ( value.isEmpty() ) {
             switch (excelDefault) {
@@ -1572,67 +1590,68 @@ public class FormDialog extends Dialog {
         }
     }
     
-    private void excelWriteImage(Row row, short column, Image image) throws RuntimeException {
+    private static void excelWriteImage(Row row, short column, Image image) throws RuntimeException, IOException {
         Sheet sheet = row.getSheet();
-        Workbook wb = sheet.getWorkbook();
-        Drawing drawing = sheet.createDrawingPatriarch();
-        
-        // we first remove any image that is anchored to the same cell
-        if (drawing instanceof HSSFPatriarch) {
-            HSSFPatriarch hp = (HSSFPatriarch)drawing;
-            for (HSSFShape hs : hp.getChildren()) {
-                if (hs instanceof Picture)  {
-                    ClientAnchor anchor = ((Picture)hs).getClientAnchor();
-                    if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() )
-                    	hp.removeShape(hs);
+        try ( Workbook wb = sheet.getWorkbook() ) {
+            Drawing drawing = sheet.createDrawingPatriarch();
+            
+            // we first remove any image that is anchored to the same cell
+            if (drawing instanceof HSSFPatriarch) {
+                HSSFPatriarch hp = (HSSFPatriarch)drawing;
+                for (HSSFShape hs : hp.getChildren()) {
+                    if (hs instanceof Picture)  {
+                        ClientAnchor anchor = ((Picture)hs).getClientAnchor();
+                        if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() )
+                        	hp.removeShape(hs);
+                    }
                 }
-            }
-        } else {
-            XSSFDrawing xdrawing = (XSSFDrawing)drawing;
-            for (XSSFShape xs : xdrawing.getShapes()) {
-                if (xs instanceof Picture) {
-                    ClientAnchor anchor = ((Picture)xs).getClientAnchor();
-                    if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() ) {
-                    	logger.info("export of image cancelled as an image is already present in sheet \""+sheet.getSheetName()+"\" row="+anchor.getRow1()+" col="+anchor.getCol1());
-                    	return;
+            } else {
+                XSSFDrawing xdrawing = (XSSFDrawing)drawing;
+                for (XSSFShape xs : xdrawing.getShapes()) {
+                    if (xs instanceof Picture) {
+                        ClientAnchor anchor = ((Picture)xs).getClientAnchor();
+                        if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() ) {
+                        	logger.info("export of image cancelled as an image is already present in sheet \""+sheet.getSheetName()+"\" row="+anchor.getRow1()+" col="+anchor.getCol1());
+                        	return;
+                        }
                     }
                 }
             }
+            
+    
+            
+            // we create a PNG from the widget image
+            ImageLoader imageLoader = new ImageLoader();
+            imageLoader.data = new ImageData[] {image.getImageData()};
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            imageLoader.save(baos, SWT.IMAGE_PNG);
+            
+            // we add the PNG to Excel
+            int imageIndex = wb.addPicture(baos.toByteArray(), Workbook.PICTURE_TYPE_PNG);        
+            ClientAnchor anchor = wb.getCreationHelper().createClientAnchor();
+            anchor.setRow1(row.getRowNum());
+            anchor.setCol1(column);
+            
+            logger.trace("exporting image ...");
+            Picture pict = drawing.createPicture(anchor, imageIndex);
+            pict.resize();		//Reset the image to the original size
         }
-        
-
-        
-        // we create a PNG from the widget image
-        ImageLoader imageLoader = new ImageLoader();
-        imageLoader.data = new ImageData[] {image.getImageData()};
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        imageLoader.save(baos, SWT.IMAGE_PNG);
-        
-        // we add the PNG to Excel
-        int imageIndex = wb.addPicture(baos.toByteArray(), Workbook.PICTURE_TYPE_PNG);        
-        ClientAnchor anchor = wb.getCreationHelper().createClientAnchor();
-        anchor.setRow1(row.getRowNum());
-        anchor.setCol1(column);
-        
-        logger.trace("exporting image ...");
-        Picture pict = drawing.createPicture(anchor, imageIndex);
-        pict.resize();		//Reset the image to the original size
     }
     
-    private void cancel() {
+    void cancel() {
         if (logger.isDebugEnabled())
             logger.debug("Cancel button selected by user.");
         
         close();
     }
 
-    private void saveConfToJSON() {
+    void saveConfToJSON() {
         if (logger.isDebugEnabled())
             logger.debug("Save button selected by user.");
 
         JSONObject json = null;
         try {
-        	json = jsonParser.generateJson(tree);
+        	json = FormJsonParser.generateJson(this.tree);
         } catch (RuntimeException e) {
             FormDialog.popup(Level.ERROR, "Failed to convert configuration to JSON format.", e);
             return;
@@ -1646,15 +1665,15 @@ public class FormDialog extends Dialog {
         try {
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 3)");
             jsonString = (String) scriptEngine.get("result");
-        } catch (ScriptException e1) {
+        } catch (@SuppressWarnings("unused") ScriptException ign) {
             // if we cannot indent the json string, that's not a big deal
         }
 
-        try (FileWriter file = new FileWriter(configFilename)) {
+        try (FileWriter file = new FileWriter(this.configFilename)) {
             file.write(jsonString);
             file.flush();
         } catch (IOException e) {
-            FormDialog.popup(Level.ERROR, "Failed to write configuration into file \"" + configFilename + "\"", e);
+            FormDialog.popup(Level.ERROR, "Failed to write configuration into file \"" + this.configFilename + "\"", e);
             return;
         }
         
@@ -1665,14 +1684,14 @@ public class FormDialog extends Dialog {
      * Called when the user clicks on the close button
      */
     private void close() {
-        if ( formDialog != null ) {
-            formDialog.dispose();
-            formDialog = null;
+        if ( this.formDialog != null ) {
+            this.formDialog.dispose();
+            this.formDialog = null;
         }
         
-        if ( propertiesDialog != null ) {
-            propertiesDialog.dispose();
-            propertiesDialog = null;
+        if ( this.propertiesDialog != null ) {
+            this.propertiesDialog.dispose();
+            this.propertiesDialog = null;
         }
     }
     
@@ -1702,13 +1721,13 @@ public class FormDialog extends Dialog {
         return newTreeItem;
     }
     
-    private SelectionListener addTabListener = new SelectionListener() {
+    SelectionListener addTabListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			Position position = (Position)((MenuItem)e.getSource()).getData("position");
-			TreeItem selectedTreeItem = tree.getSelection()[0];
+			TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
 			TreeItem parentTreeItem = selectedTreeItem.getParentItem();
-			CTabFolder tabFolder = (CTabFolder)formDialog.getData("tab folder"); 
+			CTabFolder tabFolder = (CTabFolder)FormDialog.this.formDialog.getData("tab folder"); 
 			int index = 0;
 			
 			if ( parentTreeItem == null ) {
@@ -1720,6 +1739,8 @@ public class FormDialog extends Dialog {
 					case After:  index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
 					case End:    index = parentTreeItem.getItemCount();                break;
 					case Into:   logger.error("Cannot insert a tab into another tab"); return;
+                    default:
+                        // unknown position
 				}
 			}
 			
@@ -1727,25 +1748,25 @@ public class FormDialog extends Dialog {
 			newTreeItem.setText("new tab");
 			newTreeItem.setImage(FormJsonParser.TAB_ICON);
         	newTreeItem.setData("class", "tab");
-        	jsonParser.setData(newTreeItem, "name", "new tab");
-        	jsonParser.setData(newTreeItem, "foreground", null);
-        	jsonParser.setData(newTreeItem, "background", null);
+        	FormJsonParser.setData(newTreeItem, "name", "new tab");
+        	FormJsonParser.setData(newTreeItem, "foreground", null);
+        	FormJsonParser.setData(newTreeItem, "background", null);
         	
         	CTabItem newTabItem = new CTabItem(tabFolder, SWT.MULTI, index);
 			newTabItem.setText("new tab");
 			newTabItem.setData("treeItem", newTreeItem);
 			
 			Composite composite = new Composite(tabFolder, SWT.NONE);
-			composite.setForeground(formDialog.getForeground());
-			composite.setBackground(formDialog.getBackground());
-			composite.setFont(formDialog.getFont());
+			composite.setForeground(FormDialog.this.formDialog.getForeground());
+			composite.setBackground(FormDialog.this.formDialog.getBackground());
+			composite.setFont(FormDialog.this.formDialog.getFont());
 			composite.setData("tabItem", newTabItem);
 
 			newTabItem.setControl(composite);
 			newTreeItem.setData("widget", composite);
 			
-			tree.setSelection(newTreeItem);
-			tree.notifyListeners(SWT.Selection, new Event());        // shows up the tab's properties
+			FormDialog.this.tree.setSelection(newTreeItem);
+			FormDialog.this.tree.notifyListeners(SWT.Selection, new Event());        // shows up the tab's properties
 		}
 
 		@Override
@@ -1754,24 +1775,28 @@ public class FormDialog extends Dialog {
 		}
     };
     
-    private SelectionListener addTableListener = new SelectionListener() {
+    SelectionListener addTableListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 	         Position position = (Position)((MenuItem)e.getSource()).getData("position");
-	            TreeItem selectedTreeItem = tree.getSelection()[0];
+	            TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
 	            TreeItem parentTreeItem = selectedTreeItem.getParentItem();
 	            TreeItem currentTreeItem = null;
 	            int index = 0;
 
 	            if ( parentTreeItem == null ) {
 	                parentTreeItem = selectedTreeItem;
+	                currentTreeItem = selectedTreeItem;
 	                index = parentTreeItem.getItemCount();
 	            } else {
 	                switch ( position ) {
 	                    case Before: currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem);     break;
-	                    case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
+	                    case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem)+1;   break;
 	                    case End:    currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();                break;
 	                    case Into:   currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
+                        default:
+                            // unknown position, let's default to "End"
+                            currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();
 	                }
 	            }
 	            
@@ -1782,8 +1807,8 @@ public class FormDialog extends Dialog {
                 logger.trace("      adding table");
                 Composite parentComposite = (Composite)currentTreeItem.getData("widget");
                 
-                Table table = jsonParser.createTable(null, parentComposite, newTreeItem, selectedObject);
-                jsonParser.setData(newTreeItem, "name", "new table");
+                Table table = FormJsonParser.createTable(null, parentComposite, newTreeItem, FormDialog.this.selectedObject);
+                FormJsonParser.setData(newTreeItem, "name", "new table");
                 
                 TreeItem columnsItem = new TreeItem(newTreeItem, SWT.NONE);
                 columnsItem.setImage(FormJsonParser.COLUMN_ICON);
@@ -1797,8 +1822,8 @@ public class FormDialog extends Dialog {
                 linesItem.setData("class", "lines");
                 linesItem.setData("widget", table);
                 
-                tree.setSelection(newTreeItem);
-                tree.notifyListeners(SWT.Selection, new Event());        // shows up the table's properties
+                FormDialog.this.tree.setSelection(newTreeItem);
+                FormDialog.this.tree.notifyListeners(SWT.Selection, new Event());        // shows up the table's properties
 		}
 		
 		@Override
@@ -1807,18 +1832,19 @@ public class FormDialog extends Dialog {
 		}
     };
     
-    private SelectionListener addWidgetListener = new SelectionListener() {
+    SelectionListener addWidgetListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			Position position = (Position)((MenuItem)e.getSource()).getData("position");
 			String widgetClass = (String)((MenuItem)e.getSource()).getData("class"); 
-			TreeItem selectedTreeItem = tree.getSelection()[0];
+			TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
 			TreeItem parentTreeItem = selectedTreeItem.getParentItem();
 			TreeItem currentTreeItem = null;
 			int index = 0;
 
 			if ( parentTreeItem == null ) {
 				parentTreeItem = selectedTreeItem;
+				currentTreeItem = selectedTreeItem;
 				index = parentTreeItem.getItemCount();
 			} else {
 				switch ( position ) {
@@ -1826,6 +1852,9 @@ public class FormDialog extends Dialog {
 					case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
 					case End:    currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();                break;
 					case Into:   currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
+                    default:
+                        // unknown position, let's default to "End"
+                        currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();
 				}
 			}
 			
@@ -1838,31 +1867,37 @@ public class FormDialog extends Dialog {
 				Table table = (Table)parentComposite;
 				TableColumn column = null;
 				switch (widgetClass) {
-					case "label":      column = jsonParser.createLabelColumn(null, table, newTreeItem, index, selectedObject); break;
-					case "image":      column = jsonParser.createImageColumn(null, table, newTreeItem, index, selectedObject); break;
-					case "text":       column = jsonParser.createTextColumn (null, table, newTreeItem, index, selectedObject); break;
-					case "richtext":   column = jsonParser.createRichTextColumn (null, table, newTreeItem, index, selectedObject); break;
-					case "combo":      column = jsonParser.createComboColumn(null, table, newTreeItem, index, selectedObject); break;
-					case "check":      column = jsonParser.createCheckColumn(null, table, newTreeItem, index, selectedObject); break;
+					case "label":      column = FormJsonParser.createLabelColumn(null, table, newTreeItem, index, FormDialog.this.selectedObject); break;
+					case "image":      column = FormJsonParser.createImageColumn(null, table, newTreeItem, index, FormDialog.this.selectedObject); break;
+					case "text":       column = FormJsonParser.createTextColumn (null, table, newTreeItem, index, FormDialog.this.selectedObject); break;
+					case "richtext":   column = FormJsonParser.createRichTextColumn (null, table, newTreeItem, index, FormDialog.this.selectedObject); break;
+					case "combo":      column = FormJsonParser.createComboColumn(null, table, newTreeItem, index, FormDialog.this.selectedObject); break;
+					case "check":      column = FormJsonParser.createCheckColumn(null, table, newTreeItem, index, FormDialog.this.selectedObject); break;
+                    default:
+                        // unknown class
 				}
 				
-				column.setText("new "+widgetClass);
-				column.addListener(SWT.Selection, sortListener);
+				if( column != null ) {
+				    column.setText("new "+widgetClass);
+	                column.addListener(SWT.Selection, FormDialog.this.sortListener);
+				}
 			} else {
 				switch (widgetClass) {
-					case "label":      jsonParser.createLabel(null, parentComposite, newTreeItem, selectedObject); break;
-					case "image":      jsonParser.createImage(null, parentComposite, newTreeItem, selectedObject); break;
-					case "text":       jsonParser.createText (null, parentComposite, newTreeItem, selectedObject); break;
-					case "richtext":   jsonParser.createRichText (null, parentComposite, newTreeItem, selectedObject); break;
-					case "combo":      jsonParser.createCombo(null, parentComposite, newTreeItem, selectedObject); break;
-					case "check":      jsonParser.createCheck(null, parentComposite, newTreeItem, selectedObject); break;
+					case "label":      FormJsonParser.createLabel(null, parentComposite, newTreeItem, FormDialog.this.selectedObject); break;
+					case "image":      FormJsonParser.createImage(null, parentComposite, newTreeItem, FormDialog.this.selectedObject); break;
+					case "text":       FormJsonParser.createText (null, parentComposite, newTreeItem, FormDialog.this.selectedObject); break;
+					case "richtext":   FormJsonParser.createRichText (null, parentComposite, newTreeItem, FormDialog.this.selectedObject); break;
+					case "combo":      FormJsonParser.createCombo(null, parentComposite, newTreeItem, FormDialog.this.selectedObject); break;
+					case "check":      FormJsonParser.createCheck(null, parentComposite, newTreeItem, FormDialog.this.selectedObject); break;
+                    default:
+                        // unknown class
 				}
 			}
 			
-        	jsonParser.setData(newTreeItem, "name", "new "+widgetClass);
+        	FormJsonParser.setData(newTreeItem, "name", "new "+widgetClass);
 			
-			tree.setSelection(newTreeItem);
-			tree.notifyListeners(SWT.Selection, new Event());        // shows up the control's properties
+			FormDialog.this.tree.setSelection(newTreeItem);
+			FormDialog.this.tree.notifyListeners(SWT.Selection, new Event());        // shows up the control's properties
 		}
 		
 		@Override
@@ -1871,17 +1906,18 @@ public class FormDialog extends Dialog {
 		}
     };
     
-    private SelectionListener addLineListener = new SelectionListener() {
+    SelectionListener addLineListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 	        Position position = (Position)((MenuItem)e.getSource()).getData("position");
-            TreeItem selectedTreeItem = tree.getSelection()[0];
+            TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
             TreeItem parentTreeItem = selectedTreeItem.getParentItem();
             TreeItem currentTreeItem = null;
             int index = 0;
 
             if ( parentTreeItem == null ) {
                 parentTreeItem = selectedTreeItem;
+                currentTreeItem = selectedTreeItem;
                 index = parentTreeItem.getItemCount();
             } else {
                 switch ( position ) {
@@ -1889,6 +1925,9 @@ public class FormDialog extends Dialog {
                     case After:  currentTreeItem = parentTreeItem;   index = parentTreeItem.indexOf(selectedTreeItem) + 1; break;
                     case End:    currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();                break;
                     case Into:   currentTreeItem = selectedTreeItem; index = selectedTreeItem.getItemCount();              break;
+                    default:
+                        // unknown position, let default to "End"
+                        currentTreeItem = parentTreeItem;   index = parentTreeItem.getItemCount();
                 }
             }
             
@@ -1899,13 +1938,13 @@ public class FormDialog extends Dialog {
             if ( parentComposite instanceof Table ) {
                 Table table = (Table)parentComposite;
             
-                jsonParser.createLine(null, table, newTreeItem, selectedObject);
+                FormJsonParser.createLine(null, table, newTreeItem, FormDialog.this.selectedObject);
             }
             
-            jsonParser.setData(newTreeItem, "name", "new line");
+            FormJsonParser.setData(newTreeItem, "name", "new line");
             
-            tree.setSelection(newTreeItem);
-            tree.notifyListeners(SWT.Selection, new Event());        // shows up the control's properties
+            FormDialog.this.tree.setSelection(newTreeItem);
+            FormDialog.this.tree.notifyListeners(SWT.Selection, new Event());        // shows up the control's properties
 		}
 		
 		@Override
@@ -1914,10 +1953,10 @@ public class FormDialog extends Dialog {
 		}
     };
     
-    private SelectionListener deleteListener = new SelectionListener() {
+    SelectionListener deleteListener = new SelectionListener() {
 		@Override
 		public void widgetSelected(SelectionEvent e) {
-			TreeItem selectedTreeItem = tree.getSelection()[0];
+			TreeItem selectedTreeItem = FormDialog.this.tree.getSelection()[0];
 
 			
 			if ( selectedTreeItem.getItemCount() != 0 ) {
@@ -1976,7 +2015,7 @@ public class FormDialog extends Dialog {
 				}
 				
 				
-				if ( widget != null && !widget.isDisposed() ) {
+				if ( !widget.isDisposed() ) {
 				    CTabItem tabItem = (CTabItem)widget.getData("tabItem");
 				    widget.dispose();
 				    if ( tabItem != null ) 
@@ -1999,7 +2038,7 @@ public class FormDialog extends Dialog {
     }
 
     // the popupMessage is a class variable because it will be used in an asyncExec() method.
-    private static String popupMessage;
+    static String popupMessage;
 
     /**
      * Shows up an on screen popup, displaying the message (and the exception
@@ -2018,11 +2057,11 @@ public class FormDialog extends Dialog {
             @Override
             public void run() {
                 switch (level.toInt()) {
-                    case Level.FATAL_INT:
-                    case Level.ERROR_INT:
+                    case Priority.FATAL_INT:
+                    case Priority.ERROR_INT:
                         MessageDialog.openError(display.getActiveShell(), FormPlugin.pluginTitle, popupMessage);
                         break;
-                    case Level.WARN_INT:
+                    case Priority.WARN_INT:
                         MessageDialog.openWarning(display.getActiveShell(), FormPlugin.pluginTitle, popupMessage);
                         break;
                     default:
@@ -2033,7 +2072,7 @@ public class FormDialog extends Dialog {
         });
     }
     
-    private static int questionResult;
+    static int questionResult;
 
     /**
      * Shows up an on screen popup displaying the question (and the exception
@@ -2075,8 +2114,8 @@ public class FormDialog extends Dialog {
      * any user input<br>
      * it is the responsibility of the caller to dismiss the popup
      */
-    private static Shell dialogShell = null;
-    private static Label dialogLabel = null;
+    static Shell dialogShell = null;
+    static Label dialogLabel = null;
 
     public static Shell popup(String msg) {
         if ( dialogShell == null ) {
@@ -2150,6 +2189,7 @@ public class FormDialog extends Dialog {
     }
     
     static ModifyListener textModifyListener = new ModifyListener() {
+        @Override
         public void modifyText(ModifyEvent e) {
         	if ( logger.isTraceEnabled() ) logger.trace("calling textModifyListener");
         	
@@ -2167,7 +2207,7 @@ public class FormDialog extends Dialog {
         }
     };
     
-    private static void updateWidget(Control control) {
+    static void updateWidget(Control control) {
     	String unscoppedVariable = (String)control.getData("variable");
         EObject referedEObject = (EObject)control.getData("eObject");
     	String content;
@@ -2176,7 +2216,7 @@ public class FormDialog extends Dialog {
     		case "Button":
     			String[]values = (String[])control.getData("values");
     			if ( values == null )
-    			    content = null;
+    			    content = "";
     			else
     			    content = values[((Button)control).getSelection()?0:1];
     			break;
@@ -2236,12 +2276,16 @@ public class FormDialog extends Dialog {
                         }
                         text.addModifyListener(textModifyListener);
                         break;
+                        
+                    default:
+                        // unknown class
                 }
             }
         }
     }
     
-    private Listener sortListener=new Listener() {
+    Listener sortListener=new Listener() {
+        @Override
         public void handleEvent(Event e) {
             // Because of the graphical controls and the tableEditors, it is much more easier and quicker to create a new table rather than add new tableItems and removing the old ones
             Table oldTable=((TableColumn)e.widget).getParent();TableColumn sortedColumn=(TableColumn)e.widget;oldTable.setSortColumn(sortedColumn);Integer sortDirection=(Integer)sortedColumn.getData("sortDirection");if(sortDirection==null||sortDirection==SWT.DOWN)sortDirection=SWT.UP;else sortDirection=SWT.DOWN;sortedColumn.setData("sortDirection",sortDirection);logger.trace("set sort direction "+sortDirection);oldTable.setSortDirection(sortDirection);
@@ -2278,7 +2322,7 @@ public class FormDialog extends Dialog {
                     newTableColumn.setData("excelCellType",oldTableColumn.getData("excelCellType"));
                     newTableColumn.setData("excelDefault",oldTableColumn.getData("excelDefault"));
                     newTableColumn.setData("sortDirection",oldTableColumn.getData("sortDirection"));
-                    newTableColumn.addListener(SWT.Selection,sortListener);
+                    newTableColumn.addListener(SWT.Selection,FormDialog.this.sortListener);
                     newTableColumn.setImage(oldTableColumn.getImage());
 
                     if( oldTableColumn == oldTable.getSortColumn() ) {
@@ -2370,6 +2414,10 @@ public class FormDialog extends Dialog {
                                 
                                 newButton.addSelectionListener(checkButtonSelectionListener);
                                 formVarList.replaceControl(oldButton, newButton);
+                                break;
+                                
+                            default:
+                                // unknown class
                         }
                         newEditors[column]=newEditor;
                     }
@@ -2391,32 +2439,33 @@ public class FormDialog extends Dialog {
             this.sortDirection = sortDirection;
         }
 
+        @Override
         public int compare(TableItem first, TableItem second) {
             TableEditor[] editorsFirst = (TableEditor[]) first.getData("editors");
 
-            if (editorsFirst[columnIndex] != null) {
+            if (editorsFirst[this.columnIndex] != null) {
                 TableEditor[] editorsSecond = (TableEditor[]) second.getData("editors");
 
-                switch (editorsFirst[columnIndex].getEditor().getClass().getSimpleName()) {
+                switch (editorsFirst[this.columnIndex].getEditor().getClass().getSimpleName()) {
                     case "StyledText":
-                        logger.trace("comparing \"" + ((StyledText) editorsFirst[columnIndex].getEditor()).getText() + "\" and \"" + ((StyledText) editorsSecond[columnIndex].getEditor()).getText() + "\"");
-                        return Collator.getInstance().compare(((StyledText) editorsFirst[columnIndex].getEditor()).getText(), ((StyledText) editorsSecond[columnIndex].getEditor()).getText()) * (sortDirection == SWT.UP ? 1 : -1);
+                        logger.trace("comparing \"" + ((StyledText) editorsFirst[this.columnIndex].getEditor()).getText() + "\" and \"" + ((StyledText) editorsSecond[this.columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(((StyledText) editorsFirst[this.columnIndex].getEditor()).getText(), ((StyledText) editorsSecond[this.columnIndex].getEditor()).getText()) * (this.sortDirection == SWT.UP ? 1 : -1);
                     case "Button":
-                        logger.trace("comparing \"" + ((Button) editorsFirst[columnIndex].getEditor()).getSelection()
-                                + "\" and \"" + ((Button) editorsSecond[columnIndex].getEditor()).getSelection()
+                        logger.trace("comparing \"" + ((Button) editorsFirst[this.columnIndex].getEditor()).getSelection()
+                                + "\" and \"" + ((Button) editorsSecond[this.columnIndex].getEditor()).getSelection()
                                 + "\"");
-                        return Collator.getInstance().compare(((Button) editorsFirst[columnIndex].getEditor()).getSelection(), ((Button) editorsSecond[columnIndex].getEditor()).getSelection())* (sortDirection == SWT.UP ? 1 : -1);
+                        return Collator.getInstance().compare(((Button) editorsFirst[this.columnIndex].getEditor()).getSelection(), ((Button) editorsSecond[this.columnIndex].getEditor()).getSelection())* (this.sortDirection == SWT.UP ? 1 : -1);
 
                     case "CCombo":
-                        logger.trace("comparing \"" + ((CCombo) editorsFirst[columnIndex].getEditor()).getText() + "\" and \"" + ((CCombo) editorsSecond[columnIndex].getEditor()).getText() + "\"");
-                        return Collator.getInstance().compare(((CCombo) editorsFirst[columnIndex].getEditor()).getText(), ((CCombo) editorsSecond[columnIndex].getEditor()).getText()) * (sortDirection == SWT.UP ? 1 : -1);
+                        logger.trace("comparing \"" + ((CCombo) editorsFirst[this.columnIndex].getEditor()).getText() + "\" and \"" + ((CCombo) editorsSecond[this.columnIndex].getEditor()).getText() + "\"");
+                        return Collator.getInstance().compare(((CCombo) editorsFirst[this.columnIndex].getEditor()).getText(), ((CCombo) editorsSecond[this.columnIndex].getEditor()).getText()) * (this.sortDirection == SWT.UP ? 1 : -1);
 
                     default:
-                        throw new RuntimeException("Do not know how to compare elements of class " + editorsFirst[columnIndex].getClass().getSimpleName());
+                        throw new RuntimeException("Do not know how to compare elements of class " + editorsFirst[this.columnIndex].getClass().getSimpleName());
                 }
             }
 
-            return Collator.getInstance().compare(first.getText(columnIndex), second.getText(columnIndex)) * (sortDirection == SWT.UP ? 1 : -1);
+            return Collator.getInstance().compare(first.getText(this.columnIndex), second.getText(this.columnIndex)) * (this.sortDirection == SWT.UP ? 1 : -1);
         }
     }
 }

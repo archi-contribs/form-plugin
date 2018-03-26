@@ -24,38 +24,36 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
 
 public class StringEditor {
-	private Label      lblString;
-	private StyledText txtString;
-	private Composite  parent;
-	private String     property = null;
-	private boolean    mustSetTreeItemText = false;
-	private boolean    mustSetControlText = false;
-	private boolean    mustSetControlTolltip = false;
-	
-	private Widget     referencedWidget = null;
-	
-	private boolean    isArray = false;
+	Label      lblString;
+	StyledText txtString;
+	boolean    mustSetTreeItemText = false;
+	boolean    mustSetControlText = false;
+	boolean    mustSetControlTolltip = false;
+    Composite  parent;
+    String     property = null;	
+	Widget     referencedWidget = null;
+	boolean    isArray = false;
 
 	public StringEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
    		this.property = property;
    		
-		lblString = new Label(parent, SWT.NONE);
+		this.lblString = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblString.setLayoutData(fd);
-        lblString.setText(labelText);
+        this.lblString.setLayoutData(fd);
+        this.lblString.setText(labelText);
         
-        txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
+        this.txtString = new StyledText(parent, SWT.BORDER | SWT.NO_SCROLL);
         fd = new FormData();
-        fd.top = new FormAttachment(lblString, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblString, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(100, -FormDialog.editorBorderMargin);
-        txtString.setLayoutData(fd);
-        txtString.setLeftMargin(2);
-        txtString.addModifyListener(stringModifyListener);
+        this.txtString.setLayoutData(fd);
+        this.txtString.setLeftMargin(2);
+        this.txtString.addModifyListener(this.stringModifyListener);
         
 
     	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
@@ -65,52 +63,52 @@ public class StringEditor {
 	}
 	
 	public void setTooltipText(String tooltip) {
-		txtString.setToolTipText(tooltip);
+		this.txtString.setToolTipText(tooltip);
 	}
 	
 	public void mustSetControlText(boolean set) {
-		mustSetControlText = set;
+		this.mustSetControlText = set;
 	}
 	
 	public void mustSetControlTolltip(boolean set) {
-		mustSetControlTolltip = set;
+		this.mustSetControlTolltip = set;
 	}
 	
 	public void mustSetTreeItemText(boolean set) {
-		mustSetTreeItemText = set;
+		this.mustSetTreeItemText = set;
 	}
 	
 	public void setTextLimit(int limit) {
-		txtString.setTextLimit(limit);
+		this.txtString.setTextLimit(limit);
 	}
 	
 	public void setWidth(int width) {
-		FormData fd = (FormData)txtString.getLayoutData();
-		fd.right = new FormAttachment(txtString, width);
-		txtString.layout();
+		FormData fd = (FormData)this.txtString.getLayoutData();
+		fd.right = new FormAttachment(this.txtString, width);
+		this.txtString.layout();
 	}
 	
 	public void setWidget(Widget widget) {
-		referencedWidget = widget;
+		this.referencedWidget = widget;
 	}
 	
 	private ModifyListener stringModifyListener = new ModifyListener() {
         @Override
         public void modifyText(ModifyEvent e) {
-        	TreeItem   treeItem = (TreeItem)parent.getData("treeItem");
-        	Widget widget = referencedWidget;
+        	TreeItem   treeItem = (TreeItem)StringEditor.this.parent.getData("treeItem");
+        	Widget widget = StringEditor.this.referencedWidget;
         	
         	if ( widget == null )
-        		widget = (Widget)parent.getData("widget");
+        		widget = (Widget)StringEditor.this.parent.getData("widget");
         	
         	if ( widget != null ) {
 	    		switch ( widget.getClass().getSimpleName() ) {
 	    			case "Composite":
-	    				if ( mustSetControlText ) ((CTabItem)widget.getData("tabItem")).setText(getText());
+	    				if ( StringEditor.this.mustSetControlText ) ((CTabItem)widget.getData("tabItem")).setText(getText());
 	    				break;
 	    				
 	    			case "Label":
-	    				if ( mustSetControlText ) {
+	    				if ( StringEditor.this.mustSetControlText ) {
 	    				    ((Label)widget).setText(getText());
 	    				    if ( treeItem.getData("width") == null || (int)treeItem.getData("width") == 0 ) {
 	    				        Point p = ((Control)widget).computeSize(SWT.DEFAULT, SWT.DEFAULT);
@@ -123,40 +121,40 @@ public class StringEditor {
 	    		                ((Control)widget).setBounds(x, y, width, height);
 	    				    }
 	    				}
-	    				if ( mustSetControlTolltip ) ((Label)widget).setToolTipText(getText());
+	    				if ( StringEditor.this.mustSetControlTolltip ) ((Label)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "StyledText":
-	    				if ( mustSetControlText ) ((StyledText)widget).setText(getText());
-	    				if ( mustSetControlTolltip ) ((StyledText)widget).setToolTipText(getText());
+	    				if ( StringEditor.this.mustSetControlText ) ((StyledText)widget).setText(getText());
+	    				if ( StringEditor.this.mustSetControlTolltip ) ((StyledText)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "CCombo":
-	    				if ( mustSetControlText ) ((CCombo)widget).setText(getText());
-	    				if ( mustSetControlTolltip ) ((CCombo)widget).setToolTipText(getText());
+	    				if ( StringEditor.this.mustSetControlText ) ((CCombo)widget).setText(getText());
+	    				if ( StringEditor.this.mustSetControlTolltip ) ((CCombo)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "Button":
-	    				if ( mustSetControlText ) ((Button)widget).setText(getText());
-	    				if ( mustSetControlTolltip ) ((Button)widget).setToolTipText(getText());
+	    				if ( StringEditor.this.mustSetControlText ) ((Button)widget).setText(getText());
+	    				if ( StringEditor.this.mustSetControlTolltip ) ((Button)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "Shell":
-	    				if ( mustSetControlText ) ((Shell)widget).setText(getText());
-	    				if ( mustSetControlTolltip ) ((Shell)widget).setToolTipText(getText());
+	    				if ( StringEditor.this.mustSetControlText ) ((Shell)widget).setText(getText());
+	    				if ( StringEditor.this.mustSetControlTolltip ) ((Shell)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "Table":
-	    				if ( mustSetControlTolltip ) ((Table)widget).setToolTipText(getText());
+	    				if ( StringEditor.this.mustSetControlTolltip ) ((Table)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "TableColumn":
-	    				if ( mustSetControlText ) ((TableColumn)widget).setText(getText());
-	    				if ( mustSetControlTolltip ) ((TableColumn)widget).setToolTipText(getText());
+	    				if ( StringEditor.this.mustSetControlText ) ((TableColumn)widget).setText(getText());
+	    				if ( StringEditor.this.mustSetControlTolltip ) ((TableColumn)widget).setToolTipText(getText());
 	    				break;
 	    				
 	    			case "TableItem":
-	    				if ( mustSetControlText ) {
+	    				if ( StringEditor.this.mustSetControlText ) {
 	    					TableEditor[] tableEditors = (TableEditor[])widget.getData("editors");
 	    					String[] cells = getText().split("\n");
 	    					if ( tableEditors != null ) {
@@ -167,6 +165,8 @@ public class StringEditor {
 	    								case "StyledText": ((StyledText)tableEditors[index].getEditor()).setText(cells[index]); break;
 	    								case "CCombo": ((CCombo)tableEditors[index].getEditor()).setText(cells[index]); break;
 	    								//Button do not show up text
+                                        default:
+                                            // unknown class
 	    							}
 	    						}
 	    					}
@@ -178,17 +178,17 @@ public class StringEditor {
         	}
         	
         	if ( treeItem != null ) {
-        		if ( property != null ) {
-        			if ( isArray )
-        				treeItem.setData(property, getText().split("\n"));
+        		if ( StringEditor.this.property != null ) {
+        			if ( StringEditor.this.isArray )
+        				treeItem.setData(StringEditor.this.property, getText().split("\n"));
         			else
-        				treeItem.setData(property, getText());
+        				treeItem.setData(StringEditor.this.property, getText());
         		}
-        		if ( mustSetTreeItemText )
+        		if ( StringEditor.this.mustSetTreeItemText )
         			treeItem.setText(getText());
         	}
         	
-        	((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+        	((ScrolledComposite)StringEditor.this.parent.getParent()).setMinSize(StringEditor.this.parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
         }
     };
     
@@ -197,7 +197,7 @@ public class StringEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblString.setLayoutData(fd);
+        this.lblString.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -205,34 +205,34 @@ public class StringEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblString.setLayoutData(fd);
+        this.lblString.setLayoutData(fd);
 	}
 	
 	public StyledText getControl() {
-		return txtString;
+		return this.txtString;
 	}
     
     public void setText(String string) {
-    	isArray = false;
+    	this.isArray = false;
     	
-		txtString.removeModifyListener(stringModifyListener);
-		txtString.setText(string==null ? "" : string);
-		txtString.addModifyListener(stringModifyListener);
+		this.txtString.removeModifyListener(this.stringModifyListener);
+		this.txtString.setText(string==null ? "" : string);
+		this.txtString.addModifyListener(this.stringModifyListener);
 		
-		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		((ScrolledComposite)this.parent.getParent()).setMinSize(this.parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
     public void setText(String[] array) {
-    	isArray = true;
+    	this.isArray = true;
     	
-		txtString.removeModifyListener(stringModifyListener);
-		txtString.setText(array==null ? "" : FormPlugin.concat(array,  "", "\n"));
-		txtString.addModifyListener(stringModifyListener);
+		this.txtString.removeModifyListener(this.stringModifyListener);
+		this.txtString.setText(array==null ? "" : FormPlugin.concat(array,  "", "\n"));
+		this.txtString.addModifyListener(this.stringModifyListener);
 		
-		((ScrolledComposite)parent.getParent()).setMinSize(((Composite)parent).computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		((ScrolledComposite)this.parent.getParent()).setMinSize(this.parent.computeSize(SWT.DEFAULT, SWT.DEFAULT));
     }
     
     public String getText() {
-    	return txtString.getText();
+    	return this.txtString.getText();
     }
 }

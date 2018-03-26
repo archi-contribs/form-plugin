@@ -85,7 +85,7 @@ public class FormJsonParser {
      * @throws ClassCastException when a property does not belong to the right class in the jsonObject (i.e. a String is found while an Integer was expected)
      * @throws RuntimeException when a property has got an unexpected value (i.e. a negative value where a positive one was expected)
      */
-    public void createForm(JSONObject jsonObject, Shell form, TreeItem treeItem) throws RuntimeException, ClassCastException {
+    public static void createForm(JSONObject jsonObject, Shell form, TreeItem treeItem) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating form");
         
         if ( treeItem != null )
@@ -203,7 +203,7 @@ public class FormJsonParser {
      * @throws ClassCastException when a property does not belong to the right class in the jsonObject (i.e. a String is found while an Integer was expected)
      * @throws RuntimeException when a property has got an unexpected value (i.e. a negative value where a positive one was expected)
      */
-    public CTabItem createTab(JSONObject jsonObject, CTabFolder parent, TreeItem treeItem) throws RuntimeException, ClassCastException {
+    public static CTabItem createTab(JSONObject jsonObject, CTabFolder parent, TreeItem treeItem) throws RuntimeException, ClassCastException {
         // we create the tab item
         CTabItem tabItem = new CTabItem(parent, SWT.MULTI);
         Composite composite = new Composite(parent, SWT.NONE);
@@ -241,7 +241,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public Label createLabel(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException, ClassCastException {
+    public static Label createLabel(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating label control");
         
         // we create the label
@@ -276,15 +276,12 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createLabelColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException, ClassCastException {
+    public static TableColumn createLabelColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating label control");
         
         // we create the label
-        TableColumn tableColumn;
-        if ( index == null )
-            index = parent.getColumnCount();
-
-        tableColumn = new TableColumn(parent, SWT.NONE, index);
+        int tableIndex = index==null ? parent.getColumnCount() : index;
+        TableColumn tableColumn = new TableColumn(parent, SWT.NONE, tableIndex);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -306,14 +303,14 @@ public class FormJsonParser {
             
             int newCol = 0;
             for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
-                if ( oldCol == index ) {
+                if ( oldCol == tableIndex ) {
                 	TableEditor editor= new TableEditor(parent);
-                    newEditors[index] = editor;
+                    newEditors[tableIndex] = editor;
                     
-                    newCells[index] = "";
-                    logger.trace("      adding label cell with value \"" + newCells[index] + "\"");
+                    newCells[tableIndex] = "";
+                    logger.trace("      adding label cell with value \"" + newCells[tableIndex] + "\"");
                     Label label = new Label(parent, SWT.WRAP | SWT.NONE);
-                    label.setText(newCells[index]);
+                    label.setText(newCells[tableIndex]);
                     if ( tableColumn.getData("background color") != null )
                     	label.setBackground((Color)tableColumn.getData("background color"));
                     else
@@ -322,7 +319,7 @@ public class FormJsonParser {
                     	label.setForeground((Color)tableColumn.getData("foreground color"));
                     else
                     	label.setForeground(parent.getForeground());
-                    editor.setEditor(label, tableItem, index);
+                    editor.setEditor(label, tableItem, tableIndex);
                     editor.grabHorizontal = true;
                              
                     ++newCol;
@@ -363,7 +360,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public Label createImage(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException, ClassCastException {
+    public static Label createImage(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating image control");
         
         // we create the label
@@ -398,15 +395,12 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createImageColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException, ClassCastException {
+    public static TableColumn createImageColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException, ClassCastException {
         if (logger.isDebugEnabled()) logger.debug("Creating image control");
         
         // we create the label
-        TableColumn tableColumn;
-        if ( index == null )
-            index = parent.getColumnCount();
-
-        tableColumn = new TableColumn(parent, SWT.NONE, index);
+        int tableIndex = index==null ? parent.getColumnCount() : index; 
+        TableColumn tableColumn = new TableColumn(parent, SWT.NONE, tableIndex);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -428,14 +422,14 @@ public class FormJsonParser {
             
             int newCol = 0;
             for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
-                if ( oldCol == index ) {
+                if ( oldCol == tableIndex ) {
                     TableEditor editor= new TableEditor(parent);
-                    newEditors[index] = editor;
+                    newEditors[tableIndex] = editor;
                     
-                    newCells[index] = "image.jpg";
-                    logger.trace("      adding image cell with value \"" + newCells[index] + "\"");
+                    newCells[tableIndex] = "image.jpg";
+                    logger.trace("      adding image cell with value \"" + newCells[tableIndex] + "\"");
                     Label label = new Label(parent, SWT.WRAP | SWT.NONE);
-                    label.setText(newCells[index]);
+                    label.setText(newCells[tableIndex]);
                     if ( tableColumn.getData("background color") != null )
                         label.setBackground((Color)tableColumn.getData("background color"));
                     else
@@ -444,7 +438,7 @@ public class FormJsonParser {
                         label.setForeground((Color)tableColumn.getData("foreground color"));
                     else
                         label.setForeground(parent.getForeground());
-                    editor.setEditor(label, tableItem, index);
+                    editor.setEditor(label, tableItem, tableIndex);
                     editor.grabHorizontal = true;
                              
                     ++newCol;
@@ -485,7 +479,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public StyledText createText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+    public static StyledText createText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating text control");
         
         // we create the text
@@ -521,7 +515,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public RichTextEditor createRichText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+    public static RichTextEditor createRichText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating rich text control");
         
         // we create the rich text
@@ -556,15 +550,12 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
+    public static TableColumn createTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating text column");
         
         // we create the text
-        TableColumn tableColumn;
-        if ( index == null )
-            index = parent.getColumnCount();
-
-        tableColumn = new TableColumn(parent, SWT.NONE, index);
+        int tableIndex = index==null ? parent.getColumnCount() : index;
+        TableColumn tableColumn = new TableColumn(parent, SWT.NONE, tableIndex);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -587,15 +578,15 @@ public class FormJsonParser {
             
             int newCol = 0;
             for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
-                if ( oldCol == index ) {
+                if ( oldCol == tableIndex ) {
                     TableEditor editor= new TableEditor(parent);
-                    newEditors[index] = editor;
+                    newEditors[tableIndex] = editor;
                     
-                    newCells[index] = "${void}";
+                    newCells[tableIndex] = "${void}";
                     StyledText text = new StyledText(parent, SWT.WRAP | SWT.NONE);
-                    logger.trace("      adding text cell with value \"" + newCells[index] + "\"");
-                    text.setText(newCells[index]);
-                    editor.setEditor(text, tableItem, index);
+                    logger.trace("      adding text cell with value \"" + newCells[tableIndex] + "\"");
+                    text.setText(newCells[tableIndex]);
+                    editor.setEditor(text, tableItem, tableIndex);
                     if ( tableColumn.getData("background color") != null )
                     	text.setBackground((Color)tableColumn.getData("background color"));
                     else
@@ -644,15 +635,14 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableColumn createRichTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
+    public static TableColumn createRichTextColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating rich text column");
         
         // we create the text
         TableColumn tableColumn;
-        if ( index == null )
-            index = parent.getColumnCount();
+        int tableIndex = index==null ? parent.getColumnCount() : index;
 
-        tableColumn = new TableColumn(parent, SWT.NONE, index);
+        tableColumn = new TableColumn(parent, SWT.NONE, tableIndex);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -674,15 +664,15 @@ public class FormJsonParser {
             
             int newCol = 0;
             for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
-                if ( oldCol == index ) {
+                if ( oldCol == tableIndex ) {
                     TableEditor editor= new TableEditor(parent);
-                    newEditors[index] = editor;
+                    newEditors[tableIndex] = editor;
                     
-                    newCells[index] = "${void}";
+                    newCells[tableIndex] = "${void}";
                     RichTextEditor richText = new RichTextEditor(parent, SWT.WRAP | SWT.NONE);
-                    logger.trace("      adding text cell with value \"" + newCells[index] + "\"");
-                    richText.setText(newCells[index]);
-                    editor.setEditor(richText, tableItem, index);
+                    logger.trace("      adding text cell with value \"" + newCells[tableIndex] + "\"");
+                    richText.setText(newCells[tableIndex]);
+                    editor.setEditor(richText, tableItem, tableIndex);
                     if ( tableColumn.getData("background color") != null )
                         richText.setBackground((Color)tableColumn.getData("background color"));
                     else
@@ -731,7 +721,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public CCombo createCombo(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+	public static CCombo createCombo(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating combo control");
         
         // we create the combo
@@ -766,15 +756,12 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public TableColumn createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
+	public static TableColumn createComboColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating combo column");
         
         // we create the combo
-        TableColumn tableColumn;
-        if ( index == null )
-            index = parent.getColumnCount();
-
-        tableColumn = new TableColumn(parent, SWT.NONE, index);
+        int tableIndex = index==null ? parent.getColumnCount() : index;
+        TableColumn tableColumn = new TableColumn(parent, SWT.NONE, tableIndex);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -796,14 +783,14 @@ public class FormJsonParser {
             
             int newCol = 0;
             for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
-                if ( oldCol == index ) {
+                if ( oldCol == tableIndex ) {
                     TableEditor editor= new TableEditor(parent);
-                    newEditors[index] = editor;
+                    newEditors[tableIndex] = editor;
                     
-                    newCells[index] = "${void}";
+                    newCells[tableIndex] = "${void}";
                     CCombo combo = new CCombo(parent, SWT.NONE);
-                    logger.trace("      adding combo cell with value \"" + newCells[index] + "\"");
-                    combo.setText(newCells[index]);
+                    logger.trace("      adding combo cell with value \"" + newCells[tableIndex] + "\"");
+                    combo.setText(newCells[tableIndex]);
                     if ( tableColumn.getData("background color") != null )
                     	combo.setBackground((Color)tableColumn.getData("background color"));
                     else
@@ -812,9 +799,9 @@ public class FormJsonParser {
                     	combo.setForeground((Color)tableColumn.getData("foreground color"));
                     else
                     	combo.setForeground(parent.getForeground());
-                    String[] values = (String[])parent.getColumn(index).getData("values");
+                    String[] values = (String[])parent.getColumn(tableIndex).getData("values");
                     if ( values != null ) combo.setItems(values);
-                    editor.setEditor(combo, tableItem, index);
+                    editor.setEditor(combo, tableItem, tableIndex);
                     editor.grabHorizontal = true;
                              
                     ++newCol;
@@ -856,7 +843,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public Button createCheck(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+	public static Button createCheck(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating check control");
         
         // we create the combo
@@ -891,15 +878,12 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-	public TableColumn createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
+	public static TableColumn createCheckColumn(JSONObject jsonObject, Table parent, TreeItem treeItem, Integer index, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating check column");
         
         // we create the check button
-        TableColumn tableColumn;
-        if ( index == null )
-            index = parent.getColumnCount();
-
-       	tableColumn = new TableColumn(parent, SWT.NONE, index);
+        int tableIndex = index==null ? parent.getColumnCount() : index;
+        TableColumn tableColumn = new TableColumn(parent, SWT.NONE, tableIndex);
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
@@ -922,11 +906,11 @@ public class FormJsonParser {
             
             int newCol = 0;
             for (int oldCol=0; oldCol < parent.getColumnCount(); ++oldCol) {
-                if ( oldCol == index ) {
+                if ( oldCol == tableIndex ) {
                     TableEditor editor= new TableEditor(parent);
-                    newEditors[index] = editor;
+                    newEditors[tableIndex] = editor;
                     
-                    newCells[index] = "${void}";
+                    newCells[tableIndex] = "${void}";
                     Button check = new Button(parent, SWT.CHECK);
                     check.pack();
                     if ( tableColumn.getData("background color") != null )
@@ -937,10 +921,10 @@ public class FormJsonParser {
                     	check.setForeground((Color)tableColumn.getData("foreground color"));
                     else
                     	check.setForeground(parent.getForeground());
-                    logger.trace("      adding check cell with value \"" + newCells[index] + "\"");
+                    logger.trace("      adding check cell with value \"" + newCells[tableIndex] + "\"");
                     editor.minimumWidth = check.getSize().x;
                     editor.horizontalAlignment = SWT.CENTER;
-                    editor.setEditor(check, tableItem, index);
+                    editor.setEditor(check, tableItem, tableIndex);
                              
                     ++newCol;
                 }
@@ -980,7 +964,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public Table createTable(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+    public static Table createTable(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating table control");
     	
         Table table = new Table(parent, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.SINGLE | SWT.FULL_SELECTION);
@@ -1013,7 +997,7 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public TableItem createLine(JSONObject jsonObject, Table parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+    public static TableItem createLine(JSONObject jsonObject, Table parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
     	if (logger.isDebugEnabled()) logger.debug("Creating table item");
     	
     	TableItem tableItem = null;
@@ -1080,7 +1064,7 @@ public class FormJsonParser {
     /**
      * Checks whether the eObject fits in the filter rules
      */
-    public boolean checkFilter(EObject eObject, JSONObject filterObject) {
+    public static boolean checkFilter(EObject eObject, JSONObject filterObject) {
         if (filterObject == null) {
             return true;
         }
@@ -1224,7 +1208,7 @@ public class FormJsonParser {
     
     /***************************************************************/
     
-    private void getFilter(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private static void getFilter(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	JSONObject filter = getJSONObject(jsonObject, "filter");
     	List<Map<String, String>> tests = null;
     	
@@ -1281,7 +1265,7 @@ public class FormJsonParser {
     	}
     }
     
-    private Boolean getGenerate(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
+    private static Boolean getGenerate(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem) {
     	Boolean generate = getBoolean(jsonObject, "generate", false);
     	
     	// required by the graphical editor
@@ -1297,15 +1281,11 @@ public class FormJsonParser {
     	return generate;
     }
     
-    private void getCells(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem, EObject selectedObject) {
+    private static void getCells(JSONObject jsonObject, TableItem tableItem, TreeItem treeItem, EObject selectedObject) {
     	Table table = tableItem.getParent();
     	JSONArray jsonCells = getJSONArray(jsonObject, "cells");
     	String[] cells = null;
-    	int nbJsonCells = 0;
     	
-    	if ( jsonCells != null )
-    	    nbJsonCells = jsonCells.size();
-
     	cells = new String[table.getColumnCount()];
     	TableEditor[] editors = new TableEditor[table.getColumnCount()];
     	
@@ -1321,7 +1301,7 @@ public class FormJsonParser {
             
     		switch ( (String)table.getColumn(columnNumber).getData("class") ) {
                 case "labelColumn":
-                    if ( columnNumber < nbJsonCells )
+                    if ( (jsonCells != null) && (columnNumber < jsonCells.size()) )
                         cells[columnNumber] = (String)jsonCells.get(columnNumber);
                     else
                         cells[columnNumber] = "label";
@@ -1344,7 +1324,7 @@ public class FormJsonParser {
                     break;
                     
                 case "imageColumn":
-                    if ( columnNumber < nbJsonCells )
+                    if ( (jsonCells != null) && (columnNumber < jsonCells.size()) )
                         cells[columnNumber] = (String)jsonCells.get(columnNumber);
                     else
                         cells[columnNumber] = "image";
@@ -1360,9 +1340,7 @@ public class FormJsonParser {
                     
                     if ( !FormPlugin.isEmpty(imageName) ) {
                         //TODO : create a cache for the images.
-                        Image image = new Image(display, imageName);
-                        if( image != null )
-                            labelImage.setImage(image);
+                        labelImage.setImage(new Image(display, imageName));
                     }
                     
                     if ( tableColumn.getData("background color") != null )
@@ -1378,7 +1356,7 @@ public class FormJsonParser {
                     break;
                     
                 case "textColumn":
-                    if ( columnNumber < nbJsonCells )
+                    if ( (jsonCells != null) && (columnNumber < jsonCells.size()) )
                         cells[columnNumber] = (String)jsonCells.get(columnNumber);
                     else
                         cells[columnNumber] = "${void}";
@@ -1412,7 +1390,7 @@ public class FormJsonParser {
                     break;
                     
                 case "comboColumn":
-                    if ( columnNumber < nbJsonCells )
+                    if ( (jsonCells != null) && (columnNumber < jsonCells.size()) )
                         cells[columnNumber] = (String)jsonCells.get(columnNumber);
                     else
                         cells[columnNumber] = "${void}";
@@ -1457,7 +1435,7 @@ public class FormJsonParser {
                     break;
                     
                 case "checkColumn":
-                    if ( columnNumber < nbJsonCells )
+                    if ( (jsonCells != null) && (columnNumber < jsonCells.size()) )
                         cells[columnNumber] = (String)jsonCells.get(columnNumber);
                     else
                         cells[columnNumber] = "${void}";
@@ -1518,9 +1496,7 @@ public class FormJsonParser {
     	}
     	
     	// required by the form
-    	if ( tableItem != null ) {
-    		tableItem.setData("cells", cells);
-    	}
+    	tableItem.setData("cells", cells);
     }
     
     /* ********************************************************************************************************************************/
@@ -1533,7 +1509,7 @@ public class FormJsonParser {
      * @return the value corresponding to the key (the behaviour in case no value is found depends on the <i>ignoreErrors<i> flag). The returned value is an <i>object</i> and therefore might be cast.
      * @throws RuntimeException if the key is not found and the <i>ignoreErrors</i> flag has not been set)
      */
-    public Object getJSON(JSONObject obj, String key) {
+    public static Object getJSON(JSONObject obj, String key) {
     	if ( obj == null )
     		return null;
     	
@@ -1558,7 +1534,7 @@ public class FormJsonParser {
      * @return the value if found, or the defaultValue provided if not found,
      *         ClassCastException if the object found is not a JSONObject
      */
-    public JSONObject getJSONObject(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+    public static JSONObject getJSONObject(JSONObject obj, String key) throws RuntimeException, ClassCastException {
         Object result = getJSON(obj, key);
         
         if ( result == null )
@@ -1582,7 +1558,7 @@ public class FormJsonParser {
      * @return the value if found, ClassCastException if the object found is not
      *         a JSONArray
      */
-    public JSONArray getJSONArray(JSONObject obj, String key) throws RuntimeException, ClassCastException {
+    public static JSONArray getJSONArray(JSONObject obj, String key) throws RuntimeException, ClassCastException {
         Object result = getJSON(obj, key);
 
         if ( result == null )
@@ -1605,7 +1581,7 @@ public class FormJsonParser {
      *            the key (case insensitive)
      * @return the value if found, ClassCastException if the object found is not a String
      */
-    public String getString(JSONObject obj, String key, String defaultValue) throws RuntimeException, ClassCastException {
+    public static String getString(JSONObject obj, String key, String defaultValue) throws RuntimeException, ClassCastException {
     	boolean mustSetDefaultValue = false;
     	Object result = getJSON(obj, key);
         
@@ -1638,7 +1614,7 @@ public class FormJsonParser {
      *            the key (case insensitive)
      * @return the value if found, ClassCastException if the object found is not a String
      */
-    public String getString(JSONObject obj, String key, String defaultValue, String[] validValues) throws RuntimeException, ClassCastException {
+    public static String getString(JSONObject obj, String key, String defaultValue, String[] validValues) throws RuntimeException, ClassCastException {
         boolean mustSetDefaultValue = false;
     	Object result = getJSON(obj, key);
         
@@ -1672,13 +1648,11 @@ public class FormJsonParser {
      * @return the value if found, ClassCastException if the object found is not
      *         an Integer
      */
-    public Integer getInt(JSONObject obj, String key, Integer defaultValue, boolean canBeZero) throws RuntimeException, ClassCastException {
+    public static Integer getInt(JSONObject obj, String key, Integer defaultValue, boolean canBeZero) throws RuntimeException, ClassCastException {
         boolean mustSetDefaultValue = false;
     	Object result = getJSON(obj, key);
         
-        if ( result == null )
-        	mustSetDefaultValue = defaultValue != null;
-        else {
+        if ( result != null ) {
             if ( result instanceof Long )
             	mustSetDefaultValue = (Long)result <= 0L || (!canBeZero && (Long)result == 0L);
             else {
@@ -1687,12 +1661,12 @@ public class FormJsonParser {
             }
         }
 
-        if ( mustSetDefaultValue ) {
+        if ( result == null || mustSetDefaultValue ) {
             logger.trace("      "+key+" = "+result+" (defaulting to "+defaultValue+")");
-            result = new Long(defaultValue);
-        } else
-    		logger.trace("      "+key+" = " + result);
+            return defaultValue;
+        }
         
+    	logger.trace("      "+key+" = " + result);
         return ((Long)result).intValue();
     }
 
@@ -1707,25 +1681,23 @@ public class FormJsonParser {
      * @return the value if found, ClassCastException if the object found is not
      *         a boolean
      */
-    public Boolean getBoolean(JSONObject obj, String key, Boolean defaultValue) throws RuntimeException, ClassCastException {
+    public static Boolean getBoolean(JSONObject obj, String key, Boolean defaultValue) throws RuntimeException, ClassCastException {
     	boolean mustSetDefaultValue = false;
         Object result = getJSON(obj, key);
         
-        if ( result == null )
-        	mustSetDefaultValue = defaultValue != null;
-        else {
+        if ( result != null ) {
             if ( !(result instanceof Boolean) ) {
             	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be a Boolean.");
                 mustSetDefaultValue = true;
             }
         }
 
-        if ( mustSetDefaultValue ) {
+        if ( result == null || mustSetDefaultValue ) {
             logger.trace("      "+key+" = "+result+" (defaulting to "+defaultValue+")");
-            result = defaultValue;
-        } else
-    		logger.trace("      "+key+" = " + result);
-        
+            return defaultValue;
+        }
+    	
+        logger.trace("      "+key+" = " + result);
         return (Boolean)result;
     }
 
@@ -1737,7 +1709,7 @@ public class FormJsonParser {
      * @param key
      *            the key (case insensitive)
      */
-    public boolean JSONContainsKey(JSONObject obj, String key) {
+    public static boolean JSONContainsKey(JSONObject obj, String key) {
         @SuppressWarnings("unchecked")
         Iterator<String> iter = obj.keySet().iterator();
         while (iter.hasNext()) {
@@ -1750,7 +1722,7 @@ public class FormJsonParser {
 
     /* **********************************************************************************************************/
     
-    public boolean inArray(String[] stringArray, String string) {
+    public static boolean inArray(String[] stringArray, String string) {
     	if ( string == null )
     		return true;
     	
@@ -1763,7 +1735,7 @@ public class FormJsonParser {
     
     /* **********************************************************************************************************/
     
-    private void getXY(JSONObject jsonObject, Control control, TreeItem treeItem) {
+    private static void getXY(JSONObject jsonObject, Control control, TreeItem treeItem) {
     	int defaultWidth = 0;
     	int defaultHeight = 0;
         if ( control != null ) {
@@ -1790,7 +1762,7 @@ public class FormJsonParser {
 	    	control.setBounds(x, y, width, height);
     }
     
-    private void getTableColumnWidth(JSONObject jsonObject, TableColumn tableColumn, TreeItem treeItem) {
+    private static void getTableColumnWidth(JSONObject jsonObject, TableColumn tableColumn, TreeItem treeItem) {
     	int defaultWidth = 50;
     	if ( tableColumn != null && tableColumn.getData("name") != null )
     		defaultWidth = 10 + ((String)tableColumn.getData("name")).length()*8;
@@ -1813,7 +1785,7 @@ public class FormJsonParser {
         }
     }
     
-    private void getForegroundAndBackground(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private static void getForegroundAndBackground(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String foreground = getString(jsonObject, "foreground", null);
     	String background = getString(jsonObject, "background", null);
     	
@@ -1840,7 +1812,7 @@ public class FormJsonParser {
     	}
     }
     
-    private void getAlignment(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private static void getAlignment(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String alignment = getString(jsonObject, "alignment", FormDialog.validAlignment[0]).toLowerCase();
     	
     	// required by the graphical editor
@@ -1854,7 +1826,7 @@ public class FormJsonParser {
     	}
     }
     
-    private void getRegexp(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private static void getRegexp(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String regexp = getString(jsonObject, "regexp", null);
     	
     	// required by the graphical editor
@@ -1868,7 +1840,7 @@ public class FormJsonParser {
     	}
     }
     
-    private void getVariable(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
+    private static void getVariable(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
     	String  variable      = getString(jsonObject, "variable", null);
     	String  defaultText   = getString(jsonObject, "default", null);
     	Boolean forceDefault  = getBoolean(jsonObject, "forceDefault", false);
@@ -1921,7 +1893,7 @@ public class FormJsonParser {
 		}
     }
     
-    private void getExcelCellOrColumn(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private static void getExcelCellOrColumn(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String excelSheet    = getString(jsonObject, "excelSheet", null);
     	String excelCell     = getString(jsonObject, "excelCell", null);
     	String excelColumn   = (widget != null && widget instanceof TableColumn) ? getString(jsonObject, "excelColumn", null) : null;		// excelColumn is used only when TableColumn (excelSheet is referenced in the Table)
@@ -1960,7 +1932,7 @@ public class FormJsonParser {
         }
     }
     
-    private void getExcelLines(JSONObject jsonObject, Table table, TreeItem treeItem) {
+    private static void getExcelLines(JSONObject jsonObject, Table table, TreeItem treeItem) {
     	String  excelSheet     = getString(jsonObject, "excelSheet", null);
     	Integer excelFirstLine = getInt(jsonObject, "excelFirstLine", 1, false);
     	Integer excelLastLine  = getInt(jsonObject, "excelLastLine", 0, true);
@@ -1987,7 +1959,7 @@ public class FormJsonParser {
     }
     
     @SuppressWarnings("unchecked")
-	private void getValues(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+	private static void getValues(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	JSONArray jsonValues = getJSONArray(jsonObject, "values");
     	String[] values = null;
     	
@@ -2015,7 +1987,7 @@ public class FormJsonParser {
 		}
     }
     
-    private void getTooltip(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
+    private static void getTooltip(JSONObject jsonObject, Widget widget, TreeItem treeItem, EObject selectedObject) {
     	String tooltip = getString(jsonObject, "tooltip", null);
         
     	// required by the graphical editor
@@ -2036,7 +2008,7 @@ public class FormJsonParser {
         }
     }
     
-    private String getName(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+    private static String getName(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
     	String name = getString(jsonObject, "name", "");
     	String comment = getString(jsonObject, "comment", "");
         
@@ -2054,7 +2026,7 @@ public class FormJsonParser {
         return name;
     }
 
-	private void getText(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
+	private static void getText(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
 		String text = getString(jsonObject, "text", "");
 	    
 	    // required by the graphical editor
@@ -2070,7 +2042,7 @@ public class FormJsonParser {
 	    		label.setText(FormVariable.expand(text, selectedObject));
 	}
 	
-   private void getImage(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
+   private static void getImage(JSONObject jsonObject, Label label, TreeItem treeItem, EObject selectedObject) {
         String imageName = getString(jsonObject, "image", null);
         String imageContent = getString(jsonObject, "content", null);
         Boolean scale = getBoolean(jsonObject, "scale", false);
@@ -2114,12 +2086,14 @@ public class FormJsonParser {
                 	} else {
                 		label.setImage(image);
                 	}
-	            } catch (Exception ign) {}
+	            } catch (@SuppressWarnings("unused") Exception ign) { 
+	                // nothing to do
+	            }
         	}
         }
     }
     
-    private void getFont(JSONObject jsonObject, Control control, TreeItem treeItem) {
+    private static void getFont(JSONObject jsonObject, Control control, TreeItem treeItem) {
     	String  fontName = getString(jsonObject, "fontName", null);
     	Integer fontSize = getInt(jsonObject, "fontSize", 0, true);
     	Boolean fontBold = getBoolean(jsonObject, "fontBold", false);
@@ -2137,7 +2111,7 @@ public class FormJsonParser {
 		FormPlugin.setFont(control, fontName, fontSize, fontBold, fontItalic);
     }
     
-    public void setData(TreeItem treeItem, String key, Object value) {
+    public static void setData(TreeItem treeItem, String key, Object value) {
     	if ( treeItem == null || key == null)
     		return;
     	
@@ -2145,7 +2119,7 @@ public class FormJsonParser {
         treeItem.setData(key, value);
     }
     
-    public void addKey(TreeItem treeItem, String key) {
+    public static void addKey(TreeItem treeItem, String key) {
     	if ( treeItem == null || key == null)
     		return;
     	
@@ -2160,7 +2134,7 @@ public class FormJsonParser {
     
     /* **********************************************************************************************************/
     @SuppressWarnings("unchecked")
-	public JSONObject generateJson(Tree tree) throws RuntimeException {
+	public static JSONObject generateJson(Tree tree) throws RuntimeException {
     	JSONObject json = new JSONObject();
     	
     	json.put("version", 3);
@@ -2171,7 +2145,7 @@ public class FormJsonParser {
     	
     
     @SuppressWarnings("unchecked")
-	private JSONObject generateJson(TreeItem treeItem) throws RuntimeException {
+	private static JSONObject generateJson(TreeItem treeItem) throws RuntimeException {
     	JSONObject json = new JSONObject();
     	JSONObject filter = null;
     	
@@ -2260,6 +2234,10 @@ public class FormJsonParser {
     				}
     			}
     			break;
+    			
+    		default:
+    		    // should never be her, but just in case
+    		    throw new RuntimeException("Do not know treeItem class : "+(String)treeItem.getData("class"));
     	}
     	
     	return json;

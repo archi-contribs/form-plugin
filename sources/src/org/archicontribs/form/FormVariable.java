@@ -211,67 +211,69 @@ public class FormVariable {
     public static String getVariable(String variable, EObject eObject) {
         if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
 
+        EObject selectedEObject = eObject;
+        
         // we check that the variable provided is a string enclosed between "${" and "}"
         if ( !variable.startsWith("${") || !variable.endsWith("}") )
             throw new RuntimeException(FormPosition.getPosition(null) + "\n\nThe expression \""+variable+"\" is not a variable (it should be enclosed between \"${\" and \"}\")");
         
-        String variableName = expand(variable.substring(2, variable.length()-1), eObject);
+        String variableName = expand(variable.substring(2, variable.length()-1), selectedEObject);
 
         //TODO : add a preference to choose between silently ignore or raise an error
         switch ( variableName.toLowerCase() ) {
             case "class" :
-                if (eObject instanceof IDiagramModelArchimateObject) {
-                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateObject)eObject).getArchimateElement().getClass().getSimpleName() +"\"");
-                    return ((IDiagramModelArchimateObject)eObject).getArchimateElement().getClass().getSimpleName();
+                if (selectedEObject instanceof IDiagramModelArchimateObject) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement().getClass().getSimpleName() +"\"");
+                    return ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement().getClass().getSimpleName();
                 }
-                if (eObject instanceof IDiagramModelArchimateConnection) {
-                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getClass().getSimpleName() +"\"");
-                    return ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getClass().getSimpleName();
+                if (selectedEObject instanceof IDiagramModelArchimateConnection) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship().getClass().getSimpleName() +"\"");
+                    return ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship().getClass().getSimpleName();
                 }
-                if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ eObject.getClass().getSimpleName() +"\"");
-                return eObject.getClass().getSimpleName();
+                if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ selectedEObject.getClass().getSimpleName() +"\"");
+                return selectedEObject.getClass().getSimpleName();
 
             case "id" :
-                if (eObject instanceof IIdentifier) {
-                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IIdentifier)eObject).getId() +"\"");
-                    return ((IIdentifier)eObject).getId();
+                if (selectedEObject instanceof IIdentifier) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IIdentifier)selectedEObject).getId() +"\"");
+                    return ((IIdentifier)selectedEObject).getId();
                 }
-                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not an ID ("+eObject.getClass().getSimpleName()+").");
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not an ID ("+selectedEObject.getClass().getSimpleName()+").");
 
             case "documentation" :
-                if (eObject instanceof IDiagramModelArchimateObject) {
-                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateObject)eObject).getArchimateElement().getDocumentation() +"\"");
-                    return ((IDiagramModelArchimateObject)eObject).getArchimateElement().getDocumentation();
+                if (selectedEObject instanceof IDiagramModelArchimateObject) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement().getDocumentation() +"\"");
+                    return ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement().getDocumentation();
                 }
-                if (eObject instanceof IDiagramModelArchimateConnection) {
-                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getDocumentation() +"\"");
-                    return ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship().getDocumentation();
+                if (selectedEObject instanceof IDiagramModelArchimateConnection) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship().getDocumentation() +"\"");
+                    return ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship().getDocumentation();
                 }
-                if (eObject instanceof IDocumentable) {
-                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDocumentable)eObject).getDocumentation() +"\"");
-                    return ((IDocumentable)eObject).getDocumentation();
+                if (selectedEObject instanceof IDocumentable) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDocumentable)selectedEObject).getDocumentation() +"\"");
+                    return ((IDocumentable)selectedEObject).getDocumentation();
                 }
-                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+eObject.getClass().getSimpleName()+").");
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+selectedEObject.getClass().getSimpleName()+").");
 
             case "void":
                 if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \"\"");
                 return "";
                 
             case "name" :
-                if (eObject instanceof INameable) {
-                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((INameable)eObject).getName() +"\"");
-                    return ((INameable)eObject).getName();
+                if (selectedEObject instanceof INameable) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((INameable)selectedEObject).getName() +"\"");
+                    return ((INameable)selectedEObject).getName();
                 }
-                throw new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object does not have a name ("+eObject.getClass().getSimpleName()+").");
+                throw new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object does not have a name ("+selectedEObject.getClass().getSimpleName()+").");
 
             case "username":
             	return System.getProperty("user.name");
             	
             case "screenshot":
-            	if ( eObject instanceof IDiagramModel ) {
-            		return FormPlugin.imageToString(DiagramUtils.createImage((IDiagramModel)eObject, 1.0, 2));
+            	if ( selectedEObject instanceof IDiagramModel ) {
+            		return FormPlugin.imageToString(DiagramUtils.createImage((IDiagramModel)selectedEObject, 1.0, 2));
             	}
-            	throw new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a view ("+eObject.getClass().getSimpleName()+").");
+            	throw new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object is not a view ("+selectedEObject.getClass().getSimpleName()+").");
             	
             default :
             		// check for ${date:format}
@@ -284,13 +286,13 @@ public class FormVariable {
             	
                     // check for ${property:xxx}
             	else if ( variableName.toLowerCase().startsWith("property"+variableSeparator) ) {
-                    if ( eObject instanceof IDiagramModelArchimateObject )
-                        eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
-                    if ( eObject instanceof IDiagramModelArchimateConnection )
-                        eObject = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
-                    if ( eObject instanceof IProperties ) {
+                    if ( selectedEObject instanceof IDiagramModelArchimateObject )
+                        selectedEObject = ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement();
+                    if ( selectedEObject instanceof IDiagramModelArchimateConnection )
+                        selectedEObject = ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship();
+                    if ( selectedEObject instanceof IProperties ) {
                         String propertyName = variableName.substring(9);
-                        for ( IProperty property: ((IProperties)eObject).getProperties() ) {
+                        for ( IProperty property: ((IProperties)selectedEObject).getProperties() ) {
                             if ( FormPlugin.areEqual(property.getKey(),propertyName) ) {
                                 if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ property.getValue() +"\"");
                                 return property.getValue();
@@ -299,44 +301,44 @@ public class FormVariable {
                         if ( logger.isTraceEnabled() ) logger.trace("         ---> value is null");
                         return null;
                     }
-                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have properties ("+eObject.getClass().getSimpleName()+").");
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have properties ("+selectedEObject.getClass().getSimpleName()+").");
                 }
 
                     // check for ${view:xxx}
                 else if ( variableName.toLowerCase().startsWith("view"+variableSeparator) ) {
-                    if ( eObject instanceof IDiagramModel ) {
-                        return getVariable("${"+variableName.substring(5)+"}", eObject);
+                    if ( selectedEObject instanceof IDiagramModel ) {
+                        return getVariable("${"+variableName.substring(5)+"}", selectedEObject);
                     }
-                    else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                        return getVariable("${"+variableName.substring(5)+"}", ((IDiagramModelArchimateObject)eObject).getDiagramModel());
+                    else if ( selectedEObject instanceof IDiagramModelArchimateObject ) {
+                        return getVariable("${"+variableName.substring(5)+"}", ((IDiagramModelArchimateObject)selectedEObject).getDiagramModel());
                     }
-                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+eObject.getClass().getSimpleName()+").");
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object is not part of a DiagramModel ("+selectedEObject.getClass().getSimpleName()+").");
                 }
 
                     // check for ${model:xxx}
                 else if ( variableName.toLowerCase().startsWith("model"+variableSeparator) ) {
-                    if ( eObject instanceof IArchimateModelObject ) {
-                        return getVariable("${"+variableName.substring(6)+"}", ((IArchimateModelObject)eObject).getArchimateModel());
+                    if ( selectedEObject instanceof IArchimateModelObject ) {
+                        return getVariable("${"+variableName.substring(6)+"}", ((IArchimateModelObject)selectedEObject).getArchimateModel());
                     }
-                    else if ( eObject instanceof IDiagramModelComponent ) {
-                        return getVariable("${"+variableName.substring(6)+"}", ((IDiagramModelComponent)eObject).getDiagramModel().getArchimateModel());
+                    else if ( selectedEObject instanceof IDiagramModelComponent ) {
+                        return getVariable("${"+variableName.substring(6)+"}", ((IDiagramModelComponent)selectedEObject).getDiagramModel().getArchimateModel());
                     }
-                    else if ( eObject instanceof IArchimateModel ) {
-                        return getVariable("${"+variableName.substring(6)+"}", eObject);
+                    else if ( selectedEObject instanceof IArchimateModel ) {
+                        return getVariable("${"+variableName.substring(6)+"}", selectedEObject);
                     }
                     
-                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as we failed to get the object's model ("+eObject.getClass().getSimpleName()+").");
+                    throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as we failed to get the object's model ("+selectedEObject.getClass().getSimpleName()+").");
                 }
                 
                     // check for ${source:xxx}
                 else if ( variableName.toLowerCase().startsWith("source"+variableSeparator) ) {
-                    EObject obj = eObject;
-                    if ( eObject instanceof IDiagramModelArchimateObject) {
-                        obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
-                    } else if (eObject instanceof IDiagramModelArchimateConnection) {
-                        obj = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
+                    EObject obj = selectedEObject;
+                    if ( selectedEObject instanceof IDiagramModelArchimateObject) {
+                        obj = ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement();
+                    } else if (selectedEObject instanceof IDiagramModelArchimateConnection) {
+                        obj = ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship();
                     } else {
-                        obj = eObject;
+                        obj = selectedEObject;
                     }
 
                     if ( obj instanceof IArchimateRelationship ) {
@@ -347,13 +349,13 @@ public class FormVariable {
                     
                     // check for ${target:xxx}
                 else if ( variableName.toLowerCase().startsWith("target"+variableSeparator) ) {
-                    EObject obj = eObject;
-                    if ( eObject instanceof IDiagramModelArchimateObject) {
-                        obj = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
-                    } else if (eObject instanceof IDiagramModelArchimateConnection) {
-                        obj = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
+                    EObject obj = selectedEObject;
+                    if ( selectedEObject instanceof IDiagramModelArchimateObject) {
+                        obj = ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement();
+                    } else if (selectedEObject instanceof IDiagramModelArchimateConnection) {
+                        obj = ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship();
                     } else {
-                        obj = eObject;
+                        obj = selectedEObject;
                     }
                     
                     if ( obj instanceof IArchimateRelationship ) {
@@ -378,6 +380,8 @@ public class FormVariable {
     public static void setVariable(CompoundCommand compoundCommand, String variable, String separator, String value, EObject eObject) throws RuntimeException {
         if ( logger.isTraceEnabled() ) logger.trace("   setting \""+value+"\" to "+variable+" of "+FormPlugin.getDebugName(eObject));
         
+        EObject selectedEObject = eObject;
+        
         EObjectFeatureCommand eCommand;
         FormPropertyCommand fCommand;
 
@@ -397,10 +401,10 @@ public class FormVariable {
                 throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot change a view's screenshot.");
 
             case "id" :
-                if (eObject instanceof IIdentifier) {
+                if (selectedEObject instanceof IIdentifier) {
                     if ( value == null || value.length()==0 )
                         throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the value provided is null.");
-                    eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.IDENTIFIER__ID, value);
+                    eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), selectedEObject, IArchimatePackage.Literals.IDENTIFIER__ID, value);
                     if ( eCommand.canExecute() )
                     	compoundCommand.add(eCommand);
                     return;
@@ -408,15 +412,15 @@ public class FormVariable {
                 break;
 
             case "documentation" :
-                if (eObject instanceof IDiagramModelArchimateObject) {
-                    eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
+                if (selectedEObject instanceof IDiagramModelArchimateObject) {
+                    selectedEObject = ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement();
                 }
-                if (eObject instanceof IDiagramModelArchimateConnection) {
-                    eObject = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
+                if (selectedEObject instanceof IDiagramModelArchimateConnection) {
+                    selectedEObject = ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship();
                 }
-                if (eObject instanceof IDocumentable) {
+                if (selectedEObject instanceof IDocumentable) {
                     //((IDocumentable)eObject).setDocumentation(value == null ? "" : value);
-                    eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value);
+                    eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), selectedEObject, IArchimatePackage.Literals.DOCUMENTABLE__DOCUMENTATION, value == null ? "" : value);
                     if ( eCommand.canExecute() )
                     	compoundCommand.add(eCommand);
                     return;
@@ -424,9 +428,9 @@ public class FormVariable {
                 throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the archi Object does not have a "+variable+" field.");
 
             case "name" :
-                if (eObject instanceof INameable) {
+                if (selectedEObject instanceof INameable) {
                     //((INameable)eObject).setName(value == null ? "" : value);
-                	eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), eObject, IArchimatePackage.Literals.NAMEABLE__NAME, value == null ? "" : value);
+                	eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), selectedEObject, IArchimatePackage.Literals.NAMEABLE__NAME, value == null ? "" : value);
                     if ( eCommand.canExecute() )
                     	compoundCommand.add(eCommand);
                     return;
@@ -439,15 +443,15 @@ public class FormVariable {
             default :
                     // check for ${property:xxx} 
                 if ( variableName.startsWith("property"+separator) ) {
-                    if ( eObject instanceof IDiagramModelArchimateObject )
-                        eObject = ((IDiagramModelArchimateObject)eObject).getArchimateElement();
-                    if ( eObject instanceof IDiagramModelArchimateConnection )
-                        eObject = ((IDiagramModelArchimateConnection)eObject).getArchimateRelationship();
+                    if ( selectedEObject instanceof IDiagramModelArchimateObject )
+                        selectedEObject = ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement();
+                    if ( selectedEObject instanceof IDiagramModelArchimateConnection )
+                        selectedEObject = ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship();
                     
-                    if ( eObject instanceof IProperties ) {
+                    if ( selectedEObject instanceof IProperties ) {
                         String propertyName = variableName.substring(9);
                         
-                    	fCommand = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)eObject, propertyName, value);
+                    	fCommand = new FormPropertyCommand(FormPosition.getFormName(), (IProperties)selectedEObject, propertyName, value);
                         if ( fCommand.canExecute() )
                         	compoundCommand.add(fCommand);
                         return;
@@ -457,12 +461,12 @@ public class FormVariable {
 
                     // check for ${view:xxx}
                 else if ( variableName.startsWith("view"+separator) ) {
-                    if ( eObject instanceof IDiagramModel ) {
-                        setVariable(compoundCommand, "${"+variableName.substring(5)+"}", separator, value, eObject);
+                    if ( selectedEObject instanceof IDiagramModel ) {
+                        setVariable(compoundCommand, "${"+variableName.substring(5)+"}", separator, value, selectedEObject);
                         return;
                     }
-                    else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                        setVariable(compoundCommand, "${"+variableName.substring(5)+"}", separator, value, (EObject)((IDiagramModelArchimateObject)eObject).getDiagramModel());
+                    else if ( selectedEObject instanceof IDiagramModelArchimateObject ) {
+                        setVariable(compoundCommand, "${"+variableName.substring(5)+"}", separator, value, ((IDiagramModelArchimateObject)selectedEObject).getDiagramModel());
                         return;
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the object is not part of a DiagramModel.");
@@ -470,12 +474,12 @@ public class FormVariable {
 
                     // check for ${model:xxx}
                 else if ( variableName.toLowerCase().startsWith("model"+separator) ) {
-                    if ( eObject instanceof IArchimateDiagramModel ) {
-                        setVariable(compoundCommand, "${"+variableName.substring(6)+"}", separator, value, eObject);
+                    if ( selectedEObject instanceof IArchimateDiagramModel ) {
+                        setVariable(compoundCommand, "${"+variableName.substring(6)+"}", separator, value, selectedEObject);
                         return;
                     }
-                    else if ( eObject instanceof IDiagramModelArchimateObject ) {
-                        setVariable(compoundCommand, "${"+variableName.substring(6)+"}", separator, value, ((IDiagramModelArchimateObject)eObject).getDiagramModel().getArchimateModel()); ;
+                    else if ( selectedEObject instanceof IDiagramModelArchimateObject ) {
+                        setVariable(compoundCommand, "${"+variableName.substring(6)+"}", separator, value, ((IDiagramModelArchimateObject)selectedEObject).getDiagramModel().getArchimateModel());
                         return;
                     }
                     throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not part of a model.");
@@ -483,8 +487,8 @@ public class FormVariable {
                 
                 // check for ${source:xxx}
             else if ( variableName.toLowerCase().startsWith("source"+separator) ) {
-                if ( eObject instanceof IArchimateRelationship ) {
-                    setVariable(compoundCommand, "${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getSource());
+                if ( selectedEObject instanceof IArchimateRelationship ) {
+                    setVariable(compoundCommand, "${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)selectedEObject).getSource());
                     return;
                 }
                 throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not a relationship.");
@@ -492,8 +496,8 @@ public class FormVariable {
                 
                 // check for ${target:xxx}
             else if ( variableName.toLowerCase().startsWith("target"+separator) ) {
-                if ( eObject instanceof IArchimateRelationship ) {
-                    setVariable(compoundCommand, "${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)eObject).getTarget());
+                if ( selectedEObject instanceof IArchimateRelationship ) {
+                    setVariable(compoundCommand, "${"+variableName.substring(7)+"}", separator, value, ((IArchimateRelationship)selectedEObject).getTarget());
                     return;
                 }
                 throw new RuntimeException(FormPosition.getPosition(null) + "\nCannot set variable \""+variable+"\" as the object is not a relationship.");

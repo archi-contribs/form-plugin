@@ -13,29 +13,29 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeItem;
 
 public class ComboEditor {
-	private Label      lblCombo;
-	private CCombo     combo;
-	private Composite  parent;
-	private String     property = null;
+	Label      lblCombo;
+	CCombo     combo;
+	Composite  parent;
+	String     property = null;
 	
 	public ComboEditor(Composite parent, String property, String labelText) {
 		this.parent = parent;
 		this.property = property;
 		
-		lblCombo = new Label(parent, SWT.NONE);
+		this.lblCombo = new Label(parent, SWT.NONE);
         FormData fd = new FormData();
         fd.top = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblCombo.setLayoutData(fd);
-        lblCombo.setText(labelText);
+        this.lblCombo.setLayoutData(fd);
+        this.lblCombo.setText(labelText);
         
-        combo = new CCombo(parent, SWT.BORDER);
+        this.combo = new CCombo(parent, SWT.BORDER);
         fd = new FormData();
-        fd.top = new FormAttachment(lblCombo, 0, SWT.TOP);
+        fd.top = new FormAttachment(this.lblCombo, 0, SWT.TOP);
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        combo.setLayoutData(fd);
-        combo.addSelectionListener(comboSelectionListener);
+        this.combo.setLayoutData(fd);
+        this.combo.addSelectionListener(this.comboSelectionListener);
         
     	Control control = (Control)parent.getData("widget");
     	if ( control != null && property != null) {
@@ -44,16 +44,16 @@ public class ComboEditor {
 	}
 	
 	public void setTooltipText(String tooltip) {
-		combo.setToolTipText(tooltip);
+		this.combo.setToolTipText(tooltip);
 	}
 	
 	private SelectionListener comboSelectionListener = new SelectionListener() {
 	    @Override
         public void widgetSelected(SelectionEvent e) {
-	    	TreeItem  treeItem = (TreeItem)parent.getData("treeItem");
+	    	TreeItem  treeItem = (TreeItem)ComboEditor.this.parent.getData("treeItem");
         	
-        	if ( treeItem != null && property != null ) {
-        		treeItem.setData(property, getText());
+        	if ( treeItem != null && ComboEditor.this.property != null ) {
+        		treeItem.setData(ComboEditor.this.property, getText());
         	}
         }
 
@@ -69,7 +69,7 @@ public class ComboEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblCombo.setLayoutData(fd);
+        this.lblCombo.setLayoutData(fd);
 	}
 	
 	public void setPosition(Control position) {
@@ -77,24 +77,24 @@ public class ComboEditor {
         fd.top = new FormAttachment(position, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        lblCombo.setLayoutData(fd);
+        this.lblCombo.setLayoutData(fd);
 	}
 	
 	public CCombo getControl() {
-		return combo;
+		return this.combo;
 	}
     
     public void setItems(String[] items) {
-		combo.setItems(items);
+		this.combo.setItems(items);
     }
     
     public void setText(String text) {
-        combo.removeSelectionListener(comboSelectionListener);
-        combo.setText(text==null ? "" : text);
-        combo.addSelectionListener(comboSelectionListener);
+        this.combo.removeSelectionListener(this.comboSelectionListener);
+        this.combo.setText(text==null ? "" : text);
+        this.combo.addSelectionListener(this.comboSelectionListener);
     }
     
     public String getText() {
-    	return combo.getText();
+    	return this.combo.getText();
     }
 }
