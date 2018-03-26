@@ -160,6 +160,9 @@ import com.archimatetool.model.INameable;
  * 
  * v1.8.3 :     22/11/2017      fix an error message on ${view.xxx} variables
  * 
+ * BEING DONE:                  increase compiler severity and remove all warnings
+ *                              added RICHTEXT class
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add a special line that calculates the sum or the average of column values
@@ -168,7 +171,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.8.3";
+	public static final String pluginVersion = "1.8.4";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
