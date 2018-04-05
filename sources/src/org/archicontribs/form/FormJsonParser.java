@@ -2267,8 +2267,7 @@ public class FormJsonParser {
     			break;
     			
     		default:
-    		    // should never be her, but just in case
-    		    throw new RuntimeException("Do not know treeItem class : "+(String)treeItem.getData("class"));
+    		    // nothing to do
     	}
     	
     	return json;
