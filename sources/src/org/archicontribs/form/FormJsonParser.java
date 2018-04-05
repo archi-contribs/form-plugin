@@ -520,6 +520,8 @@ public class FormJsonParser {
         
         // we create the rich text
         RichTextEditor richText = new RichTextEditor(parent, SWT.NONE);
+        richText.getEditorConfiguration().setToolbarCollapsible(true);
+        richText.getEditorConfiguration().setToolbarInitialExpanded(false);
                 
         String  name = getName(jsonObject, richText, treeItem);
         FormPosition.setTabName(name);
@@ -672,6 +674,8 @@ public class FormJsonParser {
                     
                     newCells[tableIndex] = "${void}";
                     RichTextEditor richText = new RichTextEditor(parent, SWT.WRAP | SWT.NONE);
+                    richText.getEditorConfiguration().setToolbarCollapsible(true);
+                    richText.getEditorConfiguration().setToolbarInitialExpanded(false);
                     logger.trace("      adding text cell with value \"" + newCells[tableIndex] + "\"");
                     richText.setText(newCells[tableIndex]);
                     editor.setEditor(richText, tableItem, tableIndex);
