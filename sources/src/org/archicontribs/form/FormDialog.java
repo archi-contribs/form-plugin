@@ -5,7 +5,6 @@ import java.awt.Toolkit;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -1214,244 +1213,209 @@ public class FormDialog extends Dialog {
             // nothing to do as the readAnddispatch() method does everything is needed 
         }
 
-        Workbook workbook;
+        boolean exportOk = false;
         Sheet sheet;
         
         if (excelFile != null) {
-            FileInputStream file;
-            try {
-                file = new FileInputStream(excelFile);
-            } catch (FileNotFoundException e) {
-                popup(Level.ERROR, "Cannot open the Excel file.", e);
-                return;
-            }
-  
-            try {
-                workbook = WorkbookFactory.create(file);
-            } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
-                closePopup();
-                popup(Level.ERROR, "The file " + excelFile + " seems not to be an Excel file!", e);
-                try {
-					file.close();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-                // TODO: add an option to create an empty Excel file
-                return;
-            }
-            
-            // we check that all the sheets already exist
-            @SuppressWarnings("unchecked")
-    		HashSet<String> excelSheets = (HashSet<String>)this.formDialog.getData("excel sheets");
-            for (String sheetName : excelSheets) {
-                sheet = workbook.getSheet(sheetName);
-                if (sheet == null) {
-                    closePopup();
-                    popup(Level.ERROR, "The file " + excelFile + " does not contain a sheet called \"" + sheetName + "\"");
-                    // TODO : add a preference to create the sheet
-                    try {
-                        workbook.close();
-                    } catch (IOException ign) {
-                        ign.printStackTrace();
+            try ( FileInputStream file = new FileInputStream(excelFile) ){
+                try ( Workbook workbook = WorkbookFactory.create(file) ) {
+                    // we check that all the sheets already exist
+                    @SuppressWarnings("unchecked")
+                    HashSet<String> excelSheets = (HashSet<String>)this.formDialog.getData("excel sheets");
+                    for (String sheetName : excelSheets) {
+                        sheet = workbook.getSheet(sheetName);
+                        if (sheet == null) {
+                            closePopup();
+                            popup(Level.ERROR, "The file " + excelFile + " does not contain a sheet called \"" + sheetName + "\"");
+                            // TODO : add a preference to create the sheet
+                            return;
+                        }
                     }
+
                     try {
-    					file.close();
-    				} catch (IOException e1) {
-    					// TODO Auto-generated catch block
-    					e1.printStackTrace();
-    				}
-                    return;
-                }
-            }
+                        // we go through all the controls and export the corresponding excel cells
+                        CTabFolder tabFolder = (CTabFolder)this.formDialog.getData("tab folder");
+                        for (CTabItem tabItem : tabFolder.getItems()) {
+                            if (logger.isDebugEnabled()) logger.debug("Exporting tab " + tabItem.getText());
 
+                            Composite composite = (Composite) tabItem.getControl();
+                            for (Control control : composite.getChildren()) {
+                                String excelSheet = (String) control.getData("excelSheet");
 
-            boolean exportOk = true;
+                                if (excelSheet != null) {
+                                    sheet = workbook.getSheet(excelSheet);		// cannot be null as it has been checked before
 
-            try {
-                // we go through all the controls and export the corresponding excel cells
-            	CTabFolder tabFolder = (CTabFolder)this.formDialog.getData("tab folder");
-                for (CTabItem tabItem : tabFolder.getItems()) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Exporting tab " + tabItem.getText());
+                                    if ((control instanceof StyledText) || (control instanceof Label)
+                                            || (control instanceof CCombo) || (control instanceof Button)) {
+                                        String excelCell = (String) control.getData("excelCell");
 
-                    Composite composite = (Composite) tabItem.getControl();
-                    for (Control control : composite.getChildren()) {
-                        String excelSheet = (String) control.getData("excelSheet");
+                                        if ( excelCell != null ) {
+                                            CellReference ref = new CellReference(excelCell);
+                                            Row row = sheet.getRow(ref.getRow());
+                                            if (row == null) {
+                                                row = sheet.createRow(ref.getRow());
+                                            }
 
-                        if (excelSheet != null) {
-                            sheet = workbook.getSheet(excelSheet);		// cannot be null as it has been checked before
+                                            String value = null;
+                                            Image image = null;
+                                            switch (control.getClass().getSimpleName()) {
+                                                case "StyledText":
+                                                    value = ((StyledText) control).getText();
+                                                    break;
+                                                case "Label":
+                                                    if ( ((Label) control).getImage() != null )
+                                                        image = ((Label) control).getImage();
+                                                    else
+                                                        value = ((Label) control).getText();
+                                                    break;
+                                                case "CCombo":
+                                                    value = ((CCombo) control).getText();
+                                                    break;
+                                                case "Button":
+                                                    String[]values = (String[])control.getData("values");
+                                                    if ( values == null )
+                                                        value = String.valueOf(((Button)control).getSelection());
+                                                    else
+                                                        value = values[((Button)control).getSelection()?0:1];
+                                                    break;
+                                                default:
+                                                    throw new RuntimeException("ExportToExcel : Do not know how to export controls of class " + control.getClass().getSimpleName());
+                                            }
 
-                            if ((control instanceof StyledText) || (control instanceof Label)
-                                    || (control instanceof CCombo) || (control instanceof Button)) {
-                                String excelCell = (String) control.getData("excelCell");
+                                            if( image != null )
+                                                excelWriteImage(row, ref.getCol(), image);
+                                            else
+                                                excelWriteCell(row, ref.getCol(), (String)control.getData("excelCellType"), value, (String)control.getData("excelDefault"));
+                                        }
+                                    } else {
+                                        if (control instanceof Table) {
+                                            if (logger.isDebugEnabled()) logger.debug("Exporting table");
+                                            Table table = (Table) control;
+                                            int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	            // we decrease the provided value because POI lines begin at zero
+                                            for (int line = 0; line < table.getItemCount(); ++line) {
+                                                TableItem tableItem = table.getItem(line);
+                                                Row row = sheet.getRow(excelFirstLine + line);
+                                                if (row == null)
+                                                    row = sheet.createRow(excelFirstLine + line);
 
-                                if ( excelCell != null ) {
-	                                CellReference ref = new CellReference(excelCell);
-	                                Row row = sheet.getRow(ref.getRow());
-	                                if (row == null) {
-	                                    row = sheet.createRow(ref.getRow());
-	                                }
-	
-	                                String value = null;
-	                                Image image = null;
-	                                switch (control.getClass().getSimpleName()) {
-	                                    case "StyledText":
-	                                        value = ((StyledText) control).getText();
-	                                        break;
-	                                    case "Label":
-	                                        if ( ((Label) control).getImage() != null )
-	                                            image = ((Label) control).getImage();
-	                                        else
-	                                            value = ((Label) control).getText();
-	                                        break;
-	                                    case "CCombo":
-	                                        value = ((CCombo) control).getText();
-	                                        break;
-	                                    case "Button":
-	                                        String[]values = (String[])control.getData("values");
-	                                        if ( values == null )
-	                                            value = String.valueOf(((Button)control).getSelection());
-	                                        else
-	                                            value = values[((Button)control).getSelection()?0:1];
-	                                        break;
-	                                    default:
-                                            throw new RuntimeException("ExportToExcel : Do not know how to export controls of class " + control.getClass().getSimpleName());
-	                                }
-	                                
-	                                if( image != null )
-	                                    excelWriteImage(row, ref.getCol(), image);
-	                                else
-	                                    excelWriteCell(row, ref.getCol(), (String)control.getData("excelCellType"), value, (String)control.getData("excelDefault"));
-                                }
-                            } else {
-                                if (control instanceof Table) {
-                                    if (logger.isDebugEnabled())
-                                        logger.debug("Exporting table");
-                                    Table table = (Table) control;
-                                    int excelFirstLine = (int) table.getData("excelFirstLine") - 1;	            // we decrease the provided value because POI lines begin at zero
-                                    for (int line = 0; line < table.getItemCount(); ++line) {
-                                        TableItem tableItem = table.getItem(line);
-                                        Row row = sheet.getRow(excelFirstLine + line);
-                                        if (row == null)
-                                            row = sheet.createRow(excelFirstLine + line);
+                                                for (int col = 0; col < table.getColumnCount(); ++col) {
+                                                    TableColumn tableColumn = table.getColumn(col);
+                                                    String excelColumn = (String) tableColumn.getData("excelColumn");
 
-                                        for (int col = 0; col < table.getColumnCount(); ++col) {
-                                            TableColumn tableColumn = table.getColumn(col);
-                                            String excelColumn = (String) tableColumn.getData("excelColumn");
+                                                    if (excelColumn != null) {
+                                                        CellReference ref = new CellReference(excelColumn);
+                                                        TableEditor editor = ((TableEditor[]) tableItem.getData("editors"))[col];
 
-                                            if (excelColumn != null) {
-                                                CellReference ref = new CellReference(excelColumn);
-                                                TableEditor editor = ((TableEditor[]) tableItem.getData("editors"))[col];
+                                                        String value = null;
+                                                        Image image = null;
 
-                                                String value = null;
-                                                Image image = null;
-                                                
-                                                if (editor == null)
-                                                    value = tableItem.getText(col);
-                                                else {
-                                                    switch (editor.getEditor().getClass().getSimpleName()) {
-                                                        case "StyledText":
-                                                            value = ((StyledText)editor.getEditor()).getText();
-                                                            break;
-                                                        case "Button":
-                                                            String[]values = (String[])tableColumn.getData("values");
-                                                            if ( values == null )
-                                                                value = String.valueOf(((Button)editor.getEditor()).getSelection());
-                                                            else
-                                                                value = values[((Button)editor.getEditor()).getSelection()?0:1];
-                                                            break;
-                                                        case "CCombo":
-                                                            value = ((CCombo)editor.getEditor()).getText();
-                                                            break;
-                                                        case "Label":
-                                                            if ( ((Label)editor.getEditor()).getImage() != null )
-                                                                image = ((Label)editor.getEditor()).getImage();
-                                                            else
-                                                                value = ((Label)editor.getEditor()).getText();
-                                                            break;
-                                                        default:
-                                                            throw new RuntimeException("ExportToExcel : Do not know how to export columns of class " + editor.getEditor().getClass().getSimpleName());
+                                                        if (editor == null)
+                                                            value = tableItem.getText(col);
+                                                        else {
+                                                            switch (editor.getEditor().getClass().getSimpleName()) {
+                                                                case "StyledText":
+                                                                    value = ((StyledText)editor.getEditor()).getText();
+                                                                    break;
+                                                                case "Button":
+                                                                    String[]values = (String[])tableColumn.getData("values");
+                                                                    if ( values == null )
+                                                                        value = String.valueOf(((Button)editor.getEditor()).getSelection());
+                                                                    else
+                                                                        value = values[((Button)editor.getEditor()).getSelection()?0:1];
+                                                                    break;
+                                                                case "CCombo":
+                                                                    value = ((CCombo)editor.getEditor()).getText();
+                                                                    break;
+                                                                case "Label":
+                                                                    if ( ((Label)editor.getEditor()).getImage() != null )
+                                                                        image = ((Label)editor.getEditor()).getImage();
+                                                                    else
+                                                                        value = ((Label)editor.getEditor()).getText();
+                                                                    break;
+                                                                default:
+                                                                    throw new RuntimeException("ExportToExcel : Do not know how to export columns of class " + editor.getEditor().getClass().getSimpleName());
+                                                            }
+                                                        }
+
+                                                        if( image != null )
+                                                            excelWriteImage(row, ref.getCol(), image);
+                                                        else
+                                                            excelWriteCell(row, ref.getCol(), (String)tableColumn.getData("excelCellType"), value, (String)tableColumn.getData("excelDefault"));
                                                     }
                                                 }
-                                                
-                                                if( image != null )
-                                                    excelWriteImage(row, ref.getCol(), image);
-                                                else
-                                                excelWriteCell(row, ref.getCol(), (String)tableColumn.getData("excelCellType"), value, (String)tableColumn.getData("excelDefault"));
                                             }
-                                        }
-                                    }
-                                    
-                                    int excelLastLine = (int) table.getData("excelLastLine");
-                                    for ( int line = excelFirstLine+table.getItemCount(); line < excelLastLine; ++line) {               // we do not decrease excelFirstLine by 1 because it has already been done earlier
-                                        if ( logger.isTraceEnabled() ) logger.trace("   '" + excelSheet + " : removing values from line "+line);
-                                        
-                                        Row row = sheet.getRow(line);
-                                        
-                                        for (int col = 0; col < table.getColumnCount(); ++col) {
-                                            TableColumn tableColumn = table.getColumn(col);
-                                            String excelCellType = (String) tableColumn.getData("excelCellType");
-                                            String excelDefault = (String) tableColumn.getData("excelDefault");
-                                            String excelColumn = (String) tableColumn.getData("excelColumn");
-                                            
-                                            if ( excelCellType == null )
-                                                excelCellType = "string";
-                                            if (excelDefault == null )
-                                                excelDefault = "zero";
-                                            
-                                            if (excelColumn != null) {
-                                                CellReference ref = new CellReference(excelColumn);
-                                                Cell cell;
 
-                                                switch (excelDefault) {
-                                                    case "blank":
-                                                        if ( row == null ) {
-                                                            row = sheet.createRow(line - 1);
-                                                        }
-                                                        cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                                                        cell.setCellType(CellType.BLANK);
-                                                        break;
-                                                        
-                                                    case "zero":
-                                                        if ( row == null ) {
-                                                            row = sheet.createRow(line - 1);
-                                                        }
-                                                        cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                                                        switch (excelCellType) {
-                                                            case "string":
-                                                                cell.setCellType(CellType.STRING);
-                                                                cell.setCellValue("");
+                                            int excelLastLine = (int) table.getData("excelLastLine");
+                                            for ( int line = excelFirstLine+table.getItemCount(); line < excelLastLine; ++line) {               // we do not decrease excelFirstLine by 1 because it has already been done earlier
+                                                if ( logger.isTraceEnabled() ) logger.trace("   '" + excelSheet + " : removing values from line "+line);
+
+                                                Row row = sheet.getRow(line);
+
+                                                for (int col = 0; col < table.getColumnCount(); ++col) {
+                                                    TableColumn tableColumn = table.getColumn(col);
+                                                    String excelCellType = (String) tableColumn.getData("excelCellType");
+                                                    String excelDefault = (String) tableColumn.getData("excelDefault");
+                                                    String excelColumn = (String) tableColumn.getData("excelColumn");
+
+                                                    if ( excelCellType == null )
+                                                        excelCellType = "string";
+                                                    if (excelDefault == null )
+                                                        excelDefault = "zero";
+
+                                                    if (excelColumn != null) {
+                                                        CellReference ref = new CellReference(excelColumn);
+                                                        Cell cell;
+
+                                                        switch (excelDefault) {
+                                                            case "blank":
+                                                                if ( row == null ) {
+                                                                    row = sheet.createRow(line - 1);
+                                                                }
+                                                                cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                                cell.setCellType(CellType.BLANK);
                                                                 break;
-                                                            case "numeric":
-                                                                cell.setCellType(CellType.NUMERIC);
-                                                                cell.setCellValue(0.0);
+
+                                                            case "zero":
+                                                                if ( row == null ) {
+                                                                    row = sheet.createRow(line - 1);
+                                                                }
+                                                                cell = row.getCell(ref.getCol(), MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                                                switch (excelCellType) {
+                                                                    case "string":
+                                                                        cell.setCellType(CellType.STRING);
+                                                                        cell.setCellValue("");
+                                                                        break;
+                                                                    case "numeric":
+                                                                        cell.setCellType(CellType.NUMERIC);
+                                                                        cell.setCellValue(0.0);
+                                                                        break;
+                                                                    case "boolean":
+                                                                        cell.setCellType(CellType.BOOLEAN);
+                                                                        cell.setCellValue(false);
+                                                                        break;
+                                                                    case "formula":
+                                                                        cell.setCellType(CellType.FORMULA);
+                                                                        cell.setCellValue("");
+                                                                        break;
+                                                                    default:
+                                                                        // unknown value
+                                                                }
                                                                 break;
-                                                            case "boolean":
-                                                                cell.setCellType(CellType.BOOLEAN);
-                                                                cell.setCellValue(false);
+
+                                                            case "delete":
+                                                                if ( row != null ) {
+                                                                    cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
+                                                                    if ( cell != null )
+                                                                        row.removeCell(cell);
+                                                                }
                                                                 break;
-                                                            case "formula":
-                                                                cell.setCellType(CellType.FORMULA);
-                                                                cell.setCellValue("");
-                                                                break;
+
                                                             default:
                                                                 // unknown value
+
+                                                                //TODO: add an option to delete entire line
                                                         }
-                                                        break;
-                                                        
-                                                    case "delete":
-                                                        if ( row != null ) {
-                                                            cell = row.getCell(ref.getCol(), MissingCellPolicy.RETURN_NULL_AND_BLANK);
-                                                            if ( cell != null )
-                                                                row.removeCell(cell);
-                                                        }
-                                                        break;
-                                                        
-                                                    default:
-                                                        // unknown value
-                                                        
-                                                        //TODO: add an option to delete entire line
+                                                    }
                                                 }
                                             }
                                         }
@@ -1459,41 +1423,34 @@ public class FormDialog extends Dialog {
                                 }
                             }
                         }
+                        exportOk = true;
+                    } catch (Exception e) {
+                        closePopup();
+                        popup(Level.ERROR, "Failed to update Excel file.", e);
                     }
-                }
-            } catch (Exception e) {
-                closePopup();
-                popup(Level.ERROR, "Failed to update Excel file.", e);
-                exportOk = false;
-            }
 
-            if (exportOk) {
-                workbook.setForceFormulaRecalculation(true);
-                if (logger.isDebugEnabled())
-                    logger.debug("Saving Excel file");
-                try {
-                    file.close();
-                    FileOutputStream outFile = new FileOutputStream(excelFile);
-                    workbook.write(outFile);
-                    outFile.close();
-                } catch (Exception e) {
+                    if (exportOk) {
+                        workbook.setForceFormulaRecalculation(true);
+                        if (logger.isDebugEnabled())
+                            logger.debug("Saving Excel file");
+                        
+                        try ( FileOutputStream outFile = new FileOutputStream(excelFile) ) {
+                            workbook.write(outFile);
+                        } catch (Exception e) {
+                            closePopup();
+                            popup(Level.ERROR, "Failed to export updates to Excel file.", e);
+                            exportOk = false;
+                        }
+                    }
+                } catch (IOException | InvalidFormatException | EncryptedDocumentException e) {
                     closePopup();
-                    popup(Level.ERROR, "Failed to export updates to Excel file.", e);
+                    popup(Level.ERROR, "The file " + excelFile + " seems not to be an Excel file!", e);
+                    // TODO: add an option to create an empty Excel file
                     exportOk = false;
                 }
+            } catch (IOException e) {
+                popup(Level.ERROR, "Cannot open the Excel file.", e);
             }
-
-            try {
-                workbook.close();
-            } catch (IOException ign) {
-                ign.printStackTrace();
-            }
-            try {
-				file.close();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
 
             closePopup();
 

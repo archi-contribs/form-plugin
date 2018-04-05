@@ -237,15 +237,12 @@ public class FormPlugin extends AbstractUIPlugin {
 			if ( Files.exists(FileSystems.getDefault().getPath(pluginsFolder+File.separator+"formPlugin.new"), LinkOption.NOFOLLOW_LINKS) ) {
 				if ( logger.isDebugEnabled() ) logger.debug("found file \""+pluginsFolder+File.separator+"formPlugin.new\"");
 
-				try {
-					BufferedReader reader = new BufferedReader(new FileReader (pluginsFolder+File.separator+"formPlugin.new"));
+				try ( BufferedReader reader = new BufferedReader(new FileReader (pluginsFolder+File.separator+"formPlugin.new")) ) {
 					String installedPluginsFilename = reader.readLine();
 					if ( areEqual(pluginsFilename, installedPluginsFilename) ) 
 						Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.INFO, "The form plugin has been correctly updated to version "+pluginVersion); }});
 					else
 						Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.ERROR, "The form plugin has been correctly downloaded to \""+installedPluginsFilename+"\" but you are still using the form plugin version "+pluginVersion+".\n\nPlease check the plugin files located in the \""+pluginsFolder+"\" folder."); }});
-					
-					reader.close();
 				} catch (@SuppressWarnings("unused") IOException ign) {
 					Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.WARN, "A new version of the form plugin has been downloaded but we failed to check if you are using the latest version.\n\nPlease check the plugin files located in the \""+pluginsFolder+"\" folder."); }});
 				}
@@ -478,21 +475,15 @@ public class FormPlugin extends AbstractUIPlugin {
 	}
 	
 	public static String imageToString(Image image) {
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			DataOutputStream writeOut = new DataOutputStream(out);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    try ( DataOutputStream writeOut = new DataOutputStream(out) ) {
 			ImageLoader saver = new ImageLoader();
 			
 			saver.data = new ImageData[] { image.getImageData() };
 			
 			saver.save(writeOut, SWT.IMAGE_PNG);
 			image.dispose();
-			try {
-				writeOut.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
 			return Base64.getEncoder().encodeToString(out.toByteArray());
 		} catch (@SuppressWarnings("unused") Exception ign) {
 		    // nothing to do

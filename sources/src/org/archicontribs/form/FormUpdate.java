@@ -264,10 +264,8 @@ public class FormUpdate {
 			return;
 		}
 
-		try {
-			PrintWriter out = new PrintWriter(FormPlugin.pluginsFolder+File.separator+"formPlugin.new");
+		try ( PrintWriter out = new PrintWriter(FormPlugin.pluginsFolder+File.separator+"formPlugin.new") ) {
 			out.println(newPluginFilename);
-			out.close();
 		} catch(IOException ign) {
 			// not a big deal, just that there will be no message after Archi is restarted
 			logger.error("Cannot create file \""+FormPlugin.pluginsFolder+File.separator+"formPlugin.new\"", ign);
