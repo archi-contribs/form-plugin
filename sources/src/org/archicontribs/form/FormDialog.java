@@ -629,7 +629,7 @@ public class FormDialog extends Dialog {
             	
                 newItem = new MenuItem(subMenu, SWT.NONE);
                 newItem.setText("richtext");
-                newItem.setImage(FormJsonParser.TEXT_ICON);
+                newItem.setImage(FormJsonParser.RICHTEXT_ICON);
                 newItem.setData("position", position);
                 newItem.setData("class", "richtext");
                 newItem.addSelectionListener(FormDialog.this.addWidgetListener);

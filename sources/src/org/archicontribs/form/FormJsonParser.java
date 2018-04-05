@@ -60,6 +60,7 @@ public class FormJsonParser {
     public static final Image LABEL_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/label.png"));
     public static final Image IMAGE_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/image.png"));
     public static final Image TEXT_ICON               = new Image(display, FormDialog.class.getResourceAsStream("/icons/text.png"));
+    public static final Image RICHTEXT_ICON           = new Image(display, FormDialog.class.getResourceAsStream("/icons/richtext.png"));
     public static final Image CHECK_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/check.png"));
     public static final Image COMBO_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/combo.png"));
     public static final Image TABLE_ICON              = new Image(display, FormDialog.class.getResourceAsStream("/icons/table.png"));
@@ -538,7 +539,7 @@ public class FormJsonParser {
         
         // used by graphical editor
         if ( treeItem != null ) {
-            treeItem.setImage(TEXT_ICON);
+            treeItem.setImage(RICHTEXT_ICON);
             treeItem.setData("class", "text");
             treeItem.setData("widget", richText);
             richText.setData("treeItem", treeItem);
@@ -709,7 +710,7 @@ public class FormJsonParser {
         
         // used by graphical editor
         if ( treeItem != null ) {
-            treeItem.setImage(TEXT_ICON);
+            treeItem.setImage(RICHTEXT_ICON);
             treeItem.setData("class", "textColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
