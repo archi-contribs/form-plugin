@@ -160,8 +160,12 @@ import com.archimatetool.model.INameable;
  * 
  * v1.8.3 :     22/11/2017      fix an error message on ${view.xxx} variables
  * 
- * BEING DONE:                  increase compiler severity and remove all warnings
- *                              added RICHTEXT class
+ * v1.8.4 :     05/04/2018      increase compiler severity and remove all warnings
+ *                              add default and forceDefault fields in text and combo table columns
+ *                              add "*.xlt*" and "*.*" as Excel files extension filter for MAC users
+ *                              add RICHTEXT class to generate HTML text (experimental)
+ *                              fix folder recursion
+ *                              fix graphical editor button activated when no file is selected
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
