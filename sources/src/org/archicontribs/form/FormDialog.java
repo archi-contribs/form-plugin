@@ -1205,7 +1205,7 @@ public class FormDialog extends Dialog {
             logger.debug("Export button selected by user.");
         
         FileDialog fsd = new FileDialog(this.formDialog, SWT.SINGLE);
-        fsd.setFilterExtensions(new String[] { "*.xls*" });
+        fsd.setFilterExtensions(new String[] { "*.xls*", "*.xlt*", "*.*" });
         fsd.setText("Select Excel File...");
         String excelFile = fsd.open();
 
