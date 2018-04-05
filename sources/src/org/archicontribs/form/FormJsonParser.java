@@ -562,6 +562,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("text");
 
         getTableColumnWidth(jsonObject, tableColumn, treeItem);
+        getDefault(jsonObject, tableColumn, treeItem);
         getRegexp(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
@@ -649,6 +650,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("text");
 
         getTableColumnWidth(jsonObject, tableColumn, treeItem);
+        getDefault(jsonObject, tableColumn, treeItem);
         getRegexp(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
@@ -768,6 +770,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("combo");
         
         getValues(jsonObject, tableColumn, treeItem);
+        getDefault(jsonObject, tableColumn, treeItem);
         getForegroundAndBackground(jsonObject, tableColumn, treeItem);
         getTableColumnWidth(jsonObject, tableColumn, treeItem);
         getTooltip(jsonObject, tableColumn, treeItem, selectedObject);
@@ -890,6 +893,7 @@ public class FormJsonParser {
         FormPosition.setControlClass("check");
         
  	   	getValues(jsonObject, tableColumn, treeItem);
+        getDefault(jsonObject, tableColumn, treeItem);
  	    getForegroundAndBackground(jsonObject, tableColumn, treeItem);
    		getTableColumnWidth(jsonObject, tableColumn, treeItem);
    		getAlignment(jsonObject, tableColumn, treeItem);
@@ -1891,6 +1895,33 @@ public class FormJsonParser {
 				}
 			}
 		}
+    }
+    
+    private static void getDefault(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
+        String  defaultText   = getString(jsonObject, "default", null);
+        Boolean forceDefault  = getBoolean(jsonObject, "forceDefault", false);
+        String  whenEmpty     = getString(jsonObject, "whenEmpty", FormDialog.validWhenEmpty[0], FormDialog.validWhenEmpty);
+        Boolean editable = null;
+        if ( FormPlugin.areEqual(FormPosition.getControlClass(), "text") || FormPlugin.areEqual(FormPosition.getControlClass(), "combo") )
+            editable = getBoolean(jsonObject, "editable", true);
+
+        // required by the graphical editor
+        if ( treeItem != null ) {
+            setData(treeItem, "default",      defaultText);
+            setData(treeItem, "forceDefault", forceDefault);
+            setData(treeItem, "whenEmpty",    whenEmpty);
+            if ( FormPlugin.areEqual(FormPosition.getControlClass(), "text") || FormPlugin.areEqual(FormPosition.getControlClass(), "combo") )
+                setData(treeItem, "editable",  editable);
+        }
+        
+        // required by the form
+        if ( widget != null ) {
+            widget.setData("default",      defaultText);
+            widget.setData("forceDefault", forceDefault);
+            widget.setData("whenEmpty",    whenEmpty);
+            if ( FormPlugin.areEqual(FormPosition.getControlClass(), "text") || FormPlugin.areEqual(FormPosition.getControlClass(), "combo") )
+                widget.setData("editable",  editable);
+        }
     }
     
     private static void getExcelCellOrColumn(JSONObject jsonObject, Widget widget, TreeItem treeItem) {
