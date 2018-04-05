@@ -1379,6 +1379,10 @@ public class FormJsonParser {
                     	text.setData("eObject", referedEObject);
                     	FormDialog.formVarList.set(referedEObject, unscoppedVariable, text);
                     	
+                    	if ( (text.getText().isEmpty() || (boolean)tableColumn.getData("forceDefault") == true) && tableColumn.getData("default") != null ) {
+                    	    text.setText((String)tableColumn.getData("default"));
+                    	}
+                    	
                     	text.addModifyListener(FormDialog.textModifyListener);
                     }
                     if ( tableColumn.getData("background color") != null )
@@ -1424,6 +1428,10 @@ public class FormJsonParser {
                     	FormDialog.formVarList.set(referedEObject, unscoppedVariable, combo);
                     	
                     	combo.addModifyListener(FormDialog.textModifyListener);
+                    	
+                        if ( (combo.getText().isEmpty() || (boolean)tableColumn.getData("forceDefault") == true) && tableColumn.getData("default") != null ) {
+                            combo.setText((String)tableColumn.getData("default"));
+                        }
                     }
                     if ( tableColumn.getData("background color") != null )
                     	combo.setBackground((Color)tableColumn.getData("background color"));
