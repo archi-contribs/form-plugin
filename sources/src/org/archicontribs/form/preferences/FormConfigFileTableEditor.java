@@ -416,7 +416,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.btnNew.setEnabled(!editMode);
 		this.btnProperties.setEnabled(!editMode && (this.tblConfigFiles.getSelection()!=null) && (this.tblConfigFiles.getSelection().length!=0));
 		this.btnRemove.setEnabled(!editMode && (this.tblConfigFiles.getSelection()!=null) && (this.tblConfigFiles.getSelection().length!=0));
-		this.btnGraphicalEditor.setEnabled(editMode || ((this.tblConfigFiles.getSelection()!=null) && (this.tblConfigFiles.getSelection().length!=0)));
+		this.btnGraphicalEditor.setEnabled(!editMode && (this.tblConfigFiles.getSelection()!=null) && (this.tblConfigFiles.getSelection().length!=0));
 		this.btnUp.setEnabled(!editMode && (this.tblConfigFiles.getSelectionIndex() > 0));
 		this.btnDown.setEnabled(!editMode && (this.tblConfigFiles.getSelectionIndex() < this.tblConfigFiles.getItemCount()-1));
 		this.tblConfigFiles.setEnabled(!editMode);
