@@ -42,6 +42,7 @@ import com.archimatetool.model.IDiagramModelConnection;
 import com.archimatetool.model.IDiagramModelContainer;
 import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.IFolder;
+import com.archimatetool.model.INameable;
 
 /**
  * Helper methods to parse JSON objects and create the corresponding SWT widgets
@@ -1040,7 +1041,7 @@ public class FormJsonParser {
     	//    then we create a line for every object's child
 		if ( selectedObject != null && generate != null && generate ) {
 			if (selectedObject instanceof IDiagramModelContainer) {
-				if (logger.isTraceEnabled()) logger.debug("is a DiagramModelContainer : getting children");
+				if (logger.isTraceEnabled()) logger.debug(((INameable)selectedObject).getName()+" is a DiagramModelContainer : getting children");
             	for ( IDiagramModelObject child: ((IDiagramModelContainer) selectedObject).getChildren()) {
             		tableItem = createLine(jsonObject, parent, treeItem, child);
 					for ( IDiagramModelConnection relation: child.getSourceConnections() ) {
@@ -1048,12 +1049,16 @@ public class FormJsonParser {
 					}
             	}
             } else if (selectedObject instanceof IFolder) {
-            	if (logger.isTraceEnabled()) logger.debug("is a Folder : getting elements");
+            	if (logger.isTraceEnabled()) logger.debug(((INameable)selectedObject).getName()+" is a Folder : getting elements");
             	for ( EObject child: ((IFolder) selectedObject).getElements()) {
             		tableItem = createLine(jsonObject, parent, treeItem, child);
             	}
+                if (logger.isTraceEnabled()) logger.debug(((INameable)selectedObject).getName()+" is a Folder : getting subfolders");
+                for ( EObject child: ((IFolder) selectedObject).getFolders()) {
+                    tableItem = createLine(jsonObject, parent, treeItem, child);
+                }
             } else if (selectedObject instanceof IArchimateModel) {
-            	if (logger.isTraceEnabled()) logger.debug("is an ArchimateModel : getting elements");
+            	if (logger.isTraceEnabled()) logger.debug(((INameable)selectedObject).getName()+" is an ArchimateModel : getting elements");
             	for (IFolder folder : ((IArchimateModel) selectedObject).getFolders()) {
         			// we do not go through the "views" folder to avoid elements and relationships duplicated
         			if ( folder.getType().ordinal() != FolderType.DIAGRAMS_VALUE ) { 
