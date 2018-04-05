@@ -1,3 +1,11 @@
+## v1.8.4: 05/04/2018
+* Fix folder recursion
+* Fix graphical editor button activated even if no form file is selected
+* Increase compiler severity and solve all of the warnings
+* Add default and forceDefault fields in text and combo table columns
+* Add "*.xlt*" and "*.*" as Excel file extension for MAC users
+* Add RICHTEXT class to generate HTML text (experimental)
+
 ## v1.8.3: 22/11/2017
 * Fix error messages on ${view:xxx} variables
 
