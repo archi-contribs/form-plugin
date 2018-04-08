@@ -527,7 +527,7 @@ public class FormJsonParser {
                 
         String  name = getName(jsonObject, richText, treeItem);
         FormPosition.setTabName(name);
-        FormPosition.setControlClass("text");
+        FormPosition.setControlClass("richtext");
 
         getVariable(jsonObject, richText, treeItem, selectedObject);
         getXY(jsonObject, richText, treeItem);
@@ -540,7 +540,7 @@ public class FormJsonParser {
         // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(RICHTEXT_ICON);
-            treeItem.setData("class", "text");
+            treeItem.setData("class", "richtext");
             treeItem.setData("widget", richText);
             richText.setData("treeItem", treeItem);
         }
@@ -651,7 +651,7 @@ public class FormJsonParser {
         
         String  name = getName(jsonObject, tableColumn, treeItem);
         FormPosition.setTabName(name);
-        FormPosition.setControlClass("text");
+        FormPosition.setControlClass("richtext");
 
         getTableColumnWidth(jsonObject, tableColumn, treeItem);
         getDefault(jsonObject, tableColumn, treeItem);
@@ -711,7 +711,7 @@ public class FormJsonParser {
         // used by graphical editor
         if ( treeItem != null ) {
             treeItem.setImage(RICHTEXT_ICON);
-            treeItem.setData("class", "textColumn");
+            treeItem.setData("class", "richtextColumn");
             treeItem.setData("widget", tableColumn);
             tableColumn.setData("treeItem", treeItem);
             tableColumn.setData("class", treeItem.getData("class"));

@@ -176,8 +176,8 @@ public class FormDialog extends Dialog {
     public static final String[] validFilterGenre         = new String[] {"and", "or"};										// default value is the first one
     
 	public static final Image    BIN_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/bin.png"));
-	public static final Image    BAS_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/flèche_bas.png"));
-	public static final Image    HAUT_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/flèche_haut.png"));
+	public static final Image    BAS_ICON                 = new Image(display, FormDialog.class.getResourceAsStream("/icons/fleche_bas.png"));
+	public static final Image    HAUT_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/fleche_haut.png"));
 	public static final Image    PLUS_ICON                = new Image(display, FormDialog.class.getResourceAsStream("/icons/plus.png"));
 	
 	
@@ -748,12 +748,13 @@ public class FormDialog extends Dialog {
         // we create the composites
         this.formComposite 		 = new FormComposite(this.scrolledcomposite, SWT.NONE);
         this.tabComposite 		 = new TabComposite(this.scrolledcomposite, SWT.NONE);
-        this.labelComposite 		 = new LabelComposite(this.scrolledcomposite, SWT.NONE);
-        this.imageComposite 		 = new ImageComposite(this.scrolledcomposite, SWT.NONE);
+        this.labelComposite 	 = new LabelComposite(this.scrolledcomposite, SWT.NONE);
+        this.imageComposite 	 = new ImageComposite(this.scrolledcomposite, SWT.NONE);
         this.textComposite 		 = new TextComposite(this.scrolledcomposite, SWT.NONE);
-        this.comboComposite 		 = new ComboComposite(this.scrolledcomposite, SWT.NONE);
-        this.checkComposite 		 = new CheckComposite(this.scrolledcomposite, SWT.NONE);
-        this.tableComposite 		 = new TableComposite(this.scrolledcomposite, SWT.NONE);
+        this.richtextComposite 	 = new RichTextComposite(this.scrolledcomposite, SWT.NONE);
+        this.comboComposite 	 = new ComboComposite(this.scrolledcomposite, SWT.NONE);
+        this.checkComposite 	 = new CheckComposite(this.scrolledcomposite, SWT.NONE);
+        this.tableComposite 	 = new TableComposite(this.scrolledcomposite, SWT.NONE);
         this.labelColumnComposite = new LabelColumnComposite(this.scrolledcomposite, SWT.NONE);
         this.imageColumnComposite = new ImageColumnComposite(this.scrolledcomposite, SWT.NONE);
         this.textColumnComposite  = new TextColumnComposite(this.scrolledcomposite, SWT.NONE);
@@ -1550,7 +1551,7 @@ public class FormDialog extends Dialog {
     private static void excelWriteImage(Row row, short column, Image image) throws RuntimeException, IOException {
         Sheet sheet = row.getSheet();
         try ( Workbook wb = sheet.getWorkbook() ) {
-            Drawing drawing = sheet.createDrawingPatriarch();
+            Drawing<?> drawing = sheet.createDrawingPatriarch();
             
             // we first remove any image that is anchored to the same cell
             if (drawing instanceof HSSFPatriarch) {
@@ -1816,8 +1817,6 @@ public class FormDialog extends Dialog {
 			}
 			
 			TreeItem newTreeItem = new TreeItem(currentTreeItem, SWT.NONE, index);
-			newTreeItem.setText("new "+widgetClass);
-        	newTreeItem.setData("class", widgetClass);
         	
         	Composite parentComposite = (Composite)currentTreeItem.getData("widget");
 			if ( parentComposite instanceof Table ) {
@@ -1851,6 +1850,7 @@ public class FormDialog extends Dialog {
 				}
 			}
 			
+			newTreeItem.setText("new "+widgetClass);
         	FormJsonParser.setData(newTreeItem, "name", "new "+widgetClass);
 			
 			FormDialog.this.tree.setSelection(newTreeItem);
