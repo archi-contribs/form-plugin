@@ -2,7 +2,7 @@ package org.archicontribs.form.editors;
 
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.FormPlugin;
-import org.eclipse.nebula.widgets.richtext.RichTextEditor;
+import org.archicontribs.form.FormRichTextEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabItem;
@@ -131,8 +131,8 @@ public class StringEditor {
 	    				break;
 	    				
                     case "RichTextEditor":
-                        if ( StringEditor.this.mustSetControlText ) ((RichTextEditor)widget).setText(getText());
-                        if ( StringEditor.this.mustSetControlTolltip ) ((RichTextEditor)widget).setToolTipText(getText());
+                        if ( StringEditor.this.mustSetControlText ) ((FormRichTextEditor)widget).setText(getText());
+                        if ( StringEditor.this.mustSetControlTolltip ) ((FormRichTextEditor)widget).setToolTipText(getText());
                         break;
 	    				
 	    			case "CCombo":

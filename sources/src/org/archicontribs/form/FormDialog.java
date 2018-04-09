@@ -59,7 +59,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.gef.commands.CommandStack;
 import org.eclipse.gef.commands.CompoundCommand;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.nebula.widgets.richtext.RichTextEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -1104,7 +1103,7 @@ public class FormDialog extends Dialog {
             case "Button":
             case "CCombo":
             case "StyledText":
-            case "RichTextEditor":
+            case "FormRichTextEditor":
                 if (control.getData("variable") != null)
                     do_save(compoundCommand, control);
                 break;
@@ -1158,8 +1157,8 @@ public class FormDialog extends Dialog {
             case "StyledText":
                 value = ((StyledText) control).getText();
                 break;
-            case "RichTextEditor":
-                value = ((RichTextEditor) control).getText();
+            case "FormRichTextEditor":
+                value = ((FormRichTextEditor) control).getText();
                 break;
             default:
                 throw new RuntimeException("Do_save : do not know how to save a " + control.getClass().getSimpleName());

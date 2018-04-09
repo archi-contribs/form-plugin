@@ -11,8 +11,7 @@ Require-Bundle: com.archimatetool.editor,
  org.eclipse.core.expressions,
  org.eclipse.emf.common,
  org.eclipse.help,
- org.eclipse.swt,
- org.eclipse.nebula.widgets.richtext
+ org.eclipse.swt
 Bundle-ClassPath: .,
  lib/json-simple-1.1.1.jar,
  lib/log4j-1.2.17.jar,
@@ -21,7 +20,8 @@ Bundle-ClassPath: .,
  lib/regex-1.0.3.jar,
  lib/poi-3.17.jar,
  lib/poi-ooxml-3.17.jar,
- lib/poi-ooxml-schemas-3.17.jar
+ lib/poi-ooxml-schemas-3.17.jar,
+ lib/org.eclipse.nebula.widgets.richtext_1.2.0.201804011600.jar
 Bundle-Activator: org.archicontribs.form.FormPlugin
 Bundle-Vendor: Herve Jouin
 Export-Package: org.archicontribs.form

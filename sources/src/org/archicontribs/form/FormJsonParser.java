@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.nebula.widgets.richtext.RichTextEditor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -517,11 +516,11 @@ public class FormJsonParser {
      * @param jsonObject the JSON object to parse
      * @param parent     the composite where the control will be created
      */
-    public static RichTextEditor createRichText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
+    public static FormRichTextEditor createRichText(JSONObject jsonObject, Composite parent, TreeItem treeItem, EObject selectedObject) throws RuntimeException {
         if (logger.isDebugEnabled()) logger.debug("Creating rich text control");
         
         // we create the rich text
-        RichTextEditor richText = new RichTextEditor(parent, SWT.NONE);
+        FormRichTextEditor richText = new FormRichTextEditor(parent, SWT.NONE);
         richText.getEditorConfiguration().setToolbarCollapsible(true);
         richText.getEditorConfiguration().setToolbarInitialExpanded(false);
                 
@@ -675,7 +674,7 @@ public class FormJsonParser {
                     newEditors[tableIndex] = editor;
                     
                     newCells[tableIndex] = "${void}";
-                    RichTextEditor richText = new RichTextEditor(parent, SWT.WRAP | SWT.NONE);
+                    FormRichTextEditor richText = new FormRichTextEditor(parent, SWT.WRAP | SWT.NONE);
                     richText.getEditorConfiguration().setToolbarCollapsible(true);
                     richText.getEditorConfiguration().setToolbarInitialExpanded(false);
                     logger.trace("      adding text cell with value \"" + newCells[tableIndex] + "\"");
@@ -1905,10 +1904,10 @@ public class FormJsonParser {
 			// we set a default text content for the graphical editor. Real form will replace this text with the variable content.
 			if ( variable != null ) {
 				switch ( widget.getClass().getSimpleName() ) {
-					case "StyledText":     ((StyledText)widget).setText(variableValue); break;
-					case "CCombo":         ((CCombo)widget).setText(variableValue); break;
-					case "Button":         ((Button)widget).setText(variableValue); break;
-					case "RichTextEditor": ((RichTextEditor)widget).setText(variableValue); break;
+					case "StyledText":         ((StyledText)widget).setText(variableValue); break;
+					case "CCombo":             ((CCombo)widget).setText(variableValue); break;
+					case "Button":        	   ((Button)widget).setText(variableValue); break;
+					case "FormRichTextEditor": ((FormRichTextEditor)widget).setText(variableValue); break;
 					default: throw new RuntimeException("Do not know how to set text to a "+widget.getClass().getSimpleName());
 				}
 			}
