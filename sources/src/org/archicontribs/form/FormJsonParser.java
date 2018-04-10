@@ -1065,6 +1065,9 @@ public class FormJsonParser {
         				for ( EObject child: folder.getElements()) {
         					tableItem = createLine(jsonObject, parent, treeItem, child);
         				}
+        				for ( EObject child: folder.getFolders()) {
+        					tableItem = createLine(jsonObject, parent, treeItem, child);
+        				}
         			}
             	}
             }
@@ -1380,16 +1383,15 @@ public class FormJsonParser {
                     else {
                     	text.setText(FormVariable.expand(cells[columnNumber], selectedObject));
                     	
-                    	EObject referedEObject;
-    	                String unscoppedVariable;
-                    	referedEObject = FormVariable.getReferedEObject(cells[columnNumber], selectedObject);
-                    	unscoppedVariable = FormVariable.getUnscoppedVariable(cells[columnNumber], selectedObject);
+                    	EObject referedEObject = FormVariable.getReferedEObject(cells[columnNumber], selectedObject);
+    	                String unscoppedVariable = FormVariable.getUnscoppedVariable(cells[columnNumber], selectedObject);
+    	                
                     	text.setData("variable", unscoppedVariable);
                     	text.setData("eObject", referedEObject);
                     	FormDialog.formVarList.set(referedEObject, unscoppedVariable, text);
                     	
                     	if ( (text.getText().isEmpty() || (boolean)tableColumn.getData("forceDefault") == true) && tableColumn.getData("default") != null ) {
-                    	    text.setText((String)tableColumn.getData("default"));
+                    	    text.setText(FormVariable.expand((String)tableColumn.getData("default"), referedEObject));
                     	}
                     	
                     	text.addModifyListener(FormDialog.textModifyListener);
