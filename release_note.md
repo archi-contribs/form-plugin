@@ -1,3 +1,6 @@
+## v1.8.5: 14/04/2018
+* fix recursion in folders when a model is selected
+
 ## v1.8.4: 05/04/2018
 * Fix folder recursion
 * Fix graphical editor button activated even if no form file is selected

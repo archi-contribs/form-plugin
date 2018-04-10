@@ -166,6 +166,8 @@ import com.archimatetool.model.INameable;
  *                              add RICHTEXT class to generate HTML text (experimental)
  *                              fix folder recursion
  *                              fix graphical editor button activated when no file is selected
+ *                              
+ * v1.8.5 :     11/04/2018      fix recursion in folders when a model is selected
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
@@ -175,7 +177,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.8.4";
+	public static final String pluginVersion = "1.8.5";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
