@@ -209,7 +209,12 @@ public class FormVariable {
      * can return a null value in case the property does not exist. This way it is possible to distinguish between empty value and null value
      */
     public static String getVariable(String variable, EObject eObject) {
-        if ( logger.isTraceEnabled() ) logger.trace("         getting variable \""+variable+"\"");
+    	if ( logger.isTraceEnabled() ) {
+    		if ( eObject instanceof INameable )
+    			logger.trace("         getting variable \""+variable+"\" for \""+((INameable)eObject).getName()+"\" ("+eObject.getClass().getSimpleName()+")");
+    		else
+    			logger.trace("         getting variable \""+variable+"\"");
+    	}
 
         EObject selectedEObject = eObject;
         
@@ -241,6 +246,10 @@ public class FormVariable {
                 throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not an ID ("+selectedEObject.getClass().getSimpleName()+").");
 
             case "documentation" :
+            	if (selectedEObject instanceof IArchimateModel) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IArchimateModel)selectedEObject).getPurpose() +"\"");
+                    return ((IArchimateModel)selectedEObject).getPurpose();
+                }
                 if (selectedEObject instanceof IDiagramModelArchimateObject) {
                     if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement().getDocumentation() +"\"");
                     return ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement().getDocumentation();
@@ -255,6 +264,13 @@ public class FormVariable {
                 }
                 throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a documentation ("+selectedEObject.getClass().getSimpleName()+").");
 
+            case "purpose" :
+            	if (selectedEObject instanceof IArchimateModel) {
+                    if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \""+ ((IArchimateModel)selectedEObject).getPurpose() +"\"");
+                    return ((IArchimateModel)selectedEObject).getPurpose();
+                }
+            	throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot get variable \""+variable+"\" as the object does not have a purpose ("+selectedEObject.getClass().getSimpleName()+").");
+            
             case "void":
                 if ( logger.isTraceEnabled() ) logger.trace("         ---> value is \"\"");
                 return "";
@@ -424,9 +440,23 @@ public class FormVariable {
                     if ( eCommand.canExecute() )
                     	compoundCommand.add(eCommand);
                     return;
+                } else if ( selectedEObject instanceof IArchimateModel ) {
+                	eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), selectedEObject, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, value == null ? "" : value);
+                    if ( eCommand.canExecute() )
+                    	compoundCommand.add(eCommand);
+                    return;
                 }
                 throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the archi Object does not have a "+variable+" field.");
 
+            case "purpose":
+            	if ( selectedEObject instanceof IArchimateModel ) {
+                	eCommand = new EObjectFeatureCommand(FormPosition.getFormName(), selectedEObject, IArchimatePackage.Literals.ARCHIMATE_MODEL__PURPOSE, value == null ? "" : value);
+                    if ( eCommand.canExecute() )
+                    	compoundCommand.add(eCommand);
+                    return;
+                }
+                throw new RuntimeException(FormPosition.getPosition(null) + "\n\nCannot set variable \""+variable+"\" as the archi Object does not have a "+variable+" field.");
+            
             case "name" :
                 if (selectedEObject instanceof INameable) {
                     //((INameable)eObject).setName(value == null ? "" : value);
