@@ -1,23 +1,30 @@
 [![N|Solid](http://www.archimatetool.com/img/archi_logo.png)](http://www.archimatetool.com/)[![N|Solid](http://www.archimatetool.com/img/archi_text.png)](http://www.archimatetool.com/)
 # Archimate Tool Form plugin
-This is a plugin for Archi, the Archimate tool.
+This is a plugin for Archi, the Archimate tool, that allows you to create forms to view
+elements,relationships, and other properties in your Archi model. You can also add/delete
+information in your model directly from the generated form.
 
-It allows to create forms to show up and edit elements and relationships properties.
 ![description technology service](https://user-images.githubusercontent.com/9281982/32824895-1bee7b02-c9e3-11e7-8e66-9d22ae234f06.png)
 
 ## Archi versions compatibility
-The plugin works with the version 4 of Archi
+The plugin currently works with version 4 of Archi
 
-## Installation instructions
-* **First installation:**
-  * download the latest **org.archicontribs.form-xxxx.jar** and copy it to your Archi **plugins** folder
-* **Updates:**
-  * Go to the Archi preferences, select the plugin tab and click on the "check for update" button.
+## Installation Instructions
+* **First Installation:**
+  * Download the latest **org.archicontribs.form-xxxx.jar** file and copy it to your Archi **plugins** 
+    folder. The plugins folder can be found by opening the package contents of your Archi application 
+    and then navigating to "Contents>Eclipse>plugins". 
+* **Install Updates:**
+  * Open Archi, then open the "Preferences" option under "Archi" in the menu bar. 
+    Select "form plugin" in the Preferences menu and click the "Check for update"
+    button to check for and install new updates.
   
 A WYSIWYG graphical editor allows to edit or create forms from the plugin's preference page.
 
-## accessing forms
-Forms can be run through new context menu entries (right click) on elements, relationships or views, dépending on the forms you created.
+## Accessing forms
+Forms can be run through new context menu entries (right click) on elements, relationships or views, depending on the forms you created.
 
 ## Wiki
-Please do not hesitate to have a look at the [Wiki](https://github.com/archi-contribs/form-plugin/wiki).
+For more information about customizing your configuration files take a look at the [Wiki](https://github.com/archi-contribs/form-plugin/wiki).
+ 
+
