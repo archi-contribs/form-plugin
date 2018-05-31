@@ -1,13 +1,13 @@
 [![N|Solid](http://www.archimatetool.com/img/archi_logo.png)](http://www.archimatetool.com/)[![N|Solid](http://www.archimatetool.com/img/archi_text.png)](http://www.archimatetool.com/)
 # Archimate Tool Form plugin
 This is a plugin for Archi, the Archimate tool, that allows you to create forms to view
-elements,relationships, and other properties in your Archi model. You can also add/delete
+elements, relationships, and other properties in your Archi model. You can also edit or delete
 information in your model directly from the generated form.
 
 ![description technology service](https://user-images.githubusercontent.com/9281982/32824895-1bee7b02-c9e3-11e7-8e66-9d22ae234f06.png)
 
 ## Archi versions compatibility
-The plugin currently works with version 4 of Archi
+The plugin is compatible  with version 4 of Archi.
 
 ## Installation Instructions
 * **First Installation:**
