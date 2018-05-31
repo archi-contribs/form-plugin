@@ -7,7 +7,7 @@ information in your model directly from the generated form.
 ![description technology service](https://user-images.githubusercontent.com/9281982/32824895-1bee7b02-c9e3-11e7-8e66-9d22ae234f06.png)
 
 ## Archi versions compatibility
-The plugin is compatible  with version 4 of Archi.
+The plugin is compatible with version 4 of Archi.
 
 ## Installation Instructions
 * **First Installation:**
@@ -22,7 +22,7 @@ The plugin is compatible  with version 4 of Archi.
 A WYSIWYG graphical editor allows to edit or create forms from the plugin's preference page.
 
 ## Accessing forms
-Forms can be run through new context menu entries (right click) on elements, relationships or views, depending on the forms you created.
+Forms can be run through new context menu entries (right click) on elements, relationships, or views, depending on the forms you created.
 
 ## Wiki
 For more information about customizing your configuration files take a look at the [Wiki](https://github.com/archi-contribs/form-plugin/wiki).
