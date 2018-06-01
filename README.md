@@ -26,6 +26,7 @@ WYSIWYG editor in the plugin preferences page, or by editing the configuration f
 * The configuration file is in JSON
 * Each form is split into tabs to organize model data
 * Forms are run by right-clicking on any Archi component and then selecting the name of the form you created in the context menu.
+
 **Form Properties can be customizied using the following property types:**
     * label : to show read-only values
     * text : to show writable values 
