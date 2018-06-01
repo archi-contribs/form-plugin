@@ -20,20 +20,18 @@ The plugin is compatible with version 4 of Archi.
     button to check for and install new updates.
   
 ## Key functionalities
-* It uses configuration files to know how to present the forms
-* No need to know programming to create the forms, just to edit the configuration files (JSON)
-* Each form is split in tabs to organise data
-* **Properties can be shown in the following controls:**
+* The plugin uses configuration files to understand how to present the forms (e.g. if you want a different kind of form, you need to create a new configuration file)
+* No programming experience is needed to create the forms, just edit the configuration file using the 
+WYSIWYG editor in the plugin preferences page, or by editing the configuration file directly. 
+* The configuration file is in JSON
+* Each form is split into tabs to organize model data
+* Forms are run by right-clicking on any Archi component and then selecting the name of the form you created in the context menu.
+**Form Properties can be customizied using the following property types:**
     * label : to show read-only values
-    * text : to allow values edition
-    * combo : to provide a list of valid values
-    * check : when binary valid versions (yes/no, true/false, ...)
-    * table : when the same properties apply to a serie of objects The forms are available by right-clicking (context menu) on any Archi component.
-
-Please consult the other pages of the wiki for more information.
-
-## Accessing forms
-Forms can be run through new context menu entries (right click) on elements, relationships, or views, depending on the forms you created.
+    * text : to show writable values 
+    * combo : to provide a list of valid values a user can choose from
+    * check : check if an object is equal to a defined value (yes/no, true/false, etc.)
+    * table : a table where the same properties apply to a series of objects 
 
 ## Wiki
 For more information about customizing your configuration files take a look at the [Wiki](https://github.com/archi-contribs/form-plugin/wiki).
