@@ -28,11 +28,11 @@ WYSIWYG editor in the plugin preferences page, or by editing the configuration f
 * Forms are run by right-clicking on any Archi component and then selecting the name of the form you created in the context menu.
 
 **Form Properties can be customizied using the following property types:**
-    * label : to show read-only values
-    * text : to show writable values 
-    * combo : to provide a list of valid values a user can choose from
-    * check : check if an object is equal to a defined value (yes/no, true/false, etc.)
-    * table : a table where the same properties apply to a series of objects 
+* label : to show read-only values
+* text : to show writable values 
+* combo : to provide a list of valid values a user can choose from
+* check : check if an object is equal to a defined value (yes/no, true/false, etc.)
+* table : a table where the same properties apply to a series of objects 
 
 ## Wiki
 For more information about customizing your configuration files take a look at the [Wiki](https://github.com/archi-contribs/form-plugin/wiki).
