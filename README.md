@@ -19,7 +19,18 @@ The plugin is compatible with version 4 of Archi.
     Select "form plugin" in the Preferences menu and click the "Check for update"
     button to check for and install new updates.
   
-A WYSIWYG graphical editor allows to edit or create forms from the plugin's preference page.
+## Key functionalities
+* It uses configuration files to know how to present the forms
+* No need to know programming to create the forms, just to edit the configuration files (JSON)
+* Each form is split in tabs to organise data
+* ** Properties can be shown in the following controls:**
+* label : to show read-only values
+* text : to allow values edition
+* combo : to provide a list of valid values
+* check : when binary valid versions (yes/no, true/false, ...)
+* table : when the same properties apply to a serie of objects The forms are available by right-clicking (context menu) on any Archi component.
+
+Please consult the other pages of the wiki for more information.
 
 ## Accessing forms
 Forms can be run through new context menu entries (right click) on elements, relationships, or views, depending on the forms you created.
