@@ -36,9 +36,9 @@ WYSIWYG editor in the plugin preferences page (select graphical editor button), 
 * table : a table where the same properties apply to a series of objects
 
 ## Exporting to an Excel Spreadsheet 
-* In order to export a form to an excel spreadsheet, you need to have a spreadsheet already created with three sheets named "elements","relationships", and "model". 
+* In order to export a form to an excel spreadsheet, you need to have an empty spreadsheet already created with three sheets named "elements", "relationships", and "model". 
 * File extensions should be .xlsx, .xlt, or .xls. 
-* To export to an excel spreadsheet run a form and then select "Export to Excel" from the form window. This will display a window to pick which excel file you would like the form to be exported to. Select a file with the proper format and sheets, click "Open", and your form will be exported 
+* To export to an excel spreadsheet, run a form and then select "Export to Excel" from the form window. This will display a window to pick which excel file you would like the form to be exported to. Select a file with the proper format and sheets, click "Open", and your form will be exported 
 
 ## Wiki
 For more information about customizing your configuration files take a look at the [Wiki](https://github.com/archi-contribs/form-plugin/wiki).
