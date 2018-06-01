@@ -22,7 +22,7 @@ The plugin is compatible with version 4 of Archi.
 ## Key functionalities
 * The plugin uses configuration files to understand how to present the forms (e.g. if you want a different kind of form, you need to create a new configuration file)
 * No programming experience is needed to create the forms, just edit the configuration file using the 
-WYSIWYG editor in the plugin preferences page, or by editing the configuration file directly. 
+WYSIWYG editor in the plugin preferences page (select graphical editor button), or by editing the configuration file directly. 
 * The configuration file is in JSON
 * Each form is split into tabs to organize model data
 * Forms are run by right-clicking on any Archi component and then selecting the name of the form you created in the context menu.
