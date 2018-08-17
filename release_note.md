@@ -1,3 +1,6 @@
+## v1.8.6: 17/08/2018
+* fix export to Excel file
+
 ## v1.8.5: 14/04/2018
 * fix recursion in folders when a model is selected
 
