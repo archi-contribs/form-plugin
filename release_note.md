@@ -1,3 +1,6 @@
+## v1.8.7: 20/08/2018
+* allow to specify distinct width for the ok, cancel and export buttons (a width of 0 allows to hide the button)
+
 ## v1.8.6: 17/08/2018
 * fix export to Excel file
 
