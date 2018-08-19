@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.archicontribs.form.FormDialog;
+import org.archicontribs.form.editors.ButtonWidthEditor;
 import org.archicontribs.form.editors.ColorEditor;
 import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.FilterEditor;
@@ -16,14 +17,17 @@ import org.eclipse.swt.widgets.Widget;
 public class FormComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;         		// name
 	private StringEditor            commentEditor;         		// comment
-	private FormSizeEditor          formSizeEditor;    			// width, height, spacing, buttonWidth, buttonHeight						//TODO : rename spacing to margin
+	private FormSizeEditor          formSizeEditor;    			// width, height, spacing, buttonHeight						//TODO : rename spacing to margin
 	private ColorEditor             colorEditor;        		// foreground, background
     private ComboEditor             refersEditor; 				// refers
     private FilterEditor			filterEditor;               // filter
     private StringEditor            variableSeparatorEditor;	// variableSeparator
     private StringEditor            buttonOkEditor; 			// buttonOk
+    private ButtonWidthEditor       buttonOkWidthEditor;        // buttonOkWidth
     private StringEditor            buttonCancelEditor; 		// buttonCancel
+    private ButtonWidthEditor       buttonCancelWidthEditor;    // buttonCancelWidth
     private StringEditor            buttonExportEditor; 		// buttonExport
+    private ButtonWidthEditor       buttonExportWidthEditor;    // buttonExportWidth
     private ComboEditor             whenEmptyEditor;			// whenEmpty
 
 	public FormComposite(Composite parent, int style) {
@@ -82,24 +86,40 @@ public class FormComposite extends Composite implements CompositeInterface {
 		this.buttonOkEditor.setWidget((Widget)getShell().getData("ok button"));
 		this.buttonOkEditor.mustSetControlText(true);
 		this.buttonOkEditor.setTooltipText("Text of the OK button\n\nDefault: "+FormDialog.defaultButtonOkText+".");
+		
+	    // buttonOkWidth
+		this.buttonOkWidthEditor = new ButtonWidthEditor(this, "ok button", "buttonOkWidth", "OK button width:");
+		this.buttonOkWidthEditor.setPosition(this.buttonOkEditor.getControl());
+		this.buttonOkWidthEditor.setTooltipText("Width of the OK button\n\nDefault: "+FormDialog.defaultButtonWidth+".");
         
         // buttonCancel
 		this.buttonCancelEditor = new StringEditor(this, "buttonCancel", "Cancel button text:");
-		this.buttonCancelEditor.setPosition(this.buttonOkEditor.getControl());
+		this.buttonCancelEditor.setPosition(this.buttonOkWidthEditor.getControl());
 		this.buttonCancelEditor.setWidget((Widget)getShell().getData("cancel button"));
 		this.buttonCancelEditor.mustSetControlText(true);
 		this.buttonCancelEditor.setTooltipText("Text of the Cancel button\n\nDefault: "+FormDialog.defaultButtonCancelText+".");
+		
+		
+	    // buttonCancelWidth
+		this.buttonCancelWidthEditor = new ButtonWidthEditor(this, "cancel button", "buttonCancelWidth", "Cancel button width:");
+		this.buttonCancelWidthEditor.setPosition(this.buttonCancelEditor.getControl());
+		this.buttonCancelWidthEditor.setTooltipText("Width of the Cancel button\n\nDefault: "+FormDialog.defaultButtonWidth+".");
         
         // buttonExport
 		this.buttonExportEditor = new StringEditor(this, "buttonExport", "Export button text:");
-		this.buttonExportEditor.setPosition(this.buttonCancelEditor.getControl());
+		this.buttonExportEditor.setPosition(this.buttonCancelWidthEditor.getControl());
 		this.buttonExportEditor.setWidget((Widget)getShell().getData("export button"));
 		this.buttonExportEditor.mustSetControlText(true);
 		this.buttonExportEditor.setTooltipText("Text of the Export to Excel button\n\nDefault: "+FormDialog.defaultButtonExportText+".");
 		
+	    // buttonExportWidth
+		this.buttonExportWidthEditor = new ButtonWidthEditor(this, "export button", "buttonExportWidth", "Export button width:");
+		this.buttonExportWidthEditor.setPosition(this.buttonExportEditor.getControl());
+		this.buttonExportWidthEditor.setTooltipText("Width of the Rxport button\n\nDefault: "+FormDialog.defaultButtonWidth+".");
+		
         // whenEmpty
         this.whenEmptyEditor = new ComboEditor(this, "whenEmpty", "When empty :");
-        this.whenEmptyEditor.setPosition(this.buttonExportEditor.getControl());
+        this.whenEmptyEditor.setPosition(this.buttonExportWidthEditor.getControl());
         this.whenEmptyEditor.setItems(FormDialog.validWhenEmpty);
         this.whenEmptyEditor.setTooltipText("Choose the plugin behaviour when a variable is left empty in the form:\n"+
                 "   - ignore: do not change the property value:\n"+
@@ -123,13 +143,15 @@ public class FormComposite extends Composite implements CompositeInterface {
     		case "refers":		      this.refersEditor.setText((String)value); break;
     		case "variableseparator": this.variableSeparatorEditor.setText((String)value); break;
     		case "buttonok":	      this.buttonOkEditor.setText((String)value); break;
+    		case "buttonokwidth":     this.buttonOkWidthEditor.setButtonWidth((Integer)value); break;
     		case "buttoncancel":      this.buttonCancelEditor.setText((String)value); break;
+    		case "buttoncancelwidth": this.buttonCancelWidthEditor.setButtonWidth((Integer)value); break;
     		case "buttonexport":      this.buttonExportEditor.setText((String)value); break;
+    		case "buttonexportwidth": this.buttonExportWidthEditor.setButtonWidth((Integer)value); break;
     		case "whenempty":         this.whenEmptyEditor.setText((String)value); break;
     		case "width":		      this.formSizeEditor.setWidth((Integer)value); break;
     		case "height":		      this.formSizeEditor.setHeight((Integer)value); break;
     		case "spacing":		      this.formSizeEditor.setSpacing((Integer)value); break;
-    		case "buttonwidth":	      this.formSizeEditor.setButtonWidth((Integer)value); break;
     		case "buttonheight":      this.formSizeEditor.setButtonHeight((Integer)value); break;
             case "tests":             this.filterEditor.setTests((List<Map<String, String>>)value); break;
             case "genre":             this.filterEditor.setGenre((String)value); break;

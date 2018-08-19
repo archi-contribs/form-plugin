@@ -169,6 +169,8 @@ import com.archimatetool.model.INameable;
  *                              
  * v1.8.5 :     11/04/2018      fix recursion in folders when a model is selected
  * 
+ * v1.8.6 :     20/08/2018		allow to specify distinct width for the ok, cancel and export buttons
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add a special line that calculates the sum or the average of column values
@@ -177,7 +179,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.8.5";
+	public static final String pluginVersion = "1.8.6";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 

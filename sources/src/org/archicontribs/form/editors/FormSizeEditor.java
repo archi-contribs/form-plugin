@@ -26,8 +26,6 @@ public class FormSizeEditor {
 	StyledText txtHeight;
 	Label      lblSpacing;
 	StyledText txtSpacing;
-	Label      lblButtonWidth;
-	StyledText txtButtonWidth;
 	Label      lblButtonHeight;
 	StyledText txtButtonHeight;
 	Composite  parent;
@@ -107,34 +105,10 @@ public class FormSizeEditor {
         		"Default: "+FormDialog.defaultDialogSpacing+"."
         		);
         
-        // buttonWidth
-        this.lblButtonWidth = new Label(parent, SWT.NONE);
-        fd = new FormData();
-        fd.top = new FormAttachment(this.txtSpacing, FormDialog.editorVerticalMargin);
-        fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
-        fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
-        this.lblButtonWidth.setLayoutData(fd);
-        this.lblButtonWidth.setText("Buttons width:");
-        
-        this.txtButtonWidth = new StyledText(parent, SWT.BORDER);
-        fd = new FormData();
-        fd.top = new FormAttachment(this.lblButtonWidth, 0, SWT.TOP);
-        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
-        fd.right = new FormAttachment(this.txtButtonWidth, 40);
-        this.txtButtonWidth.setLayoutData(fd);
-        this.txtButtonWidth.setTextLimit(3);
-        this.txtButtonWidth.setLeftMargin(2);
-        this.txtButtonWidth.addVerifyListener(this.numericVerifyListener);
-        this.txtButtonWidth.addModifyListener(this.sizeModifyListener);
-        this.txtButtonWidth.setToolTipText("Width of the Ok, Cancel and Export to Excel buttons\n"+
-        		"\n"+
-        		"Default: "+FormDialog.defaultButtonWidth+"."
-        		);
-        
         // buttonHeight
         this.lblButtonHeight = new Label(parent, SWT.NONE);
         fd = new FormData();
-        fd.top = new FormAttachment(this.txtButtonWidth, FormDialog.editorVerticalMargin);
+        fd.top = new FormAttachment(this.txtSpacing, FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         fd.right = new FormAttachment(0, FormDialog.editorLeftposition);
         this.lblButtonHeight.setLayoutData(fd);
@@ -180,14 +154,12 @@ public class FormSizeEditor {
         	int formWidth = getWidth();
         	int formHeight = getHeight();
         	int formSpacing = getSpacing();
-        	int buttonWidth = getButtonWidth();
         	int buttonHeight = getButtonHeight();
         	
         	if ( treeItem != null ) {
         		treeItem.setData("width", formWidth);
         		treeItem.setData("height", formHeight);
         		treeItem.setData("spacing", formSpacing);
-        		treeItem.setData("buttonWidth", buttonWidth);
         		treeItem.setData("buttonHeight", buttonHeight);
         	}
         	
@@ -211,17 +183,17 @@ public class FormSizeEditor {
 		            
 		            Button buttonCancel = (Button)form.getData("cancel button");
 		            if ( buttonCancel != null ) {
-		            	buttonCancel.setBounds(tabFolderWidth+formSpacing-buttonWidth, tabFolderHeight+formSpacing*2, buttonWidth, buttonHeight);
+		            	buttonCancel.getBounds().height = buttonHeight;
 		            }
 		            
 		            Button buttonOk = (Button)form.getData("ok button");
 		            if ( buttonOk != null ) {
-		            	buttonOk.setBounds(tabFolderWidth-(buttonWidth*2), tabFolderHeight+(formSpacing*2), buttonWidth, buttonHeight);
+		            	buttonOk.getBounds().height = buttonHeight;
 		            }
 		            
 		            Button buttonExport = (Button)form.getData("export button");
 		            if ( buttonExport != null ) {
-		            	buttonExport.setBounds(tabFolderWidth-(buttonWidth*3)-formSpacing, tabFolderHeight+(formSpacing*2), buttonWidth, buttonHeight);
+		            	buttonExport.getBounds().height = buttonHeight;
 			        }
 		        }
         	}
@@ -260,12 +232,6 @@ public class FormSizeEditor {
 		this.txtHeight.addModifyListener(this.sizeModifyListener);
     }
     
-    public void setButtonWidth(Integer buttonWidth) {
-		this.txtButtonWidth.removeModifyListener(this.sizeModifyListener);
-		this.txtButtonWidth.setText(buttonWidth==null ? "" : String.valueOf(buttonWidth));
-		this.txtButtonWidth.addModifyListener(this.sizeModifyListener);
-    }
-    
     public void setButtonHeight(Integer buttonHeight) {
 		this.txtButtonHeight.removeModifyListener(this.sizeModifyListener);
 		this.txtButtonHeight.setText(buttonHeight==null ? "" : String.valueOf(buttonHeight));
@@ -298,12 +264,6 @@ public class FormSizeEditor {
 		if ( FormPlugin.isEmpty(this.txtSpacing.getText()) )
 			return FormDialog.defaultDialogSpacing;
 		return Integer.valueOf(this.txtSpacing.getText());
-    }
-    
-    public int getButtonWidth() {
-		if ( FormPlugin.isEmpty(this.txtButtonWidth.getText()) )
-			return FormDialog.defaultButtonWidth;
-		return Integer.valueOf(this.txtButtonWidth.getText());
     }
     
     public int getButtonHeight() {
