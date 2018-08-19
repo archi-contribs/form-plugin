@@ -169,7 +169,9 @@ import com.archimatetool.model.INameable;
  *                              
  * v1.8.5 :     11/04/2018      fix recursion in folders when a model is selected
  * 
- * v1.8.6 :     20/08/2018		allow to specify distinct width for the ok, cancel and export buttons
+ * v1.8.6 :     18/08/2018		fix export to Excel
+ * 
+ * v 1.8.7 :    20/08/2018      allow to specify distinct width for the ok, cancel and export buttons
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
