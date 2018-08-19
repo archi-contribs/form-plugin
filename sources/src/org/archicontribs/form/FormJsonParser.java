@@ -107,11 +107,11 @@ public class FormJsonParser {
         getFilter(jsonObject, form, treeItem);
         
         String  buttonOkText      = getString(jsonObject, "buttonOk", FormDialog.defaultButtonOkText);
-        Integer buttonOkWidth     = getInt(jsonObject, "buttonOkWidth", FormDialog.defaultButtonWidth, false);
+        Integer buttonOkWidth     = getInt(jsonObject, "buttonOkWidth", FormDialog.defaultButtonWidth, true);
         String  buttonCancelText  = getString(jsonObject, "buttonCancel", FormDialog.defaultButtonCancelText);
-        Integer buttonCancelWidth = getInt(jsonObject, "buttonCancelWidth", FormDialog.defaultButtonWidth, false);
+        Integer buttonCancelWidth = getInt(jsonObject, "buttonCancelWidth", FormDialog.defaultButtonWidth, true);
         String  buttonExportText  = getString(jsonObject, "buttonExport", FormDialog.defaultButtonExportText);
-        Integer buttonExportWidth = getInt(jsonObject, "buttonExportWidth", FormDialog.defaultButtonWidth, false);
+        Integer buttonExportWidth = getInt(jsonObject, "buttonExportWidth", FormDialog.defaultButtonWidth, true);
         
         // we register the values from the configuration file that are needed by the graphical editor
         if ( treeItem != null ) {
@@ -1681,7 +1681,7 @@ public class FormJsonParser {
         
         if ( result != null ) {
             if ( result instanceof Long )
-            	mustSetDefaultValue = (Long)result <= 0L || (!canBeZero && (Long)result == 0L);
+            	mustSetDefaultValue = (Long)result < 0L || (!canBeZero && (Long)result == 0L);
             else {
             	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be an Integer.");
                 mustSetDefaultValue = true;
