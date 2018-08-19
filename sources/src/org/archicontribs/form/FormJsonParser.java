@@ -1092,7 +1092,6 @@ public class FormJsonParser {
 
         boolean result;
 
-        @SuppressWarnings("unchecked")
         Iterator<JSONObject> filterIterator = getJSONArray(filterObject, "tests").iterator();
         while (filterIterator.hasNext()) {
             JSONObject filter = filterIterator.next();
@@ -1246,7 +1245,6 @@ public class FormJsonParser {
         	
     		tests = new ArrayList<Map<String, String>>();
     		
-            @SuppressWarnings("unchecked")
 			Iterator<JSONObject> testIterator = testsJson.iterator();
             while (testIterator.hasNext()) {
             	JSONObject test = testIterator.next();
@@ -1536,7 +1534,6 @@ public class FormJsonParser {
     	if ( obj == null )
     		return null;
     	
-        @SuppressWarnings("unchecked")
 		Iterator<String> iter = obj.keySet().iterator();
         while (iter.hasNext()) {
             String key1 = iter.next();
@@ -1733,7 +1730,6 @@ public class FormJsonParser {
      *            the key (case insensitive)
      */
     public static boolean JSONContainsKey(JSONObject obj, String key) {
-        @SuppressWarnings("unchecked")
         Iterator<String> iter = obj.keySet().iterator();
         while (iter.hasNext()) {
             String key1 = iter.next();
