@@ -17,11 +17,11 @@ import org.apache.log4j.Level;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
@@ -175,6 +175,8 @@ import com.archimatetool.model.INameable;
  * 
  * v1.8.8:     29/08/2018       Fix widgets location on Linux 4K display
  * 
+ * v1.8.9:     30/08/2018       Fix default font size
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add a special line that calculates the sum or the average of column values
@@ -183,7 +185,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.8.8";
+	public static final String pluginVersion = "1.8.9";
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
@@ -420,27 +422,44 @@ public class FormPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Sets the control's font  color according to the RGB vlues encoded in the foreground parameter, or to its parent's foreground in case of error 
+	 * Sets the control's font according to the specified fontName, fontSize, fontBold and fontItalic
 	 */
 	public static void setFont(Control control, String fontName, Integer fontSize, Boolean fontBold, Boolean fontItalic) {
-		if ( FormPlugin.isEmpty(fontName) && (fontSize == null || fontSize <= 0) && fontBold == null && fontItalic == null ) {
-			try {
-				control.setFont(control.getParent().getFont());
-			} catch (Exception e) {
-				error(FormPosition.getPosition("font") + "\n\nFailed to set font from parent's one.", e);
-			}
-        } else {
-            int style = SWT.NORMAL;
-            if ( fontBold != null && fontBold )   style |= SWT.BOLD;
-            if ( fontItalic != null && fontItalic ) style |= SWT.ITALIC;
-            try {
-	            if ( FormPlugin.isEmpty(fontName) )
-	            	control.setFont(FontDescriptor.createFrom(control.getFont()).setHeight(fontSize==null ? 0 : fontSize).setStyle(style).createFont(control.getDisplay()));
-	            else
-	            	control.setFont(new Font(control.getDisplay(), fontName, fontSize==null ? 0 : fontSize, style));
-            } catch (Exception e) {
-				error(FormPosition.getPosition("font") + "\n\nFailed to set font.", e);
+	    try {
+            FontData[] fontData = control.getParent().getFont().getFontData().clone();
+            boolean mustCreateNewFont = false;
+            
+            if ( fontName != null && !fontName.isEmpty() ) {
+                fontData[0].setName(fontName);
+                mustCreateNewFont = true;
             }
+            
+            if ( fontSize != null && fontSize != 0 ) {
+                fontData[0].setHeight(fontSize);
+                mustCreateNewFont = true;
+            }
+            
+            if ( fontBold != null ) {
+                if ( fontBold )
+                    fontData[0].setStyle(fontData[0].getStyle() | SWT.BOLD);
+                else
+                    fontData[0].setStyle(fontData[0].getStyle() & ~SWT.BOLD);
+                mustCreateNewFont = true;
+            }
+            
+            if ( fontItalic != null ) {
+                if ( fontItalic )
+                    fontData[0].setStyle(fontData[0].getStyle() | SWT.ITALIC);
+                else
+                    fontData[0].setStyle(fontData[0].getStyle() & ~SWT.ITALIC);
+                mustCreateNewFont = true;
+            }
+
+            if ( mustCreateNewFont )
+                control.setFont(new Font(control.getDisplay(), fontData));
+            //TODO: register the fonts in a array to reuse them and deallocate them when window is closed
+        } catch (Exception e) {
+			error(FormPosition.getPosition("font") + "\n\nFailed to set font.", e);
         }
 	}
 	
