@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Form plugin for Archimate Tool
+Bundle-SymbolicName: org.archicontribs.form;singleton:=true
+Bundle-Version: 1.8.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: com.archimatetool.editor,
+ com.archimatetool.canvas,
+ org.eclipse.core.runtime,
+ com.archimatetool.model,
+ org.eclipse.core.expressions,
+ org.eclipse.emf.common,
+ org.eclipse.help,
+ org.eclipse.swt
+Bundle-ClassPath: .,
+ lib/json-simple-1.1.1.jar,
+ lib/log4j-1.2.17.jar,
+ lib/xmlbeans-2.6.0.jar,
+ lib/commons-collections4-4.1.jar,
+ lib/regex-1.0.3.jar,
+ lib/poi-3.17.jar,
+ lib/poi-ooxml-3.17.jar,
+ lib/poi-ooxml-schemas-3.17.jar,
+ lib/org.eclipse.nebula.widgets.richtext_1.2.0.201804011600.jar
+Bundle-Activator: org.archicontribs.form.FormPlugin
+Bundle-Vendor: Herve Jouin
+Export-Package: org.archicontribs.form
