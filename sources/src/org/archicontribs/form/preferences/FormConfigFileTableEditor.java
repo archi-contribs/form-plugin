@@ -63,6 +63,11 @@ public class FormConfigFileTableEditor extends FieldEditor {
 	private Button btnDiscard;
 	private Button btnSave;
 	
+    private int defaultMargin = 10;
+    private int defaultLabelHeight;
+    private int defaultButtonHeight;
+
+	
 	private static final IPreferenceStore store = FormPlugin.INSTANCE.getPreferenceStore();
 
 	/**
@@ -89,11 +94,39 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.grpConfigFiles.setLayout(new FormLayout());
 		this.grpConfigFiles.setBackground(FormPreferencePage.COMPO_BACKGROUND_COLOR);
 		this.grpConfigFiles.setText("Configuration files : ");
+		
+	    /*
+         * We calculate the default height of a Label widget
+         */
+        Label label = new Label(this.grpConfigFiles, SWT.NONE);
+        label.setText("Test");
+        this.defaultLabelHeight = label.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+        label.dispose();
+        
+        /*
+         * We calculate the default height of a Text widget
+         */
+        Button button = new Button(this.grpConfigFiles, SWT.NONE);
+        button.setText("Test");
+        this.defaultButtonHeight = button.computeSize(SWT.DEFAULT, SWT.DEFAULT).y;
+        button.dispose();
+        
+        // we calculate the required height of the group:
+        //    height of the configuration table  = height of 6 text widgets
+        //    height of the configuration details = height of 2 text widets
+        int requiredHeight = 8 * (this.defaultButtonHeight + this.defaultMargin/2);
+        
+        GridData gd = new GridData();
+        gd.heightHint = requiredHeight;
+        gd.minimumHeight = requiredHeight;
+        gd.horizontalAlignment = GridData.FILL;
+        gd.grabExcessHorizontalSpace = true;
+        this.grpConfigFiles.setLayoutData(gd);
 
 		this.btnUp = new Button(this.grpConfigFiles, SWT.NONE);
 		this.btnUp.setText("^");
 		FormData fd = new FormData();
-		fd.top = new FormAttachment(0, 5);
+		fd.top = new FormAttachment(0, this.defaultMargin/2);
 		fd.left = new FormAttachment(100, -70);
 		fd.right = new FormAttachment(100, -40);
 		this.btnUp.setLayoutData(fd);
@@ -108,9 +141,9 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.btnDown = new Button(this.grpConfigFiles, SWT.NONE);
 		this.btnDown.setText("v");
 		fd = new FormData();
-		fd.top = new FormAttachment(0, 5);
+		fd.top = new FormAttachment(0, this.defaultMargin/2);
 		fd.left = new FormAttachment(100, -35);
-		fd.right = new FormAttachment(100, -5);
+		fd.right = new FormAttachment(100, -this.defaultMargin/2);
 		this.btnDown.setLayoutData(fd);
 		this.btnDown.addSelectionListener(new SelectionListener() {
 			@Override
@@ -123,9 +156,9 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.btnNew = new Button(this.grpConfigFiles, SWT.NONE);
 		this.btnNew.setText("New");
 		fd = new FormData();
-		fd.top = new FormAttachment(this.btnUp, 5);
+		fd.top = new FormAttachment(this.btnUp, this.defaultMargin/2);
 		fd.left = new FormAttachment(100, -70);
-		fd.right = new FormAttachment(100, -5);
+		fd.right = new FormAttachment(100, -this.defaultMargin/2);
 		this.btnNew.setLayoutData(fd);
 		this.btnNew.addSelectionListener(new SelectionListener() {
 			@Override
@@ -137,7 +170,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.btnProperties = new Button(this.grpConfigFiles, SWT.NONE);
 		this.btnProperties.setText("Properties");
 		fd = new FormData();
-		fd.top = new FormAttachment(this.btnNew, 5);
+		fd.top = new FormAttachment(this.btnNew, this.defaultMargin/2);
 		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
 		this.btnProperties.setLayoutData(fd);
@@ -152,7 +185,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.btnGraphicalEditor = new Button(this.grpConfigFiles, SWT.WRAP);
 		this.btnGraphicalEditor.setText("Graphical editor");
 		fd = new FormData();
-		fd.top = new FormAttachment(this.btnProperties, 5);
+		fd.top = new FormAttachment(this.btnProperties, this.defaultMargin/2);
 		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
 		this.btnGraphicalEditor.setLayoutData(fd);
@@ -167,7 +200,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.btnRemove = new Button(this.grpConfigFiles, SWT.NONE);
 		this.btnRemove.setText("Remove");
 		fd = new FormData();
-		fd.top = new FormAttachment(this.btnGraphicalEditor, 5);
+		fd.top = new FormAttachment(this.btnGraphicalEditor, this.defaultMargin/2);
 		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
 		this.btnRemove.setLayoutData(fd);
@@ -184,8 +217,8 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.tblConfigFiles.setLinesVisible(true);
 		fd = new FormData();
 		fd.top = new FormAttachment(this.btnUp, 0, SWT.TOP);
-		fd.left = new FormAttachment(0, 10);
-		fd.right = new FormAttachment(this.btnNew, -10, SWT.LEFT);
+		fd.left = new FormAttachment(0, this.defaultMargin);
+		fd.right = new FormAttachment(this.btnNew, -this.defaultMargin, SWT.LEFT);
 		fd.bottom = new FormAttachment(this.btnRemove, 0, SWT.BOTTOM);
 		this.tblConfigFiles.setLayoutData(fd);
 		this.tblConfigFiles.addListener(SWT.Resize, new Listener() {
@@ -205,10 +238,10 @@ public class FormConfigFileTableEditor extends FieldEditor {
         TableColumn tableColumn = new TableColumn(this.tblConfigFiles, SWT.NONE);
 
 		this.lblFile = new Label(this.grpConfigFiles, SWT.NONE);
-		this.lblFile.setText("File :");
+		this.lblFile.setText("File:");
 		this.lblFile.setBackground(FormPreferencePage.COMPO_BACKGROUND_COLOR);
 		fd = new FormData();
-		fd.top = new FormAttachment(this.tblConfigFiles, 40);
+		fd.top = new FormAttachment(this.tblConfigFiles, 2*this.defaultLabelHeight);
 		fd.left = new FormAttachment(this.tblConfigFiles, 0 , SWT.LEFT);
 		this.lblFile.setLayoutData(fd);
 		this.lblFile.setVisible(false);
@@ -217,7 +250,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.btnBrowse.setText("Browse");
 		fd = new FormData();
 		fd.top = new FormAttachment(this.lblFile, 0, SWT.CENTER);
-		fd.right = new FormAttachment(this.tblConfigFiles, -30, SWT.RIGHT);
+		fd.right = new FormAttachment(this.tblConfigFiles, -2*this.defaultLabelHeight, SWT.RIGHT);
 		this.btnBrowse.setLayoutData(fd);
 		this.btnBrowse.addSelectionListener(new SelectionListener() {
 			@Override
@@ -230,8 +263,8 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.txtFile = new Text(this.grpConfigFiles, SWT.BORDER);
 		fd = new FormData();
 		fd.top = new FormAttachment(this.lblFile, 0, SWT.CENTER);
-		fd.left = new FormAttachment(this.lblFile, 5);
-		fd.right = new FormAttachment(this.btnBrowse, -10);
+		fd.left = new FormAttachment(this.lblFile, this.defaultMargin/2);
+		fd.right = new FormAttachment(this.btnBrowse, -this.defaultMargin);
 		this.txtFile.setLayoutData(fd);
 		this.txtFile.setVisible(false);
 
@@ -240,7 +273,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		fd = new FormData();
 		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
-		fd.bottom = new FormAttachment(100, -7);
+		fd.bottom = new FormAttachment(100, -this.defaultMargin);
 		this.btnSave.setLayoutData(fd);
 		this.btnSave.addSelectionListener(new SelectionListener() {
 			@Override
@@ -255,7 +288,7 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		fd = new FormData();
 		fd.left = new FormAttachment(this.btnNew, 0, SWT.LEFT);
 		fd.right = new FormAttachment(this.btnNew, 0, SWT.RIGHT);
-		fd.bottom = new FormAttachment(this.btnSave, -5, SWT.TOP);
+		fd.bottom = new FormAttachment(this.btnSave, -this.defaultMargin/2, SWT.TOP);
 		this.btnDiscard.setLayoutData(fd);
 		this.btnDiscard.addSelectionListener(new SelectionListener() {
 			@Override
@@ -269,12 +302,6 @@ public class FormConfigFileTableEditor extends FieldEditor {
 		this.grpConfigFiles.setTabList(new Control[] {this.txtFile, this.btnBrowse, this.btnDiscard, this.btnSave});
 
 		this.grpConfigFiles.layout();
-
-		GridData gd = new GridData();
-		gd.heightHint = this.txtFile.getLocation().y + 10;
-		gd.horizontalAlignment = GridData.FILL;
-		gd.grabExcessHorizontalSpace = true;
-		this.grpConfigFiles.setLayoutData(gd);
 	}
 
 	/*

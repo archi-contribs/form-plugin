@@ -98,7 +98,6 @@ public class FormJsonParser {
         Integer width             = getInt(jsonObject, "width", FormDialog.defaultDialogWidth, false);
         Integer height            = getInt(jsonObject, "height", FormDialog.defaultDialogHeight, false);
         Integer spacing           = getInt(jsonObject, "spacing", FormDialog.defaultDialogSpacing, false);
-        Integer buttonWidth       = getInt(jsonObject, "buttonWidth", FormDialog.defaultButtonWidth, false);
         Integer buttonHeight      = getInt(jsonObject, "buttonHeight", FormDialog.defaultButtonHeight, false);
         String  refers            = getString(jsonObject, "refers", FormDialog.validRefers[0]).toLowerCase();
         String  variableSeparator = getString(jsonObject, "variableSeparator", FormDialog.defaultVariableSeparator);
@@ -107,23 +106,28 @@ public class FormJsonParser {
         getForegroundAndBackground(jsonObject, form, treeItem);
         getFilter(jsonObject, form, treeItem);
         
-        String  buttonOkText          = getString(jsonObject, "buttonOk", FormDialog.defaultButtonOkText);
-        String  buttonCancelText      = getString(jsonObject, "buttonCancel", FormDialog.defaultButtonCancelText);
-        String  buttonExportText      = getString(jsonObject, "buttonExport", FormDialog.defaultButtonExportText);
+        String  buttonOkText      = getString(jsonObject, "buttonOk", FormDialog.defaultButtonOkText);
+        Integer buttonOkWidth     = getInt(jsonObject, "buttonOkWidth", FormDialog.defaultButtonWidth, true);
+        String  buttonCancelText  = getString(jsonObject, "buttonCancel", FormDialog.defaultButtonCancelText);
+        Integer buttonCancelWidth = getInt(jsonObject, "buttonCancelWidth", FormDialog.defaultButtonWidth, true);
+        String  buttonExportText  = getString(jsonObject, "buttonExport", FormDialog.defaultButtonExportText);
+        Integer buttonExportWidth = getInt(jsonObject, "buttonExportWidth", FormDialog.defaultButtonWidth, true);
         
         // we register the values from the configuration file that are needed by the graphical editor
         if ( treeItem != null ) {
         	setData(treeItem, "width",             width);
         	setData(treeItem, "height",            height);
         	setData(treeItem, "spacing",           spacing);
-        	setData(treeItem, "buttonWidth",       buttonWidth);
         	setData(treeItem, "buttonHeight",      buttonHeight);
         	setData(treeItem, "refers",            refers );
         	setData(treeItem, "variableSeparator", variableSeparator);
         	setData(treeItem, "whenEmpty",         whenEmpty);
         	setData(treeItem, "buttonOk",          buttonOkText);
+        	setData(treeItem, "buttonOkWidth",     buttonOkWidth);
         	setData(treeItem, "buttonCancel",      buttonCancelText);
+        	setData(treeItem, "buttonCancelWidth", buttonCancelWidth);
         	setData(treeItem, "buttonExport",      buttonExportText);
+        	setData(treeItem, "buttonExportWidth", buttonExportWidth);
         	setData(treeItem, "whenEmpty",         whenEmpty);
         }
 
@@ -140,7 +144,7 @@ public class FormJsonParser {
         cancelButton.setText(FormDialog.defaultButtonCancelText);
         FormData fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
-        fd.left = new FormAttachment(100, -(buttonWidth+spacing));
+        fd.left = new FormAttachment(100, -(buttonCancelWidth+spacing));
         fd.right = new FormAttachment(100, -spacing);
         fd.bottom = new FormAttachment(100, -spacing);
         cancelButton.setLayoutData(fd);
@@ -149,7 +153,7 @@ public class FormJsonParser {
         okButton.setText(FormDialog.defaultButtonOkText);
         fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
-        fd.left = new FormAttachment(cancelButton, -(buttonWidth+spacing), SWT.LEFT);
+        fd.left = new FormAttachment(cancelButton, -(buttonOkWidth+spacing), SWT.LEFT);
         fd.right = new FormAttachment(cancelButton, -spacing);
         fd.bottom = new FormAttachment(100, -spacing);
         okButton.setLayoutData(fd);
@@ -158,7 +162,7 @@ public class FormJsonParser {
         exportToExcelButton.setText(FormDialog.defaultButtonExportText);
         fd = new FormData();
         fd.top = new FormAttachment(100, -(buttonHeight+spacing));
-        fd.left = new FormAttachment(okButton, -(buttonWidth+spacing), SWT.LEFT);
+        fd.left = new FormAttachment(okButton, -(buttonExportWidth+spacing), SWT.LEFT);
         fd.right = new FormAttachment(okButton, -spacing);
         fd.bottom = new FormAttachment(100, -spacing);
         exportToExcelButton.setLayoutData(fd);
@@ -181,6 +185,9 @@ public class FormJsonParser {
             treeItem.setImage(FORM_ICON);
         	treeItem.setData("class", "form");
             treeItem.setData("widget", form);
+            treeItem.setData("export button", exportToExcelButton);
+            treeItem.setData("ok button", okButton);
+            treeItem.setData("cancel button", cancelButton);
             form.setData("treeItem", treeItem);
         }
         
@@ -1092,7 +1099,6 @@ public class FormJsonParser {
 
         boolean result;
 
-        @SuppressWarnings("unchecked")
         Iterator<JSONObject> filterIterator = getJSONArray(filterObject, "tests").iterator();
         while (filterIterator.hasNext()) {
             JSONObject filter = filterIterator.next();
@@ -1246,7 +1252,6 @@ public class FormJsonParser {
         	
     		tests = new ArrayList<Map<String, String>>();
     		
-            @SuppressWarnings("unchecked")
 			Iterator<JSONObject> testIterator = testsJson.iterator();
             while (testIterator.hasNext()) {
             	JSONObject test = testIterator.next();
@@ -1536,7 +1541,6 @@ public class FormJsonParser {
     	if ( obj == null )
     		return null;
     	
-        @SuppressWarnings("unchecked")
 		Iterator<String> iter = obj.keySet().iterator();
         while (iter.hasNext()) {
             String key1 = iter.next();
@@ -1677,7 +1681,7 @@ public class FormJsonParser {
         
         if ( result != null ) {
             if ( result instanceof Long )
-            	mustSetDefaultValue = (Long)result <= 0L || (!canBeZero && (Long)result == 0L);
+            	mustSetDefaultValue = (Long)result < 0L || (!canBeZero && (Long)result == 0L);
             else {
             	FormPlugin.error(FormPosition.getPosition(key) + "\n\nInvalid value \""+result+"\" : is a " + result.getClass().getSimpleName() + " but should be an Integer.");
                 mustSetDefaultValue = true;
@@ -1733,7 +1737,6 @@ public class FormJsonParser {
      *            the key (case insensitive)
      */
     public static boolean JSONContainsKey(JSONObject obj, String key) {
-        @SuppressWarnings("unchecked")
         Iterator<String> iter = obj.keySet().iterator();
         while (iter.hasNext()) {
             String key1 = iter.next();

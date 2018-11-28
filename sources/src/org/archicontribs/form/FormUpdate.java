@@ -120,7 +120,6 @@ public class FormUpdate {
 			if ( logger.isDebugEnabled() ) logger.debug("searching for plugins jar files");
 			Pattern p = Pattern.compile(FormPlugin.pluginsPackage+"_v(.*).jar") ;
 
-			@SuppressWarnings("unchecked")
 			Iterator<JSONObject> iterator = result.iterator();
 			while (iterator.hasNext()) {
 				JSONObject file = iterator.next();

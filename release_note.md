@@ -1,5 +1,17 @@
+## v1.8.9: 30/08/2018
+* fix default font size
+
+## v1.8.8: 29/08/2018
+* Fix widgets location on Linux 4K display
+
+## v1.8.7: 20/08/2018
+* Allow to specify distinct width for the ok, cancel and export buttons (a width of 0 allows to hide the button)
+
+## v1.8.6: 17/08/2018
+* Fix export to Excel file
+
 ## v1.8.5: 14/04/2018
-* fix recursion in folders when a model is selected
+* Fix recursion in folders when a model is selected
 
 ## v1.8.4: 05/04/2018
 * Fix folder recursion

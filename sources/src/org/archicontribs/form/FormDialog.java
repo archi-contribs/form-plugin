@@ -246,7 +246,6 @@ public class FormDialog extends Dialog {
             CTabFolder tabFolder = (CTabFolder)this.formDialog.getData("tab folder");
             JSONArray tabs = FormJsonParser.getJSONArray(jsonForm, "tabs");
             if ( tabs != null ) {
-            	@SuppressWarnings("unchecked")
 				Iterator<JSONObject> tabsIterator = tabs.iterator();
                 while (tabsIterator.hasNext()) {
                     JSONObject jsonTab = tabsIterator.next();
@@ -265,7 +264,6 @@ public class FormDialog extends Dialog {
                     JSONArray controls = FormJsonParser.getJSONArray(jsonTab, "controls");
                     if ( controls != null ) {
                         Composite tabItemComposite = (Composite)tabItem.getControl();
-                        @SuppressWarnings("unchecked")
 						Iterator<JSONObject> controlsIterator = controls.iterator();
                         while (controlsIterator.hasNext()) {
                             JSONObject jsonControl = controlsIterator.next();
@@ -935,7 +933,6 @@ public class FormDialog extends Dialog {
 
                         JSONArray columns = FormJsonParser.getJSONArray(jsonControl, "columns");
                         if ( columns != null ) {
-                            @SuppressWarnings("unchecked")
     						Iterator<JSONObject> columnsIterator = columns.iterator();
                             while (columnsIterator.hasNext()) {
                                 JSONObject jsonColumn = columnsIterator.next();
@@ -989,7 +986,6 @@ public class FormDialog extends Dialog {
         	            
         	            JSONArray lines = FormJsonParser.getJSONArray(jsonControl, "lines");
                         if ( lines != null ) {
-                            @SuppressWarnings("unchecked")
     						Iterator<JSONObject> linesIterator = lines.iterator();
                             while (linesIterator.hasNext()) {
                                 JSONObject jsonLine = linesIterator.next();
@@ -1547,52 +1543,52 @@ public class FormDialog extends Dialog {
         }
     }
     
-    private static void excelWriteImage(Row row, short column, Image image) throws RuntimeException, IOException {
+    @SuppressWarnings("resource")
+    private static void excelWriteImage(Row row, short column, Image image) throws RuntimeException {
         Sheet sheet = row.getSheet();
-        try ( Workbook wb = sheet.getWorkbook() ) {
-            Drawing<?> drawing = sheet.createDrawingPatriarch();
-            
-            // we first remove any image that is anchored to the same cell
-            if (drawing instanceof HSSFPatriarch) {
-                HSSFPatriarch hp = (HSSFPatriarch)drawing;
-                for (HSSFShape hs : hp.getChildren()) {
-                    if (hs instanceof Picture)  {
-                        ClientAnchor anchor = ((Picture)hs).getClientAnchor();
-                        if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() )
-                        	hp.removeShape(hs);
-                    }
+        Workbook wb = sheet.getWorkbook();
+        Drawing<?> drawing = sheet.createDrawingPatriarch();
+
+        // we first remove any image that is anchored to the same cell
+        if (drawing instanceof HSSFPatriarch) {
+            HSSFPatriarch hp = (HSSFPatriarch)drawing;
+            for (HSSFShape hs : hp.getChildren()) {
+                if (hs instanceof Picture)  {
+                    ClientAnchor anchor = ((Picture)hs).getClientAnchor();
+                    if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() )
+                        hp.removeShape(hs);
                 }
-            } else {
-                XSSFDrawing xdrawing = (XSSFDrawing)drawing;
-                for (XSSFShape xs : xdrawing.getShapes()) {
-                    if (xs instanceof Picture) {
-                        ClientAnchor anchor = ((Picture)xs).getClientAnchor();
-                        if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() ) {
-                        	logger.info("export of image cancelled as an image is already present in sheet \""+sheet.getSheetName()+"\" row="+anchor.getRow1()+" col="+anchor.getCol1());
-                        	return;
-                        }
+            }
+        } else {
+            XSSFDrawing xdrawing = (XSSFDrawing)drawing;
+            for (XSSFShape xs : xdrawing.getShapes()) {
+                if (xs instanceof Picture) {
+                    ClientAnchor anchor = ((Picture)xs).getClientAnchor();
+                    if ( anchor.getCol1() == column && anchor.getRow1() == row.getRowNum() ) {
+                        logger.info("export of image cancelled as an image is already present in sheet \""+sheet.getSheetName()+"\" row="+anchor.getRow1()+" col="+anchor.getCol1());
+                        return;
                     }
                 }
             }
-            
-    
-            
-            // we create a PNG from the widget image
-            ImageLoader imageLoader = new ImageLoader();
-            imageLoader.data = new ImageData[] {image.getImageData()};
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            imageLoader.save(baos, SWT.IMAGE_PNG);
-            
-            // we add the PNG to Excel
-            int imageIndex = wb.addPicture(baos.toByteArray(), Workbook.PICTURE_TYPE_PNG);        
-            ClientAnchor anchor = wb.getCreationHelper().createClientAnchor();
-            anchor.setRow1(row.getRowNum());
-            anchor.setCol1(column);
-            
-            logger.trace("exporting image ...");
-            Picture pict = drawing.createPicture(anchor, imageIndex);
-            pict.resize();		//Reset the image to the original size
         }
+
+
+
+        // we create a PNG from the widget image
+        ImageLoader imageLoader = new ImageLoader();
+        imageLoader.data = new ImageData[] {image.getImageData()};
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageLoader.save(baos, SWT.IMAGE_PNG);
+
+        // we add the PNG to Excel
+        int imageIndex = wb.addPicture(baos.toByteArray(), Workbook.PICTURE_TYPE_PNG);        
+        ClientAnchor anchor = wb.getCreationHelper().createClientAnchor();
+        anchor.setRow1(row.getRowNum());
+        anchor.setCol1(column);
+
+        logger.trace("exporting image ...");
+        Picture pict = drawing.createPicture(anchor, imageIndex);
+        pict.resize();		//Reset the image to the original size
     }
     
     void cancel() {
