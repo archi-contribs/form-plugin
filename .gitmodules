@@ -1,0 +1,3 @@
+[submodule "form-plugin.wiki"]
+	path = form-plugin.wiki
+	url = https://github.com/audreykoz/form-plugin.wiki.git
