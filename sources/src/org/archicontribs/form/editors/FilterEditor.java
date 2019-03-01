@@ -194,7 +194,7 @@ public class FilterEditor {
 	        TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
 	    	
 	    	if ( treeItem != null ) {
-	    		treeItem.setData("generate", FilterEditor.this.btnGenerate.getSelection());
+	    		treeItem.setData("generate", getFilter() ? getGenerate() : null);
 	    		treeItem.setData("genre", getFilter() ? getGenre() : null);
 	    	    treeItem.setData("tests", getFilter() ? getTests() : null);
 	    	}
