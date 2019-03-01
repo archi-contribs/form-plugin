@@ -3,6 +3,7 @@ package org.archicontribs.form.composites;
 import org.archicontribs.form.FormDialog;
 import org.archicontribs.form.editors.AlignmentEditor;
 import org.archicontribs.form.editors.CheckEditor;
+import org.archicontribs.form.editors.ColorEditor;
 import org.archicontribs.form.editors.ComboEditor;
 import org.archicontribs.form.editors.SizeEditor;
 import org.archicontribs.form.editors.StringEditor;
@@ -18,6 +19,7 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
     private StringEditor			valuesEditor;        // values		// TODO: needs to be rewritten using a distinct list editor
     private CheckEditor             editableEditor;  	 // editable
 	private SizeEditor              sizeEditor;          // width
+	private ColorEditor             colorEditor;         // foreground, background
 	private StringEditor		    tooltipEditor;       // tooltip
 	private AlignmentEditor         alignmentEditor;     // alignment
 	private ComboEditor             whenEmptyEditor;  	 // whenEmpty
@@ -86,9 +88,13 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
         this.editableEditor.setInverse(true);
         this.editableEditor.setTooltipText("Specifies if the variable is read only.\n\nDefault: false.");
         
+        // Background
+        this.colorEditor = new ColorEditor(this, "Color:");
+        this.colorEditor.setPosition(this.editableEditor.getControl());
+        
 		// x, y, width, height
 		this.sizeEditor = new SizeEditor(this);
-		this.sizeEditor.setPosition(this.editableEditor.getControl());
+		this.sizeEditor.setPosition(this.colorEditor.getControl());
 		
 		// tooltip
 		this.tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
@@ -157,6 +163,8 @@ public class CheckColumnComposite extends Composite implements CompositeInterfac
     		case "y":			  this.sizeEditor.setY((Integer)value); break;
     		case "width":		  this.sizeEditor.setWidth((Integer)value); break;
     		case "height":		  this.sizeEditor.setHeight((Integer)value); break;
+    		case "foreground":    this.colorEditor.setForeground((String)value); break;
+            case "background":    this.colorEditor.setBackground((String)value); break;
     	    case "alignment":     this.alignmentEditor.setText((String)value); break;
     		case "tooltip":    	  this.tooltipEditor.setText((String)value); break;
     		case "whenempty":     this.whenEmptyEditor.setText((String)value); break;

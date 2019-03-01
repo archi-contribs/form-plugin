@@ -48,7 +48,7 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		this.colorEditor = new ColorEditor(this, "Color:");
 		this.colorEditor.setPosition(this.textEditor.getControl());
 						
-		// width
+		// size
 		this.sizeEditor = new SizeEditor(this);
 		this.sizeEditor.setPosition(this.textEditor.getControl());
 		
