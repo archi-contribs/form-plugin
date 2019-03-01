@@ -1420,6 +1420,8 @@ public class FormJsonParser {
                         text.setForeground(table.getForeground());
                     if ( tableColumn.getData("editable") != null )
                         text.setEditable((Boolean)tableColumn.getData("editable"));
+                    text.setData("pattern", tableColumn.getData("pattern"));
+                    text.setToolTipText(tableColumn.getToolTipText());
                     editor.setEditor(text, tableItem, columnNumber);
                     editor.grabHorizontal = true;
                     break;

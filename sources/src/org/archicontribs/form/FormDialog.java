@@ -961,6 +961,14 @@ public class FormDialog extends Dialog {
                                             break;
     	            	                case "text":
     	            	                    tableColumn = FormJsonParser.createTextColumn(jsonColumn, table, treeItem, null, this.selectedObject);
+                                            if ( !this.editMode ) {
+                                                if ( !FormPlugin.isEmpty((String)tableColumn.getData("regexp")) ) {
+                                                    tableColumn.setData("pattern", Pattern.compile((String)tableColumn.getData("regexp")));
+                                                    // if the tooltip is empty but a regexp is defined,then we add a tooltip with a little help message about the regexp
+                                                    if ( FormPlugin.isEmpty(tableColumn.getToolTipText()) )
+                                                        tableColumn.setToolTipText("Your text should match the following regexp :\n" + (String)tableColumn.getData("regexp"));
+                                                }                           
+                                            }
     	            	                	break;
                                         case "richtext":
                                             tableColumn = FormJsonParser.createRichTextColumn(jsonColumn, table, treeItem, null, this.selectedObject);
@@ -1007,12 +1015,12 @@ public class FormDialog extends Dialog {
 	                	control = FormJsonParser.createText(jsonControl, parent, treeItem, this.selectedObject);
 	                	
 	                	if ( !this.editMode ) {
-	                		// if the tooltip is empty but a regexp is defined,then we add a tooltip with a little help message about the regexp
-	                		if (  FormPlugin.isEmpty(control.getToolTipText()) && !FormPlugin.isEmpty((String)control.getData("regexp") )) {
-	                			control.setData("pattern", Pattern.compile((String)control.getData("regexp")));
-	                            control.setToolTipText("Your text should match the following regexp :\n" + (String)control.getData("regexp"));
-	                		}
-	                		
+	                	    if ( !FormPlugin.isEmpty((String)control.getData("regexp")) ) {
+            	                control.setData("pattern", Pattern.compile((String)control.getData("regexp")));
+	                	        // if the tooltip is empty but a regexp is defined,then we add a tooltip with a little help message about the regexp
+	                		    if ( FormPlugin.isEmpty(control.getToolTipText()) )
+	                		        control.setToolTipText("Your text should match the following regexp :\n" + (String)control.getData("regexp"));
+	                	    }	                		
 		                    ((StyledText)control).addModifyListener(textModifyListener);
 	                	}
 	                	break;
@@ -2175,6 +2183,11 @@ public class FormDialog extends Dialog {
     		
     		case "StyledText":
                 content = ((StyledText)control).getText();
+                
+                Pattern pattern = (Pattern)((StyledText)control).getData("pattern");                    // if a regex has been provided, we change the text color to show if it matches
+                if ( pattern != null ) {
+                    ((StyledText)control).setStyleRange(new StyleRange(0, content.length(), pattern.matcher(content).matches() ? goodValueColor : badValueColor, null));
+                }
                 break;
                 
     		case "CCombo":
