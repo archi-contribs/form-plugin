@@ -106,7 +106,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
-import org.eclipse.ui.internal.AnimationEngine;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -126,7 +125,6 @@ import com.archimatetool.model.IFolder;
  * @author Herve Jouin
  *
  */
-@SuppressWarnings("restriction")
 public class FormDialog extends Dialog {
     static final FormLogger logger     	                  = new FormLogger(FormDialog.class);
 
@@ -149,6 +147,7 @@ public class FormDialog extends Dialog {
     private static final Color   goodValueColor           = new Color(display, 0, 100, 0);
 
     public final static Image    binImage         	      = new Image(display, FormDialog.class.getResourceAsStream("/icons/bin.png"));
+    public final static Image    hourglassImage           = new Image(display, FormDialog.class.getResourceAsStream("/img/hourglass.png"));
     public final static Color    blackColor       	      = new Color(display, 0, 0, 0);
     public final static Color    whiteColor       	      = new Color(display, 255, 255, 255);
 
@@ -261,15 +260,15 @@ public class FormDialog extends Dialog {
             lblWait.setLayoutData(fd);
             lblWait.setFont(TITLE_FONT);
             lblWait.setBackground(LIGHT_GREEN_COLOR);
-            lblWait.setText("We're creating the form ...");
+            lblWait.setText("Please wait, we're creating the form ...");
 
-            org.greip.picture.Picture lblGif = new org.greip.picture.Picture(compoWait, SWT.NONE);
+            Label lblHourglass = new Label(compoWait, SWT.NONE);
             fd = new FormData();
             fd.top = new FormAttachment(lblWait, 5);
             fd.left = new FormAttachment(50, -50);
-            lblGif.setLayoutData(fd);
-            lblGif.loadImage(FormDialog.class.getResourceAsStream("/img/please_wait.gif"));
-            lblGif.setBackground(LIGHT_GREEN_COLOR);
+            lblHourglass.setLayoutData(fd);
+            lblHourglass.setBackground(LIGHT_GREEN_COLOR);
+            lblHourglass.setImage(FormDialog.hourglassImage);
 
             this.formDialog.open();
             this.formDialog.layout();

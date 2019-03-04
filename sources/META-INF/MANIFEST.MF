@@ -21,8 +21,7 @@ Bundle-ClassPath: .,
  lib/poi-3.17.jar,
  lib/poi-ooxml-3.17.jar,
  lib/poi-ooxml-schemas-3.17.jar,
- lib/org.eclipse.nebula.widgets.richtext_1.2.0.201804011600.jar,
- lib/org.greip_1.0.3.201901252120.jar
+ lib/org.eclipse.nebula.widgets.richtext_1.2.0.201804011600.jar
 Bundle-Activator: org.archicontribs.form.FormPlugin
 Bundle-Vendor: Herve Jouin
 Export-Package: org.archicontribs.form
