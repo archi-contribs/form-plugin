@@ -1,3 +1,15 @@
+## v1.8.10: 04/03/2019
+* Fix "editable" property
+* Fix "regexp" property
+* Added a popup that indicates when the form is being created
+
+* TODO list
+  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
+  * Add the sum or average of column values
+  * Add a "if" option on all controls that would work like "filter" but for individual controls ...
+    * if the condition is met, then the control is created, else it is not created
+
+----------	
 ## v1.8.9: 30/08/2018
 * fix default font size
 
@@ -23,12 +35,6 @@
 
 ## v1.8.3: 22/11/2017
 * Fix error messages on ${view:xxx} variables
-
-* TODO list
-  * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
-  * Add the sum or average of column values
-  * Add a "if" option on all controls that would work like "filter" but for individual controls ...
-    * if the condition is met, then the control is created, else it is not created
 	
 ## v1.8.2: 21/11/2017
 * Add more default values to configuration's file keywords
