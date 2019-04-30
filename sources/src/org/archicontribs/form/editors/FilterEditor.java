@@ -458,9 +458,15 @@ public class FilterEditor {
     }
 	
     public String getGenre() {
-    	if ( getTests() == null )
-    		return null;
-    	return this.btnAnd.getSelection() ? "AND" : "OR";
+    	String genre = null;
+    	if ( getTests() != null )
+    		genre = this.btnAnd.getSelection() ? "AND" : "OR";
+    	
+    	TreeItem  treeItem = (TreeItem)this.parent.getData("treeItem");
+    	if ( treeItem != null )
+			treeItem.setData("genre", genre);
+    	
+    	return genre;
     }
     
     public void setTests(List<Map<String, String>> tests) {
