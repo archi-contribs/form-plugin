@@ -505,7 +505,7 @@ public class FilterEditor {
             TreeItem  treeItem = (TreeItem)this.parent.getData("treeItem");
             
             if ( treeItem != null ) {
-            	treeItem.setData("genre", getFilter() ? getGenre() : null);
+            	//treeItem.setData("genre", getFilter() ? getGenre() : null);
                 treeItem.setData("tests", getFilter() ? getTests() : null);
             }
     	}
