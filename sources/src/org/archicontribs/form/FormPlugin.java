@@ -194,7 +194,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final PluginVersion pluginVersion = new PluginVersion("1.8.10");
+	public static final PluginVersion pluginVersion = new PluginVersion("1.8.11");
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 

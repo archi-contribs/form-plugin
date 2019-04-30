@@ -1,7 +1,8 @@
-## v1.8.10: 04/03/2019
-* Fix "editable" property
-* Fix "regexp" property
-* Added a popup that indicates when the form is being created
+## v1.8.11: 30/04/2019
+* Fix the Graphical editor:
+  * The filter genre was not loaded correctly from the configuration file
+  * The combo table column was not managing the foreground and background colors
+* Fix the version comparison when a version component is greater than 10
 
 * TODO list
   * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
@@ -9,7 +10,12 @@
   * Add a "if" option on all controls that would work like "filter" but for individual controls ...
     * if the condition is met, then the control is created, else it is not created
 
-----------	
+----------
+## v1.8.10: 04/03/2019
+* Fix "editable" property
+* Fix "regexp" property
+* Added a popup that indicates when the form is being created
+
 ## v1.8.9: 30/08/2018
 * fix default font size
 
