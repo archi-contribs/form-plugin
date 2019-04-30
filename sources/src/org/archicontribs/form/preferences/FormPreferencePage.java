@@ -135,7 +135,7 @@ public class FormPreferencePage extends FieldEditorPreferencePage	implements IWo
 		versionLbl.setLayoutData(fd);
 		
 		Label versionValue = new Label(grpVersion, SWT.NONE);
-		versionValue.setText(FormPlugin.pluginVersion);
+		versionValue.setText(FormPlugin.pluginVersion.getVersion());
 		versionValue.setBackground(COMPO_BACKGROUND_COLOR);
 		versionValue.setFont(FormDialog.BOLD_FONT);
 		fd = new FormData();

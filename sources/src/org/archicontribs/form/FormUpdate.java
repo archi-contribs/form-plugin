@@ -155,7 +155,7 @@ public class FormUpdate {
 			// treemap is sorted in descending order, so first entry should have the "bigger" key value, i.e. the latest version
 			Entry<String, String> entry = versions.entrySet().iterator().next();
 
-			if ( FormPlugin.pluginVersion.compareTo(entry.getKey()) >= 0 ) {
+			if ( FormPlugin.pluginVersion.compareTo(new PluginVersion(entry.getKey())) >= 0 ) {
 				if ( verbose )
 					FormDialog.popup(Level.INFO, "You already have got the latest version : "+FormPlugin.pluginVersion);
 				else

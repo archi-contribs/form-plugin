@@ -180,6 +180,11 @@ import com.archimatetool.model.INameable;
  * v1.8.10:    01/03/2019       Fix "editable" property
  *                              Fix "regexp" property
  *                              Added a popup that indicates when the form is being created
+ *                              
+ * v1.8.11:    30/04/2019		Fix the Graphical editor:
+ * 									The filter genre was not loaded correctly from the configuration file
+ * 									The combo table column was not managing the foreground and background colors
+ * 								Fix the version comparison when a version component is greater than 10
  * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
@@ -189,7 +194,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final String pluginVersion = "1.8.10";
+	public static final PluginVersion pluginVersion = new PluginVersion("1.8.10");
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
 
