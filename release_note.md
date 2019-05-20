@@ -1,8 +1,10 @@
-## v1.8.11: 30/04/2019
-* Fix the Graphical editor:
-  * The filter genre was not loaded correctly from the configuration file
-  * The combo table column was not managing the foreground and background colors
-* Fix the version comparison when a version component is greater than 10
+## v1.9: 20/05/2019
+* Add the "is selected" operation in the filter
+* Fix the filter editor
+  * Allow to generate lines without filter
+  * Updates to filter fields are now better handled
+* Fix the label column editor
+  * Remove the text field that is unused
 
 * TODO list
   * Add an option in the preferences to continue in case of error in the configuration file (at the moment, if any error is found, the whole form is cancelled)
@@ -11,6 +13,12 @@
     * if the condition is met, then the control is created, else it is not created
 
 ----------
+## v1.8.11: 30/04/2019
+* Fix the Graphical editor:
+  * The filter genre was not loaded correctly from the configuration file
+  * The combo table column was not managing the foreground and background colors
+* Fix the version comparison when a version component is greater than 10
+
 ## v1.8.10: 04/03/2019
 * Fix "editable" property
 * Fix "regexp" property
