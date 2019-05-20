@@ -186,6 +186,13 @@ import com.archimatetool.model.INameable;
  * 									The combo table column was not managing the foreground and background colors
  * 								Fix the version comparison when a version component is greater than 10
  * 
+ * v1.9:       20/05/2019       Add the "is selected" operation in the filter
+ *                              Fix the filter editor
+ *                                  Allow to generate lines without filter
+ *                                  Updates to filter fields are now better handled
+ *                              Fix the label column editor
+ *                                  Remove the text field that is unused
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add a special line that calculates the sum or the average of column values
@@ -194,9 +201,11 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final PluginVersion pluginVersion = new PluginVersion("1.8.11");
+	public static final PluginVersion pluginVersion = new PluginVersion("1.9");
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion;
+	
+	public static final int jsonConfigurationFileVersion = 4;
 
 	public static final String storeConfigFilesPrefix = "configFile";
 
