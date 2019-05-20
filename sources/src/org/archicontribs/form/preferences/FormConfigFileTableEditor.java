@@ -510,10 +510,12 @@ public class FormConfigFileTableEditor extends FieldEditor {
                 try ( FileReader reader = new FileReader(configFilename) ){
                     jsonFile = (JSONObject) new JSONParser().parse(reader);
                     Integer version = FormJsonParser.getInt(jsonFile, "version", 0, true);
-                    if ( version != null && version != 3 ) {
-                        FormDialog.popup(Level.ERROR, "Failed : not the right version (should be 3).");
+                    
+                    if ( version == null )
+                        version = 0;
+                    
+                    if ( (version != FormPlugin.jsonConfigurationFileVersion) && (FormDialog.question("The configuration file is in version "+version+" but should be in version "+FormPlugin.jsonConfigurationFileVersion+"\n\nYou may continue and save the form to update its version, but please verify carefully the form fields before to do so.", new String[] {"Continue", "Cancel"}) != 0) )
                         return;
-                    }
                     
                     form = FormJsonParser.getJSONObject(jsonFile, FormPlugin.PLUGIN_ID);
                     

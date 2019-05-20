@@ -11,7 +11,6 @@ import org.eclipse.swt.widgets.Composite;
 public class LabelColumnComposite extends Composite implements CompositeInterface {
 	private StringEditor            nameEditor;          // name
 	private StringEditor            commentEditor;       // comment
-    private StringEditor            textEditor;			 // text
 	private SizeEditor              sizeEditor;          // width
 	private ColorEditor             colorEditor;         // foreground, background
 	private StringEditor            tooltipEditor;       // tooltip
@@ -39,18 +38,13 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
 		this.commentEditor.setPosition(this.nameEditor.getControl());
 		this.commentEditor.setTooltipText("You may enter any comment you wish.\nJust press 'return' to enter several lines of text.");
 		
-		// text
-		this.textEditor = new StringEditor(this, "text", "Text:");
-		this.textEditor.setPosition(this.commentEditor.getControl());
-		this.textEditor.mustSetControlText(true);
-		
 		// Background
 		this.colorEditor = new ColorEditor(this, "Color:");
-		this.colorEditor.setPosition(this.textEditor.getControl());
+		this.colorEditor.setPosition(this.commentEditor.getControl());
 						
 		// size
 		this.sizeEditor = new SizeEditor(this);
-		this.sizeEditor.setPosition(this.textEditor.getControl());
+		this.sizeEditor.setPosition(this.colorEditor.getControl());
 		
 		// tooltip
 		this.tooltipEditor = new StringEditor(this, "tooltip", "Tooltip:");
@@ -102,7 +96,6 @@ public class LabelColumnComposite extends Composite implements CompositeInterfac
     		case "height":    	  this.sizeEditor.setHeight((Integer)value); break;
     		case "foreground":	  this.colorEditor.setForeground((String)value); break;
     		case "background":	  this.colorEditor.setBackground((String)value); break;
-    		case "text":    	  this.textEditor.setText((String)value); break;
     		case "tooltip":    	  this.tooltipEditor.setText((String)value); break;
     	    case "alignment":     this.alignmentEditor.setText((String)value); break;
     		case "excelcolumn":	  this.excelColumnEditor.setText((String)value); break;

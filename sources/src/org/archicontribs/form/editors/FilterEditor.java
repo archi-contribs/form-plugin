@@ -10,6 +10,8 @@ import org.archicontribs.form.FormPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
@@ -62,7 +64,7 @@ public class FilterEditor {
         	fd.top = new FormAttachment(this.lblGenerate, 0, SWT.TOP);
 	        fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
 	        this.btnGenerate.setLayoutData(fd);
-	        this.btnGenerate.addSelectionListener(this.FilterSelectionListener);
+	        this.btnGenerate.addSelectionListener(this.GenerateSelectionListener);
 		}
         
 		this.lblFilter = new Label(parent, SWT.NONE);
@@ -97,6 +99,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(0, FormDialog.editorLeftposition);
         fd.right = new FormAttachment(this.lblAttribute, 0, SWT.RIGHT);
         attr.setLayoutData(fd);
+        attr.addModifyListener(this.ModifySelectionListener);
         
         this.txtAttribute = new ArrayList<Text>();
         this.txtAttribute.add(attr);
@@ -115,7 +118,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(this.lblOperation, 0, SWT.LEFT);
         fd.right = new FormAttachment(this.lblOperation, 0, SWT.RIGHT);
         cmb.setLayoutData(fd);
-        cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches"});
+        cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches", "is selected"});
         cmb.addSelectionListener(this.operationSelectionListener);
         
         this.comboOperation = new ArrayList<CCombo>();
@@ -135,6 +138,7 @@ public class FilterEditor {
         fd.left = new FormAttachment(this.lblValue, 0, SWT.LEFT);
         fd.right = new FormAttachment(this.lblValue, 0, SWT.RIGHT);
         val.setLayoutData(fd);
+        val.addModifyListener(this.ModifySelectionListener);
         
         this.txtValue = new ArrayList<Text>();
         this.txtValue.add(val);
@@ -159,6 +163,7 @@ public class FilterEditor {
         del.setLayoutData(fd);
         del.setImage(FormDialog.BIN_ICON);
         del.setVisible(false);
+        del.addSelectionListener(this.delSelectionListener);
         
         this.btnDelete = new ArrayList<Button>();
         this.btnDelete.add(del);
@@ -188,13 +193,12 @@ public class FilterEditor {
         this.btnOr.addSelectionListener(this.genreSelectionListener);
 	}
 
-	private SelectionListener FilterSelectionListener = new SelectionListener() {
+	SelectionListener FilterSelectionListener = new SelectionListener() {
 	    @Override
 	    public void widgetSelected(SelectionEvent e) {
 	        TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
 	    	
 	    	if ( treeItem != null ) {
-	    		treeItem.setData("generate", getFilter() ? getGenerate() : null);
 	    		treeItem.setData("genre", getFilter() ? getGenre() : null);
 	    	    treeItem.setData("tests", getFilter() ? getTests() : null);
 	    	}
@@ -208,6 +212,36 @@ public class FilterEditor {
 	    }
 	};
 	
+	SelectionListener GenerateSelectionListener = new SelectionListener() {
+	    @Override
+	    public void widgetSelected(SelectionEvent e) {
+	        TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
+
+	        if ( treeItem != null )
+	            treeItem.setData("generate", getGenerate());
+
+	        redraw();
+	    }
+
+	    @Override
+	    public void widgetDefaultSelected(SelectionEvent e) {
+	        widgetSelected(e);
+	    }
+	};
+	
+    
+	
+	ModifyListener ModifySelectionListener = new ModifyListener() {
+        @Override
+        public void modifyText(ModifyEvent e) {
+            TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
+
+            if ( treeItem != null ) {
+                treeItem.setData("genre", getFilter() ? getGenre() : null);
+                treeItem.setData("tests", getFilter() ? getTests() : null);
+            }
+        }
+	};
 	
 	SelectionListener addSelectionListener = new SelectionListener() {
 	    @Override
@@ -230,14 +264,16 @@ public class FilterEditor {
 	    	
 	    	// we insert new widgets after the corresponding index
 	    	Text attr = new Text(FilterEditor.this.parent, SWT.BORDER);
+	    	attr.addModifyListener(FilterEditor.this.ModifySelectionListener);
 	        FilterEditor.this.txtAttribute.add(index+1, attr);
 	        
 	        CCombo cmb = new CCombo(FilterEditor.this.parent, SWT.BORDER);
-	        cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches"});
+	        cmb.setItems(new String[] {"exists", "not exists", "equals", "not equals", "iequals", "not iequals", "in", "not in", "iin", "not iin", "matches", "not matches", "is selected"});
 	        cmb.addSelectionListener(FilterEditor.this.operationSelectionListener);
 	        FilterEditor.this.comboOperation.add(index+1, cmb);
 
 	        Text val = new Text(FilterEditor.this.parent, SWT.BORDER);
+	        val.addModifyListener(FilterEditor.this.ModifySelectionListener);
 	        FilterEditor.this.txtValue.add(index+1, val);
 	        
 	        Button add = new Button(FilterEditor.this.parent, SWT.NONE);
@@ -283,7 +319,7 @@ public class FilterEditor {
 	    	if ( index == -1 )
 	    		index = FilterEditor.this.comboOperation.size()-1;
 	    	
-	    	FilterEditor.this.txtValue.get(index).setVisible(!FormPlugin.areEqualIgnoreCase(FilterEditor.this.comboOperation.get(index).getText(), "exists"));
+	    	FilterEditor.this.txtValue.get(index).setVisible(!FormPlugin.areEqualIgnoreCase(FilterEditor.this.comboOperation.get(index).getText(), "exists") && !FormPlugin.areEqualIgnoreCase(FilterEditor.this.comboOperation.get(index).getText(), "is selected"));
 	    	
             if ( treeItem != null ) {
             	treeItem.setData("genre", getFilter() ? getGenre() : null);
@@ -302,7 +338,7 @@ public class FilterEditor {
 	    public void widgetSelected(SelectionEvent e) {
             TreeItem  treeItem = (TreeItem)FilterEditor.this.parent.getData("treeItem");
             
-	    	// we get the index of the add button that has been selected
+	    	// we get the index of the del button that has been selected
 	    	int index = -1;
 	    	for ( int i = 0; i < FilterEditor.this.btnDelete.size(); ++i ) {
 	    		if ( FilterEditor.this.btnDelete.get(i) == e.getSource() ) {
@@ -392,7 +428,7 @@ public class FilterEditor {
         fd.top = new FormAttachment(this.txtAttribute.get(this.txtAttribute.size()-1), FormDialog.editorVerticalMargin);
         fd.left = new FormAttachment(0, FormDialog.editorBorderMargin);
         this.lblGenre.setLayoutData(fd);
-        
+            
         boolean   isGenerated = getGenerate();
         boolean   showFilter = getFilter();
         
@@ -474,9 +510,9 @@ public class FilterEditor {
     	    this.btnFilter.setSelection(false);
             
             // we remove all the widgets
-            for ( int i = this.txtAttribute.size(); i > 0; --i ) {
+            for ( int i = this.txtAttribute.size(); i > 1; --i )
                 this.btnDelete.get(i-1).notifyListeners(SWT.Selection, new Event());
-            }
+
             this.txtAttribute.get(0).setText("");
             this.comboOperation.get(0).setText("");
             this.txtValue.get(0).setText("");
@@ -528,7 +564,7 @@ public class FilterEditor {
     		
 	    		map.put("attribute", this.txtAttribute.get(i).getText());
 	    		map.put("operation", this.comboOperation.get(i).getText());
-	    		if ( !FormPlugin.areEqualIgnoreCase(this.comboOperation.get(i).getText(), "exists") )
+	    		if ( !FormPlugin.areEqualIgnoreCase(this.comboOperation.get(i).getText(), "exists") && !FormPlugin.areEqualIgnoreCase(this.comboOperation.get(i).getText(), "is selected") )
 	    			map.put("value", this.txtValue.get(i).getText());
 	    		
 	    		list.add(map);

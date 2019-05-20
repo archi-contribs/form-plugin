@@ -101,15 +101,15 @@ public class FormMenu extends ExtensionContributionFactory {
     			Integer version;
     			try {
     			    version = FormJsonParser.getInt(json, "version", 0, true);
-    	            if ( version == null || version != 3 ) {
-	                    logger.error(configFilename + " : not the right version (should be 3).");
+    	            if ( version == null || version != FormPlugin.jsonConfigurationFileVersion ) {
+	                    logger.error(configFilename + " : not the right version (should be "+FormPlugin.jsonConfigurationFileVersion+").");
 	                    continue loopOnConfigFiles;
 	                }
     			} catch (@SuppressWarnings("unused") ClassCastException ign) {
-                    logger.error(configFilename + " : the version specified is not an integer (should be 3).");
+                    logger.error(configFilename + " : the version specified is not an integer (should be "+FormPlugin.jsonConfigurationFileVersion+").");
                     continue loopOnConfigFiles;
                 } catch (@SuppressWarnings("unused") RuntimeException ign) {
-    			    logger.error(configFilename + " : the version is not specified (should be 3).");
+    			    logger.error(configFilename + " : the version is not specified (should be "+FormPlugin.jsonConfigurationFileVersion+").");
                     continue loopOnConfigFiles;
     			}
     

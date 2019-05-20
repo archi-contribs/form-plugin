@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -34,6 +35,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.widgets.Widget;
+import org.eclipse.ui.PlatformUI;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import com.archimatetool.model.FolderType;
@@ -92,7 +94,7 @@ public class FormJsonParser {
 
         if ( treeItem != null )
             treeItem.setData("widget", form);
-
+        
         String  name              = getName(jsonObject, form, treeItem);
         FormPosition.setFormName(name);
 
@@ -1200,6 +1202,13 @@ public class FormJsonParser {
                         }
                     }
                     break;
+                    
+                case "is selected":
+                    if (logger.isTraceEnabled())
+                        logger.trace("   filter \""+attribute+"\" \""+operationRequested+"\"");
+
+                    result = ((IStructuredSelection) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection()).toList().contains(eObject);
+                    break;
 
                 case "matches":
                     value = (String)getJSON(filter, "value");
@@ -2212,7 +2221,7 @@ public class FormJsonParser {
     public static JSONObject generateJson(Tree tree) throws RuntimeException {
         JSONObject json = new JSONObject();
 
-        json.put("version", 3);
+        json.put("version", FormPlugin.jsonConfigurationFileVersion);
         json.put("org.archicontribs.form", generateJson(tree.getItem(0)));
 
         return json;

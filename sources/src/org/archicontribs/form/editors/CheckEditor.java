@@ -87,7 +87,7 @@ public class CheckEditor {
     public void setChecked(Boolean checked) {
         this.check.removeSelectionListener(this.checkSelectionListener);
         this.check.setSelection(checked!=null && (this.inverse ? !checked : checked));
-        this.check.removeSelectionListener(this.checkSelectionListener);
+        this.check.addSelectionListener(this.checkSelectionListener);
     }
     
     public boolean getChecked() {
