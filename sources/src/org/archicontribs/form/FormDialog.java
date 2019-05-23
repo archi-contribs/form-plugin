@@ -114,8 +114,8 @@ import com.archimatetool.model.IArchimateElement;
 import com.archimatetool.model.IArchimateModel;
 import com.archimatetool.model.IArchimateRelationship;
 import com.archimatetool.model.IDiagramModel;
-import com.archimatetool.model.IDiagramModelArchimateConnection;
-import com.archimatetool.model.IDiagramModelArchimateObject;
+import com.archimatetool.model.IDiagramModelConnection;
+import com.archimatetool.model.IDiagramModelObject;
 import com.archimatetool.model.IFolder;
 
 /**
@@ -1103,10 +1103,10 @@ public class FormDialog extends Dialog {
             model = ((IArchimateModel) this.selectedObject).getArchimateModel();
         } else if (this.selectedObject instanceof IDiagramModel) {
             model = ((IDiagramModel) this.selectedObject).getArchimateModel();
-        } else if (this.selectedObject instanceof IDiagramModelArchimateObject) {
-            model = ((IDiagramModelArchimateObject) this.selectedObject).getDiagramModel().getArchimateModel();
-        } else if (this.selectedObject instanceof IDiagramModelArchimateConnection) {
-            model = ((IDiagramModelArchimateConnection) this.selectedObject).getDiagramModel().getArchimateModel();
+        } else if (this.selectedObject instanceof IDiagramModelObject) {
+            model = ((IDiagramModelObject) this.selectedObject).getDiagramModel().getArchimateModel();
+        } else if (this.selectedObject instanceof IDiagramModelConnection) {
+            model = ((IDiagramModelConnection) this.selectedObject).getDiagramModel().getArchimateModel();
         } else if (this.selectedObject instanceof IArchimateElement) {
             model = ((IArchimateElement) this.selectedObject).getArchimateModel();
         } else if (this.selectedObject instanceof IArchimateRelationship) {
@@ -1114,7 +1114,7 @@ public class FormDialog extends Dialog {
         } else if (this.selectedObject instanceof IFolder) {
             model = ((IFolder) this.selectedObject).getArchimateModel();
         } else {
-            popup(Level.ERROR, "Failed to get the model.");
+            popup(Level.ERROR, "Failed to get the model for "+FormPlugin.getDebugName(this.selectedObject));
             return;
         }
 
