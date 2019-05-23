@@ -193,6 +193,9 @@ import com.archimatetool.model.INameable;
  *                              Fix the label column editor
  *                                  Remove the text field that is unused
  * 
+ * v1.9.1      23/05/2019       Fix "Failed to get the model" error message
+ *                              Fix the version number printed in the update messages
+ * 
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add a special line that calculates the sum or the average of column values
@@ -201,9 +204,9 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final PluginVersion pluginVersion = new PluginVersion("1.9");
+	public static final PluginVersion pluginVersion = new PluginVersion("1.9.1");
 	public static final String pluginName = "FormPlugin";
-	public static final String pluginTitle = "Form plugin v" + pluginVersion;
+	public static final String pluginTitle = "Form plugin v" + pluginVersion.getVersion();
 	
 	public static final int jsonConfigurationFileVersion = 4;
 
@@ -272,9 +275,9 @@ public class FormPlugin extends AbstractUIPlugin {
 				try ( BufferedReader reader = new BufferedReader(new FileReader (pluginsFolder+File.separator+"formPlugin.new")) ) {
 					String installedPluginsFilename = reader.readLine();
 					if ( areEqual(pluginsFilename, installedPluginsFilename) ) 
-						Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.INFO, "The form plugin has been correctly updated to version "+pluginVersion); }});
+						Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.INFO, "The form plugin has been correctly updated to version "+pluginVersion.getVersion()); }});
 					else
-						Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.ERROR, "The form plugin has been correctly downloaded to \""+installedPluginsFilename+"\" but you are still using the form plugin version "+pluginVersion+".\n\nPlease check the plugin files located in the \""+pluginsFolder+"\" folder."); }});
+						Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.ERROR, "The form plugin has been correctly downloaded to \""+installedPluginsFilename+"\" but you are still using the form plugin version "+pluginVersion.getVersion()+".\n\nPlease check the plugin files located in the \""+pluginsFolder+"\" folder."); }});
 				} catch (@SuppressWarnings("unused") IOException ign) {
 					Display.getDefault().syncExec(new Runnable() { @Override public void run() { FormDialog.popup(Level.WARN, "A new version of the form plugin has been downloaded but we failed to check if you are using the latest version.\n\nPlease check the plugin files located in the \""+pluginsFolder+"\" folder."); }});
 				}

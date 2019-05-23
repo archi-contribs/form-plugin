@@ -157,23 +157,23 @@ public class FormUpdate {
 
 			if ( FormPlugin.pluginVersion.compareTo(new PluginVersion(entry.getKey())) >= 0 ) {
 				if ( verbose )
-					FormDialog.popup(Level.INFO, "You already have got the latest version : "+FormPlugin.pluginVersion);
+					FormDialog.popup(Level.INFO, "You already have got the latest version : "+FormPlugin.pluginVersion.getVersion());
 				else
-					logger.info("You already have got the latest version : "+FormPlugin.pluginVersion);
+					logger.info("You already have got the latest version : "+FormPlugin.pluginVersion.getVersion());
 				return;
 			}
 
 			if ( !FormPlugin.pluginsFilename.endsWith(".jar") ) {
 				if ( verbose )
-					FormDialog.popup(Level.ERROR,"A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
+					FormDialog.popup(Level.ERROR,"A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion.getVersion()+"\n     new version: "+entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
 				else
-					logger.error("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
+					logger.error("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion.getVersion()+"\n     new version: "+entry.getKey()+"\n\nUnfortunately, it cannot be downloaded while Archi is running inside Eclipse.");
 				return;
 			}
 
 			boolean ask = true;
 			while ( ask ) {
-				this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.answer = FormDialog.question("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion+"\n     new version: "+entry.getKey()+"\n\nDo you wish to download and install it ?", new String[] {"Yes", "No", "Check release note"}); }});
+				this.display.syncExec(new Runnable() { @Override public void run() { FormUpdate.this.answer = FormDialog.question("A new version of the form plugin is available:\n     actual version: "+FormPlugin.pluginVersion.getVersion()+"\n     new version: "+entry.getKey()+"\n\nDo you wish to download and install it ?", new String[] {"Yes", "No", "Check release note"}); }});
 				switch ( this.answer ) {
 					case 0 : ask = false ; break;  // Yes
 					case 1 : return ;              // No
