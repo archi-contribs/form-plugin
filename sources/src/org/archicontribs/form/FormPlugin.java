@@ -196,6 +196,8 @@ import com.archimatetool.model.INameable;
  * v1.9.1      23/05/2019       Fix "Failed to get the model" error message
  *                              Fix the version number printed in the update messages
  * 
+ * v1.9.2		07/04/2023		Fix save process that failed because of a class that has been deprecated in Java 17
+ * 								Add ${specialization} variable
  * TODO LIST :
  * 								Add an option to continue in case of error (by default, errors raise exceptions that may completely stop the form)
  * 								Add a special line that calculates the sum or the average of column values
@@ -204,7 +206,7 @@ import com.archimatetool.model.INameable;
 public class FormPlugin extends AbstractUIPlugin {
 	public static final String PLUGIN_ID = "org.archicontribs.form";
 
-	public static final PluginVersion pluginVersion = new PluginVersion("1.9.1");
+	public static final PluginVersion pluginVersion = new PluginVersion("1.9.2");
 	public static final String pluginName = "FormPlugin";
 	public static final String pluginTitle = "Form plugin v" + pluginVersion.getVersion();
 	
