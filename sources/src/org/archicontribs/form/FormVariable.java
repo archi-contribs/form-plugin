@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.gef.commands.CompoundCommand;
 import com.archimatetool.editor.diagram.util.DiagramUtils;
@@ -21,6 +22,8 @@ import com.archimatetool.model.IDiagramModelComponent;
 import com.archimatetool.model.IDocumentable;
 import com.archimatetool.model.IIdentifier;
 import com.archimatetool.model.INameable;
+import com.archimatetool.model.IProfile;
+import com.archimatetool.model.IProfiles;
 import com.archimatetool.model.IProperties;
 import com.archimatetool.model.IProperty;
 import com.florianingerl.util.regex.Matcher;
@@ -284,6 +287,22 @@ public class FormVariable {
 
             case "username":
             	return System.getProperty("user.name");
+            	
+            case "specialization":
+            	EObject eobj = selectedEObject;
+                if (selectedEObject instanceof IDiagramModelArchimateObject)
+                    eobj = ((IDiagramModelArchimateObject)selectedEObject).getArchimateElement();
+                else if (selectedEObject instanceof IDiagramModelArchimateConnection)
+                   eobj = ((IDiagramModelArchimateConnection)selectedEObject).getArchimateRelationship();
+                
+            	if (eobj instanceof IProfiles ) {
+            		EList<IProfile> profiles = ((IProfiles)eobj).getProfiles();
+            		if ( (profiles != null) ) {
+            			for (IProfile profile: profiles)
+            				if (profile.isSpecialization()) return profile.getName();
+            		}
+            	}
+            	throw new RuntimeException(FormPosition.getPosition(null) + " : cannot get variable \""+variable+"\" as the object does not have a specialization ("+selectedEObject.getClass().getSimpleName()+").");
             	
             case "screenshot":
             	if ( selectedEObject instanceof IDiagramModel ) {
