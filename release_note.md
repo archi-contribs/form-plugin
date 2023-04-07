@@ -1,3 +1,7 @@
+## v1.9.2: 07/04/2023
+* Fix save editor that failed after upgrade to Java 17
+* Add ${specialization} variable
+
 ## v1.9.1: 23/05/2019
 * Fix "Failed to get the model" error message
 * Fix the version number printed in the update messages

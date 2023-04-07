@@ -5,17 +5,13 @@ elements, relationships, and other properties in your Archi model.
 
 ![description technology service](screenshots/Example_Archi_Model.archimate.gif)
 ## Archi Version Compatibility
-This plugin is compatible with version 4 of Archi.
+This plugin is compatible with versions 4 and 5 of Archi.
 
 ## Installation Instructions
-* **First Installation:**
-  * Download the latest **org.archicontribs.form-xxxx.jar** file and copy it to your Archi **plugins** 
-    folder. The plugins folder can be found by opening the package contents of your Archi application 
-    and then navigating to Contents>Eclipse>plugins. 
-* **Update the Plugin:**
-  * Open the "Preferences" option under "Archi" in the menu bar. 
-    Select "form plugin" in the Preferences menu and click the "Check for update"
-    button to check for and install new updates.
+Download the org.archicontribs.form_x.y.y.archiplugin file to your computer
+If you manually installed a previous version (ie manually install the JAR file), please remove it from Archi's plugins folder first
+Then launch Archi and go to the Help menu and launch "Manage Plugin ins ..."
+Select the org.archicontribs.form_x.y.y.archiplugin you just downloaded. Archi will automatically restart
   
 ## Key Functionalities
 * This plugin uses configuration files to understand how to present the forms (e.g. if you want a different form, you need to create a new configuration file)
