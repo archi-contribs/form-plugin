@@ -1658,13 +1658,15 @@ public class FormDialog extends Dialog {
 
         String jsonString = json.toJSONString();
 
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
-        scriptEngine.put("jsonString", jsonString);
+        // we try to indent the Json string
+        // do not work from Jdk 15 !!!
         try {
+            ScriptEngineManager manager = new ScriptEngineManager();
+            ScriptEngine scriptEngine = manager.getEngineByName("JavaScript");
+            scriptEngine.put("jsonString", jsonString);
             scriptEngine.eval("result = JSON.stringify(JSON.parse(jsonString), null, 3)");
             jsonString = (String) scriptEngine.get("result");
-        } catch (@SuppressWarnings("unused") ScriptException ign) {
+        } catch (@SuppressWarnings("unused") Exception ign) {
             // if we cannot indent the json string, that's not a big deal
         }
 
